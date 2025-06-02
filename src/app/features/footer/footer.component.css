@@ -1,0 +1,21 @@
+.beautiful-footer {
+  background: linear-gradient(to right, #0a2e65, #020e21); /* Modern gradient */
+  font-family: 'Poppins', sans-serif;
+}
+
+.footer-brand h3 {
+  font-weight: 600;
+}
+
+.footer-link {
+  color: white;
+  text-decoration: none;
+  font-size: 1rem;
+  display: block;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: #f8f9fa;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+  }
+}
