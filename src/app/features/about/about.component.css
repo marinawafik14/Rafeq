@@ -1,0 +1,156 @@
+
+body {
+  font-family: 'Poppins', sans-serif;
+}
+
+.header {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.mission-section {
+  position: relative;
+  overflow: hidden; 
+}
+
+.mission-background {
+  width: 100%;
+  height: 550px;
+  object-fit: cover;
+  filter: brightness(80%); 
+}
+
+.overlay-content {
+  position: absolute;
+  top: 50%; 
+  left: 50%;
+  transform: translate(-50%, -50%); 
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); 
+}
+
+
+
+.team-section .card {
+  transition: transform 0.3s ease-in-out;
+}
+
+.team-section .card:hover {
+  transform: translateY(-5px);
+}
+
+.team-section .col-md-2 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.team-section img {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+}
+
+.team-section h5 {
+  font-weight: bold;
+}
+
+.team-section small {
+  font-size: 0.8rem;
+}
+
+.benefits-section .card {
+  transition: transform 0.3s ease-in-out;
+}
+
+.benefits-section .card:hover {
+  transform: translateY(-5px);
+}
+.benefits-section .card i.fas {
+  color: #0a2e65 !important; 
+}
+.testimonials-section {
+  .testimonial-card {
+    transition: transform 0.3s ease-in-out;
+    &:hover {
+      transform: translateY(-5px);
+    }
+  }
+
+  img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+
+  .rating i {
+    font-size: 1rem;
+  }
+
+  .testimonial-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 400px;
+  }
+}
+
+.rating i {
+  font-size: 1rem;
+}
+
+.cta-section .btn-primary {
+  background-color: #0d6efd;
+  border-color: #0d6efd;
+}
+
+.cta-section .btn-primary:hover {
+  background-color: #0b5ed7;
+  border-color: #0b5ed7;
+}
+.btn-become{
+  width: 15%;
+  height: 40px;
+  background-color: #0a2e65;
+  color: #ffffff;
+  border: 2px solid #0a2e65;
+  border-radius: 10px;
+  font-size: 16px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+
+  &:hover {
+   background-color: #ffffff;
+        color: #0a2e65;
+        border-color: #0a2e65;
+        transform: scale(1.05);
+}
+
+}
+.btn-join{
+  width: 15%;
+  height: 40px;
+  background-color: #ffffff;
+  color: #0a2e65;
+  border: 2px solid #0a2e65;
+  border-radius: 10px;
+  font-size: 16px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+
+  &:hover {
+  background-color: #0a2e65;
+    color: #ffffff;
+        border-color: #0a2e65;
+        transform: scale(1.05);
+}
+}
+.fas.fa-user-tie {
+  color: #0a2e65;
+}
+
+.fas.fa-chalkboard-teacher {
+  color: #0a2e65;
+}
+
+.fas.fa-file-alt {
+  color: #0a2e65;
+}
