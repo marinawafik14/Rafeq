@@ -2,7 +2,7 @@
   <nav class="navbar navbar-expand-lg navbar-light bg-white">
     <div class="container">
       <!-- Brand -->
-      <a class="navbar-brand d-flex align-items-center" href="/home">
+      <a class="navbar-brand d-flex align-items-center" routerLink="/home">
         <i class="fas fa-users me-2 fa-lg"></i>
         <span class="fw-bold">Rafeeq</span>
       </a>
@@ -17,16 +17,24 @@
       <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
         <ul class="navbar-nav mb-2 mb-lg-0">
           <li class="nav-item mx-2">
-            <a class="nav-link rounded-pill px-3" href="#">Home</a>
+            <a class="nav-link rounded-pill px-3" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+              Home
+            </a>
           </li>
           <li class="nav-item mx-2">
-            <a class="nav-link rounded-pill px-3" href="#">Find Mentors</a>
+            <a class="nav-link rounded-pill px-3" routerLink="/find-mentors" routerLinkActive="active">
+              Find Mentors
+            </a>
           </li>
           <li class="nav-item mx-2">
-            <a class="nav-link rounded-pill px-3 active" href="/about">About Us</a>
+            <a class="nav-link rounded-pill px-3" routerLink="/about" routerLinkActive="active">
+              About Us
+            </a>
           </li>
           <li class="nav-item mx-2">
-            <a class="nav-link rounded-pill px-3" href="#">Contact</a>
+            <a class="nav-link rounded-pill px-3" routerLink="/contact" routerLinkActive="active">
+              Contact
+            </a>
           </li>
         </ul>
         <div class="d-flex gap-2">
