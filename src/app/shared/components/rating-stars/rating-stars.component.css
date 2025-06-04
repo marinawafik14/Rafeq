@@ -1,0 +1,14 @@
+.rating-stars {
+  .fa-star {
+    font-size: 1rem;
+    color: #ccc;
+
+    &.text-warning {
+      color: gold !important;
+    }
+
+    &.text-muted {
+      color: #999;
+    }
+  }
+}
