@@ -1,43 +1,61 @@
 {
-  "hash": "521640f4",
-  "configHash": "66d1b6f1",
-  "lockfileHash": "139719a3",
-  "browserHash": "aa6948ac",
+  "hash": "cb14438d",
+  "configHash": "6dea2c6c",
+  "lockfileHash": "9c4ee82e",
+  "browserHash": "857e1ff6",
   "optimized": {
     "@angular/common": {
       "src": "../../../../../../node_modules/@angular/common/fesm2022/common.mjs",
       "file": "@angular_common.js",
-      "fileHash": "ef0b3e87",
+      "fileHash": "0787e946",
       "needsInterop": false
     },
     "@angular/core": {
       "src": "../../../../../../node_modules/@angular/core/fesm2022/core.mjs",
       "file": "@angular_core.js",
-      "fileHash": "69bf0b86",
+      "fileHash": "34df40f6",
       "needsInterop": false
     },
     "@angular/platform-browser": {
       "src": "../../../../../../node_modules/@angular/platform-browser/fesm2022/platform-browser.mjs",
       "file": "@angular_platform-browser.js",
-      "fileHash": "63eef459",
+      "fileHash": "b2b060b4",
       "needsInterop": false
     },
     "@angular/router": {
       "src": "../../../../../../node_modules/@angular/router/fesm2022/router.mjs",
       "file": "@angular_router.js",
-      "fileHash": "0fb98afe",
+      "fileHash": "b0ec5a4e",
+      "needsInterop": false
+    },
+    "swiper": {
+      "src": "../../../../../../node_modules/swiper/swiper.mjs",
+      "file": "swiper.js",
+      "fileHash": "e5e50809",
+      "needsInterop": false
+    },
+    "swiper/bundle": {
+      "src": "../../../../../../node_modules/swiper/swiper-bundle.mjs",
+      "file": "swiper_bundle.js",
+      "fileHash": "4283ed07",
       "needsInterop": false
     }
   },
   "chunks": {
-    "chunk-I6EXUSBV": {
-      "file": "chunk-I6EXUSBV.js"
+    "chunk-XD73XL3H": {
+      "file": "chunk-XD73XL3H.js"
     },
-    "chunk-OIEK2XGX": {
-      "file": "chunk-OIEK2XGX.js"
+    "chunk-DITI3G34": {
+      "file": "chunk-DITI3G34.js"
     },
-    "chunk-Q2S4H7Q3": {
-      "file": "chunk-Q2S4H7Q3.js"
+    "chunk-NNK3CI2O": {
+      "file": "chunk-NNK3CI2O.js"
+    },
+    "chunk-3MRQBI4P": {
+      "file": "chunk-3MRQBI4P.js"
+    },
+    "chunk-WDMUDEB6": {
+      "file": "chunk-WDMUDEB6.js"
     }
   }
 }
