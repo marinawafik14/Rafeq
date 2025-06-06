@@ -1,0 +1,73 @@
+<mentee-layout>
+  <div class="container py-4">
+    <div class="row">
+      <aside class="col-md-3 mb-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">Filter by Skills</h5>
+            <div *ngFor="let skill of skills" class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" [id]="'skill-' + skill.SkillId" (change)="onSkillChange(skill.SkillId, $event)">
+              <label class="form-check-label" [for]="'skill-' + skill.SkillId">{{ skill.Name }}</label>
+            </div>
+            <h5 class="card-title mt-4">Price Range</h5>
+            <div class="input-group mb-2">
+              <span class="input-group-text">Min</span>
+              <input type="number" class="form-control" placeholder="Min" (change)="onMinPriceChange($event)">
+            </div>
+            <div class="input-group mb-2">
+              <span class="input-group-text">Max</span>
+              <input type="number" class="form-control" placeholder="Max" (change)="onMaxPriceChange($event)">
+            </div>
+            <h5 class="card-title mt-4">Minimum Rating</h5>
+            <select class="form-select mb-2" (change)="onRatingChange($event)">
+              <option value="">Any</option>
+              <option *ngFor="let r of [5,4,3,2,1]" [value]="r">{{r}}+</option>
+            </select>
+            <h5 class="card-title mt-4">Sort By</h5>
+            <select class="form-select" (change)="onSortChange($event)">
+              <option *ngFor="let opt of sortOptions" [value]="opt.value">{{opt.label}}</option>
+            </select>
+          </div>
+        </div>
+      </aside>
+      <main class="col-md-9">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <button class="btn btn-outline-primary me-2" (click)="toggleView('grid')" [class.active]="viewMode==='grid'">
+              <i class="bi bi-grid-3x3-gap"></i> Grid
+            </button>
+            <button class="btn btn-outline-primary" (click)="toggleView('list')" [class.active]="viewMode==='list'">
+              <i class="bi bi-list"></i> List
+            </button>
+          </div>
+          <div *ngIf="isLoading" class="text-primary fw-bold">Loading...</div>
+        </div>
+        <div *ngIf="emptyState && !isLoading" class="alert alert-warning text-center">No mentors found. Try adjusting your filters.</div>
+        <div *ngIf="!emptyState && !isLoading">
+          <div class="row g-3">
+            <div *ngFor="let mentor of mentors" class="col-md-6 col-lg-4">
+              <div class="card h-100 shadow-sm mentor-card text-center p-3" style="cursor:pointer" (click)="viewMentorProfile(mentor.userId)">
+                <img [src]="mentor.profilePicture || 'assets/default-profile.png'" alt="Profile" class="card-img-top mx-auto mb-2" style="width:80px;height:80px;object-fit:cover;border-radius:50%;border:2px solid #eee;">
+                <div class="card-body p-2">
+                  <div class="fw-bold">{{mentor.fullName}}</div>
+                  <div class="text-muted mb-1">${{mentor.hourlyRate}}/hr</div>
+                  <div *ngIf="mentor.rating">
+                    <span class="badge bg-warning text-dark me-1 mb-1"><i class="bi bi-star-fill"></i> {{mentor.rating}}/5</span>
+                  </div>
+                  <div *ngIf="mentor.skills.length; else noSkills">
+                    <span class="badge bg-primary me-1 mb-1" *ngFor="let skill of mentor.skills">{{skill.Name}}</span>
+                  </div>
+                  <ng-template #noSkills>
+                    <span class="text-muted small">No skills listed</span>
+                  </ng-template>
+                  <div *ngIf="mentor.bio" class="mt-2 small text-muted">{{mentor.bio}}</div>
+                  <div *ngIf="mentor.email" class="mt-1 small"><i class="bi bi-envelope"></i> {{mentor.email}}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</mentee-layout>

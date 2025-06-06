@@ -1,0 +1,70 @@
+<mentee-layout>
+  <div class="container py-4 cv-management">
+    <h3 class="mb-4 text-center">CV Management</h3>
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="dropzone card p-4 text-center mb-2" [class.drag-over]="dragOver"
+          (drop)="onFileDrop($event)" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)">
+          <i class="bi bi-cloud-arrow-up display-4 text-primary mb-2"></i>
+          <div class="mb-2">Drag & drop your CV here, or <label class="text-primary fw-bold"
+              style="cursor:pointer;">browse
+            <input type="file" accept=".pdf,.doc,.docx" (change)="onFileSelect($event)" hidden></label></div>
+          <div class="text-muted small">PDF or Word, max 2MB</div>
+          <div *ngIf="fileError" class="alert alert-danger mt-2 py-2">{{fileError}}</div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+        <div *ngIf="cvs.length; else emptyCVs">
+          <div class="table-responsive">
+            <table class="table align-middle table-hover">
+              <thead>
+                <tr>
+                  <th>File</th>
+                  <th>Uploaded</th>
+                  <th>Size</th>
+                  <th>Status</th>
+                  <th>Comments</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let cv of cvs">
+                  <td><i class="bi bi-file-earmark-text me-2"></i>{{cv.name}}</td>
+                  <td>{{cv.uploadedAt}}</td>
+                  <td>{{(cv.size/1024) | number:'1.0-0'}} KB</td>
+                  <td>
+                    <span class="badge bg-success" *ngIf="cv.active">Active</span>
+                    <button *ngIf="!cv.active" class="btn btn-outline-secondary btn-sm"
+                      [disabled]="cv.active">Set Active</button>
+                  </td>
+                  <td>
+                    <button class="btn btn-link p-0" [attr.data-bs-toggle]="cv.comments.length ? 'collapse' : null"
+                      [attr.data-bs-target]="'#comments'+cv.id" [disabled]="!cv.comments.length">
+                      <i class="bi bi-chat-dots"></i> {{cv.comments.length}} comment{{cv.comments.length === 1 ? '' : 's'}}
+                    </button>
+                    <div [id]="'comments'+cv.id" class="collapse mt-2">
+                      <div *ngFor="let comment of cv.comments" class="alert alert-info py-1 px-2 mb-1 small">{{comment}}
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <button class="btn btn-outline-danger btn-sm" (click)="deleteCV(cv)"><i class="bi bi-trash"></i>
+                      Delete</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <ng-template #emptyCVs>
+          <div class="text-center text-muted py-5">
+            <i class="bi bi-file-earmark-x display-4 mb-3"></i>
+            <div>No CVs uploaded yet.</div>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</mentee-layout>

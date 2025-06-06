@@ -1,0 +1,23 @@
+<!-- Mentee Layout Wrapper -->
+<div class="mentee-layout container-fluid px-0">
+  <div class="row g-0">
+    <nav class="col-12 col-md-2 bg-white shadow-sm mentee-sidebar d-flex flex-md-column flex-row align-items-center py-3 px-2">
+      <div class="sidebar-logo mb-4 d-none d-md-block">
+        <span class="fs-4 fw-bold text-primary">RAFEEQ</span>
+      </div>
+      <div class="sidebar-mentee-name text-center mb-4 d-none d-md-block">
+        <span class="fw-bold">{{ menteeName }}</span>
+      </div>
+      <ul class="nav flex-md-column flex-row w-100 justify-content-between">
+        <li class="nav-item" *ngFor="let link of quickLinks">
+          <a class="nav-link d-flex align-items-center py-2 px-2" [routerLink]="link.route" [class.disabled]="!link.route">
+            <i class="bi {{link.icon}} me-2"></i> <span class="d-none d-md-inline">{{link.label}}</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <main class="col px-0 mentee-main-content">
+      <ng-content></ng-content>
+    </main>
+  </div>
+</div>

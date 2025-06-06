@@ -1,0 +1,76 @@
+/* Layout and sidebar */
+.mentee-layout {
+  min-height: 100vh;
+  background: #f8fafc;
+}
+.mentee-sidebar {
+  min-height: 100vh;
+  border-right: 1px solid #e9ecef;
+  background: #fff;
+}
+.mentee-sidebar .nav-link {
+  color: #0d6efd;
+  font-weight: 500;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  transition: background 0.2s, color 0.2s;
+}
+.mentee-sidebar .nav-link.active, .mentee-sidebar .nav-link:focus, .mentee-sidebar .nav-link:hover {
+  background: #e7f1ff;
+  color: #0a58ca;
+}
+.sidebar-logo {
+  letter-spacing: 2px;
+}
+.mentee-main-content {
+  background: #f8fafc;
+  min-height: 100vh;
+}
+/* Welcome section */
+.welcome-section {
+  background: linear-gradient(90deg, #0d6efd 60%, #3b82f6 100%);
+  box-shadow: 0 2px 12px rgba(13,110,253,0.08);
+}
+/* Stats cards */
+.card .fs-2 {
+  margin-bottom: 0.5rem;
+}
+.card .fw-bold {
+  font-size: 1.5rem;
+}
+.card .text-muted {
+  font-size: 0.95em;
+}
+/* Upcoming sessions */
+.card-header {
+  font-size: 1.1em;
+  background: #f8fafc;
+}
+.list-group-item {
+  font-size: 1em;
+}
+.btn-success.btn-sm {
+  font-size: 0.95em;
+  padding: 0.25rem 0.75rem;
+}
+/* Responsive tweaks */
+@media (max-width: 767px) {
+  .mentee-sidebar {
+    min-height: auto;
+    border-right: none;
+    border-bottom: 1px solid #e9ecef;
+    flex-direction: row !important;
+    justify-content: space-around;
+    padding: 0.5rem 0;
+  }
+  .mentee-sidebar .nav-link span {
+    display: none !important;
+  }
+  .mentee-main-content {
+    padding: 0;
+  }
+  .welcome-section {
+    font-size: 1.1em;
+    padding: 1.5rem 1rem;
+  }
+}

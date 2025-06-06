@@ -1,0 +1,36 @@
+/* Booking Form Responsive Styles */
+.booking-form .card {
+  border-radius: 14px;
+}
+.booking-form .progress {
+  background: #e9ecef;
+  border-radius: 6px;
+}
+.booking-form .progress-bar {
+  transition: width 0.4s;
+}
+.booking-form .btn.active, .booking-form .btn:active {
+  background-color: #0d6efd !important;
+  color: #fff !important;
+  border-color: #0d6efd !important;
+}
+.booking-form .btn-outline-primary, .booking-form .btn-outline-success, .booking-form .btn-outline-secondary {
+  min-width: 120px;
+  margin-bottom: 8px;
+}
+.booking-form .form-check-label a {
+  color: #0d6efd;
+  text-decoration: underline;
+}
+@media (max-width: 767px) {
+  .booking-form .card {
+    padding: 0.5rem;
+  }
+  .booking-form h3 {
+    font-size: 1.3em;
+  }
+  .booking-form .btn {
+    font-size: 1em;
+    padding: 0.5rem 0.75rem;
+  }
+}

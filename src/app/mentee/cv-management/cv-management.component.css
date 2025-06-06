@@ -1,0 +1,41 @@
+/* CV Management Styles */
+.cv-management .dropzone {
+  border: 2px dashed #0d6efd;
+  border-radius: 12px;
+  background: #f8fafc;
+  transition: background 0.2s, border-color 0.2s;
+  cursor: pointer;
+}
+.cv-management .dropzone.drag-over {
+  background: #e7f1ff;
+  border-color: #3b82f6;
+}
+.cv-management .dropzone input[type="file"] {
+  display: none;
+}
+.cv-management .table {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.cv-management .badge.bg-success {
+  font-size: 0.95em;
+  font-weight: 500;
+}
+.cv-management .btn-sm {
+  font-size: 0.95em;
+  padding: 0.25rem 0.75rem;
+}
+.cv-management .alert-info {
+  background: #e7f1ff;
+  color: #0d6efd;
+  border: none;
+}
+@media (max-width: 767px) {
+  .cv-management .table-responsive {
+    font-size: 0.95em;
+  }
+  .cv-management .dropzone {
+    padding: 1rem 0.5rem;
+  }
+}

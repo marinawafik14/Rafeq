@@ -1,0 +1,30 @@
+/* Booking Details Styles */
+.booking-details .alert {
+  font-size: 1.1em;
+  border-radius: 10px;
+}
+.booking-details .card {
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+}
+.booking-details .card-header {
+  font-size: 1.1em;
+  background: #f8fafc;
+}
+.booking-details .btn-sm {
+  font-size: 0.95em;
+  padding: 0.25rem 0.75rem;
+}
+.booking-details .badge {
+  font-size: 0.95em;
+  font-weight: 500;
+}
+@media (max-width: 767px) {
+  .booking-details .card-body.d-flex {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+  .booking-details .card-body img {
+    margin-bottom: 1rem;
+  }
+}
