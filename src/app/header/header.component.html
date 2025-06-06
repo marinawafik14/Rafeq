@@ -1,0 +1,47 @@
+<header class="header shadow-sm">
+  <nav class="navbar navbar-expand-lg navbar-light bg-white">
+    <div class="container">
+      <!-- Brand -->
+      <a class="navbar-brand d-flex align-items-center" routerLink="/home">
+        <i class="fas fa-users me-2 fa-lg"></i>
+        <span class="fw-bold">Rafeeq</span>
+      </a>
+
+      <!-- Toggler -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+              aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Nav Links & Buttons -->
+      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+        <ul class="navbar-nav mb-2 mb-lg-0">
+          <li class="nav-item mx-2">
+            <a class="nav-link rounded-pill px-3" routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+  Home
+</a>
+          </li>
+          <li class="nav-item mx-2">
+            <a class="nav-link rounded-pill px-3" routerLink="/find-mentors" routerLinkActive="active">
+              Find Mentors
+            </a>
+          </li>
+          <li class="nav-item mx-2">
+            <a class="nav-link rounded-pill px-3" routerLink="/about" routerLinkActive="active">
+              About Us
+            </a>
+          </li>
+          <li class="nav-item mx-2">
+            <a class="nav-link rounded-pill px-3" routerLink="/contact" routerLinkActive="active">
+              Contact
+            </a>
+          </li>
+        </ul>
+        <div class="d-flex gap-2">
+          <button class="btn btn-login">Log In</button>
+          <button class="btn btn-sign">Sign Up</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>

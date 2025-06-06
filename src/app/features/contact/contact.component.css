@@ -1,0 +1,91 @@
+.contact-section {
+  background-color: #f9fbff;
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+
+  h2 {
+    color: #0a2e65;
+    font-weight: 600;
+  }
+
+  .card {
+    background-color: #ffffff;
+    border-radius: 1rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease-in-out;
+  }
+
+  .card:hover {
+    transform: translateY(-5px);
+  }
+
+  .form-control:focus {
+    outline: none;
+    border-color: #0a2e65;
+    box-shadow: 0 0 0 0.2rem rgba(10, 46, 101, 0.25);
+  }
+
+  .form-control {
+    border-radius: 1rem;
+    padding: 1rem;
+  }
+
+  .contact-methods .fas {
+    font-size: 1.2rem;
+  }
+
+  .accordion-button {
+    border-radius: 1rem;
+    background-color: #e9f0ff;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+
+    &:not(.collapsed) {
+      background-color: #dbeafe;
+      color: #0a2e65;
+      box-shadow: none;
+    }
+
+    &:hover {
+      background-color: #e3eaf7;
+    }
+  }
+
+  .btn-sub {
+    background-color: #0a2e65;
+    color: #ffffff;
+    border-color: #0a2e65;
+    font-weight: bold;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: #ffffff;
+      color: #0a2e65;
+      border-color: darken(#0a2e65, 10%);
+    }
+  }
+}
+.faq-section {
+  h5 {
+    color: #0a2e65;
+  }
+
+  .accordion-button {
+    font-weight: 600;
+    background-color: #f1f5fb;
+    transition: background-color 0.3s ease;
+
+    &:not(.collapsed) {
+      background-color: #dbeafe;
+      color: #0a2e65;
+      box-shadow: none;
+    }
+
+    &:hover {
+      background-color: #e2ebf7;
+    }
+  }
+}
+.contact-methods i {
+  color: #0a2e65 !important; 
+}
