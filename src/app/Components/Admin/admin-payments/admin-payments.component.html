@@ -1,0 +1,57 @@
+<div class="page">
+  <h2>Payments</h2>
+  <div class="metrics">
+    <div class="card">
+      <h3>Total Revenue</h3>
+      <p>{{ getTotalRevenue() }}$</p>
+    </div>
+    <div class="card txt-center">
+      <h3>Total Payments</h3>
+      <p>{{ payments.length }}</p>
+    </div>
+  </div>
+  <div echarts [options]="chartOptions" class="w-full h-96"></div>
+  <h3>Transactions</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Mentor Name</th>
+        <th>Mentee Name</th>
+        <th>Amount</th>
+        <!-- 
+         <th>Payment Method</th>
+      -->
+        <th>Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let payment of getpaginatedPayments()">
+        <td>{{ payment.mentorFullName }}</td>
+        <td>{{ payment.menteeFullName }}</td>
+        <td>{{ payment.amountPaid }} $</td>
+        <!-- 
+        <td>{{ payment.paymentMethod}}</td>
+      -->
+        <td>{{ payment.paymentDate| date:'yyyy-MM-dd' }}</td>
+      </tr>
+    </tbody>
+  </table>
+   <!-- Pagination -->
+  <div *ngIf="totalPages >= 1" class="d-flex justify-content-center mt-4">
+    <nav>
+      <ul class="pagination">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <button class="page-link" (click)="changePage(currentPage - 1)">‹</button>
+        </li>
+        <li class="page-item" *ngFor="let page of [].constructor(totalPages); let i = index"
+          [class.active]="i + 1 === currentPage">
+          <button class="page-link" (click)="changePage(i + 1)">{{ i + 1 }}</button>
+        </li>
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+          <button class="page-link" (click)="changePage(currentPage + 1)">›</button>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
+

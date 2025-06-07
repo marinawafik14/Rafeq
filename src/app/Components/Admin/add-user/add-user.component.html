@@ -1,0 +1,53 @@
+<div class="card p-3 mb-3">
+  <h5>Add New User</h5>
+  <form (ngSubmit)="onSave()" #userForm="ngForm">
+    <div class="mb-2">
+      <label>Full Name</label>
+      <input class="form-control" [(ngModel)]="newUser.fullName" name="fullName" required>
+    </div>
+    <div class="mb-2">
+      <label>Email</label>
+      <input class="form-control" [(ngModel)]="newUser.email" name="email" required>
+    </div>
+    <div class="mb-2">
+      <label>Password</label>
+      <input class="form-control" [(ngModel)]="newUser.PasswordHash" name="PasswordHash" type="password" required>
+    </div>
+   <div class="mb-2">
+      <label>Profile Picture URL</label>
+      <input class="form-control" [(ngModel)]="newUser.profilePicture" name="profilePicture">
+    </div>
+
+    <div class="mb-2">
+      <label>Bio</label>
+      <textarea class="form-control" [(ngModel)]="newUser.Bio" name="bio" rows="3"></textarea>
+    </div>
+
+    <div class="mb-2">
+      <label>Role</label>
+      <select class="form-select" [(ngModel)]="newUser.role" name="roleName" required>
+        <option value="admin">Admin</option>
+        <option value="mentor">Mentor</option>
+        <option value="mentee">Mentee</option>
+      </select>
+    </div>
+
+    <div class="mb-2">
+      <label>
+        <input type="checkbox" [(ngModel)]="newUser.isMentor" name="isMentor"> Is Mentor
+      </label>
+      <label class="ms-3">
+        <input type="checkbox" [(ngModel)]="newUser.isInterviewer" name="isInterviewer"> Is Interviewer
+      </label>
+    </div>
+
+    <div class="mb-2">
+      <label>Hourly Rate</label>
+      <input class="form-control" type="number" step="0.01" [(ngModel)]="newUser.HourlyRate" name="hourlyRate">
+    </div>
+
+    
+    <button type="submit" class="btn btn-primary me-2">Save</button>
+    <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+  </form>
+</div>

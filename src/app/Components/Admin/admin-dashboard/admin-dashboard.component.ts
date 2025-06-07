@@ -1,8 +1,10 @@
+import { CommonModule } from '@angular/common';
 import { AfterViewInit, Component } from '@angular/core';
+import { RouterLink, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-admin-dashboard',
-  imports: [],
+  imports: [RouterOutlet, RouterLink, CommonModule],
   standalone: true,
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.css'

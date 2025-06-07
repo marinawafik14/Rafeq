@@ -1,16 +1,18 @@
 export class Bookings {
-    BookingId!: number;
+  BookingId!: number;
   MentorId!: number;
   MenteeId!: number;
-  SessionType!: string; // 'Mentorship' or 'Interview'
-  StartDateTime?: Date;
-  EndDateTime?: Date;
-  Status: string = "Pending"; // Pending, Confirmed, Completed, Cancelled
-  GoogleMeetLink?: string;
-  PaymentStatus: string ="Unpaid"; // Unpaid, Paid
-  TotalAmount?: number;
-  Commission?: number;
+  sessionType!: string; // 'Mentorship' or 'Interview'
+  startDateTime?: Date;
+  endDateTime?: Date;
+  status: string = "Pending"; // Pending, Confirmed, Completed, Cancelled
+googleMeetLink?: string;
+  paymentStatus: string ="Unpaid"; // Unpaid, Paid
+  totalAmount?: number;
+ commission?: number;
   CreatedAt?: Date;
   UpdatedAt?: Date;
   IsDeleted!: boolean;
+   mentorName?: string;
+  menteeName?: string;
 }

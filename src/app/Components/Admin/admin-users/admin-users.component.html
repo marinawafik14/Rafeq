@@ -1,0 +1,79 @@
+<div class="container py-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2>Users</h2>
+      <p class="text-muted text-primary">Manage users and their roles</p>
+    </div>
+    <button class="btn btn-primary new-user" (click)="showAddUserForm = true">New user</button>
+  </div>
+<app-add-user *ngIf="showAddUserForm" (save)="saveNewUser($event)" (cancel)="showAddUserForm = false">
+</app-add-user>
+
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <input [(ngModel)]="searchQuery" (ngModelChange)="currentPage =1" class="form-control w-100 w-md-25" placeholder="Search users by name , email" style="max-width: 300px;">
+    <div class="d-flex filters gap-2 flex-wrap">
+      <select class="form-select" [(ngModel)]="roleFilter">
+        <option value="">Role</option>
+        <option value="Mentor">Mentor</option>
+        <option value="Mentee">Mentee</option>
+      </select>
+      
+      <select class="form-select" [(ngModel)]="dateSort">
+        <option value="newest">Newest</option>
+        <option value="oldest">Oldest</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    <table class="table align-middle table-hover border">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Created At</th>
+          <th>Actions</th>
+        </tr>    
+      </thead>
+      <tbody>
+  <tr *ngFor="let user of getpaginatedUsers">
+    <td>{{user.fullName}}</td>
+    <td > <span class="text-primary">{{ user.email}}</span></td>
+    <td> <span class="bg-secondary txt-white badge">{{user.role}}</span></td>
+    <td>
+    <button  class ="btn btn-danger " *ngIf="!user.isActive" (click)="updateUserStatus(user.id ,true)">Activate</button>
+  <button class =" btn btn-success" *ngIf="user.isActive" (click)="updateUserStatus(user.id, false)">Deactivate</button>
+    </td>
+    <td> <span class="text-primary">{{ user.createdAt| date:'short' }}</span></td>
+    <td>
+      <a class="btn" [routerLink]="['edit-user/',user.id]" style="background-color: #495057; color: #fff;margin: 5px;">Edit</a>
+      <button class="btn btn-danger" (click)="deleteUser(user.id)">Delete</button>
+  </tr>
+
+</tbody>
+
+    </table>
+  </div>
+
+ <nav class="mt-4" *ngIf="totalPages >= 1">
+    <ul class="pagination justify-content-center">
+    <li class="page-item" [class.disabled]="currentPage === 1">
+      <a class="page-link" (click)="changePage(currentPage - 1)">‹</a>
+    </li>
+
+    <li *ngFor="let page of [].constructor(totalPages); let i = index"
+        class="page-item" [class.active]="i + 1 === currentPage">
+      <a class="page-link" (click)="changePage(i + 1)">{{ i + 1 }}</a>
+    </li>
+
+    <li class="page-item " [class.disabled]="currentPage === totalPages">
+      <a class="page-link" (click)="changePage(currentPage + 1)">›</a>
+    </li>
+    </ul>
+</nav>
+
+
+</div>
+

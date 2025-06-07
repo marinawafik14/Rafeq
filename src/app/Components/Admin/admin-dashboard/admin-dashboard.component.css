@@ -212,7 +212,7 @@
 }
 .home-section {
   position: relative;
-  background: #e4e9f7;
+  /*background: #e4e9f7;*/
   height: 100vh;
   left: 260px;
   width: calc(100% - 260px);

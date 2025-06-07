@@ -5,52 +5,86 @@
       </div>
       <ul class="nav-links">
         <li>
-          <a href="#">
+          <a routerLink="charts">
             <i class="bx bx-line-chart"></i>
-            <span class="link_name">Chart</span>
+            <span class="link_name">Dashboard</span>
           </a>
           <ul class="sub-menu blank">
-            <li><a class="link_name" href="#">Chart</a></li>
+            <li><a class="link_name" routerLink="charts">Dashboard</a></li>
+          </ul>
+        </li>
+          <li>
+          <a routerLink="skills">
+            <i class="bx bx-line-chart"></i>
+            <span class="link_name">Skills</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" routerLink="skills">Skills</a></li>
+          </ul>
+        </li>
+          <li>
+          <a  routerLink="users">
+            <i class="bx bx-line-chart"></i>
+            <span class="link_name">Users</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" routerLink="users">Users</a></li>
           </ul>
         </li>
          <li>
-          <a href="#">
+          <a  routerLink="bookings">
+            <i class="bx bx-line-chart"></i>
+            <span class="link_name">Bookings</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" routerLink="bookings">Bookings</a></li>
+          </ul>
+        </li>
+         <li>
+          <a routerLink="mentors">
             <i class="bx bx-line-chart"></i>
             <span class="link_name">Mentors</span>
           </a>
           <ul class="sub-menu blank">
-            <li><a class="link_name" href="#">Mentors</a></li>
+            <li><a class="link_name" routerLink="mentors">Mentors</a></li>
           </ul>
         </li>
          <li>
-          <a href="#">
+          <a routerLink="mentees">
             <i class="bx bx-line-chart"></i>
             <span class="link_name">Mentees</span>
           </a>
           <ul class="sub-menu blank">
-            <li><a class="link_name" href="#">Mentees</a></li>
+            <li><a class="link_name" routerLink="mentees">Mentees</a></li>
           </ul>
         </li>
  
         <li>
-          <a href="#">
+          <a routerLink="payments">
             <i class="bx bx-line-chart"></i>
-            <span class="link_name">Chart</span>
+            <span class="link_name">Payments</span>
           </a>
           <ul class="sub-menu blank">
-            <li><a class="link_name" href="#">Chart</a></li>
+            <li><a class="link_name" routerLink="payments">Payments</a></li>
           </ul>
         </li>
         <li>
-          <div class="iocn-link">
-            <a href="#">
-              <i class="bx bx-plug"></i>
-              <span class="link_name">Rewiews</span>
-            </a>
-            <i class="bx bxs-chevron-down arrow"></i>
-          </div>
-       
+          <a  routerLink="reviews">
+            <i class="bx bx-line-chart"></i>
+            <span class="link_name">Users</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" routerLink="reviews">Reviews</a></li>
+          </ul>
         </li>
+        <li>
+          <a href="reports">
+            <i class="bx bx-line-chart"></i>
+            <span class="link_name">Reports</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" href="reports">Reports</a></li>
+          </ul>
    <!--  
           <ul class="sub-menu">
             <li><a class="link_name" href="#">Plugins</a></li>
@@ -73,11 +107,13 @@
         </li>
       </ul>
     </div>
+
     <section class="home-section">
       <div class="home-content">
         <i class="bx bx-menu"></i>
-        <span class="text">Drop Down Sidebar</span>
+  
       </div>
+      <router-outlet></router-outlet>
     </section>
     
 

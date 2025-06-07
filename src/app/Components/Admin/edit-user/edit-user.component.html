@@ -1,0 +1,55 @@
+<div *ngIf="user" class="card p-3 mb-3">
+  <h5>Create User</h5>
+  <form (ngSubmit)="saveUser()" #userForm="ngForm">
+    <div class="mb-2">
+      <label>Full Name</label>
+      <input class="form-control" [(ngModel)]="user.fullName" name="fullName" required>
+    </div>
+
+    <div class="mb-2">
+      <label>Email</label>
+      <input class="form-control" type="email" [(ngModel)]="user.email" name="email" required>
+    </div>
+
+    <div class="mb-2">
+      <label>Password</label>
+      <input class="form-control" type="password" [(ngModel)]="user.PasswordHash" name="password" required>
+    </div>
+
+    <div class="mb-2">
+      <label>Profile Picture URL</label>
+      <input class="form-control" [(ngModel)]="user.profilePicture" name="profilePicture">
+    </div>
+
+    <div class="mb-2">
+      <label>Bio</label>
+      <textarea class="form-control" [(ngModel)]="user.Bio" name="bio" rows="3"></textarea>
+    </div>
+
+    <div class="mb-2">
+      <label>Role</label>
+      <select class="form-select" [(ngModel)]="user.role" name="roleName" required>
+        <option value="admin">Admin</option>
+        <option value="mentor">Mentor</option>
+        <option value="mentee">Mentee</option>
+      </select>
+    </div>
+
+    <div class="mb-2">
+      <label>
+        <input type="checkbox" [(ngModel)]="user.isMentor" name="isMentor"> Is Mentor
+      </label>
+      <label class="ms-3">
+        <input type="checkbox" [(ngModel)]="user.isInterviewer" name="isInterviewer"> Is Interviewer
+      </label>
+    </div>
+
+    <div class="mb-2">
+      <label>Hourly Rate</label>
+      <input class="form-control" type="number" step="0.01" [(ngModel)]="user.HourlyRate" name="hourlyRate">
+    </div>
+
+    <button type="submit" class="btn btn-primary me-2" [disabled]="userForm.invalid">Save</button>
+    <a class="btn btn-secondary" [routerLink]="['/admin/users']">Cancel</a>
+  </form>
+</div>

@@ -29,9 +29,13 @@
             "styles": [
               "src/styles.css",
               
-           "https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+           "https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css",
+           "node_modules/bootstrap/dist/css/bootstrap.min.css"
             ],
-            "scripts": []
+            "scripts": [
+            
+              "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js"
+            ]
           },
           "configurations": {
             "production": {
