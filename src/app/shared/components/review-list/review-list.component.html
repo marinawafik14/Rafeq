@@ -1,0 +1,18 @@
+<!-- Loading Spinner -->
+<div *ngIf="loading" class="text-center my-4">
+  <div class="spinner-border text-primary" role="status">
+    <span class="visually-hidden">Loading...</span>
+  </div>
+</div>
+
+<!-- Empty State -->
+<div *ngIf="reviews.length === 0 && !loading" class="my-5">
+  <app-empty-state message="No reviews yet. Be the first to share your experience."></app-empty-state>
+</div>
+
+<!-- Reviews -->
+<div *ngIf="reviews.length > 0 && !loading" class="row g-4">
+  <div class="col-md-6" *ngFor="let review of reviews">
+    <app-review-card [review]="review"></app-review-card>
+  </div>
+</div>

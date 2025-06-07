@@ -1,0 +1,110 @@
+.hero-section {
+  background: linear-gradient(to right bottom, #0a2e65, #1b74e4);
+  padding-top: 4rem !important;
+  padding-bottom: 4rem !important;
+  height: 600px;
+
+  .btn-primary {
+    background-color: #ffffff;
+    color: #0a2e65;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(10, 46, 101, 0.2);
+
+    &:hover {
+      background-color: #f1f5fb;
+      transform: scale(1.02);
+    }
+  }
+
+  .btn-outline-primary {
+    color: #ffffff;
+    border-color: #ffffff;
+    font-weight: bold;
+    box-shadow: 0 4px 12px rgba(10, 46, 101, 0.2);
+
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      transform: scale(1.02);
+    }
+  }
+}
+.hero-inner{
+    padding-top: 60px;
+}
+.step-icon {
+  transition: all 0.3s ease-in-out;
+}
+.step-icon i {
+  color: white;
+  background-color: #0a2e65; /* Your brand primary color */
+  padding: 1rem;
+  border-radius: 50%;
+  font-size: 2.5rem;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+.step-icon:hover i {
+  transform: scale(1.1);
+}
+
+.icon-hover i {
+  transition: transform 0.3s ease-in-out;
+}
+
+.icon-hover:hover i {
+  transform: scale(1.2);
+}
+
+.categories-section {
+  background-color: #f9fbff;
+}
+
+.category-icon {
+  font-size: 24px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #0a2e65;
+    color: white;
+  }
+}
+.category-icon i {
+    color: #0a2e65;
+}
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+.testimonial-card {
+  transition: transform 0.3s ease;
+  border-left: 4px solid #0a2e65;
+  border-top: none;
+    border-bottom: none;
+  &:hover {
+    transform: translateY(-5px);
+  }
+}
+
+.rating .fa-star {
+  color: gold;
+}
+@media (max-width: 768px) {
+  .category-card {
+    width: 200px;
+    img {
+      height: 150px;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .category-card {
+    width: 180px;
+    img {
+      height: 140px;
+    }
+  }
+}

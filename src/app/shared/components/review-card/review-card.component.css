@@ -1,0 +1,13 @@
+.review-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(10, 46, 101, 0.15);
+  }
+
+  .rating-stars .fa-star {
+    font-size: 1rem;
+    margin-right: 2px;
+  }
+}

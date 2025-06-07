@@ -1,0 +1,6 @@
+<div class="rating-stars d-flex align-items-center">
+  <i *ngFor="let star of [1,2,3,4,5]"
+     class="fas fa-star"
+     [class.text-warning]="star <= rating"
+     [class.text-muted]="star > rating"></i>
+</div>

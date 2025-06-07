@@ -4,3 +4,12 @@ a{
     text-decoration: none;
     color: inherit;
 }
+/* You can add global styles to this file, and also import other style files */
+@import "../node_modules/swiper/swiper.min.css";
+
+
+body, html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}

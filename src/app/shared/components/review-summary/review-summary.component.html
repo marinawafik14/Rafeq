@@ -1,0 +1,15 @@
+<div class="review-summary bg-light p-4 rounded shadow-sm">
+  <div class="d-flex justify-content-between align-items-center">
+    <h5>Average Rating:</h5>
+    <h5 class="text-primary">{{ averageRating }}/5</h5>
+  </div>
+
+  <div class="progress my-2" style="height: 8px;">
+    <div class="progress-bar bg-primary" [style.width.%]="fiveStarPercent"></div>
+  </div>
+
+  <div class="d-flex justify-content-between mt-2">
+    <span>5 Stars</span>
+    <span>{{ fiveStarPercent }}%</span>
+  </div>
+</div>

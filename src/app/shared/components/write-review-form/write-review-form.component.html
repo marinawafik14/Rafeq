@@ -1,0 +1,22 @@
+<form class="review-form">
+  <!-- Rating -->
+  <div class="mb-3">
+    <label class="form-label">Your Rating</label>
+    <div class="rating-input d-flex">
+      <i *ngFor="let star of [1,2,3,4,5]"
+         class="fas fa-star mx-1"
+         [class.text-warning]="star <= selectedRating"
+         style="cursor: pointer;"
+         (click)="selectedRating = star"></i>
+    </div>
+  </div>
+
+  <!-- Comment -->
+  <div class="mb-3">
+    <label class="form-label">Write Your Review</label>
+    <textarea rows="4" class="form-control rounded-3" placeholder="Tell us about your experience..."></textarea>
+  </div>
+
+  <!-- Submit Button -->
+  <button type="submit" class="btn btn-sub rounded-pill px-4">Submit Review</button>
+</form>
