@@ -40,53 +40,57 @@ export class ChartsComponent implements OnInit {
       }
     });
   }
+initCharts() {
+  const now = new Date();
+  const months: string[] = [];
 
-  initCharts() {
-    const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-    ];
-
-    // Pad monthlyUserGrowth and monthlyRevenue to 12 months if needed
-    const userGrowth = Array.isArray(this.dashboardData.monthlyUserGrowth)
-      ? [...this.dashboardData.monthlyUserGrowth]
-      : [];
-    while (userGrowth.length < 12) userGrowth.push(0);
-
-    const monthlyRevenue = Array.isArray(this.dashboardData.monthlyRevenue)
-      ? [...this.dashboardData.monthlyRevenue]
-      : [];
-    while (monthlyRevenue.length < 12) monthlyRevenue.push(0);
-
-    this.userGrowthChartOptions = {
-      title: { text: 'User Growth (Monthly)', left: 'center' },
-      xAxis: { type: 'category', data: months },
-      yAxis: { type: 'value' },
-      tooltip: { trigger: 'axis' },
-      series: [
-        {
-          data: userGrowth,
-          type: 'line',
-          smooth: true,
-          areaStyle: {},
-          name: 'Users'
-        }
-      ]
-    };
-
-    this.revenueChartOptions = {
-      title: { text: 'Revenue Trends (Monthly)', left: 'center' },
-      xAxis: { type: 'category', data: months },
-      yAxis: { type: 'value' },
-      tooltip: { trigger: 'axis' },
-      series: [
-        {
-          data: monthlyRevenue,
-          type: 'bar',
-          name: 'Revenue',
-          itemStyle: { color: '#61dafb' }
-        }
-      ]
-    };
+  // توليد آخر 12 شهر من الآن
+  for (let i = 11; i >= 0; i--) {
+    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push(date.toLocaleString('default', { month: 'short' })); // "May", "Jun", ...
   }
+
+  const userGrowth = Array.isArray(this.dashboardData.monthlyUserGrowth)
+    ? [...this.dashboardData.monthlyUserGrowth]
+    : [];
+  while (userGrowth.length < 12) userGrowth.unshift(0); // نضيف في البداية لو ناقص
+
+  const monthlyRevenue = Array.isArray(this.dashboardData.monthlyRevenue)
+    ? [...this.dashboardData.monthlyRevenue]
+    : [];
+  while (monthlyRevenue.length < 12) monthlyRevenue.unshift(0); // نضيف في البداية لو ناقص
+
+  this.userGrowthChartOptions = {
+    title: { text: 'User Growth (Monthly)', left: 'center' },
+    xAxis: { type: 'category', data: months },
+    yAxis: { type: 'value' },
+    tooltip: { trigger: 'axis' },
+    series: [
+      {
+        data: userGrowth,
+        type: 'line',
+        smooth: true,
+        areaStyle: {},
+        name: 'Users'
+      }
+    ]
+  };
+
+  this.revenueChartOptions = {
+    title: { text: 'Revenue Trends (Monthly)', left: 'center' },
+    xAxis: { type: 'category', data: months },
+    yAxis: { type: 'value' },
+    tooltip: { trigger: 'axis' },
+    series: [
+      {
+        data: monthlyRevenue,
+        type: 'bar',
+        name: 'Revenue',
+        itemStyle: { color: '#61dafb' }
+      }
+    ]
+  };
+}
+
+ 
 }
