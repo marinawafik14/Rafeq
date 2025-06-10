@@ -6,7 +6,7 @@ import { UserService } from '../../../Services/user.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { AddUserComponent } from "../add-user/add-user.component";
 import { Observable } from 'rxjs';
-
+import Swal from 'sweetalert2';
 @Component({
   selector: 'app-admin-users',
   imports: [FormsModule, CommonModule, DatePipe, AddUserComponent,RouterLink],
@@ -46,6 +46,7 @@ updateUserStatus(userId: number, isActive: boolean): void {
         const index = this.users.findIndex(user => user.id === userId);
         if (index !== -1) {
           this.users[index] = updatedUser;
+          this.loadUsers();
         }
       },
       error: (err) => console.error('Failed to update user status:', err)
@@ -54,13 +55,30 @@ updateUserStatus(userId: number, isActive: boolean): void {
 
 // delete a user
 deleteUser(userId: number): void {
-    this._userService.deleteUser(userId).subscribe({
-      next: () => {
-        this.users = this.users.filter(user => user.id !== userId);
-      },
-      error: (err) => console.error('Failed to delete user:', err)
-    });
-  }
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'This user will be deleted permanently!',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Yes, delete!',
+    cancelButtonText: 'Cancel'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      this._userService.deleteUser(userId).subscribe({
+        next: () => {
+          this.users = this.users.filter(user => user.id !== userId);
+          Swal.fire('Deleted!', 'User has been deleted.', 'success');
+        },
+        error: (err) => {
+          console.error('Failed to delete user:', err);
+          Swal.fire('Error', 'Failed to delete user.', 'error');
+        }
+      });
+    }
+  });
+}
 
 // edit user
 editUser(user: Users): void {
@@ -69,6 +87,7 @@ editUser(user: Users): void {
         const index = this.users.findIndex(u => u.id === user.id);
         if (index !== -1) {
           this.users[index] = updatedUser;
+          this.loadUsers();
         }
       },
       error: (err) => console.error('Failed to update user:', err)
@@ -84,7 +103,8 @@ saveNewUser(user: Users): void
 this._userService.createUser(user).subscribe({
 next : (addedUser) => {
   this.users.push(addedUser);
-  this.showAddUserForm = false; // Hide the form after saving
+  this.showAddUserForm = false; 
+  this.loadUsers();
 },
 error: (err) => console.error('Failed to add user:', err)
 });

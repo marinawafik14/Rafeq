@@ -5,8 +5,8 @@ PaymentId!: number;
   paymentMethod!: string; // Stripe, etc.
   TransactionId?: string;
   paymentDate?: Date;
- menteeFullName?: string;
-  mentorFullName?: string;
+ menteeName?: string;
+  mentorName?: string;
 
 
 }

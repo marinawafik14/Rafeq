@@ -19,6 +19,7 @@ import { AddUserComponent } from './Components/Admin/add-user/add-user.component
 import { AdminBookingsComponent } from './Components/Admin/admin-bookings/admin-bookings.component';
 import { AdminPaymentsComponent } from './Components/Admin/admin-payments/admin-payments.component';
 import { ChartsComponent } from './Components/Admin/charts/charts.component';
+import { AddSkillComponent } from './Components/Admin/add-skill/add-skill.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -34,6 +35,7 @@ export const routes: Routes = [
   { path: 'admin', component: AdminDashboardComponent  , children: [
  { path: 'mentors', component: AdminMentorsComponent },
   {path :'skills', component: AdminSkillsComponent}, 
+  {path: 'skills/add-skill',component: AddSkillComponent},
   {path : 'users', component: AdminUsersComponent},
   {path : 'users/edit-user/:id', component: EditUserComponent},
   {path : 'add-user', component: AddUserComponent},

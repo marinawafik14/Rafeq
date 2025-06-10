@@ -1,57 +1,75 @@
-<div class="page">
-  <h2>Payments</h2>
-  <div class="metrics">
-    <div class="card">
-      <h3>Total Revenue</h3>
-      <p>{{ getTotalRevenue() }}$</p>
+<div class="container py-4">
+  <h2 class="mb-4 text-primary fw-bold">Payments</h2>
+  <!-- Metrics Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-6">
+      <div class="card shadow-sm border-0 bg-light h-100">
+        <div class="card-body text-center">
+          <h5 class="card-title text-success fw-bold">Total Revenue</h5>
+          <p class="display-6 fw-semibold mb-0">{{ getTotalRevenue() }}$</p>
+        </div>
+      </div>
     </div>
-    <div class="card txt-center">
-      <h3>Total Payments</h3>
-      <p>{{ payments.length }}</p>
+    <div class="col-12 col-md-6">
+      <div class="card shadow-sm border-0 bg-light h-100">
+        <div class="card-body text-center">
+          <h5 class="card-title text-info fw-bold">Total Payments</h5>
+          <p class="display-6 fw-semibold mb-0">{{ payments.length }}</p>
+        </div>
+      </div>
     </div>
   </div>
-  <div echarts [options]="chartOptions" class="w-full h-96"></div>
-  <h3>Transactions</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>Mentor Name</th>
-        <th>Mentee Name</th>
-        <th>Amount</th>
-        <!-- 
-         <th>Payment Method</th>
-      -->
-        <th>Date</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let payment of getpaginatedPayments()">
-        <td>{{ payment.mentorFullName }}</td>
-        <td>{{ payment.menteeFullName }}</td>
-        <td>{{ payment.amountPaid }} $</td>
-        <!-- 
-        <td>{{ payment.paymentMethod}}</td>
-      -->
-        <td>{{ payment.paymentDate| date:'yyyy-MM-dd' }}</td>
-      </tr>
-    </tbody>
-  </table>
-   <!-- Pagination -->
-  <div *ngIf="totalPages >= 1" class="d-flex justify-content-center mt-4">
-    <nav>
-      <ul class="pagination">
-        <li class="page-item" [class.disabled]="currentPage === 1">
-          <button class="page-link" (click)="changePage(currentPage - 1)">‹</button>
-        </li>
-        <li class="page-item" *ngFor="let page of [].constructor(totalPages); let i = index"
-          [class.active]="i + 1 === currentPage">
-          <button class="page-link" (click)="changePage(i + 1)">{{ i + 1 }}</button>
-        </li>
-        <li class="page-item" [class.disabled]="currentPage === totalPages">
-          <button class="page-link" (click)="changePage(currentPage + 1)">›</button>
-        </li>
-      </ul>
-    </nav>
+
+  <!-- Chart -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <div echarts [options]="chartOptions" class="w-100" style="height: 350px;"></div>
+    </div>
+  </div>
+
+  <!-- Transactions Table -->
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <h3 class="mb-3 text-secondary fw-bold">Transactions</h3>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-primary">
+            <tr>
+              <th>Mentor Name</th>
+              <th>Mentee Name</th>
+              <th>Amount</th>
+              <!-- <th>Payment Method</th> -->
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let payment of getpaginatedPayments()">
+              <td>{{ payment.mentorName }}</td>
+              <td>{{ payment.menteeName }}</td>
+              <td><span class="badge bg-success">{{ payment.amountPaid }} $</span></td>
+              <!-- <td>{{ payment.paymentMethod}}</td> -->
+              <td>{{ payment.paymentDate | date:'yyyy-MM-dd' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Pagination -->
+      <div *ngIf="totalPages >= 1" class="d-flex justify-content-center mt-4">
+        <nav>
+          <ul class="pagination">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <button class="page-link" (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1">‹</button>
+            </li>
+            <li class="page-item" *ngFor="let page of [].constructor(totalPages); let i = index"
+                [class.active]="i + 1 === currentPage">
+              <button class="page-link" (click)="changePage(i + 1)">{{ i + 1 }}</button>
+            </li>
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <button class="page-link" (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages">›</button>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
   </div>
 </div>
-
