@@ -16,11 +16,25 @@ import { AddUserComponent } from './Components/Admin/add-user/add-user.component
 import { AdminBookingsComponent } from './Components/Admin/admin-bookings/admin-bookings.component';
 import { AdminPaymentsComponent } from './Components/Admin/admin-payments/admin-payments.component';
 import { ChartsComponent } from './Components/Admin/charts/charts.component';
-import { AddSkillComponent } from './Components/Admin/add-skill/add-skill.component';
+import { LoginComponent } from './Auth/login/login.component';
+import { RegisterComponent } from './Auth/register/register.component';
+import { ForgotPasswordComponent } from './Auth/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './Auth/reset-password/reset-password.component';
+import { VerifyEmailComponent } from './Auth/verify-email/verify-email.component';
+import { ResendVerificationEmailComponent } from './Auth/resend-verification-email/resend-verification-email.component';
 import { AdminReviewsComponent } from './Components/Admin/admin-reviews/admin-reviews.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
+//Authentication routes
+    { path: 'login', component: LoginComponent },
+  { path: 'register', component: RegisterComponent },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
+ { path: 'verify-email/:token', component: VerifyEmailComponent },
+  { path: 'resend-verification', component: ResendVerificationEmailComponent },
+
+
    { path: 'home', component: HomeComponent},
    { path: 'about', component: AboutComponent},
     { path: 'contact', component: ContactComponent},
@@ -31,21 +45,19 @@ export const routes: Routes = [
     {path : 'summary', component : ReviewSummaryComponent},
     {path : 'form' , component : WriteReviewFormComponent},
   { path: 'admin', component: AdminDashboardComponent  , children: [
+ { path: 'mentors', component: AdminPaymentsComponent },
   {path :'skills', component: AdminSkillsComponent}, 
-  {path: 'skills/add-skill',component: AddSkillComponent},
   {path : 'users', component: AdminUsersComponent},
   {path : 'users/edit-user/:id', component: EditUserComponent},
   {path : 'add-user', component: AddUserComponent},
   {path : 'bookings',component: AdminBookingsComponent},
   {path : 'payments',component: AdminPaymentsComponent},
   {path: 'charts', component: ChartsComponent},
-  {path: 'reviews', component: AdminReviewsComponent},
- {path :'home',component :HomeComponent}
-
-  ],
-  
+{path :'reviews',component: AdminReviewsComponent},
+{path:'home',component:HomeComponent}
+  ]
 },
- 
+
 ];
 
 

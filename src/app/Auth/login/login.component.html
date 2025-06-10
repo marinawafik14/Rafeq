@@ -1,0 +1,45 @@
+<div class="container login-container">
+  <h2>Login</h2>
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+      <label for="email" class="form-label">Email</label>
+      <input type="email" id="email" formControlName="email" class="form-control" />
+      @if(email?.invalid && (email?.dirty || email?.touched)) {
+      <div class="text-danger">
+        @if(email?.errors?.['required']){
+        <p>Email is required.</p>
+        } @if(email?.errors?.['email']){
+        <p>Invalid email format.</p>
+        }
+      </div>
+      }
+    </div>
+
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input type="password" id="password" formControlName="password" class="form-control" />
+      @if(password?.invalid && (password?.dirty || password?.touched)) {
+      <div class="text-danger">
+        @if(password?.errors?.['required']){
+        <p>Password is required.</p>
+        }
+      </div>
+      }
+    </div>
+
+    <button type="submit" class="btn btn-primary" [disabled]="loginForm.invalid">Login</button>
+  </form>
+
+  <div class="text-center mt-3">
+    <a routerLink="/forgot-password" class="d-block mb-2">Forgot Password?</a>
+    <a routerLink="/resend-verification" class="d-block">Resend Verification Email</a>
+  </div>
+
+  <hr class="my-4">
+
+  <div class="google-login-section text-center">
+    <p class="text-muted">Or continue with:</p>
+    <div id="google-btn-container" class="d-flex justify-content-center"></div>
+  </div>
+
+</div>
