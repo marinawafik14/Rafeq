@@ -1,0 +1,89 @@
+.payment-section {
+  background-color: #f9fbff;
+}
+
+.card-input-sim {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+
+  &:focus-within {
+    border-color: #0a2e65;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 2px rgba(10, 46, 101, 0.2);
+  }
+}
+
+.ord-sum,
+.pay-sec {
+  color: #0a2e65;
+}
+
+.total {
+  font-size: 1.75rem;
+  color: #0a2e65;
+  font-weight: bold;
+}
+
+.total-price {
+  color: #0a2e65;
+  font-weight: bold;
+}
+
+.list-group-item {
+  padding: 0.75rem 0;
+}
+
+.card .list-group-item i.fas {
+  color: #0a2e65;
+}
+
+.form-control:focus {
+  box-shadow: 0 0 0 0.2rem rgba(10, 46, 101, 0.25);
+  border-color: #0a2e65;
+}
+
+.spinner-border {
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+.alert i {
+  font-size: 1.25rem;
+}
+
+strong {
+  color: #0a2e65;
+}
+
+.badge.bg-primary {
+  background-color: #0a2e65 !important;
+}
+
+.btn-pay {
+  background-color: #0a2e65;
+  color: white;
+  border: none;
+  font-size: 1.1rem;
+  padding: 0.75rem 1.25rem;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #ffffff;
+    color: #0a2e65;
+    border: 1px solid #0a2e65;
+  }
+}
+
+.icon-primary {
+  color: #0a2e65;
+}
+
+.form-check-input:checked {
+  background-color: #0a2e65;
+  border-color: #0a2e65;
+}
+.info{
+    color: #0a2e65;
+    font-weight: bold;
+}
