@@ -1,0 +1,268 @@
+<div class="profile-management">
+  <!-- Header Section -->
+  <div class="profile-header py-5 text-white">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h1 class="display-5 fw-bold mb-2">Profile Management</h1>
+          <p class="lead mb-0">Keep your profile up to date to attract more mentees</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+          <div class="profile-status">
+            <span class="badge bg-success fs-6 px-3 py-2">
+              <i class="fas fa-check-circle me-1"></i>
+              {{ userProfile?.isEmailVerified ? 'Verified Profile' : 'Unverified Profile' }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container py-4">
+    <!-- Error Alert -->
+    <div *ngIf="error" class="alert alert-danger mb-4 rounded-3 shadow-sm" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+    </div>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="text-center py-5">
+      <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3 text-muted">Loading your profile...</p>
+    </div>
+
+    <!-- Profile Form -->
+    <div *ngIf="!isLoading" class="row g-4">
+      <!-- Profile Picture Section -->
+      <div class="col-lg-4">
+        <div class="profile-picture-card">
+          <div class="card-header">
+            <h5 class="mb-0 fw-bold">
+              <i class="fas fa-camera me-2 text-primary"></i>Profile Picture
+            </h5>
+          </div>
+          <div class="card-body text-center p-4">
+            <div class="profile-image-container mb-3">
+              <img [src]="imagePreview || '/images/default-avatar.png'" 
+                   alt="Profile Picture" 
+                   class="profile-image">
+              <div class="image-overlay">
+                <input type="file" 
+                       id="imageInput" 
+                       accept="image/*" 
+                       (change)="onFileSelected($event)"
+                       class="d-none">
+                <label for="imageInput" class="btn btn-primary btn-sm rounded-pill">
+                  <i class="fas fa-camera me-1"></i>Change
+                </label>
+              </div>
+            </div>
+            
+            <button *ngIf="selectedFile" 
+                    (click)="uploadImage()" 
+                    [disabled]="isUploadingImage"
+                    class="btn btn-success rounded-pill">
+              <span *ngIf="isUploadingImage" class="spinner-border spinner-border-sm me-2"></span>
+              <i *ngIf="!isUploadingImage" class="fas fa-upload me-1"></i>
+              {{ isUploadingImage ? 'Uploading...' : 'Upload Image' }}
+            </button>
+            
+            <p class="text-muted small mt-2 mb-0">
+              Maximum file size: 5MB<br>
+              Supported formats: JPG, PNG, GIF
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Information Section -->
+      <div class="col-lg-8">
+        <form [formGroup]="profileForm" (ngSubmit)="onSubmit()">
+          <div class="profile-info-card">
+            <div class="card-header">
+              <h5 class="mb-0 fw-bold">
+                <i class="fas fa-user-edit me-2 text-primary"></i>Profile Information
+              </h5>
+            </div>
+            <div class="card-body p-4">
+              <div class="row g-3">
+                <!-- Full Name -->
+                <div class="col-md-6">
+                  <label for="fullName" class="form-label fw-semibold">Full Name *</label>
+                  <input type="text" 
+                         id="fullName"
+                         formControlName="fullName"
+                         class="form-control rounded-pill"
+                         [class.is-invalid]="isFieldInvalid('fullName')"
+                         placeholder="Enter your full name">
+                  <div *ngIf="isFieldInvalid('fullName')" class="invalid-feedback">
+                    {{ getFieldError('fullName') }}
+                  </div>
+                </div>
+
+                <!-- Email (Read-only) -->
+                <div class="col-md-6">
+                  <label for="email" class="form-label fw-semibold">Email Address</label>
+                  <input type="email" 
+                         id="email"
+                         [value]="userProfile?.email"
+                         class="form-control rounded-pill"
+                         readonly>
+                  <div class="form-text">
+                    <i class="fas fa-info-circle me-1"></i>Email cannot be changed
+                  </div>
+                </div>
+
+                <!-- Hourly Rate -->
+                <div class="col-md-6">
+                  <label for="hourlyRate" class="form-label fw-semibold">Hourly Rate (USD)</label>
+                  <div class="input-group">
+                    <span class="input-group-text">$</span>
+                    <input type="number" 
+                           id="hourlyRate"
+                           formControlName="hourlyRate"
+                           class="form-control"
+                           [class.is-invalid]="isFieldInvalid('hourlyRate')"
+                           placeholder="50"
+                           min="1"
+                           max="1000">
+                  </div>
+                  <div *ngIf="isFieldInvalid('hourlyRate')" class="invalid-feedback">
+                    {{ getFieldError('hourlyRate') }}
+                  </div>
+                </div>
+
+                <!-- Role Toggle -->
+                <div class="col-md-6">
+                  <label class="form-label fw-semibold">Services Offered</label>
+                  <div class="role-toggles">
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" 
+                             type="checkbox" 
+                             id="mentorSwitch"
+                             [checked]="userProfile?.isMentor"
+                             disabled>
+                      <label class="form-check-label" for="mentorSwitch">
+                        <i class="fas fa-chalkboard-teacher me-1"></i>Mentoring Sessions
+                      </label>
+                    </div>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" 
+                             type="checkbox" 
+                             id="interviewerSwitch"
+                             formControlName="isInterviewer">
+                      <label class="form-check-label" for="interviewerSwitch">
+                        <i class="fas fa-user-tie me-1"></i>Mock Interviews
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Bio -->
+                <div class="col-12">
+                  <label for="bio" class="form-label fw-semibold">Professional Bio</label>
+                  <textarea id="bio"
+                            formControlName="bio"
+                            class="form-control rounded-3"
+                            [class.is-invalid]="isFieldInvalid('bio')"
+                            rows="4"
+                            placeholder="Tell mentees about your experience, expertise, and what you can help them with..."></textarea>
+                  <div *ngIf="isFieldInvalid('bio')" class="invalid-feedback">
+                    {{ getFieldError('bio') }}
+                  </div>
+                  <div class="form-text">
+                    {{ profileForm.get('bio')?.value?.length || 0 }}/1000 characters
+                  </div>
+                </div>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="text-end mt-4">
+                <button type="submit" 
+                        [disabled]="profileForm.invalid || isUpdating"
+                        class="btn btn-primary btn-lg rounded-pill px-4">
+                  <span *ngIf="isUpdating" class="spinner-border spinner-border-sm me-2"></span>
+                  <i *ngIf="!isUpdating" class="fas fa-save me-2"></i>
+                  {{ isUpdating ? 'Updating...' : 'Update Profile' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Skills Management Section -->
+    <div *ngIf="!isLoading" class="row mt-4">
+      <div class="col-12">
+        <div class="skills-card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <div>
+              <h5 class="mb-1 fw-bold">
+                <i class="fas fa-code me-2 text-primary"></i>Skills & Expertise
+              </h5>
+              <p class="text-muted mb-0 small">Add skills to help mentees find you easier</p>
+            </div>
+          </div>
+          <div class="card-body p-4">
+            <!-- Add Skill Section -->
+            <div class="add-skill-section mb-4">
+              <div class="row g-3 align-items-end">
+                <div class="col-md-8">
+                  <label for="skillSearch" class="form-label fw-semibold">Add New Skill</label>
+                  <input type="text" 
+                         id="skillSearch"
+                         [(ngModel)]="skillSearchTerm"
+                         (input)="filterSkills()"
+                         class="form-control rounded-pill"
+                         placeholder="Search for skills to add...">
+                </div>
+              </div>
+              
+              <!-- Filtered Skills -->
+              <div *ngIf="skillSearchTerm && filteredSkills.length > 0" class="filtered-skills mt-3">
+                <div class="skills-grid">
+                  <button *ngFor="let skill of filteredSkills.slice(0, 10)" 
+                          (click)="addSkill(skill)"
+                          class="skill-add-btn">
+                    <i class="fas fa-plus me-1"></i>{{ skill.name }}
+                    <small class="text-muted">({{ skill.mentorsCount }} mentors)</small>
+                  </button>
+                </div>
+              </div>
+              
+              <div *ngIf="skillSearchTerm && filteredSkills.length === 0" class="text-muted mt-2">
+                No skills found matching "{{ skillSearchTerm }}"
+              </div>
+            </div>
+
+            <!-- Current Skills -->
+            <div class="current-skills">
+              <h6 class="fw-bold mb-3">Your Skills ({{ userSkills.length }})</h6>
+              <div *ngIf="userSkills.length === 0" class="empty-skills">
+                <div class="text-center py-4">
+                  <i class="fas fa-code fa-3x text-muted mb-3"></i>
+                  <h6 class="text-muted">No skills added yet</h6>
+                  <p class="text-muted small mb-0">Add skills to showcase your expertise to mentees</p>
+                </div>
+              </div>
+              
+              <div *ngIf="userSkills.length > 0" class="skills-grid">
+                <div *ngFor="let userSkill of userSkills" class="skill-tag">
+                  <span class="skill-name">{{ userSkill.skillName }}</span>
+                  <button (click)="removeSkill(userSkill)" 
+                          class="skill-remove-btn"
+                          title="Remove skill">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
