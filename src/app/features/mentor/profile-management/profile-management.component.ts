@@ -1,15 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormsModule } from '@angular/forms'; 
 import { ProfileService } from '../../../Services/profile.service';
 import { UserProfile } from '../../../Models/User/user-profile';
 import { Skill } from '../../../Models/Skills/skill';
 import { UserSkill } from '../../../Models/Skills/user-skill';
 import { ToastrService } from 'ngx-toastr';
+import { environment } from '../../../environments/environment.development';
 
 @Component({
   selector: 'app-profile-management',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule], 
   templateUrl: './profile-management.component.html',
   styleUrls: ['./profile-management.component.css']
 })
@@ -35,7 +37,7 @@ export class ProfileManagementComponent implements OnInit {
     this.profileForm = this.fb.group({
       fullName: ['', [Validators.required, Validators.minLength(2)]],
       bio: ['', [Validators.maxLength(1000)]],
-      hourlyRate: ['', [Validators.min(1), Validators.max(1000)]],
+      hourlyRate: [''], // Made optional
       isInterviewer: [false]
     });
   }
@@ -94,23 +96,42 @@ export class ProfileManagementComponent implements OnInit {
   }
 
   onSubmit(): void {
+    console.log('Form submitted:', this.profileForm.value);
+    console.log('Form valid:', this.profileForm.valid);
+    
     if (this.profileForm.valid) {
       this.isUpdating = true;
       const formData = this.profileForm.value;
       
+      // Convert hourlyRate to number if it exists
+      if (formData.hourlyRate) {
+        formData.hourlyRate = parseFloat(formData.hourlyRate);
+      }
+      
+      console.log('Sending data to API:', formData);
+      
       this.profileService.updateProfile(formData).subscribe({
         next: (updatedProfile) => {
+          console.log('Profile updated successfully:', updatedProfile);
           this.userProfile = updatedProfile;
           this.isUpdating = false;
           this.toastr.success('Profile updated successfully!', 'Success');
         },
         error: (error) => {
+          console.error('Full error object:', error);
           this.isUpdating = false;
           this.toastr.error('Failed to update profile', 'Error');
           console.error('Error updating profile:', error);
         }
       });
     } else {
+      console.log('Form is invalid. Errors:');
+      Object.keys(this.profileForm.controls).forEach(key => {
+        const control = this.profileForm.get(key);
+        if (control && control.errors) {
+          console.log(`${key}:`, control.errors);
+        }
+      });
       this.markFormGroupTouched();
     }
   }
@@ -136,11 +157,16 @@ export class ProfileManagementComponent implements OnInit {
       this.profileService.uploadProfilePicture(this.selectedFile).subscribe({
         next: (imageUrl) => {
           this.isUploadingImage = false;
-          this.imagePreview = imageUrl;
-          this.toastr.success('Profile picture updated successfully!', 'Success');
           
-          // Update the form
-          this.profileForm.patchValue({ profilePicture: imageUrl });
+          // Update the image preview with full URL
+          this.imagePreview = imageUrl.startsWith('http') ? imageUrl : `${environment.apiUrl}${imageUrl}`;
+          
+          // Update the user profile object
+          if (this.userProfile) {
+            this.userProfile.profilePicture = imageUrl;
+          }
+          
+          this.toastr.success('Profile picture updated successfully!', 'Success');
           this.selectedFile = null;
         },
         error: (error) => {
@@ -150,6 +176,22 @@ export class ProfileManagementComponent implements OnInit {
         }
       });
     }
+  }
+
+  getImageUrl(): string {
+    if (this.imagePreview) {
+      return this.imagePreview.startsWith('http') 
+        ? this.imagePreview 
+        : `${environment.apiUrl}${this.imagePreview}`;
+    }
+    
+    if (this.userProfile?.profilePicture) {
+      return this.userProfile.profilePicture.startsWith('http') 
+        ? this.userProfile.profilePicture 
+        : `${environment.apiUrl}${this.userProfile.profilePicture}`;
+    }
+    
+    return '/images/default-avatar.png';
   }
 
   filterSkills(): void {
