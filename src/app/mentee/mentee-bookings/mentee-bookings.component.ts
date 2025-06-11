@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MenteeLayoutComponent } from '../mentee-layout.component';
+import { Router } from '@angular/router';
 import { BookingService } from '../../Services/booking.service';
+import { ActivatedRoute } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { MenteeLayoutComponent } from '../mentee-layout.component';
 
 @Component({
   selector: 'app-mentee-bookings',
@@ -17,18 +20,52 @@ export class MenteeBookingsComponent implements OnInit {
   page = 1;
   pageSize = 5;
   bookings: any[] = [];
+  menteeId: number|null = null;
 
-  constructor(private bookingService: BookingService) {}
+  constructor(
+    private bookingService: BookingService,
+    private route: ActivatedRoute,
+    private router: Router,
+    private http: HttpClient
+  ) {}
 
   ngOnInit() {
-    this.fetchAllBookings();
+    // Get menteeId from route or token
+    this.route.paramMap.subscribe(params => {
+      const routeId = params.get('menteeId');
+      let menteeId: number | null = routeId ? +routeId : null;
+      if (!menteeId || isNaN(menteeId)) {
+        const token = document.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1];
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            menteeId = payload.menteeId || null;
+          } catch {}
+        }
+      }
+      this.menteeId = menteeId;
+      this.fetchBookingsForTab();
+    });
   }
 
-  fetchAllBookings() {
-    this.bookingService.getAllBookings().subscribe({
-      next: (data) => this.bookings = data,
-      error: _ => this.bookings = []
-    });
+  fetchBookingsForTab() {
+    if (!this.menteeId) return;
+    if (this.tab === 'all') {
+      this.bookingService.getAllBookings(this.menteeId).subscribe({
+        next: (data) => this.bookings = data,
+        error: _ => this.bookings = []
+      });
+    } else if (this.tab === 'upcoming') {
+      this.bookingService.getUpcomingBookings(this.menteeId).subscribe({
+        next: (data) => this.bookings = data,
+        error: _ => this.bookings = []
+      });
+    } else if (this.tab === 'past') {
+      this.bookingService.getCompletedBookings(this.menteeId).subscribe({
+        next: (data) => this.bookings = data,
+        error: _ => this.bookings = []
+      });
+    }
   }
 
   setTab(tab: 'upcoming' | 'past' | 'all') {
@@ -36,20 +73,11 @@ export class MenteeBookingsComponent implements OnInit {
     this.page = 1;
     this.search = '';
     this.filterStatus = '';
-    // No need to refetch, just filter client-side
+    this.fetchBookingsForTab();
   }
 
   get filteredBookings() {
-    const now = new Date();
-    let filtered = this.bookings.filter(b => {
-      const start = new Date(b.startDateTime);
-      if (this.tab === 'upcoming') {
-        return start > now;
-      } else if (this.tab === 'past') {
-        return start <= now;
-      }
-      return true; // 'all'
-    });
+    let filtered = this.bookings;
     if (this.search) {
       filtered = filtered.filter(b => b.mentorName?.toLowerCase().includes(this.search.toLowerCase()));
     }
@@ -61,16 +89,7 @@ export class MenteeBookingsComponent implements OnInit {
   }
 
   get totalFiltered() {
-    const now = new Date();
-    return this.bookings.filter(b => {
-      const start = new Date(b.startDateTime);
-      if (this.tab === 'upcoming') {
-        return start > now;
-      } else if (this.tab === 'past') {
-        return start <= now;
-      }
-      return true;
-    }).length;
+    return this.filteredBookings.length;
   }
 
   onSearchChange(event: Event) {
@@ -106,5 +125,22 @@ export class MenteeBookingsComponent implements OnInit {
     const now = new Date();
     const start = new Date(booking.startDateTime);
     return start > now ? 'upcoming' : 'past';
+  }
+
+  getBookingById(bookingId: number) {
+    return this.http.get(`/api/Bookings/${bookingId}`);
+  }
+
+  viewBookingDetails(booking: any) {
+    const id = booking.bookingId || booking.id;
+    if (!id || !this.menteeId) return;
+    this.getBookingById(id).subscribe({
+      next: (data) => {
+        this.router.navigate(['/mentee', this.menteeId, 'booking-details', id]);
+      },
+      error: _ => {
+        this.router.navigate(['/mentee', this.menteeId, 'booking-details', id]);
+      }
+    });
   }
 }

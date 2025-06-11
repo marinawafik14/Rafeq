@@ -3,16 +3,22 @@
   width: 120px;
   height: 120px;
   object-fit: cover;
-  border: 4px solid #e9ecef;
+  border: 4px solid #0a2e65 !important;
   box-shadow: 0 2px 12px rgba(13,110,253,0.08);
 }
-.mentor-profile-view .badge.bg-primary {
-  background: linear-gradient(90deg, #0d6efd 60%, #3b82f6 100%);
-  color: #fff;
-  font-size: 0.95em;
-  font-weight: 500;
+.mentor-profile-view .badge.bg-primary, .mentor-profile-view .btn-success {
+  background: #0a2e65 !important;
+  color: #fff !important;
+  border: 2px solid #0a2e65 !important;
+}
+.mentor-profile-view .card, .mentor-profile-view .card-header, .mentor-profile-view .list-group-item {
+  background: #fff !important;
+  color: #0a2e65 !important;
+  border: none !important;
+  border-radius: 10px !important;
 }
 .mentor-profile-view .card-header {
+  border-bottom: 2px solid #0a2e65 !important;
   font-size: 1.1em;
   background: #f8fafc;
 }
@@ -21,10 +27,6 @@
 }
 .mentor-profile-view .list-group-item {
   font-size: 1em;
-}
-.mentor-profile-view .btn-success {
-  font-size: 1.1em;
-  padding: 0.5rem 1.5rem;
 }
 @media (max-width: 767px) {
   .mentor-profile-view .profile-photo {

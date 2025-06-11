@@ -43,7 +43,9 @@ export class MenteeDashboardComponent implements OnInit {
         menteeId = this.getMenteeIdFromToken();
       }
       if (!menteeId || isNaN(menteeId)) {
-        menteeId = 2; // fallback static
+        // Optionally, redirect to login or show error
+        console.error('No valid menteeId found. Please log in again.');
+        return;
       }
       this.menteeId = menteeId;
       this.loadDashboardData(this.menteeId);
@@ -67,7 +69,7 @@ export class MenteeDashboardComponent implements OnInit {
       }
     });
     // Fetch upcoming and completed sessions from BookingService endpoints
-    this.bookingService.getUpcomingBookings().subscribe({
+    this.bookingService.getUpcomingBookings(menteeId).subscribe({
       next: (sessions: any[]) => {
         this.upcomingSessions = sessions.map(session => ({
           id: session.bookingId,
@@ -86,7 +88,7 @@ export class MenteeDashboardComponent implements OnInit {
         this.updateTotalSessions();
       }
     });
-    this.bookingService.getCompletedBookings().subscribe({
+    this.bookingService.getCompletedBookings(menteeId).subscribe({
       next: (sessions: any[]) => {
         this.completedSessions = sessions.map(session => ({
           id: session.bookingId,

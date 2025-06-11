@@ -4,19 +4,35 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class BookingService {
-  private baseUrl = 'https://localhost:7001/api/Bookings/mentee/2';
+  private baseUrl = 'https://localhost:7001/api/MenteeBookings/mentee';
 
   constructor(private http: HttpClient) {}
 
-  getAllBookings(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/all`);
+  getAllBookings(menteeId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/${menteeId}/all`);
   }
 
-  getUpcomingBookings(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/upcoming`);
+  getUpcomingBookings(menteeId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/${menteeId}/upcoming`);
   }
 
-  getCompletedBookings(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/completed`);
+  getCompletedBookings(menteeId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/${menteeId}/completed`);
+  }
+
+  // Add booking creation for mentee
+  createBooking(booking: {
+    mentorId: number;
+    sessionType: string;
+    startDateTime: string;
+    endDateTime: string;
+  }): Observable<any> {
+    // Use relative URL so proxy works
+    return this.http.post('/api/MenteeBookings', booking);
+  }
+
+  // Get booking details by bookingId
+  getBookingDetails(bookingId: number): Observable<any> {
+    return this.http.get<any>(`/api/MenteeBookings/${bookingId}`);
   }
 }

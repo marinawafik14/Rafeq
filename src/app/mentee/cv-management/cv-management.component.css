@@ -1,6 +1,6 @@
 /* CV Management Styles */
 .cv-management .dropzone {
-  border: 2px dashed #0d6efd;
+  border: 2px dashed #0a2e65 ;
   border-radius: 12px;
   background: #f8fafc;
   transition: background 0.2s, border-color 0.2s;
@@ -8,7 +8,7 @@
 }
 .cv-management .dropzone.drag-over {
   background: #e7f1ff;
-  border-color: #3b82f6;
+  border-color: #0a2e65 ;
 }
 .cv-management .dropzone input[type="file"] {
   display: none;
@@ -28,7 +28,7 @@
 }
 .cv-management .alert-info {
   background: #e7f1ff;
-  color: #0d6efd;
+  color: #0a2e65 ;
   border: none;
 }
 @media (max-width: 767px) {

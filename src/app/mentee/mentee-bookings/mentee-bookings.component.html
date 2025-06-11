@@ -1,52 +1,56 @@
-<mentee-layout>
-  <div class="container py-4 mentee-bookings">
-    <h3 class="mb-4 text-center">My Bookings</h3>
-    <ul class="nav nav-tabs mb-3 justify-content-center">
-      <li class="nav-item">
-        <a class="nav-link" [class.active]="tab==='upcoming'" (click)="setTab('upcoming')">Upcoming</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" [class.active]="tab==='past'" (click)="setTab('past')">Past</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" [class.active]="tab==='all'" (click)="setTab('all')">All</a>
-      </li>
-    </ul>
-    <div *ngIf="filteredBookings.length; else emptyState">
-      <div class="row g-3">
-        <div *ngFor="let booking of filteredBookings" class="col-12">
-          <div class="card shadow-sm booking-card">
-            <div class="card-body d-flex flex-column flex-md-row align-items-md-center justify-content-between">
-              <div class="mb-2 mb-md-0">
-                <div class="fw-bold fs-5">{{booking.mentorName}}</div>
-                <div class="text-muted small mb-1">{{booking.sessionType}} &bull; {{booking.startDateTime | date:'medium'}} </div>
-                <span class="badge bg-success me-1" *ngIf="booking.startDateTime && (bookingTabDate(booking) === 'upcoming')">Upcoming</span>
-                <span class="badge bg-secondary me-1" *ngIf="booking.startDateTime && (bookingTabDate(booking) === 'past')">Past</span>
-                <span class="badge bg-danger me-1" *ngIf="booking.status==='Cancelled' || booking.status==='cancelled'">Cancelled</span>
-              </div>
-              <div class="d-flex gap-2 flex-wrap">
-                <a *ngIf="booking.googleMeetLink" class="btn btn-success btn-sm" [href]="booking.googleMeetLink" target="_blank"><i class="bi bi-camera-video"></i> Join</a>
+<div class="mentee-page d-flex">
+  <mentee-layout></mentee-layout>
+  <main class="main-content flex-grow-1">
+    <div class="container py-4 mentee-bookings">
+      <h3 class="mb-4 text-center">My Bookings</h3>
+      <ul class="nav nav-tabs mb-3 justify-content-center">
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="tab==='upcoming'" (click)="setTab('upcoming')">Upcoming</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="tab==='past'" (click)="setTab('past')">Past</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="tab==='all'" (click)="setTab('all')">All</a>
+        </li>
+      </ul>
+      <div *ngIf="filteredBookings.length; else emptyState">
+        <div class="row g-3">
+          <div *ngFor="let booking of filteredBookings" class="col-12">
+            <div class="card shadow-sm booking-card">
+              <div class="card-body d-flex flex-column flex-md-row align-items-md-center justify-content-between">
+                <div class="mb-2 mb-md-0">
+                  <div class="fw-bold fs-5">{{booking.mentorName}}</div>
+                  <div class="text-muted small mb-1">{{booking.sessionType}} &bull; {{booking.startDateTime | date:'medium'}} </div>
+                  <span class="badge bg-success me-1" *ngIf="booking.startDateTime && (bookingTabDate(booking) === 'upcoming')">Upcoming</span>
+                  <span class="badge bg-secondary me-1" *ngIf="booking.startDateTime && (bookingTabDate(booking) === 'past')">Past</span>
+                  <span class="badge bg-danger me-1" *ngIf="booking.status==='Cancelled' || booking.status==='cancelled'">Cancelled</span>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                  <a *ngIf="booking.googleMeetLink" class="btn btn-success btn-sm" [href]="booking.googleMeetLink" target="_blank"><i class="bi bi-camera-video"></i> Join</a>
+                  <button class="btn btn-outline-primary btn-sm" (click)="viewBookingDetails(booking)"><i class="bi bi-eye"></i> View Details</button>
+                </div>
               </div>
             </div>
           </div>
         </div>
+        <nav class="mt-4 d-flex justify-content-center">
+          <ul class="pagination">
+            <li class="page-item" [class.disabled]="page === 1">
+              <button class="page-link" (click)="onPageChange(page - 1)" [disabled]="page === 1">Prev</button>
+            </li>
+            <li class="page-item disabled">
+              <span class="page-link">Page {{page}}</span>
+            </li>
+            <li class="page-item" [class.disabled]="page * pageSize >= totalFiltered">
+              <button class="page-link" (click)="onPageChange(page + 1)" [disabled]="page * pageSize >= totalFiltered">Next</button>
+            </li>
+          </ul>
+        </nav>
       </div>
-      <nav class="mt-4 d-flex justify-content-center">
-        <ul class="pagination">
-          <li class="page-item" [class.disabled]="page === 1">
-            <button class="page-link" (click)="onPageChange(page - 1)" [disabled]="page === 1">Prev</button>
-          </li>
-          <li class="page-item disabled">
-            <span class="page-link">Page {{page}}</span>
-          </li>
-          <li class="page-item" [class.disabled]="page * pageSize >= totalFiltered">
-            <button class="page-link" (click)="onPageChange(page + 1)" [disabled]="page * pageSize >= totalFiltered">Next</button>
-          </li>
-        </ul>
-      </nav>
+      <ng-template #emptyState>
+        <div class="text-center text-muted py-5">No bookings found for this tab.</div>
+      </ng-template>
     </div>
-    <ng-template #emptyState>
-      <div class="text-center text-muted py-5">No bookings found for this tab.</div>
-    </ng-template>
-  </div>
-</mentee-layout>
+  </main>
+</div>

@@ -1,4 +1,4 @@
-<mentee-layout>
+<mentee-layout [menteeName]="menteeName" [menteeId]="menteeId">
   <div class="container py-4 cv-management">
     <h3 class="mb-4 text-center">CV Management</h3>
     <div class="row mb-4">
@@ -33,21 +33,16 @@
                 <tr *ngFor="let cv of cvs">
                   <td><i class="bi bi-file-earmark-text me-2"></i>{{cv.name}}</td>
                   <td>{{cv.uploadedAt}}</td>
-                  <td>{{(cv.size/1024) | number:'1.0-0'}} KB</td>
+                  <td>{{cv.size !== null && cv.size !== undefined ? (cv.size/1024 | number:'1.0-0') + ' KB' : 'N/A'}}</td>
                   <td>
                     <span class="badge bg-success" *ngIf="cv.active">Active</span>
                     <button *ngIf="!cv.active" class="btn btn-outline-secondary btn-sm"
                       [disabled]="cv.active">Set Active</button>
                   </td>
                   <td>
-                    <button class="btn btn-link p-0" [attr.data-bs-toggle]="cv.comments.length ? 'collapse' : null"
-                      [attr.data-bs-target]="'#comments'+cv.id" [disabled]="!cv.comments.length">
+                    <button class="btn btn-link p-0" (click)="openCommentsModal(cv)">
                       <i class="bi bi-chat-dots"></i> {{cv.comments.length}} comment{{cv.comments.length === 1 ? '' : 's'}}
                     </button>
-                    <div [id]="'comments'+cv.id" class="collapse mt-2">
-                      <div *ngFor="let comment of cv.comments" class="alert alert-info py-1 px-2 mb-1 small">{{comment}}
-                      </div>
-                    </div>
                   </td>
                   <td>
                     <button class="btn btn-outline-danger btn-sm" (click)="deleteCV(cv)"><i class="bi bi-trash"></i>
@@ -66,5 +61,37 @@
         </ng-template>
       </div>
     </div>
+    <ng-container *ngIf="loading">Loading...</ng-container>
+    <ng-container *ngIf="error">{{error}}</ng-container>
   </div>
+
+  <!-- Comments Modal -->
+  <ng-container *ngIf="showCommentsModal">
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal d-block" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Comments for {{selectedCV?.name}}</h5>
+            <button type="button" class="btn-close" (click)="closeCommentsModal()"></button>
+          </div>
+          <div class="modal-body">
+            <div *ngIf="selectedComments.length; else noComments">
+              <div *ngFor="let comment of selectedComments" class="mb-3">
+                <div class="fw-bold">{{comment.mentorName}} <span class="text-muted small">({{comment.createdAt | date:'short'}})</span>
+                </div>
+                <div>{{comment.comment}}</div>
+              </div>
+            </div>
+            <ng-template #noComments>
+              <div class="text-muted">No comments for this CV.</div>
+            </ng-template>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeCommentsModal()">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
 </mentee-layout>

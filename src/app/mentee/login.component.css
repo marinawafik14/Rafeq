@@ -1,0 +1,14 @@
+.container {
+  background: #fff !important;
+  color: #0a2e65 !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+}
+.btn-primary {
+  background-color: #0a2e65 !important;
+  color: #fff !important;
+  border: 2px solid #0a2e65 !important;
+}
+.btn-primary:disabled {
+  opacity: 0.7;
+}

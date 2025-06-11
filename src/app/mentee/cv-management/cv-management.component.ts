@@ -1,15 +1,19 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { CvService } from '../../Services/cv.service';
+import { ActivatedRoute } from '@angular/router';
 import { MenteeLayoutComponent } from '../mentee-layout.component';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 
-interface CVFile {
+interface CV {
   id: number;
   name: string;
   uploadedAt: string;
-  size: number;
+  size: number | null;
   type: string;
   active: boolean;
-  comments: string[];
+  comments: any[];
+  userFullName: string | null;
 }
 
 @Component({
@@ -19,62 +23,91 @@ interface CVFile {
   templateUrl: './cv-management.component.html',
   styleUrls: ['./cv-management.component.css']
 })
-export class CvManagementComponent {
-  cvs: CVFile[] = [
-    { id: 1, name: 'CV_2025.pdf', uploadedAt: '2025-06-01', size: 320000, type: 'application/pdf', active: true, comments: ['Great structure!', 'Add more about your projects.'] },
-    { id: 2, name: 'Resume.docx', uploadedAt: '2025-05-20', size: 210000, type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', active: false, comments: [] }
-  ];
+export class CvManagementComponent implements OnInit {
+  cvs: CV[] = [];
+  loading = true;
+  error: string | null = null;
+  menteeId: number | null = null;
+  menteeName: string = '';
   dragOver = false;
-  fileError = '';
-  maxFileSize = 2 * 1024 * 1024; // 2MB
-  allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+  fileError: string | null = null;
+  selectedComments: any[] = [];
+  showCommentsModal = false;
+  selectedCV: CV | null = null;
+
+  // Base URL for API calls
+  private apiBaseUrl = 'https://localhost:7001/api';
+
+  constructor(
+    private cvService: CvService, 
+    private route: ActivatedRoute, 
+    private http: HttpClient
+  ) {}
+
+  ngOnInit() {
+    this.route.paramMap.subscribe(params => {
+      const menteeIdParam = params.get('menteeId');
+      this.menteeId = menteeIdParam ? +menteeIdParam : null;
+      
+      if (this.menteeId) {
+        this.loadCVs();
+      } else {
+        this.error = 'No mentee ID found.';
+        this.loading = false;
+      }
+    });
+  }
+
+  private loadCVs() {
+    this.cvService.getMenteeCVs(this.menteeId!).subscribe({
+      next: (data) => {
+        this.cvs = (data || []).map(cv => ({
+          id: cv.cvId,
+          name: cv.fileName,
+          uploadedAt: cv.uploadDate,
+          size: null, // Not provided in response
+          type: cv.fileName?.split('.').pop() || '',
+          active: cv.isActive,
+          comments: [], // Will be loaded per CV
+          userFullName: cv.userFullName,
+        }));
+        this.loading = false;
+        // Load comments for each CV
+        this.cvs.forEach(cv => this.loadCommentsForCV(cv));
+      },
+      error: (err) => {
+        this.error = 'Failed to load CVs.';
+        this.loading = false;
+        console.error('Error loading CVs:', err);
+      }
+    });
+  }
+
+  private loadCommentsForCV(cv: CV) {
+    this.http.get<any[]>(`${this.apiBaseUrl}/MenteeCVs/mentee/${this.menteeId}/comments/${cv.id}`, {
+      headers: this.getAuthHeaders()
+    }).subscribe({
+      next: (comments) => {
+        cv.comments = comments || [];
+      },
+      error: err => {
+        cv.comments = [];
+        // Optionally log error
+      }
+    });
+  }
+
+  private getAuthHeaders(): HttpHeaders {
+    const token = document.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1];
+    return token ? new HttpHeaders({ 'Authorization': `Bearer ${token}` }) : new HttpHeaders();
+  }
 
   onFileDrop(event: DragEvent) {
     event.preventDefault();
     this.dragOver = false;
-    if (event.dataTransfer && event.dataTransfer.files.length) {
-      this.handleFile(event.dataTransfer.files[0]);
-    }
-  }
-
-  onFileSelect(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length) {
-      this.handleFile(input.files[0]);
-    }
-  }
-
-  handleFile(file: File) {
-    this.fileError = '';
-    if (!this.allowedTypes.includes(file.type)) {
-      this.fileError = 'Invalid file type. Only PDF and Word documents are allowed.';
-      return;
-    }
-    if (file.size > this.maxFileSize) {
-      this.fileError = 'File is too large. Maximum size is 2MB.';
-      return;
-    }
-    // Simulate upload
-    this.cvs.unshift({
-      id: Date.now(),
-      name: file.name,
-      uploadedAt: new Date().toISOString().slice(0, 10),
-      size: file.size,
-      type: file.type,
-      active: false,
-      comments: []
-    });
-  }
-
-  setActive(cv: CVFile) {
-    this.cvs.forEach(f => f.active = false);
-    cv.active = true;
-    // No alert, just set active
-  }
-
-  deleteCV(cv: CVFile) {
-    if (confirm(`Are you sure you want to delete ${cv.name}?`)) {
-      this.cvs = this.cvs.filter(f => f.id !== cv.id);
+    
+    if (event.dataTransfer?.files && event.dataTransfer.files.length > 0) {
+      this.handleFileUpload(event.dataTransfer.files[0]);
     }
   }
 
@@ -86,5 +119,65 @@ export class CvManagementComponent {
   onDragLeave(event: DragEvent) {
     event.preventDefault();
     this.dragOver = false;
+  }
+
+  onFileSelect(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0 && this.menteeId) {
+      this.handleFileUpload(input.files[0]);
+      input.value = ''; // Reset input to allow selecting the same file again
+    }
+  }
+
+  private handleFileUpload(file: File) {
+    if (!this.menteeId) return;
+    
+    const formData = new FormData();
+    formData.append('file', file);
+    this.fileError = null;
+    
+    this.http.post(`${this.apiBaseUrl}/MenteeCVs/mentee/${this.menteeId}`, formData, { 
+      headers: this.getAuthHeaders() 
+    }).subscribe({
+      next: () => {
+        this.loadCVs(); // Refresh the list
+      },
+      error: err => {
+        this.fileError = 'Failed to upload CV. Please try again.';
+        console.error('Error uploading CV:', err);
+      }
+    });
+  }
+
+  deleteCV(cv: CV) {
+    if (!cv.id || !this.menteeId) return;
+    
+    if (!confirm('Are you sure you want to delete this CV?')) {
+      return;
+    }
+
+    this.http.delete(`${this.apiBaseUrl}/MenteeCVs/mentee/${this.menteeId}/${cv.id}`, { 
+      headers: this.getAuthHeaders() 
+    }).subscribe({
+      next: () => {
+        this.cvs = this.cvs.filter(item => item.id !== cv.id);
+      },
+      error: err => {
+        this.error = 'Failed to delete CV.';
+        console.error('Error deleting CV:', err);
+      }
+    });
+  }
+
+  openCommentsModal(cv: CV) {
+    this.selectedCV = cv;
+    this.selectedComments = cv.comments;
+    this.showCommentsModal = true;
+  }
+
+  closeCommentsModal() {
+    this.showCommentsModal = false;
+    this.selectedCV = null;
+    this.selectedComments = [];
   }
 }

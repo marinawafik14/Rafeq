@@ -48,18 +48,13 @@ export class MenteeSearchMentorsComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Get menteeId from route or token for context (if needed for personalized search)
-    const routeParam = window.location.pathname.match(/mentee\/(\d+)\//);
-    if (routeParam && routeParam[1]) {
-      this.menteeId = +routeParam[1];
-    } else {
-      const token = document.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1];
-      if (token) {
-        try {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          this.menteeId = payload.menteeId || null;
-        } catch {}
-      }
+    // Always get menteeId from the logged-in user's token for correct context
+    const token = document.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1];
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        this.menteeId = payload.menteeId || null;
+      } catch {}
     }
     this.loadSkills();
     this.fetchAllMentors();

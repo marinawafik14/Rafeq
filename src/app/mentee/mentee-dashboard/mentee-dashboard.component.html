@@ -1,89 +1,93 @@
 <mentee-layout [menteeName]="menteeName" [menteeId]="menteeId">
-  <div class="container py-4">
-    <div class="row mb-4">
-      <div class="col-12">
-        <div class="welcome-section p-4 rounded bg-primary text-white mb-3">
-          <h2 class="mb-1">Welcome back, {{menteeName || 'Mentee'}}!</h2>
-          <p class="mb-0" *ngIf="menteeName; else loading">Ready to continue your learning journey?</p>
-          <ng-template #loading>
-            <span>Loading...</span>
-          </ng-template>
-        </div>
-      </div>
-    </div>
-    <div class="row g-3 mb-4">
-      <div class="col-6 col-md-3" *ngFor="let stat of stats">
-        <div class="card text-center shadow-sm h-100">
-          <div class="card-body">
-            <i class="bi {{stat.icon}} fs-2 text-primary mb-2"></i>
-            <h4 class="fw-bold mb-0">{{stat.value}}</h4>
-            <div class="text-muted small">{{stat.label}}</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row g-4">
-      <div class="col-12 col-lg-7">
-        <div class="card shadow-sm mb-4">
-          <div class="card-header bg-white fw-bold">Upcoming Sessions</div>
-          <div class="card-body p-0">
-            <div *ngIf="upcomingSessions.length; else noSessions">
-              <ul class="list-group list-group-flush">
-                <li class="list-group-item d-flex align-items-center justify-content-between" *ngFor="let session of upcomingSessions">
-                  <div>
-                    <div class="fw-bold">{{session.mentor}}</div>
-                    <div class="text-muted small">{{session.date}} at {{session.time}}</div>
-                  </div>
-                  <a [href]="session.joinUrl" class="btn btn-success btn-sm" *ngIf="session.status==='upcoming'">
-                    <i class="bi bi-camera-video"></i> Join
-                  </a>
-                  <span *ngIf="session.status!=='upcoming'" class="badge bg-secondary">{{session.status}}</span>
-                </li>
-              </ul>
+  <div class="dashboard-page d-flex">
+    <main class="main-content flex-grow-1">
+      <div class="container py-4">
+        <div class="row mb-4">
+          <div class="col-12">
+            <div class="welcome-section p-4 rounded text-white mb-3" style="background:#0a2e65;">
+              <h2 class="mb-1">Welcome back, {{menteeName || 'Mentee'}}!</h2>
+              <p class="mb-0" *ngIf="menteeName; else loading">Ready to continue your learning journey?</p>
+              <ng-template #loading>
+                <span>Loading...</span>
+              </ng-template>
             </div>
-            <ng-template #noSessions>
-              <div class="text-center text-muted py-4">No upcoming sessions.</div>
-            </ng-template>
           </div>
         </div>
-        <!-- Completed Sessions Section -->
-        <div class="card shadow-sm mb-4">
-          <div class="card-header bg-white fw-bold">Completed Sessions</div>
-          <div class="card-body p-0">
-            <div *ngIf="completedSessions.length; else noCompleted">
-              <ul class="list-group list-group-flush">
-                <li class="list-group-item d-flex align-items-center justify-content-between" *ngFor="let session of completedSessions">
-                  <div>
-                    <div class="fw-bold">{{session.mentor}}</div>
-                    <div class="text-muted small">{{session.date}} at {{session.time}}</div>
-                  </div>
-                  <span class="badge bg-success">Completed</span>
-                </li>
-              </ul>
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-md-3" *ngFor="let stat of stats">
+            <div class="card text-center shadow-sm h-100">
+              <div class="card-body">
+                <i class="bi {{stat.icon}} fs-2 mb-2" style="color:#0a2e65;"></i>
+                <h4 class="fw-bold mb-0">{{stat.value}}</h4>
+                <div class="text-muted small">{{stat.label}}</div>
+              </div>
             </div>
-            <ng-template #noCompleted>
-              <div class="text-center text-muted py-4">No completed sessions.</div>
-            </ng-template>
           </div>
         </div>
-      </div>
-      <div class="col-12 col-lg-5">
-        <div class="card shadow-sm mb-4">
-          <div class="card-header bg-white fw-bold">Recent Activity</div>
-          <div class="card-body p-0">
-            <ul class="list-group list-group-flush">
-              <li class="list-group-item d-flex align-items-center" *ngFor="let activity of recentActivity">
-                <i class="bi bi-dot fs-3 text-primary me-2"></i>
-                <div>
-                  <div>{{activity.text}}</div>
-                  <div class="text-muted small">{{activity.date}}</div>
+        <div class="row g-4">
+          <div class="col-12 col-lg-7">
+            <div class="card shadow-sm mb-4">
+              <div class="card-header bg-white fw-bold">Upcoming Sessions</div>
+              <div class="card-body p-0">
+                <div *ngIf="upcomingSessions.length; else noSessions">
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex align-items-center justify-content-between" *ngFor="let session of upcomingSessions">
+                      <div>
+                        <div class="fw-bold">{{session.mentor}}</div>
+                        <div class="text-muted small">{{session.date}} at {{session.time}}</div>
+                      </div>
+                      <a [href]="session.joinUrl" class="btn btn-success btn-sm" *ngIf="session.status==='upcoming'" style="background:linear-gradient(to right bottom, #0a2e65, #1b74e4);color:#fff;border:none;">
+                        <i class="bi bi-camera-video"></i> Join
+                      </a>
+                      <span *ngIf="session.status!=='upcoming'" class="badge bg-secondary">{{session.status}}</span>
+                    </li>
+                  </ul>
                 </div>
-              </li>
-            </ul>
-            <div *ngIf="!recentActivity.length" class="text-center text-muted py-4">No recent activity.</div>
+                <ng-template #noSessions>
+                  <div class="text-center text-muted py-4">No upcoming sessions.</div>
+                </ng-template>
+              </div>
+            </div>
+            <!-- Completed Sessions Section -->
+            <div class="card shadow-sm mb-4">
+              <div class="card-header bg-white fw-bold">Completed Sessions</div>
+              <div class="card-body p-0">
+                <div *ngIf="completedSessions.length; else noCompleted">
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex align-items-center justify-content-between" *ngFor="let session of completedSessions">
+                      <div>
+                        <div class="fw-bold">{{session.mentor}}</div>
+                        <div class="text-muted small">{{session.date}} at {{session.time}}</div>
+                      </div>
+                      <span class="badge bg-success">Completed</span>
+                    </li>
+                  </ul>
+                </div>
+                <ng-template #noCompleted>
+                  <div class="text-center text-muted py-4">No completed sessions.</div>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-lg-5">
+            <div class="card shadow-sm mb-4">
+              <div class="card-header bg-white fw-bold">Recent Activity</div>
+              <div class="card-body p-0">
+                <ul class="list-group list-group-flush">
+                  <li class="list-group-item d-flex align-items-center" *ngFor="let activity of recentActivity">
+                    <i class="bi bi-dot fs-3 me-2" style="color:#0a2e65;"></i>
+                    <div>
+                      <div>{{activity.text}}</div>
+                      <div class="text-muted small">{{activity.date}}</div>
+                    </div>
+                  </li>
+                </ul>
+                <div *ngIf="!recentActivity.length" class="text-center text-muted py-4">No recent activity.</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </main>
   </div>
 </mentee-layout>

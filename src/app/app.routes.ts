@@ -15,20 +15,35 @@ import { ReviewCardComponent } from './shared/components/review-card/review-card
 import { ReviewListComponent } from './shared/components/review-list/review-list.component';
 import { ReviewSummaryComponent } from './shared/components/review-summary/review-summary.component';
 import { WriteReviewFormComponent } from './shared/components/write-review-form/write-review-form.component';
+import { LoginComponent } from './mentee/login.component';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { ReactiveFormsModule } from '@angular/forms';
 export const routes: Routes = [
-  { path: '', redirectTo: 'mentee/3/dashboard', pathMatch: 'full' },
-  { path: 'mentee/:menteeId/dashboard', component: MenteeDashboardComponent },
-  { path: 'mentee/search-mentors', component: MenteeSearchMentorsComponent },
+ 
+  {
+  path: 'mentee/:menteeId/dashboard',
+  loadComponent: () => import('./mentee/mentee-dashboard/mentee-dashboard.component').then(m => m.MenteeDashboardComponent)
+},
+{
+  path: 'mentee/:menteeId/search-mentors',
+  loadComponent: () => import('./mentee/mentee-search-mentors/mentee-search-mentors.component').then(m => m.MenteeSearchMentorsComponent)
+},
+{
+  path: 'mentee/:menteeId/bookings',
+  loadComponent: () => import('./mentee/mentee-bookings/mentee-bookings.component').then(m => m.MenteeBookingsComponent)
+},
+{
+  path: 'mentee/:menteeId/cv-management',
+  loadComponent: () => import('./mentee/cv-management/cv-management.component').then(m => m.CvManagementComponent)
+},
   { path: 'mentee/mentor/:id', component: MentorProfileViewComponent },
-  { path: 'mentee/booking-form', component: BookingFormComponent },
-  { path: 'mentee/bookings', component: MenteeBookingsComponent },
-  { path: 'mentee/cv-management', component: CvManagementComponent },
-  { path: 'mentee/booking-details/:id', component: BookingDetailsComponent },
+  { path: 'mentee/:menteeId/booking-form', component: BookingFormComponent },
+  { path: 'mentee/:menteeId/booking-details/:id', component: BookingDetailsComponent },
 
    {
         path: 'home', component: HomeComponent
     },
-    { path: '', redirectTo: 'home', pathMatch: 'full' },
+   // { path: '', redirectTo: 'home', pathMatch: 'full' },
     {
     
         path: 'about', component: AboutComponent
@@ -41,5 +56,53 @@ export const routes: Routes = [
     {path : 'card', component : ReviewCardComponent},
     {path :'list' , component : ReviewListComponent},
     {path : 'summary', component : ReviewSummaryComponent},
-    {path : 'form' , component : WriteReviewFormComponent}
-];
+    {path : 'form' , component : WriteReviewFormComponent},
+    { path: '', component: LoginComponent },
+    {
+      path: 'mentee/dashboard',
+      loadComponent: () => import('./mentee/mentee-dashboard/mentee-dashboard.component').then(m => m.MenteeDashboardComponent),
+      // Optionally, you can use a guard or resolver to redirect if menteeId is available
+    },
+    {
+      path: 'mentee/bookings',
+      loadComponent: () => import('./mentee/mentee-bookings/mentee-bookings.component').then(m => m.MenteeBookingsComponent),
+    },
+    {
+      path: 'mentee/search-mentors',
+      loadComponent: () => import('./mentee/mentee-search-mentors/mentee-search-mentors.component').then(m => m.MenteeSearchMentorsComponent),
+    },
+    {
+      path: 'mentee/cv-management',
+      loadComponent: () => import('./mentee/cv-management/cv-management.component').then(m => m.CvManagementComponent),
+    },
+    {
+      path: 'find-mentors',
+      loadComponent: () => import('./mentee/mentee-search-mentors/mentee-search-mentors.component').then(m => m.MenteeSearchMentorsComponent)
+    },
+    {
+      path: 'mentee/bookings',
+      redirectTo: '',
+      pathMatch: 'full',
+      // This will be handled in a guard or in the component to extract menteeId from token and redirect
+    },
+    {
+      path: 'mentee/dashboard',
+      redirectTo: '',
+      pathMatch: 'full',
+    },
+    {
+      path: 'mentee/cv-management',
+      redirectTo: '',
+      pathMatch: 'full',
+    },
+    {
+      path: 'mentee/search-mentors',
+      redirectTo: '',
+      pathMatch: 'full',
+    },
+    {
+      path: 'mentee/:menteeId',
+      redirectTo: 'mentee/:menteeId/dashboard',
+      pathMatch: 'full',
+    },
+  ];

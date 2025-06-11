@@ -1,75 +1,78 @@
-<mentee-layout>
-  <div class="container py-4 mentor-profile-view" *ngIf="mentor">
-    <div class="row align-items-center mb-4">
-      <div class="col-12 col-md-3 text-center mb-3 mb-md-0">
-        <img [src]="mentor.profilePicture || 'assets/default-profile.png'" alt="Mentor Photo" class="rounded-circle shadow profile-photo">
+<div class="mentee-page d-flex">
+  <mentee-layout></mentee-layout>
+  <main class="main-content flex-grow-1">
+    <div class="container py-4 mentor-profile-view" *ngIf="mentor">
+      <div class="row align-items-center mb-4">
+        <div class="col-12 col-md-3 text-center mb-3 mb-md-0">
+          <img [src]="mentor.profilePicture || 'assets/default-profile.png'" alt="Mentor Photo" class="rounded-circle shadow profile-photo">
+        </div>
+        <div class="col-12 col-md-6">
+          <h2 class="fw-bold mb-1">{{mentor.fullName || mentor.name}}</h2>
+          <div class="text-muted mb-2">{{mentor.title || ''}}</div>
+          <div class="mb-2">
+            <span class="badge bg-primary me-1 mb-1" *ngFor="let skill of mentor.skills">{{skill.Name || skill}}</span>
+          </div>
+          <div class="mb-2">
+            <i class="bi bi-star-fill text-warning"></i>
+            <span class="fw-bold">{{mentor.rating || 'N/A'}}</span>
+            <span class="text-muted">({{mentor.reviews?.length || 0}} reviews)</span>
+          </div>
+          <button class="btn btn-success btn-lg mt-2" (click)="bookSession()">Book a Session</button>
+        </div>
       </div>
-      <div class="col-12 col-md-6">
-        <h2 class="fw-bold mb-1">{{mentor.fullName || mentor.name}}</h2>
-        <div class="text-muted mb-2">{{mentor.title || ''}}</div>
-        <div class="mb-2">
-          <span class="badge bg-primary me-1 mb-1" *ngFor="let skill of mentor.skills">{{skill.Name || skill}}</span>
-        </div>
-        <div class="mb-2">
-          <i class="bi bi-star-fill text-warning"></i>
-          <span class="fw-bold">{{mentor.rating || 'N/A'}}</span>
-          <span class="text-muted">({{mentor.reviews?.length || 0}} reviews)</span>
-        </div>
-        <button class="btn btn-success btn-lg mt-2">Book a Session</button>
-      </div>
-    </div>
-    <div class="row g-4">
-      <div class="col-12 col-lg-8">
-        <div class="card mb-4">
-          <div class="card-header bg-white fw-bold">Bio</div>
-          <div class="card-body">{{mentor.bio}}</div>
-        </div>
-        <div class="card mb-4">
-          <div class="card-header bg-white fw-bold">Experience</div>
-          <div class="card-body">
-            <ul class="list-unstyled mb-0">
-              <li *ngFor="let exp of mentor.experience || []">
-                <i class="bi bi-briefcase me-2 text-primary"></i>
-                <span class="fw-bold">{{exp.role}}</span> at {{exp.company}} <span class="text-muted">({{exp.years}})</span>
-              </li>
-            </ul>
+      <div class="row g-4">
+        <div class="col-12 col-lg-8">
+          <div class="card mb-4">
+            <div class="card-header bg-white fw-bold">Bio</div>
+            <div class="card-body">{{mentor.bio}}</div>
+          </div>
+          <div class="card mb-4">
+            <div class="card-header bg-white fw-bold">Experience</div>
+            <div class="card-body">
+              <ul class="list-unstyled mb-0">
+                <li *ngFor="let exp of mentor.experience || []">
+                  <i class="bi bi-briefcase me-2 text-primary"></i>
+                  <span class="fw-bold">{{exp.role}}</span> at {{exp.company}} <span class="text-muted">({{exp.years}})</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <div class="card mb-4">
+            <div class="card-header bg-white fw-bold">Ratings & Reviews</div>
+            <div class="card-body p-0">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item" *ngFor="let review of mentor.reviews || []">
+                  <div class="d-flex align-items-center mb-1">
+                    <i class="bi bi-person-circle me-2 text-primary"></i>
+                    <span class="fw-bold me-2">{{review.user}}</span>
+                    <span class="text-warning"><i class="bi bi-star-fill"></i> {{review.rating}}</span>
+                    <span class="text-muted ms-2 small">{{review.date}}</span>
+                  </div>
+                  <div>{{review.comment}}</div>
+                </li>
+              </ul>
+              <div *ngIf="!mentor.reviews || !mentor.reviews.length" class="text-center text-muted py-4">No reviews yet.</div>
+            </div>
           </div>
         </div>
-        <div class="card mb-4">
-          <div class="card-header bg-white fw-bold">Ratings & Reviews</div>
-          <div class="card-body p-0">
-            <ul class="list-group list-group-flush">
-              <li class="list-group-item" *ngFor="let review of mentor.reviews || []">
-                <div class="d-flex align-items-center mb-1">
-                  <i class="bi bi-person-circle me-2 text-primary"></i>
-                  <span class="fw-bold me-2">{{review.user}}</span>
-                  <span class="text-warning"><i class="bi bi-star-fill"></i> {{review.rating}}</span>
-                  <span class="text-muted ms-2 small">{{review.date}}</span>
+        <div class="col-12 col-lg-4">
+          <div class="card mb-4">
+            <div class="card-header bg-white fw-bold">Availability</div>
+            <div class="card-body">
+              <div *ngFor="let day of mentor.availability || mentor.availabilities || []" class="mb-3">
+                <div class="fw-bold mb-1"><i class="bi bi-calendar-event me-1"></i> {{day.date}}</div>
+                <div>
+                  <span class="badge bg-success me-1 mb-1" *ngFor="let slot of day.slots || []">{{slot}}</span>
                 </div>
-                <div>{{review.comment}}</div>
-              </li>
-            </ul>
-            <div *ngIf="!mentor.reviews || !mentor.reviews.length" class="text-center text-muted py-4">No reviews yet.</div>
-          </div>
-        </div>
-      </div>
-      <div class="col-12 col-lg-4">
-        <div class="card mb-4">
-          <div class="card-header bg-white fw-bold">Availability</div>
-          <div class="card-body">
-            <div *ngFor="let day of mentor.availability || mentor.availabilities || []" class="mb-3">
-              <div class="fw-bold mb-1"><i class="bi bi-calendar-event me-1"></i> {{day.date}}</div>
-              <div>
-                <span class="badge bg-success me-1 mb-1" *ngFor="let slot of day.slots || []">{{slot}}</span>
+              </div>
+              <div *ngIf="!(mentor.availability?.length || mentor.availabilities?.length)">
+                <span class="text-muted">No availability listed.</span>
               </div>
             </div>
-            <div *ngIf="!(mentor.availability?.length || mentor.availabilities?.length)">
-              <span class="text-muted">No availability listed.</span>
-            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-  <div *ngIf="!mentor" class="text-center py-5 text-muted">Loading mentor profile...</div>
-</mentee-layout>
+    <div *ngIf="!mentor" class="text-center py-5 text-muted">Loading mentor profile...</div>
+  </main>
+</div>
