@@ -25,6 +25,7 @@ import { ResendVerificationEmailComponent } from './Auth/resend-verification-ema
 import { AdminReviewsComponent } from './Components/Admin/admin-reviews/admin-reviews.component';
 import { DashboardComponent } from './features/mentor/dashboard/dashboard.component';
 import { ProfileManagementComponent } from './features/mentor/profile-management/profile-management.component';
+import { PaymentComponent } from './payment/payment.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -36,7 +37,7 @@ export const routes: Routes = [
  { path: 'verify-email/:token', component: VerifyEmailComponent },
   { path: 'resend-verification', component: ResendVerificationEmailComponent },
 
-
+{ path: 'payment', component: PaymentComponent },
    { path: 'home', component: HomeComponent},
    { path: 'about', component: AboutComponent},
     { path: 'contact', component: ContactComponent},
