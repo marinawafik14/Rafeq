@@ -1,0 +1,43 @@
+<div class="container my-4">
+  <div class="row g-3">
+    <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let metric of [
+      {title: 'Total Revenue', value: dashboardData.revenue + '$'},
+      {title: 'Total Revenue Growth', value: dashboardData.revenueGrowthPrecentage + '%'},
+     
+     
+      {title: 'Users Growth', value: dashboardData.usersGrowthPrecentage + '%'},
+      {title: 'Active users', value: dashboardData.activeUsers},
+      {title: 'Total Bookings', value: dashboardData.totalBookings},
+      {title: 'Total Mentors', value: dashboardData.totalMentors},
+      {title: 'Total Mentees', value: dashboardData.totalMentees},
+      {title: 'Total Users', value: dashboardData.totalUsers},
+      {title: 'Total Skills', value: dashboardData.totalSkills}
+    ]">
+      <div class="card shadow-sm h-100 text-center border-0 bg-light">
+        <div class="card-body d-flex flex-column justify-content-center align-items-center">
+          <h6 class="card-title text-primary fw-bold">{{metric.title}}</h6>
+          <p class="card-text display-6 fw-semibold mb-0">{{metric.value}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row g-4">
+    <div class="col-12 col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div echarts [options]="userGrowthChartOptions" class="chart" style="height: 300px;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-12 col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div echarts [options]="revenueChartOptions" class="chart" style="height: 300px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

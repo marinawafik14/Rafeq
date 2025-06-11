@@ -1,30 +1,26 @@
-export class Users3 {
-  UserId!: number;           
-  FullName!: string;         
-  Email!: string;         
-  PasswordHash!: string;     
-  
-  ProfilePicture?: string;  
+export interface Users {
+  id: number;           
+  fullName: string;         
+  email: string;         
+  PasswordHash: string;     
+profilePicture?: string;  
   Bio?: string;        
   
-  IsEmailVerified!: boolean;   
+  IsEmailVerified: boolean;   
   
-  RoleId!: number;     
-  
-  IsActive!: boolean;        
-  CreatedAt!: Date;          
+  RoleId: number;     
+  role: string;
+  isActive: boolean;        
+  createdAt: Date;          
   
   ExternalId?: string;       
   ExternalType?: string;     
   externalToken?: string;   
   
-  IsMentor!: boolean;       
-  IsInterviewer!: boolean;   
+  isMentor: boolean;       
+  isInterviewer: boolean;   
   
-  IsDeleted!: boolean;       
+  IsDeleted: boolean;       
   
   HourlyRate?: number;       
-  // Add the following for mentor search display:
-  skills?: { Name: string }[];
-  rating?: number;
 }

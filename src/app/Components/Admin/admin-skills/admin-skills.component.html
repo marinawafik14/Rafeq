@@ -1,0 +1,115 @@
+<div class="container my-4">
+  <!-- Header -->
+  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+    <div>
+      <h2 class="fw-bold mb-1 text-gradient">Skills</h2>
+    </div>
+    <button class="btn btn-primary px-4 py-2 rounded-pill shadow-sm" (click)="showAddSkillForm = true">
+      <i class="bi bi-plus-circle me-2"></i> New Skill
+    </button>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="row g-2 mb-3 align-items-center">
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="input-group shadow-sm rounded-pill">
+        <span class="input-group-text bg-white border-0"><i class="bi bi-search text-primary"></i></span>
+        <input [(ngModel)]="searchQuery" (ngModelChange)="currentPage =1"
+          class="form-control border-0 rounded-end-pill py-2"
+          placeholder="Search Skill">
+      </div>
+    </div>
+    <!-- Uncomment if you want mentor filter
+    <div class="col-12 col-md-6 col-lg-4">
+      <select class="form-select rounded-pill shadow-sm" [(ngModel)]="selectedMentorId" (ngModelChange)="currentPage = 1">
+        <option value="">Choose Mentor</option>
+        <option *ngFor="let mentor of mentors" [value]="mentor.MentorId">{{mentor.MentorName}}</option>
+      </select>
+    </div>
+    -->
+  </div>
+
+  <!-- Add Skill Form -->
+  <div *ngIf="showAddSkillForm" class="mb-3">
+    <div class="card shadow-sm border-0 rounded-3 p-3">
+      <div class="row g-2 align-items-center">
+        <div class="col">
+          <input [(ngModel)]="newSkillName" class="form-control rounded-pill" placeholder="Skill name">
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-success rounded-pill me-2 px-4" (click)="addSkill()">Save</button>
+          <button class="btn btn-secondary rounded-pill px-4" (click)="showAddSkillForm = false">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skills Table -->
+  <div class="card shadow-sm border-0 rounded-4">
+    <div class="card-body p-0">
+      <div class="table-responsive">
+        <table class="table align-middle table-hover mb-0">
+          <thead class="table-primary">
+            <tr>
+              <th>Skill</th>
+              <th>Usage</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let skill of getpaginatedSkills(); let i = index">
+              <td>
+                <ng-container *ngIf="editSkillId !== skill.SkillId; else editBlock">
+                  {{skill.Name}}
+                </ng-container>
+                <ng-template #editBlock>
+                  <input [(ngModel)]="editSkillName" class="form-control rounded-pill d-inline-block w-auto">
+                </ng-template>
+              </td>
+              <td><span class="text-primary fw-semibold">{{skill.MentorsCount}}</span></td>
+              <td>
+                <ng-container *ngIf="editSkillId !== skill.SkillId">
+                  <button class="btn btn-outline-secondary btn-sm action-btn me-2 rounded-pill"
+                          (click)="startEditSkill(skill)">
+                    <i class="bi bi-pencil"></i> Edit
+                  </button>
+                  <button class="btn btn-outline-danger btn-sm action-btn rounded-pill"
+                          (click)="softDeleteSkill(skill)">
+                    <i class="bi bi-trash"></i> Delete
+                  </button>
+                </ng-container>
+                <ng-container *ngIf="editSkillId === skill.SkillId">
+                  <button class="btn btn-success btn-sm action-btn me-2 rounded-pill"
+                          (click)="saveEditSkill(skill)">
+                    <i class="bi bi-check-circle"></i> Save
+                  </button>
+                  <button class="btn btn-secondary btn-sm action-btn rounded-pill"
+                          (click)="cancelEditSkill()">
+                    <i class="bi bi-x-circle"></i> Cancel
+                  </button>
+                </ng-container>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <nav class="mt-4" *ngIf="totalPages >= 1">
+    <ul class="pagination justify-content-center">
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <a class="page-link rounded-pill" (click)="changePage(currentPage - 1)">‹</a>
+      </li>
+      <li *ngFor="let page of [].constructor(totalPages); let i = index"
+          class="page-item" [class.active]="i + 1 === currentPage">
+        <a class="page-link rounded-pill" (click)="changePage(i + 1)">{{ i + 1 }}</a>
+      </li>
+      <li class="page-item" [class.disabled]="currentPage === totalPages">
+        <a class="page-link rounded-pill" (click)="changePage(currentPage + 1)">›</a>
+      </li>
+    </ul>
+  </nav>
+</div>
+

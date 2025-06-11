@@ -1,0 +1,74 @@
+
+.text-gradient {
+  background: linear-gradient(90deg, #007bff, #00c6ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.input-group .form-control:focus {
+  box-shadow: none;
+}
+.card {
+  border-radius: 1.5rem;
+}
+.table th, .table td {
+  vertical-align: middle;
+  text-align: center;
+}
+.status-badge {
+  border-radius: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  min-width: 100px;
+  display: inline-block;
+  text-align: center;
+  font-size: 1rem;
+  padding: 0.5em 1em;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
+  transition: background 0.2s;
+}
+.status-badge.status-completed {
+  background: linear-gradient(90deg, #00c851, #007e33);
+  color: #fff !important;
+}
+.status-confirmed {
+  background: linear-gradient(90deg, #36d1c4, #007bff);
+  color: #fff !important;
+}
+.status-pending {
+  background: linear-gradient(90deg, #ffe259, #ffa751);
+  color: #333 !important;
+}
+.status-cancelled {
+  background: linear-gradient(90deg, #ff5858, #f857a6);
+  color: #fff !important;
+}
+.payment-badge {
+  border-radius: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  min-width: 90px;
+  display: inline-block;
+  text-align: center;
+  font-size: 1rem;
+  padding: 0.5em 1em;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.04);
+  transition: background 0.2s;
+}
+.payment-badge.payment-paid {
+  background: linear-gradient(90deg, #43e97b, #38f9d7);
+  color: #fff !important;
+}
+.payment-unpaid {
+  background: linear-gradient(90deg, #f7971e, #ffd200);
+  color: #333 !important;
+}
+@media (max-width: 767.98px) {
+  .table-responsive {
+    font-size: 0.95rem;
+  }
+  .status-badge, .payment-badge {
+    font-size: 0.9rem;
+    min-width: 80px;
+    padding: 0.4em 0.7em;
+  }
+}

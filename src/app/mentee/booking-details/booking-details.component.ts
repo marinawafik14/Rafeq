@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { BookingService } from '../../Services/booking.service';
+import { menteeBookingservice } from '../../Services/menteeBooking.service';
 import { MenteeLayoutComponent } from '../mentee-layout.component';
 
 @Component({
@@ -18,14 +18,14 @@ export class BookingDetailsComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private bookingService: BookingService
+    private menteeBookingservice: menteeBookingservice
   ) {}
 
   ngOnInit() {
     const menteeId = Number(this.route.snapshot.paramMap.get('menteeId'));
     const bookingId = Number(this.route.snapshot.paramMap.get('id'));
     if (bookingId) {
-      this.bookingService.getBookingDetails(bookingId).subscribe({
+      this.menteeBookingservice.getBookingDetails(bookingId).subscribe({
         next: (data) => {
           console.log('Booking details API response:', data);
           // Check if menteeId from route matches menteeId from API response

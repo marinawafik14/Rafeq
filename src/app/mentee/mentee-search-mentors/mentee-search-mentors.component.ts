@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MentorSearchService, MentorSearchFilters, MentorSearchResult } from '../../Services/mentor-search.service';
 import { Skills } from '../../Models/Skills';
-import { Users3 } from '../../Models/Users';
+import { Users } from '../../Models/Users';
 import { SkillService } from '../../Services/skill.service';
 import { CommonModule } from '@angular/common';
 import { MenteeLayoutComponent } from '../mentee-layout.component';
@@ -61,7 +61,7 @@ export class MenteeSearchMentorsComponent implements OnInit {
   }
 
   loadSkills() {
-    this.skillService.getSkills().subscribe(skills => this.skills = skills);
+    this.skillService.getAllSkills().subscribe(skills => this.skills = skills);
   }
 
   fetchAllMentors() {

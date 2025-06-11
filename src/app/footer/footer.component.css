@@ -1,6 +1,7 @@
 .beautiful-footer {
   background: linear-gradient(to right, #0a2e65, #020e21); /* Modern gradient */
   font-family: 'Poppins', sans-serif;
+   margin-top: auto;
 }
 
 .footer-brand h3 {
@@ -19,3 +20,4 @@
     text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
   }
 }
+

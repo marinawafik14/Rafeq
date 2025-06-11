@@ -1,6 +1,7 @@
 import { AfterViewInit, Component } from '@angular/core';
-import Swiper from 'swiper/bundle';
-import 'swiper/css/bundle';
+import Swiper from 'swiper';
+
+import 'swiper/css';
 
 @Component({
   selector: 'app-home',

@@ -5,7 +5,7 @@ import { RouterModule, ActivatedRoute } from '@angular/router';
 import { MenteeLayoutComponent } from '../mentee-layout.component';
 import { MenteeService } from '../../Services/Mentee.service';
 import { AuthService } from '../../Services/auth.service';
-import { BookingService } from '../../Services/booking.service';
+import { menteeBookingservice } from '../../Services/menteeBooking.service';
 
 @Component({
   selector: 'app-mentee-dashboard',
@@ -31,7 +31,7 @@ export class MenteeDashboardComponent implements OnInit {
     private menteeService: MenteeService,
     private authService: AuthService,
     private route: ActivatedRoute,
-    private bookingService: BookingService
+    private menteeBookingservice: menteeBookingservice
   ) {}
 
   ngOnInit() {
@@ -69,7 +69,7 @@ export class MenteeDashboardComponent implements OnInit {
       }
     });
     // Fetch upcoming and completed sessions from BookingService endpoints
-    this.bookingService.getUpcomingBookings(menteeId).subscribe({
+    this.menteeBookingservice.getUpcomingBookings(menteeId).subscribe({
       next: (sessions: any[]) => {
         this.upcomingSessions = sessions.map(session => ({
           id: session.bookingId,
@@ -88,7 +88,7 @@ export class MenteeDashboardComponent implements OnInit {
         this.updateTotalSessions();
       }
     });
-    this.bookingService.getCompletedBookings(menteeId).subscribe({
+    this.menteeBookingservice.getCompletedBookings(menteeId).subscribe({
       next: (sessions: any[]) => {
         this.completedSessions = sessions.map(session => ({
           id: session.bookingId,

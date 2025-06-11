@@ -1,0 +1,26 @@
+.action-btn {
+  min-width: 110px;
+  border-radius: 2rem;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+.text-gradient {
+  background: linear-gradient(90deg, #007bff, #00c6ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.input-group .form-control:focus {
+  box-shadow: none;
+}
+.table th, .table td {
+  vertical-align: middle;
+  text-align: center;
+}
+.action-btn {
+  min-width: 110px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+.card {
+  border-radius: 1.5rem;
+}

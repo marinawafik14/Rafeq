@@ -5,7 +5,8 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-contact',
-  imports: [HeaderComponent, FooterComponent, CommonModule],
+  imports: [CommonModule ],
+  standalone: true,
   templateUrl: './contact.component.html',
   styleUrl: './contact.component.css'
 })

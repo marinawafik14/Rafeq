@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { BookingService } from '../../Services/booking.service';
+import { menteeBookingservice } from '../../Services/menteeBooking.service';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { MenteeLayoutComponent } from '../mentee-layout.component';
@@ -23,7 +23,7 @@ export class MenteeBookingsComponent implements OnInit {
   menteeId: number|null = null;
 
   constructor(
-    private bookingService: BookingService,
+    private menteeBookingservice: menteeBookingservice,
     private route: ActivatedRoute,
     private router: Router,
     private http: HttpClient
@@ -51,17 +51,17 @@ export class MenteeBookingsComponent implements OnInit {
   fetchBookingsForTab() {
     if (!this.menteeId) return;
     if (this.tab === 'all') {
-      this.bookingService.getAllBookings(this.menteeId).subscribe({
+      this.menteeBookingservice.getAllBookings(this.menteeId).subscribe({
         next: (data) => this.bookings = data,
         error: _ => this.bookings = []
       });
     } else if (this.tab === 'upcoming') {
-      this.bookingService.getUpcomingBookings(this.menteeId).subscribe({
+      this.menteeBookingservice.getUpcomingBookings(this.menteeId).subscribe({
         next: (data) => this.bookings = data,
         error: _ => this.bookings = []
       });
     } else if (this.tab === 'past') {
-      this.bookingService.getCompletedBookings(this.menteeId).subscribe({
+      this.menteeBookingservice.getCompletedBookings(this.menteeId).subscribe({
         next: (data) => this.bookings = data,
         error: _ => this.bookings = []
       });

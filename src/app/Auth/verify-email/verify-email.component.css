@@ -1,0 +1,28 @@
+.verify-email-container {
+  max-width: 500px;
+  margin: 50px auto;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  background-color: #f8f9fa;
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+}
+
+h2 {
+  color: #343a40;
+  margin-bottom: 25px;
+  font-weight: 600;
+}
+
+.text-center a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+  margin-top: 10px;
+  display: inline-block;
+}
+
+.text-center a:hover {
+  text-decoration: underline;
+}

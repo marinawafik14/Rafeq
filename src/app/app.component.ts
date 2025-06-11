@@ -1,27 +1,40 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { MenteeSearchMentorsComponent } from './mentee/mentee-search-mentors/mentee-search-mentors.component';
-import { HeaderComponent } from './header/header.component';
+import { Component, OnInit } from '@angular/core';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
+import { HeaderComponent } from "./header/header.component";
 import { FooterComponent } from './footer/footer.component';
 
-import { ErrorHandler, Injectable } from '@angular/core';
+import { filter } from 'rxjs';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MenteeSearchMentorsComponent, HeaderComponent, FooterComponent],
+  imports: [RouterOutlet, HeaderComponent, FooterComponent,CommonModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent {
-  title = 'rafeq-app';
-}
+export class AppComponent  {
+ title = 'rafeq-app';
+  showLayout = true;
 
-@Injectable()
-export class GlobalErrorHandler implements ErrorHandler {
-  handleError(error: any): void {
-    // Log the error or send to a server
-    console.error('Global error:', error);
-    // Optionally, show a user-friendly message
-    // alert('An unexpected error occurred. Please try again.');
+   constructor(private router: Router) {
+   
+    const currentUrl = this.router.url.toLowerCase();
+    this.showLayout = !currentUrl.includes('/admin');
+
+   
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: NavigationEnd) => {
+        const url = event.urlAfterRedirects.toLowerCase();
+        this.showLayout = !url.includes('/admin');
+      });
+  
   }
-}
+  }
+ 
+  
+ 
+ 
+ 
+  
+

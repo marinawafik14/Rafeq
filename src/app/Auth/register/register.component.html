@@ -1,0 +1,86 @@
+<div class="container register-container">
+  <h2>Register</h2>
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+      <label for="fullName" class="form-label">Full Name</label>
+      <input type="text" id="fullName" formControlName="fullName" class="form-control" />
+      @if(fullName?.invalid && (fullName?.dirty || fullName?.touched)) {
+      <div class="text-danger">
+        @if(fullName?.errors?.['required']){
+        <p>Full Name is required.</p>
+        } @if(fullName?.errors?.['minlength']){
+        <p>Full Name must be at least 3 characters.</p>
+        } @if(fullName?.errors?.['maxlength']){
+        <p>Full Name cannot exceed 100 characters.</p>
+        } @if(fullName?.errors?.['pattern']){
+        <p>Full Name can only contain letters and spaces.</p>
+        }
+      </div>
+      }
+    </div>
+
+    <div class="mb-3">
+      <label for="email" class="form-label">Email</label>
+      <input type="email" id="email" formControlName="email" class="form-control" />
+      @if(email?.invalid && (email?.dirty || email?.touched)) {
+      <div class="text-danger">
+        @if(email?.errors?.['required']){
+        <p>Email is required.</p>
+        } @if(email?.errors?.['email']){
+        <p>Invalid email format.</p>
+        }
+      </div>
+      }
+    </div>
+
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input type="password" id="password" formControlName="password" class="form-control" />
+      @if(password?.invalid && (password?.dirty || password?.touched)) {
+      <div class="text-danger">
+        @if(password?.errors?.['required']){
+        <p>Password is required.</p>
+        } @if(password?.errors?.['minlength']){
+        <p>Password must be at least 6 characters.</p>
+        }
+      </div>
+      }
+    </div>
+
+    <div class="mb-3">
+      <label for="confirmPassword" class="form-label">Confirm Password</label>
+      <input type="password" id="confirmPassword" formControlName="confirmPassword" class="form-control" />
+      @if(confirmPassword?.invalid && (confirmPassword?.dirty || confirmPassword?.touched)) {
+      <div class="text-danger">
+        @if(confirmPassword?.errors?.['required']){
+        <p>Confirm Password is required.</p>
+        }
+      </div>
+      }
+      @if(registerForm.errors?.['passwordsMismatch'] && confirmPassword?.touched) {
+      <div class="text-danger">
+        <p>Passwords do not match.</p>
+      </div>
+      }
+    </div>
+
+    <div class="mb-3">
+      <label for="role" class="form-label">Role</label>
+      <select id="role" formControlName="role" class="form-control">
+        <option value="Mentee">Mentee</option>
+        <option value="Mentor">Mentor</option>
+      </select>
+      @if(role?.invalid && (role?.dirty || role?.touched)) {
+      <div class="text-danger">
+        @if(role?.errors?.['required']){
+        <p>Role is required.</p>
+        }
+      </div>
+      }
+    </div>
+
+    <button type="submit" class="btn btn-primary" [disabled]="registerForm.invalid">Register</button>
+  </form>
+
+  <p class="text-center mt-3">Already have an account? <a routerLink="/login">Login here</a></p>
+</div>

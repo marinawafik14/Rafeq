@@ -32,9 +32,18 @@
             </a>
           </li>
         </ul>
-        <div class="d-flex gap-2">
-          <button class="btn btn-login">Log In</button>
-          <button class="btn btn-sign">Sign Up</button>
+         <div class="d-flex gap-2">
+          <ng-container *ngIf="!currentUser">
+            <button class="btn btn-login" routerLink="/login">Log In</button>
+            <button class="btn btn-sign" routerLink="/register">Sign Up</button>
+          </ng-container>
+
+          <ng-container *ngIf="currentUser">
+            <span class="navbar-text me-2 d-none d-lg-block">
+              Welcome, {{ currentUser.fullName }}
+            </span>
+            <button class="btn btn-logout" (click)="logout()">Log Out</button>
+          </ng-container>
         </div>
       </div>
     </div>

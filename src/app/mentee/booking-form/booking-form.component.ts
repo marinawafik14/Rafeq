@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MenteeLayoutComponent } from '../mentee-layout.component';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BookingService } from '../../Services/booking.service';
+import { menteeBookingservice } from '../../Services/menteeBooking.service';
 import { HttpClient } from '@angular/common/http';
 
 @Component({
@@ -31,7 +31,7 @@ export class BookingFormComponent {
 
   constructor(
     private route: ActivatedRoute,
-    private bookingService: BookingService,
+    private menteeBookingservice: menteeBookingservice,
     private router: Router,
     private http: HttpClient
   ) {
@@ -133,7 +133,7 @@ export class BookingFormComponent {
       startDateTime,
       endDateTime
     };
-    this.bookingService.createBooking(booking).subscribe({
+    this.menteeBookingservice.createBooking(booking).subscribe({
       next: _ => {
         this.paymentComplete = true;
         this.nextStep();

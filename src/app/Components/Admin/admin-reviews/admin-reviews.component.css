@@ -1,0 +1,242 @@
+/* src/app/components/mentor-reviews/mentor-reviews.component.scss */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f8f9fa; /* Light background */
+    margin: 0;
+    padding: 0;
+}
+
+/* Custom Navbar Styles */
+.navbar-custom {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e9ecef;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    color: #212529 !important; /* Darker text for brand */
+    border-radius: 0.5rem; /* Rounded corners */
+    padding: 0.25rem 0.5rem; /* Padding */
+}
+
+.nav-link-custom {
+    color: #495057 !important; /* Slightly darker link text */
+    font-weight: 500;
+    transition: color 0.2s ease-in-out;
+    &:hover {
+        color: #007bff !important; /* Highlight on hover */
+    }
+}
+
+.main-content {
+    max-width: 900px;
+    margin-top: 2rem;
+    padding: 1.5rem;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+h1 {
+    color: #2c3e50;
+    font-size: 2.2em;
+    font-weight: 700;
+    margin-bottom: 2.5rem;
+    text-align: center;
+}
+
+.reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem; /* Space between review cards */
+}
+
+.review-card {
+    background-color: #fdfdfd;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* Align delete button to the top-right */
+    margin-bottom: 1rem;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+}
+
+.profile-pic {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 1rem;
+    border: 2px solid #3498db; /* A distinct border color */
+}
+
+.profile-pic-placeholder {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #dee2e6; /* A neutral grey */
+    margin-right: 1rem;
+    border: 2px solid #adb5bd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6em; /* Adjust icon size */
+    color: #6c757d;
+}
+
+.names {
+    font-weight: 600;
+    font-size: 1.1em;
+    color: #34495e;
+    margin-bottom: 0.25rem;
+}
+
+.mentor-name {
+    color: #28a745; /* Bootstrap success green */
+}
+
+.mentee-name {
+    color: #6f42c1; /* Bootstrap purple */
+}
+
+.review-meta {
+    font-size: 0.9em;
+    color: #6c757d; /* Bootstrap muted text color */
+}
+
+.reviewer-name {
+    font-weight: 500;
+    color: #495057;
+}
+
+.review-date {
+    font-style: italic;
+    margin-left: 0.5rem;
+}
+
+.delete-button {
+    /* Bootstrap btn-danger provides most of this */
+    white-space: nowrap; /* Prevent button text from wrapping */
+    min-width: 80px; /* Give it a consistent width */
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    &:active {
+        transform: translateY(1px);
+    }
+}
+
+.review-body {
+    padding-left: calc(50px + 1rem); /* Profile pic width + margin-right */
+    margin-top: 0.5rem;
+}
+
+.rating {
+    color: #ffc107; /* Bootstrap warning yellow for stars */
+    margin-bottom: 0.75rem;
+}
+
+.star {
+    font-size: 1.4em;
+    margin-right: 2px;
+    vertical-align: middle; /* Align stars nicely */
+}
+
+.star.text-gray-300 {
+    opacity: 0.5; /* Lighter color for empty stars */
+}
+
+.comment {
+    font-size: 1em;
+    line-height: 1.6;
+    color: #343a40; /* Darker text for readability */
+    margin-bottom: 1.5rem;
+}
+
+.review-actions {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.95em;
+    color: #6c757d;
+    padding-left: calc(50px + 1rem); /* Align with text next to profile pic */
+}
+
+.action-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.action-item .fas {
+    font-size: 1.1em;
+    color: #adb5bd;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .main-content {
+        margin: 1rem;
+        padding: 1rem;
+    }
+
+    h1 {
+        font-size: 1.8em;
+        margin-bottom: 1.5rem;
+    }
+
+    .review-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .delete-button {
+        margin-top: 0.75rem;
+        align-self: flex-end; /* Push to bottom-right when stacked */
+        min-width: unset; /* Remove fixed width */
+        width: 100%; /* Make button full width if stacked */
+    }
+
+    .user-info {
+        flex-direction: row;
+        align-items: center;
+        width: 100%; /* Take full width */
+    }
+
+    .profile-pic, .profile-pic-placeholder {
+        width: 40px;
+        height: 40px;
+        margin-right: 0.75rem;
+        font-size: 1.3em;
+    }
+
+    .names {
+        font-size: 1em;
+    }
+
+    .review-meta {
+        font-size: 0.85em;
+    }
+
+    .review-body, .review-actions {
+        padding-left: 0; /* Remove left padding on smaller screens */
+    }
+}

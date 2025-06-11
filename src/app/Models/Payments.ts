@@ -2,10 +2,11 @@ export class Payments {
 PaymentId!: number;
   BookingId!: number;
   amountPaid!: number;
-  PaymentMethod!: string; // Stripe, etc.
+  paymentMethod!: string; // Stripe, etc.
   TransactionId?: string;
-  PaymentDate?: Date;
-
+  paymentDate?: Date;
+ menteeName?: string;
+  mentorName?: string;
 
 
 }

@@ -1,0 +1,15 @@
+
+.text-gradient {
+  background: linear-gradient(90deg, #007bff, #00c6ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.card {
+  border-radius: 1.5rem;
+}
+@media (max-width: 575.98px) {
+  .card {
+    padding: 1.2rem !important;
+  }
+}
+
