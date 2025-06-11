@@ -70,7 +70,7 @@ currentPage : number = 1;
  groupByMentor(payments: Payments[]): { [mentor: string]: number } {
   const result: { [mentor: string]: number } = {};
   payments.forEach(p => {
-    const mentor = p.mentorFullName ?? 'Unknown';
+    const mentor = p.mentorName ?? 'Unknown';
     result[mentor] = (result[mentor] || 0) + p.amountPaid;
   });
   return result;

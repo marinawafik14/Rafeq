@@ -10,7 +10,6 @@
   },
   "private": true,
   "dependencies": {
-   
     "@angular/animations": "19.2.13",
     "@angular/common": "19.2.13",
     "@angular/compiler": "19.2.13",
@@ -24,10 +23,10 @@
     "ngx-echarts": "^19.0.0",
     "ngx-toastr": "^19.0.0",
     "rxjs": "~7.8.0",
+    "sweetalert2": "^11.22.0",
     "swiper": "^11.2.8",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"
-
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "^19.2.13",

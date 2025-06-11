@@ -26,4 +26,13 @@ export class AdminDashboardComponent  implements AfterViewInit{
       sidebar?.classList.toggle('close');
     });
   }
+  logout() {
+  
+  localStorage.clear();
+  sessionStorage.clear();
+
+  window.location.href = '/login';
+ 
+  // this.router.navigate(['/login']);
+}
 }

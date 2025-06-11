@@ -17,11 +17,11 @@ export class AppComponent  {
   showLayout = true;
 
    constructor(private router: Router) {
-    // Set initial value
+   
     const currentUrl = this.router.url.toLowerCase();
     this.showLayout = !currentUrl.includes('/admin');
 
-    // Listen for navigation changes
+   
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {

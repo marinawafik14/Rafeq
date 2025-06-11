@@ -76,4 +76,25 @@ get totalPages(): number {
     }
   } 
 
+
+isCompleted(status: string): boolean {
+  return status?.toLowerCase() === 'completed';
+}
+isConfirmed(status: string): boolean {
+  return status?.toLowerCase() === 'confirmed';
+}
+isPending(status: string): boolean {
+  return status?.toLowerCase() === 'pending';
+}
+isCancelled(status: string): boolean {
+  return status?.toLowerCase() === 'cancelled';
+}
+isPaid(paymentStatus: string): boolean {
+  return paymentStatus?.toLowerCase() === 'paid';
+}
+isUnpaid(paymentStatus: string): boolean {
+  return paymentStatus?.toLowerCase() === 'unpaid';
+}
+
+
 }

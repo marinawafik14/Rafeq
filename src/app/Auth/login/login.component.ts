@@ -22,7 +22,6 @@ export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   returnUrl: string = '/';
 
-
   private GOOGLE_CLIENT_ID = '574047622774-8h2bqlvm7dmhogsqn735e4bicj5qkjci.apps.googleusercontent.com';
 
   constructor(
@@ -81,7 +80,12 @@ export class LoginComponent implements OnInit {
     this.authService.login(loginDto).subscribe({
       next: (response: { message: string, tokenData: TokenResponseDto }) => {
         this.toastr.success(response.message || 'Login successful!', 'Success');
-        this.router.navigate([this.returnUrl]);
+        // Redirect based on role
+        if (response.tokenData.role && response.tokenData.role.toLowerCase() === 'admin') {
+          this.router.navigate(['/admin']);
+        } else {
+          this.router.navigate([this.returnUrl]);
+        }
       },
       error: (err: any) => {
         const errorMessage = err.error && typeof err.error === 'string'
@@ -113,7 +117,12 @@ export class LoginComponent implements OnInit {
           this.authService.externalLogin(externalLoginDto).subscribe({
             next: (apiResponse: { message: string, tokenData: TokenResponseDto }) => {
               this.toastr.success(apiResponse.message || 'Google login successful!', 'Success');
-              this.router.navigate([this.returnUrl]);
+              // Redirect based on role
+              if (apiResponse.tokenData.role && apiResponse.tokenData.role.toLowerCase() === 'admin') {
+                this.router.navigate(['/admin']);
+              } else {
+                this.router.navigate([this.returnUrl]);
+              }
             },
             error: (err: any) => {
               const errorMessage = err.error && typeof err.error === 'string'

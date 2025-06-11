@@ -22,11 +22,11 @@ export class ReviewSummaryComponent {
 
   private calculateStats(): void {
     const total = this.reviews.length;
-    const sum = this.reviews.reduce((acc, review) => acc + (review.Rating || 0), 0);
+    const sum = this.reviews.reduce((acc, review) => acc + (review.rating || 0), 0);
     
     this.averageRating = Number((sum / total).toFixed(1));
 
-    const fiveStarCount = this.reviews.filter(r => r.Rating === 5).length;
+    const fiveStarCount = this.reviews.filter(r => r.rating === 5).length;
     this.fiveStarPercent = Math.round((fiveStarCount / total) * 100);
 }
 }
