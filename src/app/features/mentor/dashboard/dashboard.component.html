@@ -1,1 +1,260 @@
-<p>dashboard works!</p>
+<div class="mentor-dashboard">
+  <!-- Header Section -->
+  <div class="dashboard-header py-5 text-white">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h1 class="display-5 fw-bold mb-2">Welcome Back, Mentor!</h1>
+          <p class="lead mb-0">Here's your mentoring overview for today</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+          <div class="availability-toggle">
+            <div class="form-check form-switch d-inline-block">
+              <input class="form-check-input" type="checkbox" id="availabilityToggle" 
+                     [checked]="isAvailable" (change)="toggleAvailability()">
+              <label class="form-check-label text-white fw-bold" for="availabilityToggle">
+                <span *ngIf="isAvailable" class="text-success-light">
+                  <i class="fas fa-circle me-1"></i>Available
+                </span>
+                <span *ngIf="!isAvailable" class="text-warning-light">
+                  <i class="fas fa-circle me-1"></i>Away
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container py-4">
+    <!-- Error Alert -->
+    <div *ngIf="error" class="alert alert-danger mb-4 rounded-3 shadow-sm" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+    </div>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="text-center py-5">
+      <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3 text-muted">Loading your dashboard...</p>
+    </div>
+
+    <!-- Dashboard Content -->
+    <div *ngIf="!isLoading">
+      <!-- Earnings Summary Cards -->
+      <div class="row g-4 mb-5">
+        <div class="col-lg-3 col-md-6">
+          <div class="stats-card earnings-card h-100">
+            <div class="card-body text-center p-4">
+              <div class="stats-icon mb-3">
+                <i class="fas fa-dollar-sign"></i>
+              </div>
+              <h3 class="stats-number mb-1">{{ earnings?.totalEarnings | currency:'USD':'symbol':'1.0-0' }}</h3>
+              <p class="stats-label mb-0">Total Earnings</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+          <div class="stats-card pending-card h-100">
+            <div class="card-body text-center p-4">
+              <div class="stats-icon mb-3">
+                <i class="fas fa-hourglass-half"></i>
+              </div>
+              <h3 class="stats-number mb-1">{{ earnings?.pendingEarnings | currency:'USD':'symbol':'1.0-0' }}</h3>
+              <p class="stats-label mb-0">Pending</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+          <div class="stats-card completed-card h-100">
+            <div class="card-body text-center p-4">
+              <div class="stats-icon mb-3">
+                <i class="fas fa-check-circle"></i>
+              </div>
+              <h3 class="stats-number mb-1">{{ earnings?.completedSessions }}</h3>
+              <p class="stats-label mb-0">Completed Sessions</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-lg-3 col-md-6">
+          <div class="stats-card upcoming-card h-100">
+            <div class="card-body text-center p-4">
+              <div class="stats-icon mb-3">
+                <i class="fas fa-calendar-alt"></i>
+              </div>
+              <h3 class="stats-number mb-1">{{ earnings?.upcomingSessions }}</h3>
+              <p class="stats-label mb-0">Upcoming Sessions</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Today's Sessions -->
+      <div class="session-card mb-5">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="mb-1 fw-bold">
+              <i class="fas fa-calendar-day me-2 text-primary"></i>Today's Sessions
+            </h5>
+            <p class="text-muted mb-0 small">Your schedule for today</p>
+          </div>
+          <a routerLink="/mentor/bookings" class="btn btn-outline-primary btn-sm rounded-pill">
+            View All <i class="fas fa-arrow-right ms-1"></i>
+          </a>
+        </div>
+        <div class="card-body p-0">
+          <div *ngIf="todaySessions.length === 0" class="empty-state p-5 text-center">
+            <i class="fas fa-calendar-check fa-3x text-muted mb-3"></i>
+            <h6 class="text-muted">No sessions scheduled for today</h6>
+            <p class="text-muted small mb-0">Enjoy your free time or check your availability settings</p>
+          </div>
+          
+          <div *ngIf="todaySessions.length > 0" class="table-responsive">
+            <table class="table table-hover mb-0 sessions-table">
+              <thead>
+                <tr>
+                  <th class="border-0 ps-4">Time</th>
+                  <th class="border-0">Mentee</th>
+                  <th class="border-0">Type</th>
+                  <th class="border-0">Status</th>
+                  <th class="border-0 text-end pe-4">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let session of todaySessions" class="session-row">
+                  <td class="ps-4">
+                    <div class="time-display">
+                      <strong>{{ session.startDateTime | date:'shortTime' }}</strong>
+                      <small class="text-muted d-block">{{ session.endDateTime | date:'shortTime' }}</small>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="mentee-info">
+                      <strong>{{ session.menteeName }}</strong>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="session-type">{{ session.sessionType }}</span>
+                  </td>
+                  <td>
+                    <span [ngClass]="getStatusBadgeClass(session.status)">
+                      {{ session.status }}
+                    </span>
+                  </td>
+                  <td class="text-end pe-4">
+                    <button *ngIf="session.status === 'Confirmed' && session.googleMeetLink" 
+                            class="btn btn-primary btn-sm rounded-pill"
+                            (click)="joinSession(session.bookingId, session.googleMeetLink)">
+                      <i class="fas fa-video me-1"></i>Join
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upcoming Sessions Preview -->
+      <div class="session-card mb-5">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div>
+            <h5 class="mb-1 fw-bold">
+              <i class="fas fa-clock me-2 text-primary"></i>Upcoming Sessions
+            </h5>
+            <p class="text-muted mb-0 small">Your next scheduled sessions</p>
+          </div>
+          <a routerLink="/mentor/bookings" class="btn btn-outline-primary btn-sm rounded-pill">
+            View All <i class="fas fa-arrow-right ms-1"></i>
+          </a>
+        </div>
+        <div class="card-body p-0">
+          <div *ngIf="upcomingSessions.length === 0" class="empty-state p-5 text-center">
+            <i class="fas fa-calendar-plus fa-3x text-muted mb-3"></i>
+            <h6 class="text-muted">No upcoming sessions</h6>
+            <p class="text-muted small mb-0">Your schedule is clear. Time to attract more mentees!</p>
+          </div>
+          
+          <div *ngIf="upcomingSessions.length > 0" class="table-responsive">
+            <table class="table table-hover mb-0 sessions-table">
+              <thead>
+                <tr>
+                  <th class="border-0 ps-4">Date & Time</th>
+                  <th class="border-0">Mentee</th>
+                  <th class="border-0">Type</th>
+                  <th class="border-0 pe-4">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let session of upcomingSessions" class="session-row">
+                  <td class="ps-4">
+                    <div class="time-display">
+                      <strong>{{ session.startDateTime | date:'medium' }}</strong>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="mentee-info">
+                      <strong>{{ session.menteeName }}</strong>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="session-type">{{ session.sessionType }}</span>
+                  </td>
+                  <td class="pe-4">
+                    <span [ngClass]="getStatusBadgeClass(session.status)">
+                      {{ session.status }}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="row g-4">
+        <div class="col-md-4">
+          <a routerLink="/mentor/availability" class="action-card text-decoration-none h-100 d-block">
+            <div class="card-body text-center p-4">
+              <div class="action-icon mb-3">
+                <i class="fas fa-calendar-alt"></i>
+              </div>
+              <h5 class="fw-bold mb-2">Manage Availability</h5>
+              <p class="text-muted mb-0">Set up your schedule and manage your available time slots</p>
+            </div>
+          </a>
+        </div>
+        
+        <div class="col-md-4">
+          <a routerLink="/mentor/profile" class="action-card text-decoration-none h-100 d-block">
+            <div class="card-body text-center p-4">
+              <div class="action-icon mb-3">
+                <i class="fas fa-user-edit"></i>
+              </div>
+              <h5 class="fw-bold mb-2">Update Profile</h5>
+              <p class="text-muted mb-0">Keep your profile up to date to attract more mentees</p>
+            </div>
+          </a>
+        </div>
+        
+        <div class="col-md-4">
+          <a routerLink="/mentor/cv-reviews" class="action-card text-decoration-none h-100 d-block">
+            <div class="card-body text-center p-4">
+              <div class="action-icon mb-3">
+                <i class="fas fa-file-alt"></i>
+              </div>
+              <h5 class="fw-bold mb-2">CV Reviews</h5>
+              <p class="text-muted mb-0">Review CVs from your mentees and provide feedback</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

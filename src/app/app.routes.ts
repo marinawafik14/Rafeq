@@ -1,4 +1,4 @@
- import { Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 import { AboutComponent } from './features/about/about.component';
 import { ContactComponent } from './features/contact/contact.component';
 import { HomeComponent } from './home/home.component';
@@ -23,6 +23,7 @@ import { ResetPasswordComponent } from './Auth/reset-password/reset-password.com
 import { VerifyEmailComponent } from './Auth/verify-email/verify-email.component';
 import { ResendVerificationEmailComponent } from './Auth/resend-verification-email/resend-verification-email.component';
 import { AdminReviewsComponent } from './Components/Admin/admin-reviews/admin-reviews.component';
+import { DashboardComponent } from './features/mentor/dashboard/dashboard.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -57,6 +58,7 @@ export const routes: Routes = [
 {path:'home',component:HomeComponent}
   ]
 },
+{ path: 'mentor/dashboard', component: DashboardComponent },
 
 ];
 
