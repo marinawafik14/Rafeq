@@ -24,6 +24,7 @@ import { VerifyEmailComponent } from './Auth/verify-email/verify-email.component
 import { ResendVerificationEmailComponent } from './Auth/resend-verification-email/resend-verification-email.component';
 import { AdminReviewsComponent } from './Components/Admin/admin-reviews/admin-reviews.component';
 import { DashboardComponent } from './features/mentor/dashboard/dashboard.component';
+import { ProfileManagementComponent } from './features/mentor/profile-management/profile-management.component';
 import { PaymentComponent } from './payment/payment.component';
 
 export const routes: Routes = [
@@ -60,6 +61,7 @@ export const routes: Routes = [
   ]
 },
 { path: 'mentor/dashboard', component: DashboardComponent },
+{ path: 'mentor/profile', component: ProfileManagementComponent },
 
 ];
 

@@ -334,7 +334,7 @@ Implementation Details:
 - Design review list component with filtering options
 - Implement review summary statistics component
 - Create "Write a review" form component
-- Design empty states for no reviews
+- Design empty states for no reviews 
 - Ensure all components are responsive
 - Create loading states for async data
 
