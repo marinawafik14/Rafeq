@@ -26,9 +26,10 @@ import { AdminReviewsComponent } from './Components/Admin/admin-reviews/admin-re
 import { DashboardComponent } from './features/mentor/dashboard/dashboard.component';
 import { ProfileManagementComponent } from './features/mentor/profile-management/profile-management.component';
 import { PaymentComponent } from './payment/payment.component';
+import { AvailabilityManagementComponent } from './features/mentor/availability-management/availability-management.component';
 import { PaymentConfirmationComponent } from './payment-confirmation/payment-confirmation.component';
 
-export const routes: Routes = [
+export const routes: Routes = [ 
   { path: '', redirectTo: 'home', pathMatch: 'full' },
 //Authentication routes
     { path: 'login', component: LoginComponent },
@@ -64,6 +65,7 @@ export const routes: Routes = [
 },
 { path: 'mentor/dashboard', component: DashboardComponent },
 { path: 'mentor/profile', component: ProfileManagementComponent },
+{ path: 'mentor/availability', component: AvailabilityManagementComponent },
 
 ];
 
