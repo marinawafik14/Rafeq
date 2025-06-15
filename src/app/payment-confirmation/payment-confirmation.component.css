@@ -1,0 +1,123 @@
+.confirmation-section {
+  background-color: #f9fbff;
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+.card {
+  transition: transform 0.3s ease-in-out;
+
+  &:hover {
+    transform: translateY(-5px);
+  }
+}
+.badge.bg-primary {
+  background-color: #0a2e65 !important;
+}
+.icon-primary {
+  color: #0a2e65;
+}
+
+.total {
+  font-size: 1.75rem;
+  color: #0a2e65;
+  font-weight: bold;
+}
+
+.total-price {
+  color: #0a2e65;
+  font-weight: bold;
+}
+
+.list-group-item {
+  background-color: transparent !important;
+  border: none !important;
+}
+
+.alert i,
+.btn i {
+  font-size: 1.25rem;
+}
+
+.info {
+  color: #0a2e65;
+  font-weight: bold;
+}
+
+.input-group .form-control[readonly] {
+  background-color: #f8f9fa;
+  border: 1px solid #ced4da;
+}
+
+.btn-copy-link{
+    color: #0a2e65;
+    border: 1px solid #0a2e65;
+    font-size: 1.1rem;
+    padding: 0.75rem 1.25rem;
+    transition: background-color 0.3s ease;
+    
+    &:hover {
+        background-color: #0a2e65;
+        color: #ffffff;
+        border: 1px solid #0a2e65;
+        .icon-primary {
+            color: #ffffff;
+        }
+    }
+}
+
+.btn-calender{
+    color: #0a2e65;
+    border: 1px solid #0a2e65;
+    font-size: 1.1rem;
+    padding: 0.75rem 1.25rem;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+        background-color: #0a2e65;
+        color: #ffffff;
+        border: 1px solid #0a2e65;
+        .icon-primary {
+            color: #ffffff;
+        }
+    }
+}
+
+.icon-next-step{
+    color: #0a2e65;
+}
+
+.btn-back{
+    color: #0a2e65;
+    border: 1px solid #0a2e65;
+    font-size: 1.1rem;
+    padding: 0.75rem 1.25rem;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+        background-color: #0a2e65;
+        color: #ffffff;
+        border: 1px solid #0a2e65;
+        .icon-primary {
+            color: #ffffff;
+        }
+    }
+}
+
+.btn-mentor{
+    background-color: #0a2e65;
+    color: #ffffff;
+    border: 1px solid #0a2e65;
+    font-size: 1.1rem;
+    padding: 0.75rem 1.25rem;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+        background-color: #ffffff;
+        color: #0a2e65;
+        border: 1px solid #0a2e65;
+        .icon-primary {
+            color: #ffffff;
+        }
+    }
+}

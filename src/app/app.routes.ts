@@ -27,8 +27,9 @@ import { DashboardComponent } from './features/mentor/dashboard/dashboard.compon
 import { ProfileManagementComponent } from './features/mentor/profile-management/profile-management.component';
 import { PaymentComponent } from './payment/payment.component';
 import { AvailabilityManagementComponent } from './features/mentor/availability-management/availability-management.component';
+import { PaymentConfirmationComponent } from './payment-confirmation/payment-confirmation.component';
 
-export const routes: Routes = [
+export const routes: Routes = [ 
   { path: '', redirectTo: 'home', pathMatch: 'full' },
 //Authentication routes
     { path: 'login', component: LoginComponent },
@@ -39,6 +40,7 @@ export const routes: Routes = [
   { path: 'resend-verification', component: ResendVerificationEmailComponent },
 
 { path: 'payment', component: PaymentComponent },
+{path : 'payment-complete', component : PaymentConfirmationComponent},
    { path: 'home', component: HomeComponent},
    { path: 'about', component: AboutComponent},
     { path: 'contact', component: ContactComponent},
