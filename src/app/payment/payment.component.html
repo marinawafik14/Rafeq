@@ -1,0 +1,148 @@
+
+
+<!-- Payment Section - Full Width -->
+<section class="payment-section py-5 bg-white">
+  <div class="container-fluid px-4 px-md-5">
+    <div class="row justify-content-center align-items-start g-5">
+      <!-- Left Side: Order Summary -->
+      <div class="col-lg-5 col-md-6">
+        <div class="card shadow-sm border-0 rounded-4 h-100 p-4 p-md-5">
+          <h4 class="fw-bold mb-4 ord-sum">Order Summary</h4>
+          <ul class="list-group list-group-flush">
+            <!-- Mentor Session -->
+            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-3">
+              <div class="d-flex align-items-center gap-3">
+                <i class="fas fa-chalkboard-teacher icon-primary fs-3"></i>
+                <div>
+                  <strong>Mentor Session</strong><br />
+                  <small class="text-muted">With Ahmed Mohamed</small>
+                </div>
+              </div>
+              <span class="fs-5 fw-bold">EGP 150</span>
+            </li>
+            <!-- Session Type -->
+            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-3">
+              <div class="d-flex align-items-center gap-3">
+                <i class="fas fa-clock icon-primary fs-3"></i>
+                <div>
+                  <strong>Session Type</strong><br />
+                  <small class="text-muted">Mock Interview - 60 mins</small>
+                </div>
+              </div>
+              <span class="badge bg-primary text-white fs-6">Scheduled</span>
+            </li>
+            <!-- Date & Time -->
+            <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-3">
+              <div class="d-flex align-items-center gap-3">
+                <i class="fas fa-calendar-alt icon-primary fs-3"></i>
+                <div>
+                  <strong>Date & Time</strong><br />
+                  <small class="text-muted">June 10, 2025 - 3:00 PM</small>
+                </div>
+              </div>
+            </li>
+          
+            <!-- Total -->
+            <li class="list-group-item total d-flex justify-content-between align-items-center px-0 py-3">
+              <span class="fs-5">Total</span>
+              <span class="total-price fs-4 fw-bold">EGP 150</span>
+            </li>
+          </ul>
+
+          <!-- Additional Info -->
+          <div class="mt-4 info pt-4 border-top">
+            <p class="mb-1"><i class="fas fa-lock me-2 "></i> Secure payment powered by Stripe</p>
+            <p><i class="fas fa-shield-alt me-2 "></i> Your data is encrypted and safe</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Side: Payment Form -->
+      <div class="col-lg-5 col-md-6">
+        <div class="card shadow-sm border-0 rounded-4 h-100 p-4 p-md-5">
+          <h4 class="fw-bold pay-sec mb-4">Secure Payment</h4>
+
+          <!-- Name on Card -->
+          <div class="mb-4">
+            <label for="cardName" class="form-label">Name on Card</label>
+            <input type="text" id="cardName" class="form-control rounded-pill" placeholder="Full name as shown on card" required>
+          </div>
+
+          <!-- Card Number Simulation -->
+          <div class="card-input-sim p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-credit-card me-3 fs-3 icon-primary"></i>
+                <span class="text-muted">Card Number</span>
+              </div>
+              <span class="fs-5 fw-bold text-[#0a2e65]">•••• •••• •••• ••••</span>
+            </div>
+            <hr class="my-3">
+            <div class="d-flex justify-content-between align-items-center text-muted small">
+              <span>Expires</span>
+              <span>MM/YY</span>
+              <span>CVC</span>
+            </div>
+          </div>
+
+          <!-- Expiry + CVC -->
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label for="cardExpiry" class="form-label">Expiration Date</label>
+              <input type="text" id="cardExpiry" class="form-control rounded-pill" placeholder="MM/YY" required>
+            </div>
+            <div class="col-md-6">
+              <label for="cardCVC" class="form-label">CVC</label>
+              <input type="text" id="cardCVC" class="form-control rounded-pill" placeholder="123" required>
+            </div>
+          </div>
+
+         
+
+          <!-- Terms Checkbox -->
+          <div class="form-check mb-4">
+            <input class="form-check-input" type="checkbox" value="" id="termsCheck" required>
+            <label class="form-check-label text-muted" for="termsCheck">
+              I agree to the terms and conditions of Rafeeq.
+            </label>
+          </div>
+
+          <!-- Pay Button -->
+          <button class="btn btn-pay w-100 rounded-pill py-3 fw-bold fs-5" type="submit">
+            <i class="fas fa-lock me-2"></i>Pay EGP 150
+          </button>
+
+         
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div class="row justify-content-center my-4 d-none" id="loadingState">
+      <div class="col-md-8 text-center">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Processing...</span>
+        </div>
+        <p class="mt-2 text-muted">Processing payment...</p>
+      </div>
+    </div>
+
+    <!-- Success Message -->
+    <div class="row justify-content-center my-4 d-none" id="successMessage">
+      <div class="col-md-8 text-center">
+        <div class="alert alert-success" role="alert">
+          <i class="fas fa-check-circle me-2"></i>Payment successful!
+        </div>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    <div class="row justify-content-center my-4 d-none" id="errorMessage">
+      <div class="col-md-8 text-center">
+        <div class="alert alert-danger" role="alert">
+          <i class="fas fa-exclamation-triangle me-2"></i>There was an issue with your payment.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
