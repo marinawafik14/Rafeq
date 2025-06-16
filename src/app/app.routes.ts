@@ -26,6 +26,7 @@ import { AdminReviewsComponent } from './Components/Admin/admin-reviews/admin-re
 import { DashboardComponent } from './features/mentor/dashboard/dashboard.component';
 import { ProfileManagementComponent } from './features/mentor/profile-management/profile-management.component';
 import { PaymentComponent } from './payment/payment.component';
+import { PaymentConfirmationComponent } from './payment-confirmation/payment-confirmation.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -38,6 +39,7 @@ export const routes: Routes = [
   { path: 'resend-verification', component: ResendVerificationEmailComponent },
 
 { path: 'payment', component: PaymentComponent },
+{path : 'payment-complete', component : PaymentConfirmationComponent},
    { path: 'home', component: HomeComponent},
    { path: 'about', component: AboutComponent},
     { path: 'contact', component: ContactComponent},
