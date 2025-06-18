@@ -147,11 +147,37 @@
                     </span>
                   </td>
                   <td class="text-end pe-4">
-                    <button *ngIf="session.status === 'Confirmed' && session.googleMeetLink" 
-                            class="btn btn-primary btn-sm rounded-pill"
-                            (click)="joinSession(session.bookingId, session.googleMeetLink)">
-                      <i class="fas fa-video me-1"></i>Join
-                    </button>
+                    <ng-container *ngIf="getSessionButtonState(session) as buttonState">
+                      <!-- Join/Rejoin Button -->
+                      <button *ngIf="buttonState.type === 'join'" 
+                              class="btn btn-sm rounded-pill me-2"
+                              [ngClass]="buttonState.class"
+                              [disabled]="!buttonState.enabled"
+                              (click)="joinSession(session.bookingId, session.googleMeetLink)">
+                        <i class="fas fa-video me-1"></i>
+                        {{ buttonState.label }}
+                      </button>
+                      
+                      <!-- Other States -->
+                      <button *ngIf="buttonState.type !== 'join'" 
+                              class="btn btn-sm rounded-pill me-2"
+                              [ngClass]="buttonState.class"
+                              [disabled]="!buttonState.enabled">
+                        <i class="fas fa-clock me-1" *ngIf="buttonState.type === 'early'"></i>
+                        <i class="fas fa-exclamation-triangle me-1" *ngIf="buttonState.type === 'payment'"></i>
+                        <i class="fas fa-hourglass-half me-1" *ngIf="buttonState.type === 'pending'"></i>
+                        <i class="fas fa-check me-1" *ngIf="buttonState.type === 'completed'"></i>
+                        {{ buttonState.label }}
+                      </button>
+                      
+                      <!-- Complete Button (only for ongoing sessions) -->
+                      <button *ngIf="(session.status === 'Confirmed' || session.status === 'InProgress') && canJoinSession(session)" 
+                              class="btn btn-success btn-sm rounded-pill"
+                              (click)="markComplete(session)">
+                        <i class="fas fa-check me-1"></i>
+                        Complete
+                      </button>
+                    </ng-container>
                   </td>
                 </tr>
               </tbody>
