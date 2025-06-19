@@ -1,4 +1,5 @@
 export interface UserProfile {
+  mentorSkills: any;
   id: number;
   fullName: string;
   email: string;

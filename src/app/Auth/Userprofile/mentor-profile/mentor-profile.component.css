@@ -1,0 +1,146 @@
+/* General styling for the page container */
+.container {
+    padding: 2rem; /* Bootstrap's p-4 is 1.5rem, adjusted for better spacing */
+    background-color: #f8f9fa; /* Bootstrap's bg-light */
+    border-radius: 0.5rem; /* Bootstrap's rounded */
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15); /* Bootstrap's shadow-lg approximation */
+    min-height: calc(100vh - 56px); /* Adjust for header height if fixed */
+    margin-top: 1rem; /* Example margin-top */
+    margin-bottom: 1rem; /* Example margin-bottom */
+}
+
+/* Heading styles */
+h1 {
+    font-size: 2.5rem; /* Equivalent to Bootstrap's h1, but explicit */
+    font-weight: 700; /* fw-bold */
+    color: #0d6efd; /* text-primary */
+    margin-bottom: 1.5rem; /* mb-4 */
+}
+
+h2 {
+    font-size: 1.75rem; /* Equivalent to Bootstrap's h2 */
+    font-weight: 600; /* fw-semibold */
+    color: #6c757d; /* text-secondary */
+    border-bottom: 1px solid #dee2e6; /* border-bottom */
+    padding-bottom: 0.5rem; /* pb-2 */
+    margin-bottom: 1rem; /* mb-3 */
+}
+
+h3 {
+    font-size: 1.25rem; /* Equivalent to Bootstrap's h5 */
+    font-weight: 600; /* fw-semibold */
+    color: #6c757d; /* text-secondary */
+    margin-bottom: 0.75rem; /* mb-3 */
+}
+
+/* Card styling for form sections */
+.card {
+    border: none; /* Remove default card border */
+    border-radius: 0.5rem; /* rounded */
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); /* shadow-sm */
+    padding: 1.5rem; /* card-body padding */
+}
+
+/* Form control styling */
+.form-control {
+    border-radius: 0.25rem; /* rounded */
+    border: 1px solid #ced4da; /* default border */
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+    border-color: #86b7fe; /* primary focus color */
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); /* primary focus shadow */
+}
+
+.form-label {
+    font-weight: 700; /* fw-bold */
+    color: #212529; /* dark text color */
+}
+
+/* Invalid feedback (validation errors) */
+.invalid-feedback {
+    display: block; /* Bootstrap hides by default, force display when needed */
+    width: 100%;
+    margin-top: 0.25rem;
+    font-size: 0.875em;
+    color: #dc3545;
+}
+
+/* Small text hints */
+small.text-warning { color: #ffc107; }
+small.text-muted { color: #6c757d; }
+
+/* Image preview styling */
+img.rounded-circle {
+    border-radius: 50% !important;
+    border: 1px solid #dee2e6; /* Optional border for clarity */
+}
+
+/* File input custom styling (Bootstrap 5 already provides good file input styles, but this ensures custom colors) */
+.form-control[type="file"]::file-selector-button {
+    background-color: #e9ecef; /* light gray */
+    color: #495057; /* darker text */
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: background-color 0.15s ease-in-out;
+}
+
+.form-control[type="file"]::file-selector-button:hover {
+    background-color: #dde2e6; /* slightly darker on hover */
+}
+
+/* Button styling */
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: #fff;
+    transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.btn-primary:hover {
+    background-color: #0b5ed7;
+    border-color: #0a58ca;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+    border-radius: 0.25rem;
+}
+
+.btn-lg {
+    padding: 0.5rem 1rem;
+    font-size: 1.25rem;
+    border-radius: 0.3rem;
+}
+
+.btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+/* Checkbox styling */
+.form-check-input:checked {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.form-check-label {
+    font-weight: 600; /* fw-bold */
+}
+
+/* General spacing */
+.my-5 { margin-top: 3rem; margin-bottom: 3rem; }
+.mb-3 { margin-bottom: 1rem; }
+.mb-4 { margin-bottom: 1.5rem; }
+.mt-3 { margin-top: 1rem; }
+.mt-4 { margin-top: 1.5rem; }
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) { /* Bootstrap's md breakpoint is 768px */
+    .row.g-3 > div {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}

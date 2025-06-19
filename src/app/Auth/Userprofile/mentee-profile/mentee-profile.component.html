@@ -1,0 +1,129 @@
+<div class="container my-5 p-4 bg-light rounded shadow-lg">
+  <h1 class="text-center text-primary mb-4">Mentee Profile Management</h1>
+
+  <div *ngIf="isLoading" class="alert alert-info text-center" role="alert">
+    Loading profile...
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+    <strong>Error!</strong> {{ errorMessage }}
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success" role="alert">
+    <strong>Success!</strong> {{ successMessage }}
+  </div>
+
+  <!-- Profile Information Form -->
+  <div *ngIf="userProfile" class="card card-body shadow-sm mb-4">
+    <h2 class="card-title text-secondary border-bottom pb-2 mb-3">General Information</h2>
+    <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+      <div class="row g-3 mb-3">
+        <!-- Full Name -->
+        <div class="col-12 col-md-6">
+          <label for="fullName" class="form-label fw-bold">Full Name:</label>
+          <input type="text" id="fullName" formControlName="fullName"
+                 class="form-control" [ngClass]="{'is-invalid': getControlError('fullName', profileForm)}">
+          <div *ngIf="getControlError('fullName', profileForm)" class="invalid-feedback">{{ getControlError('fullName', profileForm) }}</div>
+        </div>
+
+        <!-- Email -->
+        <div class="col-12 col-md-6">
+          <label for="email" class="form-label fw-bold">Email:</label>
+          <input type="email" id="email" formControlName="email"
+                 class="form-control" [ngClass]="{'is-invalid': getControlError('email', profileForm)}">
+          <div *ngIf="getControlError('email', profileForm)" class="invalid-feedback">{{ getControlError('email', profileForm) }}</div>
+          <small *ngIf="!userProfile.isEmailVerified" class="text-warning mt-1">Email not verified. Please check your inbox.</small>
+        </div>
+
+        <!-- Profile Picture Current Display & File Upload -->
+        <div class="col-12 col-md-6">
+          <label class="form-label fw-bold">Profile Picture:</label>
+          <div class="d-flex align-items-center mb-3">
+            <img [src]="userProfile.profilePicture || 'https://placehold.co/100x100/EEEEEE/999999?text=No+Photo'"
+                 alt="Current Profile Picture" class="rounded-circle me-3" style="width: 80px; height: 80px; object-fit: cover;">
+            <div>
+              <small class="text-muted">{{ userProfile.profilePicture ? 'Current photo' : 'No photo yet' }}</small>
+            </div>
+          </div>
+
+          <label for="profileFileInput" class="form-label fw-bold">Upload New Photo:</label>
+          <input type="file" id="profileFileInput" (change)="onFileSelected($event)" accept="image/*"
+                 class="form-control">
+          <small *ngIf="selectedFile" class="text-muted mt-2">Selected file: {{ selectedFile.name }}</small>
+          <button type="button" (click)="uploadProfilePhoto()"
+                  [disabled]="!selectedFile || isLoading"
+                  class="btn btn-primary btn-sm mt-3">
+            {{ isLoading ? 'Uploading...' : 'Upload Photo' }}
+          </button>
+        </div>
+
+        <!-- Bio -->
+        <div class="col-12 col-md-6">
+          <label for="bio" class="form-label fw-bold">Bio:</label>
+          <textarea id="bio" formControlName="bio" rows="4"
+                    class="form-control" [ngClass]="{'is-invalid': getControlError('bio', profileForm)}"></textarea>
+          <div *ngIf="getControlError('bio', profileForm)" class="invalid-feedback">{{ getControlError('bio', profileForm) }}</div>
+        </div>
+      </div>
+
+      <!-- Skills Management (Mentee) -->
+      <div class="border-top pt-3 mt-3">
+        <h3 class="fs-5 fw-bold text-secondary mb-3">Skills</h3>
+        <div *ngIf="allSkills.length > 0" class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-2">
+          <div *ngFor="let skill of allSkills" class="col">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" [id]="'skill-' + skill.id" [value]="skill.id"
+                     [checked]="selectedSkillIds.includes(skill.id)"
+                     (change)="onSkillChange($event, skill.id)">
+              <label class="form-check-label" [for]="'skill-' + skill.id">{{ skill.name }}</label>
+            </div>
+          </div>
+        </div>
+        <p *ngIf="allSkills.length === 0 && !isLoading" class="text-muted fst-italic mt-3">No skills available. Please contact support.</p>
+      </div>
+
+      <div class="text-center mt-4">
+        <button type="submit"
+                class="btn btn-primary btn-lg px-4"
+                [disabled]="profileForm.invalid || isLoading">
+          {{ isLoading ? 'Updating...' : 'Update Profile' }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Change Password Form -->
+  <div class="card card-body shadow-sm mt-4">
+    <h2 class="card-title text-secondary border-bottom pb-2 mb-3">Change Password</h2>
+    <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+      <div class="row g-3 mb-3">
+        <div class="col-12">
+          <label for="currentPassword" class="form-label fw-bold">Current Password:</label>
+          <input type="password" id="currentPassword" formControlName="currentPassword"
+                 class="form-control" [ngClass]="{'is-invalid': getControlError('currentPassword', passwordForm)}">
+          <div *ngIf="getControlError('currentPassword', passwordForm)" class="invalid-feedback">{{ getControlError('currentPassword', passwordForm) }}</div>
+        </div>
+        <div class="col-12">
+          <label for="newPassword" class="form-label fw-bold">New Password:</label>
+          <input type="password" id="newPassword" formControlName="newPassword"
+                 class="form-control" [ngClass]="{'is-invalid': getControlError('newPassword', passwordForm)}">
+          <div *ngIf="getControlError('newPassword', passwordForm)" class="invalid-feedback">{{ getControlError('newPassword', passwordForm) }}</div>
+        </div>
+        <div class="col-12">
+          <label for="confirmNewPassword" class="form-label fw-bold">Confirm New Password:</label>
+          <input type="password" id="confirmNewPassword" formControlName="confirmNewPassword"
+                 class="form-control" [ngClass]="{'is-invalid': getControlError('confirmNewPassword', passwordForm)}">
+          <div *ngIf="getControlError('confirmNewPassword', passwordForm)" class="invalid-feedback">{{ getControlError('confirmNewPassword', passwordForm) }}</div>
+          <div *ngIf="passwordForm.errors?.['mismatch'] && (passwordForm.get('confirmNewPassword')?.dirty || passwordForm.get('confirmNewPassword')?.touched)" class="invalid-feedback d-block">Passwords do not match.</div>
+        </div>
+      </div>
+      <div class="text-center mt-4">
+        <button type="submit"
+                class="btn btn-primary btn-lg px-4"
+                [disabled]="passwordForm.invalid || isLoading">
+          {{ isLoading ? 'Changing...' : 'Change Password' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

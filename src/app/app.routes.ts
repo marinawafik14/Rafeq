@@ -26,7 +26,11 @@ import { AdminReviewsComponent } from './Components/Admin/admin-reviews/admin-re
 import { DashboardComponent } from './features/mentor/dashboard/dashboard.component';
 import { ProfileManagementComponent } from './features/mentor/profile-management/profile-management.component';
 import { PaymentComponent } from './payment/payment.component';
+import { AvailabilityManagementComponent } from './features/mentor/availability-management/availability-management.component';
 import { PaymentConfirmationComponent } from './payment-confirmation/payment-confirmation.component';
+import { MentorProfileComponent } from './Auth/Userprofile/mentor-profile/mentor-profile.component';
+import { MenteeProfileComponent } from './Auth/Userprofile/mentee-profile/mentee-profile.component';
+import { ProfileRedirectComponent } from './Auth/Userprofile/profile-redirect/profile-redirect.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -37,6 +41,10 @@ export const routes: Routes = [
   { path: 'reset-password', component: ResetPasswordComponent },
  { path: 'verify-email/:token', component: VerifyEmailComponent },
   { path: 'resend-verification', component: ResendVerificationEmailComponent },
+    // Unified User Profile Route for both Mentor and Mentee
+    { path: 'user-profile', component: ProfileRedirectComponent }, // This route now uses the redirector
+  { path: 'mentor-profile', component: MentorProfileComponent }, // Specific route for mentor profile
+  { path: 'mentee-profile', component: MenteeProfileComponent },
 
 { path: 'payment', component: PaymentComponent },
 {path : 'payment-complete', component : PaymentConfirmationComponent},
@@ -51,7 +59,7 @@ export const routes: Routes = [
     {path : 'form' , component : WriteReviewFormComponent},
   { path: 'admin', component: AdminDashboardComponent  , children: [
  { path: 'mentors', component: AdminPaymentsComponent },
-  {path :'skills', component: AdminSkillsComponent}, 
+  {path :'skills', component: AdminSkillsComponent},
   {path : 'users', component: AdminUsersComponent},
   {path : 'users/edit-user/:id', component: EditUserComponent},
   {path : 'add-user', component: AddUserComponent},
@@ -64,6 +72,7 @@ export const routes: Routes = [
 },
 { path: 'mentor/dashboard', component: DashboardComponent },
 { path: 'mentor/profile', component: ProfileManagementComponent },
+{ path: 'mentor/availability', component: AvailabilityManagementComponent },
 
 ];
 
