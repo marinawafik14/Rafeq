@@ -29,6 +29,7 @@ import { PaymentComponent } from './payment/payment.component';
 import { AvailabilityManagementComponent } from './features/mentor/availability-management/availability-management.component';
 import { PaymentConfirmationComponent } from './payment-confirmation/payment-confirmation.component';
 import { BookingsComponent } from './features/mentor/bookings/bookings.component';
+import { CVReviewComponent } from './features/mentor/cv-review/cv-review.component';
 
 export const routes: Routes = [ 
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -64,10 +65,12 @@ export const routes: Routes = [
 {path:'home',component:HomeComponent}
   ]
 },
-{ path: 'mentor/dashboard', component: DashboardComponent },
-{ path: 'mentor/profile', component: ProfileManagementComponent },
-{ path: 'mentor/availability', component: AvailabilityManagementComponent },
-{ path: 'mentor/bookings', component: BookingsComponent },
+  // Mentor routes section
+  { path: 'mentor/dashboard', component: DashboardComponent },
+  { path: 'mentor/profile', component: ProfileManagementComponent },
+  { path: 'mentor/availability', component: AvailabilityManagementComponent },
+  { path: 'mentor/bookings', component: BookingsComponent },
+  { path: 'mentor/cv-review', component: CVReviewComponent },
 
 ];
 
