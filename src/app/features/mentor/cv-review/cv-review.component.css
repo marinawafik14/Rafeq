@@ -1,0 +1,89 @@
+.cv-review-page {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.cv-review-header {
+  background: linear-gradient(135deg, #0a2e65 0%, #1e5f8b 100%);
+  position: relative;
+}
+
+.cv-review-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('/images/pattern.png') repeat;
+  opacity: 0.1;
+}
+
+.cv-list-card,
+.cv-viewer-card,
+.comments-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: none;
+}
+
+.cv-item {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.cv-item:hover {
+  background-color: #f8f9fa;
+  transform: translateX(5px);
+}
+
+.cv-item.active {
+  background-color: #e3f2fd;
+  border-left: 4px solid #0a2e65;
+}
+
+.cv-preview iframe {
+  border-radius: 8px;
+}
+
+.comment-card {
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.comment-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.avatar i {
+  font-size: 2rem;
+}
+
+.empty-state,
+.empty-selection,
+.empty-comments {
+  color: #6c757d;
+}
+
+.stats-badge .badge {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .cv-preview iframe {
+    height: 400px;
+  }
+}
+
+@media (max-width: 768px) {
+  .cv-review-header .display-5 {
+    font-size: 2rem;
+  }
+  
+  .cv-item {
+    border-bottom: 1px solid #e9ecef;
+  }
+}
