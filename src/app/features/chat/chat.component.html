@@ -1,0 +1,285 @@
+<div class="chat-page">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container d-flex justify-content-center align-items-center">
+    <div class="text-center">
+      <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3 text-muted">Loading your conversations...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !isLoading" class="alert alert-danger m-4" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+  </div>
+
+  <!-- Main Chat Interface -->
+  <div *ngIf="!isLoading && !error" class="chat-container d-flex h-100">
+    
+    <!-- Conversations Sidebar -->
+    <div class="conversations-sidebar">
+      <div class="sidebar-header p-3 border-bottom">
+        <h5 class="mb-3 fw-bold">
+          <i class="fas fa-comments me-2 text-primary"></i>
+          Messages
+        </h5>
+        
+        <!-- Search Bar -->
+        <div class="search-container">
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0">
+              <i class="fas fa-search text-muted"></i>
+            </span>
+            <input type="text" 
+                   [(ngModel)]="searchQuery"
+                   class="form-control border-start-0" 
+                   placeholder="Search conversations...">
+          </div>
+        </div>
+      </div>
+
+      <!-- Conversations List -->
+      <div class="conversations-list">
+        <div *ngIf="filteredConversations.length === 0" class="empty-conversations p-4 text-center">
+          <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+          <p class="text-muted">No conversations found</p>
+        </div>
+
+        <div *ngFor="let conversation of filteredConversations" 
+             class="conversation-item p-3 border-bottom cursor-pointer"
+             [class.active]="selectedConversation?.conversationId === conversation.conversationId"
+             (click)="selectConversation(conversation)">
+          
+          <div class="d-flex align-items-center">
+            <!-- Profile Picture -->
+            <div class="profile-pic me-3">
+              <img [src]="currentUserId === conversation.mentorId ? conversation.menteeProfilePicture : conversation.mentorProfilePicture" 
+                   [alt]="currentUserId === conversation.mentorId ? conversation.menteeName : conversation.mentorName"
+                   class="rounded-circle"
+                   onerror="this.src='/images/default-avatar.png'">
+            </div>
+
+            <!-- Conversation Info -->
+            <div class="conversation-info flex-grow-1">
+              <div class="d-flex justify-content-between align-items-start mb-1">
+                <h6 class="mb-0 fw-semibold conversation-name">
+                  {{ currentUserId === conversation.mentorId ? conversation.menteeName : conversation.mentorName }}
+                </h6>
+                <small class="text-muted">
+                  {{ formatMessageTime(conversation.lastMessageAt) }}
+                </small>
+              </div>
+              
+              <div class="d-flex justify-content-between align-items-center">
+                <p class="mb-0 text-muted small last-message">
+                  {{ conversation.lastMessage?.messageText || 'No messages yet' }}
+                </p>
+                <span *ngIf="conversation.unreadCount > 0" 
+                      class="badge bg-primary rounded-pill">
+                  {{ conversation.unreadCount }}
+                </span>
+              </div>
+              
+              <small class="text-muted session-type">
+                {{ conversation.sessionType || 'Mentorship' }} Session
+              </small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Area -->
+    <div class="chat-area flex-grow-1 d-flex flex-column">
+      
+      <!-- No Conversation Selected -->
+      <div *ngIf="!selectedConversation" class="no-conversation d-flex justify-content-center align-items-center h-100">
+        <div class="text-center">
+          <i class="fas fa-comment-dots fa-4x text-muted mb-3"></i>
+          <h5 class="text-muted">Select a conversation to start messaging</h5>
+        </div>
+      </div>
+
+      <!-- Selected Conversation -->
+      <div *ngIf="selectedConversation" class="d-flex flex-column h-100">
+        
+        <!-- Chat Header -->
+        <div class="chat-header p-3 border-bottom bg-white">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+              <!-- Other Participant Info -->
+              <div *ngIf="getOtherParticipant() as otherUser" class="d-flex align-items-center">
+                <img [src]="otherUser.profilePicture" 
+                     [alt]="otherUser.fullName"
+                     class="rounded-circle me-3 header-avatar"
+                     onerror="this.src='/images/default-avatar.png'">
+                <div>
+                  <h6 class="mb-0 fw-bold">{{ otherUser.fullName }}</h6>
+                  <small class="text-muted">
+                    {{ participants?.sessionType }} Session
+                    <span *ngIf="participants?.startDateTime">
+                      <span *ngIf="participants && participants.startDateTime">
+  • {{ formatMessageTime(participants.startDateTime) }}
+</span>
+                    </span>
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Session Actions -->
+            <div class="session-actions">
+              <button *ngIf="participants && participants.googleMeetLink" 
+                      class="btn btn-primary btn-sm rounded-pill me-2"
+                      (click)="openGoogleMeet(participants.googleMeetLink)">
+                <i class="fas fa-video me-1"></i>
+                Join Session
+              </button>
+              
+              <button class="btn btn-outline-secondary btn-sm rounded-pill"
+                      title="Session Details">
+                <i class="fas fa-info-circle"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Messages Area -->
+        <div class="messages-area flex-grow-1 p-3" #messagesContainer>
+          
+          <!-- Loading Messages -->
+          <div *ngIf="isLoadingMessages" class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading messages...</span>
+            </div>
+          </div>
+
+          <!-- Messages List -->
+          <div *ngIf="!isLoadingMessages" class="messages-list">
+            <div *ngFor="let message of messages; let i = index" 
+                 class="message-wrapper mb-3"
+                 [class.my-message]="isMyMessage(message)"
+                 [class.other-message]="!isMyMessage(message)">
+              
+              <div class="message-bubble p-3 rounded-3">
+                <div class="message-header d-flex justify-content-between align-items-center mb-2">
+                  <small class="sender-name fw-semibold">
+                    {{ message.senderName }}
+                  </small>
+                  <small class="message-time text-muted">
+                    {{ formatMessageTime(message.sentAt) }}
+                  </small>
+                </div>
+
+                <!-- Text Message -->
+                <div *ngIf="message.messageText" class="message-text">
+                  {{ message.messageText }}
+                </div>
+
+                <!-- Attachments -->
+                <div *ngIf="message.attachments && message.attachments.length > 0" 
+                     class="attachments mt-2">
+                  <div *ngFor="let attachment of message.attachments" 
+                       class="attachment-item border rounded p-2 mb-2">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <div class="d-flex align-items-center">
+                        <i class="fas fa-file me-2"></i>
+                        <span class="attachment-name">{{ attachment.fileName }}</span>
+                      </div>
+                      <button class="btn btn-sm btn-outline-primary rounded-pill"
+                              (click)="downloadAttachment(attachment.messageId, attachment.fileName)">
+                        <i class="fas fa-download"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Read Status -->
+                <div *ngIf="isMyMessage(message)" class="read-status text-end mt-1">
+                  <small class="text-muted">
+                    <i class="fas fa-check" [class.text-primary]="message.isRead"></i>
+                    {{ message.isRead ? 'Read' : 'Sent' }}
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Typing Indicator -->
+            <div *ngIf="isUserTyping()" class="typing-indicator mb-3">
+              <div class="typing-bubble p-3 rounded-3">
+                <div class="typing-dots">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Message Input Area -->
+        <div class="message-input-area p-3 border-top bg-white">
+          
+          <!-- File Upload Preview -->
+          <div *ngIf="selectedFile" class="file-preview mb-2 p-2 bg-light rounded">
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-file me-2"></i>
+                <span>{{ selectedFile.name }}</span>
+              </div>
+              <div>
+                <button class="btn btn-sm btn-primary me-2" 
+                        (click)="uploadFile()"
+                        [disabled]="isSending">
+                  <i class="fas fa-upload me-1"></i>
+                  Upload
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" 
+                        (click)="selectedFile = null">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Message Input -->
+          <div class="input-container">
+            <div class="input-group">
+              <!-- File Upload Button -->
+              <button class="btn btn-outline-secondary" type="button">
+                <label for="fileInput" class="mb-0 cursor-pointer">
+                  <i class="fas fa-paperclip"></i>
+                </label>
+                <input type="file" 
+                       id="fileInput" 
+                       class="d-none"
+                       (change)="onFileSelected($event)"
+                       accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif">
+              </button>
+
+              <!-- Text Input -->
+              <textarea [(ngModel)]="newMessage"
+                        #messageInput
+                        class="form-control message-input" 
+                        rows="1"
+                        placeholder="Type your message..."
+                        (keydown)="onEnterKey($event)"
+                        (input)="onTyping()"
+                        [disabled]="isSending"></textarea>
+
+              <!-- Send Button -->
+              <button class="btn btn-primary" 
+                      type="button"
+                      (click)="sendMessage()"
+                      [disabled]="(!newMessage.trim() && !selectedFile) || isSending">
+                <span *ngIf="isSending" class="spinner-border spinner-border-sm me-1"></span>
+                <i *ngIf="!isSending" class="fas fa-paper-plane"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
