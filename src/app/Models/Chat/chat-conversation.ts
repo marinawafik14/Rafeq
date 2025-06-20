@@ -20,4 +20,6 @@ export interface ChatConversation {
   unreadCount: number;
   sessionType?: string;
   sessionStatus?: string;
+  startDateTime?: Date; // Add this line
+  endDateTime?: Date;   // Optional: add this too
 }

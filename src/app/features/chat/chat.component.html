@@ -48,23 +48,33 @@
 
         <div *ngFor="let conversation of filteredConversations" 
              class="conversation-item p-3 border-bottom cursor-pointer"
-             [class.active]="selectedConversation?.conversationId === conversation.conversationId"
+             [class.active]="selectedConversation?.bookingId === conversation.bookingId"
+             [class.new-conversation]="!conversation.lastMessage"
              (click)="selectConversation(conversation)">
           
           <div class="d-flex align-items-center">
             <!-- Profile Picture -->
-            <div class="profile-pic me-3">
-              <img [src]="currentUserId === conversation.mentorId ? conversation.menteeProfilePicture : conversation.mentorProfilePicture" 
-                   [alt]="currentUserId === conversation.mentorId ? conversation.menteeName : conversation.mentorName"
+            <div class="profile-pic me-3 position-relative">
+              <!-- Update all avatar images to use the correct path -->
+              <img [src]="getUserProfilePicture(conversation) || getDefaultAvatarPath()" 
+                   [alt]="getUserName(conversation)"
                    class="rounded-circle"
-                   onerror="this.src='/images/default-avatar.png'">
+                   style="width: 45px; height: 45px; object-fit: cover;">
+
+              
+              <!-- New conversation indicator -->
+              <span *ngIf="!conversation.lastMessage" 
+                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                New
+              </span>
             </div>
 
             <!-- Conversation Info -->
             <div class="conversation-info flex-grow-1">
               <div class="d-flex justify-content-between align-items-start mb-1">
                 <h6 class="mb-0 fw-semibold conversation-name">
-                  {{ currentUserId === conversation.mentorId ? conversation.menteeName : conversation.mentorName }}
+                  <!-- Show the OTHER person's name -->
+                  {{ getUserName(conversation) }}
                 </h6>
                 <small class="text-muted">
                   {{ formatMessageTime(conversation.lastMessageAt) }}
@@ -73,16 +83,34 @@
               
               <div class="d-flex justify-content-between align-items-center">
                 <p class="mb-0 text-muted small last-message">
-                  {{ conversation.lastMessage?.messageText || 'No messages yet' }}
+                  <span *ngIf="conversation.lastMessage">
+                    {{ conversation.lastMessage.messageText }}
+                  </span>
+                  <span *ngIf="!conversation.lastMessage" class="text-primary fst-italic fw-medium">
+                    <i class="fas fa-comment-dots me-1"></i>
+                    Start your {{ conversation.sessionType }} conversation...
+                  </span>
                 </p>
-                <span *ngIf="conversation.unreadCount > 0" 
-                      class="badge bg-primary rounded-pill">
-                  {{ conversation.unreadCount }}
-                </span>
+                
+                <!-- Badges -->
+                <div class="badges d-flex gap-1">
+                  <span *ngIf="!conversation.lastMessage" 
+                        class="badge bg-gradient bg-primary text-white small">
+                    {{ conversation.sessionStatus }}
+                  </span>
+                  <span *ngIf="conversation.unreadCount > 0" 
+                        class="badge bg-primary rounded-pill">
+                    {{ conversation.unreadCount }}
+                  </span>
+                </div>
               </div>
               
               <small class="text-muted session-type">
-                {{ conversation.sessionType || 'Mentorship' }} Session
+                <i class="fas fa-calendar-alt me-1"></i>
+                {{ conversation.sessionType }} Session 
+                <span *ngIf="conversation.startDateTime">
+                  • {{ formatMessageTime(conversation.startDateTime) }}
+                </span>
               </small>
             </div>
           </div>
@@ -104,42 +132,37 @@
       <!-- Selected Conversation -->
       <div *ngIf="selectedConversation" class="d-flex flex-column h-100">
         
-        <!-- Chat Header -->
+        <!-- Chat Header - Show the OTHER person's info -->
         <div class="chat-header p-3 border-bottom bg-white">
           <div class="d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center">
-              <!-- Other Participant Info -->
-              <div *ngIf="getOtherParticipant() as otherUser" class="d-flex align-items-center">
-                <img [src]="otherUser.profilePicture" 
-                     [alt]="otherUser.fullName"
-                     class="rounded-circle me-3 header-avatar"
-                     onerror="this.src='/images/default-avatar.png'">
-                <div>
-                  <h6 class="mb-0 fw-bold">{{ otherUser.fullName }}</h6>
-                  <small class="text-muted">
-                    {{ participants?.sessionType }} Session
-                    <span *ngIf="participants?.startDateTime">
-                      <span *ngIf="participants && participants.startDateTime">
-  • {{ formatMessageTime(participants.startDateTime) }}
-</span>
-                    </span>
-                  </small>
-                </div>
+              <!-- Show OTHER participant's info, not your own -->
+              <img [src]="getUserProfilePicture(selectedConversation) || getDefaultAvatarPath()" 
+                   [alt]="getUserName(selectedConversation)"
+                   class="rounded-circle me-3 header-avatar"
+                   style="width: 50px; height: 50px; object-fit: cover;"
+                   onerror="this.src='/images/default-avatar.png'">
+              <div>
+                <h6 class="mb-0 fw-bold">{{ getUserName(selectedConversation) }}</h6>
+                <small class="text-muted">
+                  {{ participants?.sessionType }} Session
+                  <span *ngIf="participants?.startDateTime">
+                    • {{ formatMessageTime(participants?.startDateTime) }}
+                  </span>
+                </small>
               </div>
             </div>
-
-            <!-- Session Actions -->
-            <div class="session-actions">
-              <button *ngIf="participants && participants.googleMeetLink" 
-                      class="btn btn-primary btn-sm rounded-pill me-2"
-                      (click)="openGoogleMeet(participants.googleMeetLink)">
-                <i class="fas fa-video me-1"></i>
-                Join Session
+            
+            <!-- Update the chat header buttons -->
+            <div class="d-flex gap-2">
+              <button (click)="refreshConversations()"
+                      class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-sync-alt"></i> Refresh
               </button>
               
-              <button class="btn btn-outline-secondary btn-sm rounded-pill"
-                      title="Session Details">
-                <i class="fas fa-info-circle"></i>
+              <button (click)="debugUserInfo(selectedConversation)"
+                      class="btn btn-warning btn-sm">
+                🔍 Debug
               </button>
             </div>
           </div>
@@ -162,45 +185,73 @@
                  [class.my-message]="isMyMessage(message)"
                  [class.other-message]="!isMyMessage(message)">
               
-              <div class="message-bubble p-3 rounded-3">
-                <div class="message-header d-flex justify-content-between align-items-center mb-2">
-                  <small class="sender-name fw-semibold">
-                    {{ message.senderName }}
-                  </small>
-                  <small class="message-time text-muted">
-                    {{ formatMessageTime(message.sentAt) }}
-                  </small>
-                </div>
+              <div class="d-flex align-items-start" [class.flex-row-reverse]="isMyMessage(message)">
+                <!-- Show sender profile picture for other users -->
+                <img *ngIf="!isMyMessage(message)" 
+                     [src]="message.senderProfilePicture || getDefaultAvatarPath()"
+                     [alt]="message.senderName"
+                     class="rounded-circle me-2"
+                     style="width: 32px; height: 32px; object-fit: cover;"
+                     onerror="this.src='/images/default-avatar.png'">
+                
+                <div class="message-bubble p-3 rounded-3 flex-grow-1" [class.ms-2]="isMyMessage(message)">
+                  <div class="message-header d-flex justify-content-between align-items-center mb-2">
+                    <small class="sender-name fw-semibold">
+                      {{ message.senderName }}
+                    </small>
+                    <small class="message-time text-muted">
+                      {{ formatMessageTime(message.sentAt) }}
+                      <span *ngIf="message.isEdited" class="text-info ms-1">(edited)</span>
+                    </small>
+                  </div>
 
-                <!-- Text Message -->
-                <div *ngIf="message.messageText" class="message-text">
-                  {{ message.messageText }}
-                </div>
+                  <!-- Message content -->
+                  <div *ngIf="message.messageText" class="message-text">
+                    {{ message.messageText }}
+                  </div>
 
-                <!-- Attachments -->
-                <div *ngIf="message.attachments && message.attachments.length > 0" 
-                     class="attachments mt-2">
-                  <div *ngFor="let attachment of message.attachments" 
-                       class="attachment-item border rounded p-2 mb-2">
-                    <div class="d-flex align-items-center justify-content-between">
-                      <div class="d-flex align-items-center">
-                        <i class="fas fa-file me-2"></i>
-                        <span class="attachment-name">{{ attachment.fileName }}</span>
+                  <!-- Voice message indicator -->
+                  <div *ngIf="message.isVoiceMessage" class="voice-message p-2 bg-light rounded">
+                    <i class="fas fa-microphone me-2"></i>
+                    Voice Message
+                  </div>
+
+                  <!-- Attachments -->
+                  <div *ngIf="message.attachments && message.attachments.length > 0" 
+                       class="attachments mt-2">
+                    <div *ngFor="let attachment of message.attachments" 
+                         class="attachment-item border rounded p-2 mb-2">
+                      <div class="d-flex align-items-center justify-content-between">
+                        <div class="d-flex align-items-center">
+                          <i class="fas fa-file me-2"></i>
+                          <span class="attachment-name">{{ attachment.fileName }}</span>
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary rounded-pill"
+                                (click)="downloadAttachment(attachment.messageId, attachment.fileName)">
+                          <i class="fas fa-download"></i>
+                        </button>
                       </div>
-                      <button class="btn btn-sm btn-outline-primary rounded-pill"
-                              (click)="downloadAttachment(attachment.messageId, attachment.fileName)">
-                        <i class="fas fa-download"></i>
-                      </button>
                     </div>
                   </div>
-                </div>
 
-                <!-- Read Status -->
-                <div *ngIf="isMyMessage(message)" class="read-status text-end mt-1">
-                  <small class="text-muted">
-                    <i class="fas fa-check" [class.text-primary]="message.isRead"></i>
-                    {{ message.isRead ? 'Read' : 'Sent' }}
-                  </small>
+                  <!-- Reactions -->
+                  <div *ngIf="message.reactions && message.reactions.length > 0" 
+                       class="reactions mt-2">
+                    <div class="d-flex gap-1">
+                      <span *ngFor="let reaction of message.reactions" 
+                            class="reaction-item badge bg-light text-dark">
+                        {{ reaction.reactionType }} {{ reaction.userName }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- Read Status -->
+                  <div *ngIf="isMyMessage(message)" class="read-status text-end mt-1">
+                    <small class="text-muted">
+                      <i class="fas fa-check" [class.text-primary]="message.isRead"></i>
+                      {{ message.isRead ? 'Read' : 'Sent' }}
+                    </small>
+                  </div>
                 </div>
               </div>
             </div>

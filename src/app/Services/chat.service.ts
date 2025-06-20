@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, forkJoin, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { environment } from '../environments/environment.development';
 import { ChatMessage } from '../Models/Chat/chat-message';
 import { ChatConversation } from '../Models/Chat/chat-conversation';
@@ -20,121 +20,176 @@ export class ChatService {
 
   constructor(private http: HttpClient) { }
 
-  // Get chat history for a booking
+
   getChatHistory(bookingId: number): Observable<ChatMessage[]> {
     return this.http.get<{success: boolean, data: ChatMessage[]}>(`${this.apiUrl}/chat/${bookingId}`)
-      .pipe(map(response => response.data));
+      .pipe(
+        map(response => response.data || []),
+        catchError(error => {
+          console.error('Error fetching chat history:', error);
+          return of([]);
+        })
+      );
   }
 
-  // Send a new message
+  
   sendMessage(request: SendMessageRequest): Observable<ChatMessage> {
     return this.http.post<{success: boolean, message: string, data: ChatMessage}>(`${this.apiUrl}/chat`, request)
-      .pipe(map(response => response.data));
+      .pipe(
+        map(response => response.data),
+        catchError(error => {
+          console.error('Error sending message:', error);
+          throw error;
+        })
+      );
   }
 
-  // Get unread message count
-  getUnreadCount(): Observable<number> {
-    return this.http.get<{success: boolean, count: number}>(`${this.apiUrl}/chat/unread-count`)
-      .pipe(map(response => response.count));
-  }
-
-  // Mark message as read
-  markMessageAsRead(messageId: number): Observable<void> {
-    return this.http.put<{success: boolean, message: string}>(`${this.apiUrl}/chat/${messageId}/read`, {})
-      .pipe(map(() => void 0));
-  }
-
-  // Upload attachment
+ 
   uploadAttachment(bookingId: number, file: File): Observable<any> {
     const formData = new FormData();
     formData.append('bookingId', bookingId.toString());
     formData.append('file', file);
 
     return this.http.post<{success: boolean, message: string, data: any}>(`${this.apiUrl}/chat/attachment`, formData)
-      .pipe(map(response => response.data));
+      .pipe(
+        map(response => response.data),
+        catchError(error => {
+          console.error('Error uploading attachment:', error);
+          throw error;
+        })
+      );
   }
 
-  // Get user conversations
+ 
+  // Update getConversations to be more resilient
   getConversations(): Observable<ChatConversation[]> {
     return this.http.get<{success: boolean, data: ChatConversation[]}>(`${this.apiUrl}/chat/conversations`)
-      .pipe(map(response => response.data));
+      .pipe(
+        map(response => {
+          console.log('✅ Existing conversations response:', response);
+          return response.data || [];
+        }),
+        catchError(error => {
+          console.warn('⚠️ Could not load existing conversations, using empty array:', error);
+          return of([]); // Return empty array instead of failing
+        })
+      );
   }
 
-  // Get conversation participants
+  
+  getPotentialConversations(): Observable<ChatConversation[]> {
+    return this.http.get<{success: boolean, data: ChatConversation[]}>(`${this.apiUrl}/chat/potential-conversations`)
+      .pipe(
+        map(response => {
+          console.log('✅ Potential conversations response:', response);
+          return response.data || [];
+        }),
+        catchError(error => {
+          console.error('❌ Error fetching potential conversations:', error);
+          return of([]);
+        })
+      );
+  }
+
+ 
+  markMessageAsRead(messageId: number): Observable<void> {
+    return this.http.put<{success: boolean, message: string}>(`${this.apiUrl}/chat/${messageId}/read`, {})
+      .pipe(
+        map(() => void 0),
+        catchError(error => {
+          console.error('Error marking message as read:', error);
+          return of(void 0);
+        })
+      );
+  }
+
+ 
   getConversationParticipants(bookingId: number): Observable<ConversationParticipants> {
     return this.http.get<{success: boolean, data: ConversationParticipants}>(`${this.apiUrl}/chat/conversation/${bookingId}/participants`)
-      .pipe(map(response => response.data));
+      .pipe(
+        map(response => response.data),
+        catchError(error => {
+          console.error('Error fetching participants:', error);
+          throw error;
+        })
+      );
   }
 
-  // Mark all messages as read
+  
   markAllMessagesAsRead(bookingId: number): Observable<void> {
     return this.http.put<{success: boolean, message: string}>(`${this.apiUrl}/chat/conversation/${bookingId}/read-all`, {})
-      .pipe(map(() => void 0));
+      .pipe(
+        map(() => void 0),
+        catchError(error => {
+          console.error('Error marking messages as read:', error);
+          return of(void 0);
+        })
+      );
   }
 
-  // Download attachment
+
   downloadAttachment(messageId: number): Observable<Blob> {
-    return this.http.get(`${this.apiUrl}/chat/attachments/${messageId}`, { responseType: 'blob' });
+    return this.http.get(`${this.apiUrl}/chat/attachments/${messageId}`, {
+      responseType: 'blob'
+    }).pipe(
+      catchError(error => {
+        console.error('Error downloading attachment:', error);
+        throw error;
+      })
+    );
   }
 
-  // Delete message
-  deleteMessage(messageId: number): Observable<void> {
-    return this.http.delete<{success: boolean, message: string}>(`${this.apiUrl}/chat/messages/${messageId}`)
-      .pipe(map(() => void 0));
+
+  // Update this method to be the primary conversation loader
+  getAllConversations(): Observable<ChatConversation[]> {
+    return forkJoin({
+      existing: this.getConversations(),
+      potential: this.getPotentialConversations()
+    }).pipe(
+      map(({existing, potential}) => {
+        console.log('📊 Raw existing conversations:', existing.length);
+        console.log('📊 Raw potential conversations:', potential.length);
+        
+        // Combine both arrays - existing takes priority
+        const allConversations = [...existing];
+        const existingBookingIds = new Set(existing.map(c => c.bookingId));
+        
+        // Add potential conversations that aren't already in existing
+        potential.forEach(p => {
+          if (!existingBookingIds.has(p.bookingId)) {
+            // Only add if booking status allows chat
+            if (this.shouldAllowChat(p.sessionStatus)) {
+              allConversations.push(p);
+            }
+          }
+        });
+        
+        // Remove duplicates and sort
+        const uniqueConversations = allConversations.filter((conversation, index, self) => 
+          index === self.findIndex(c => c.bookingId === conversation.bookingId)
+        );
+        
+        console.log('📊 Final unique conversations:', uniqueConversations.length);
+        
+        return uniqueConversations.sort((a, b) => 
+          new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime()
+        );
+      }),
+      catchError(error => {
+        console.error('Error in getAllConversations, trying fallback:', error);
+        // Fallback: try each endpoint separately
+        return this.getPotentialConversations().pipe(
+          catchError(() => of([]))
+        );
+      })
+    );
   }
 
-  // Send typing indicator
-  sendTypingIndicator(request: TypingIndicatorRequest): Observable<void> {
-    return this.http.post<{success: boolean, message: string}>(`${this.apiUrl}/chat/typing`, request)
-      .pipe(map(() => void 0));
-  }
-
-  // Search messages
-  searchMessages(bookingId: number, query: string, limit: number = 50): Observable<ChatMessage[]> {
-    const params = new HttpParams()
-      .set('query', query)
-      .set('limit', limit.toString());
-
-    return this.http.get<{success: boolean, data: ChatMessage[]}>(`${this.apiUrl}/chat/search/${bookingId}`, { params })
-      .pipe(map(response => response.data));
-  }
-
-  // Edit message
-  editMessage(messageId: number, messageText: string): Observable<ChatMessage> {
-    return this.http.put<{success: boolean, message: string, data: ChatMessage}>(`${this.apiUrl}/chat/messages/${messageId}`, {
-      messageId,
-      messageText
-    }).pipe(map(response => response.data));
-  }
-
-  // Add reaction
-  addReaction(messageId: number, reactionType: string): Observable<MessageReaction> {
-    return this.http.post<{success: boolean, data: MessageReaction}>(`${this.apiUrl}/chat/messages/${messageId}/reaction`, {
-      messageId,
-      reactionType
-    }).pipe(map(response => response.data));
-  }
-
-  // Remove reaction
-  removeReaction(messageId: number, reactionType: string): Observable<void> {
-    const params = new HttpParams().set('reactionType', reactionType);
-    return this.http.delete<{success: boolean, message: string}>(`${this.apiUrl}/chat/messages/${messageId}/reaction`, { params })
-      .pipe(map(() => void 0));
-  }
-
-  // Upload voice message
-  uploadVoiceMessage(bookingId: number, audioFile: File): Observable<ChatMessage> {
-    const formData = new FormData();
-    formData.append('bookingId', bookingId.toString());
-    formData.append('audioFile', audioFile);
-
-    return this.http.post<{success: boolean, message: string, data: ChatMessage}>(`${this.apiUrl}/chat/voice-message`, formData)
-      .pipe(map(response => response.data));
-  }
-
-  // Get online status
-  getOnlineStatus(bookingId: number): Observable<OnlineStatus> {
-    return this.http.get<{success: boolean, data: OnlineStatus}>(`${this.apiUrl}/chat/conversation/${bookingId}/online-status`)
-      .pipe(map(response => response.data));
+  // Add helper method
+  private shouldAllowChat(sessionStatus?: string): boolean {
+    if (!sessionStatus) return true; // Allow if status unknown
+    
+    const allowedStatuses = ['confirmed', 'inprogress', 'completed'];
+    return allowedStatuses.includes(sessionStatus.toLowerCase());
   }
 }

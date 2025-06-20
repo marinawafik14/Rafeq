@@ -54,50 +54,32 @@
   border-left: 4px solid #0a2e65;
 }
 
-.profile-pic img {
-  width: 45px;
-  height: 45px;
-  object-fit: cover;
+/* Add these styles for new conversations */
+.conversation-item.new-conversation {
+  background: linear-gradient(90deg, rgba(10, 46, 101, 0.08) 0%, transparent 100%);
+  border-left: 3px solid #0a2e65;
 }
 
-.conversation-name {
-  color: #0a2e65;
-  font-size: 0.95rem;
+.conversation-item.new-conversation:hover {
+  background: linear-gradient(90deg, rgba(10, 46, 101, 0.12) 0%, rgba(10, 46, 101, 0.03) 100%);
 }
 
-.last-message {
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.conversation-item.new-conversation .last-message {
+  font-weight: 500;
 }
 
-.session-type {
-  font-size: 0.75rem;
-  color: #6c757d;
+.profile-pic {
+  position: relative;
 }
 
-.empty-conversations {
-  height: 200px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+.badges {
+  flex-shrink: 0;
 }
 
-/* Chat Area */
-.chat-area {
-  background: white;
-  height: 100vh;
-}
-
-.no-conversation {
-  background: #f8f9fa;
-}
-
-.chat-header {
-  min-height: 70px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+.badge.bg-gradient {
+  background: linear-gradient(45deg, #0a2e65, #1b74e4) !important;
+  font-size: 0.65rem;
+  padding: 0.25rem 0.5rem;
 }
 
 .header-avatar {
