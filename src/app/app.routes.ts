@@ -30,6 +30,7 @@ import { AvailabilityManagementComponent } from './features/mentor/availability-
 import { PaymentConfirmationComponent } from './payment-confirmation/payment-confirmation.component';
 import { BookingsComponent } from './features/mentor/bookings/bookings.component';
 import { CVReviewComponent } from './features/mentor/cv-review/cv-review.component';
+import { ChatComponent } from './features/chat/chat.component';
 
 export const routes: Routes = [ 
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -41,37 +42,41 @@ export const routes: Routes = [
  { path: 'verify-email/:token', component: VerifyEmailComponent },
   { path: 'resend-verification', component: ResendVerificationEmailComponent },
 
-{ path: 'payment', component: PaymentComponent },
-{path : 'payment-complete', component : PaymentConfirmationComponent},
-   { path: 'home', component: HomeComponent},
-   { path: 'about', component: AboutComponent},
-    { path: 'contact', component: ContactComponent},
-    {path: 'emptystate' , component: EmptyStateComponent},
-    {path :'rating' , component: RatingStarsComponent},
-    {path : 'card', component : ReviewCardComponent},
-    {path :'list' , component : ReviewListComponent},
-    {path : 'summary', component : ReviewSummaryComponent},
-    {path : 'form' , component : WriteReviewFormComponent},
-  { path: 'admin', component: AdminDashboardComponent  , children: [
- { path: 'mentors', component: AdminPaymentsComponent },
-  {path :'skills', component: AdminSkillsComponent}, 
-  {path : 'users', component: AdminUsersComponent},
-  {path : 'users/edit-user/:id', component: EditUserComponent},
-  {path : 'add-user', component: AddUserComponent},
-  {path : 'bookings',component: AdminBookingsComponent},
-  {path : 'payments',component: AdminPaymentsComponent},
-  {path: 'charts', component: ChartsComponent},
-{path :'reviews',component: AdminReviewsComponent},
-{path:'home',component:HomeComponent}
-  ]
-},
+  { path: 'payment', component: PaymentComponent },
+  { path: 'payment-complete', component: PaymentConfirmationComponent },
+  { path: 'home', component: HomeComponent},
+  { path: 'about', component: AboutComponent},
+  { path: 'contact', component: ContactComponent},
+  { path: 'emptystate', component: EmptyStateComponent},
+  { path: 'rating', component: RatingStarsComponent},
+  { path: 'card', component: ReviewCardComponent},
+  { path: 'list', component: ReviewListComponent},
+  { path: 'summary', component: ReviewSummaryComponent},
+  { path: 'form', component: WriteReviewFormComponent},
+  
+  { path: 'admin', component: AdminDashboardComponent, children: [
+    { path: 'mentors', component: AdminPaymentsComponent },
+    { path: 'skills', component: AdminSkillsComponent}, 
+    { path: 'users', component: AdminUsersComponent},
+    { path: 'users/edit-user/:id', component: EditUserComponent},
+    { path: 'add-user', component: AddUserComponent},
+    { path: 'bookings', component: AdminBookingsComponent},
+    { path: 'payments', component: AdminPaymentsComponent},
+    { path: 'charts', component: ChartsComponent},
+    { path: 'reviews', component: AdminReviewsComponent},
+    { path: 'home', component: HomeComponent}
+  ]},
+  
   // Mentor routes section
   { path: 'mentor/dashboard', component: DashboardComponent },
   { path: 'mentor/profile', component: ProfileManagementComponent },
   { path: 'mentor/availability', component: AvailabilityManagementComponent },
   { path: 'mentor/bookings', component: BookingsComponent },
   { path: 'mentor/cv-review', component: CVReviewComponent },
-
+  
+  // Chat routes
+  { path: 'chat', component: ChatComponent },
+  { path: 'chat/:bookingId', component: ChatComponent }
 ];
 
 
