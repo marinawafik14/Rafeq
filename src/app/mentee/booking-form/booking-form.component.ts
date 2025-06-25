@@ -5,6 +5,7 @@ import { MenteeLayoutComponent } from '../mentee-layout.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { menteeBookingservice } from '../../Services/menteeBooking.service';
 import { HttpClient } from '@angular/common/http';
+import { AuthService } from '../../Services/auth.service';
 
 @Component({
   selector: 'app-booking-form',
@@ -17,7 +18,7 @@ export class BookingFormComponent {
   step = 1;
   sessionType: 'mentorship' | 'interview' | null = null;
   selectedDate: string | null = null;
-  availableDates: string[] = ['2025-06-05', '2025-06-06', '2025-06-07']; // Example, replace with API
+  availableDates: string[] = []; // Example, replace with API
   availableSlots: string[] = [];
   selectedSlot: string | null = null;
   price = 0;
@@ -33,7 +34,8 @@ export class BookingFormComponent {
     private route: ActivatedRoute,
     private menteeBookingservice: menteeBookingservice,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private authService: AuthService
   ) {
     this.route.queryParams.subscribe(params => {
       if (params['mentorId']) {
@@ -120,22 +122,34 @@ export class BookingFormComponent {
   }
 
   completePayment() {
+    // Check authentication
+    const user = this.authService.currentUserValue;
+    const menteeId = user && user.userId ? user.userId : null;
+    if (!menteeId) {
+      this.bookingError = 'You must be logged in to book a session.';
+      this.router.navigate(['/login']);
+      return;
+    }
     if (!this.mentorId || !this.sessionType || !this.selectedDate || !this.selectedSlot) {
       this.bookingError = 'Please complete all steps.';
+      return;
+    }
+    if (!this.mentor) {
+      this.bookingError = 'Mentor info missing. Please try again.';
       return;
     }
     // Construct start and end datetime (assume 1 hour slot for demo)
     const startDateTime = `${this.selectedDate}T${this.selectedSlot}:00`;
     const endDateTime = `${this.selectedDate}T${this.selectedSlot}:59`;
     const booking = {
-      mentorId: this.mentorId,
       sessionType: this.sessionType,
       startDateTime,
       endDateTime
     };
-    this.menteeBookingservice.createBooking(booking).subscribe({
-      next: _ => {
+    this.menteeBookingservice.createBookingForMentee(menteeId, this.mentorId, booking).subscribe({
+      next: (response: any) => {
         this.paymentComplete = true;
+        this.bookingError = null;
         this.nextStep();
       },
       error: err => {

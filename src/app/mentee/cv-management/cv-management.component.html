@@ -23,8 +23,6 @@
                 <tr>
                   <th>File</th>
                   <th>Uploaded</th>
-                  <th>Size</th>
-                  <th>Status</th>
                   <th>Comments</th>
                   <th>Actions</th>
                 </tr>
@@ -33,12 +31,7 @@
                 <tr *ngFor="let cv of cvs">
                   <td><i class="bi bi-file-earmark-text me-2"></i>{{cv.name}}</td>
                   <td>{{cv.uploadedAt}}</td>
-                  <td>{{cv.size !== null && cv.size !== undefined ? (cv.size/1024 | number:'1.0-0') + ' KB' : 'N/A'}}</td>
-                  <td>
-                    <span class="badge bg-success" *ngIf="cv.active">Active</span>
-                    <button *ngIf="!cv.active" class="btn btn-outline-secondary btn-sm"
-                      [disabled]="cv.active">Set Active</button>
-                  </td>
+
                   <td>
                     <button class="btn btn-link p-0" (click)="openCommentsModal(cv)">
                       <i class="bi bi-chat-dots"></i> {{cv.comments.length}} comment{{cv.comments.length === 1 ? '' : 's'}}

@@ -83,7 +83,16 @@ export class LoginComponent implements OnInit {
         // Redirect based on role
         if (response.tokenData.role && response.tokenData.role.toLowerCase() === 'admin') {
           this.router.navigate(['/admin']);
-        } else {
+        }else if (response.tokenData.role && response.tokenData.role.toLowerCase() === 'mentee') {
+          const menteeId = response.tokenData.userId;
+          if (menteeId) {
+            this.router.navigate([`/mentee/${menteeId}/dashboard`]);
+          } else {
+            this.toastr.error('Mentee ID not found in token.', 'Navigation Error');
+            this.router.navigate([this.returnUrl]);
+          }
+        } 
+        else {
           this.router.navigate([this.returnUrl]);
         }
       },

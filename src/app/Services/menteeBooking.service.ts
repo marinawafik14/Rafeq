@@ -20,19 +20,27 @@ export class menteeBookingservice {
     return this.http.get<any[]>(`${this.baseUrl}/${menteeId}/completed`);
   }
 
-  // Add booking creation for mentee
-  createBooking(booking: {
-    mentorId: number;
+  // // Add booking creation for mentee
+  // createBooking(booking: {
+  //   mentorId: number;
+  //   sessionType: string;
+  //   startDateTime: string;
+  //   endDateTime: string;
+  // }): Observable<any> {
+  //   // Use relative URL so proxy works
+  //   return this.http.post('/api/MenteeBookings', booking);
+  // }
+
+  // Get booking details by bookingId
+  getBookingDetails(bookingId: number): Observable<any> {
+    return this.http.get<any>(`https://localhost:7001/api/MenteeBookings/${bookingId}`);
+  }
+
+  createBookingForMentee(menteeId: number, mentorId: number, booking: {
     sessionType: string;
     startDateTime: string;
     endDateTime: string;
   }): Observable<any> {
-    // Use relative URL so proxy works
-    return this.http.post('/api/MenteeBookings', booking);
-  }
-
-  // Get booking details by bookingId
-  getBookingDetails(bookingId: number): Observable<any> {
-    return this.http.get<any>(`/api/MenteeBookings/${bookingId}`);
+    return this.http.post(`/api/MenteeBookings/mentee/${menteeId}/bookings?mentorId=${mentorId}`, booking);
   }
 }

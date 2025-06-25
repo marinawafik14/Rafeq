@@ -1,4 +1,3 @@
-
 import {
   HttpInterceptorFn,
   HttpRequest,
@@ -80,26 +79,31 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: HttpErrorResponse) => {
-
-
+      // If 401 and not an auth route, handle refresh
       if (
         error.status === 401 &&
         (req.url.includes('login') ||
-        req.url.includes('Register') ||
-        req.url.includes('ExternalLogin') ||
-        req.url.includes('RefreshToken') ||
-        req.url.includes('logout') ||
-        req.url.includes('ForgotPassword') ||
-        req.url.includes('ResetPassword') ||
-        req.url.includes('verify-email') ||
-        req.url.includes('ResendVerificationEmail'))
+          req.url.includes('Register') ||
+          req.url.includes('ExternalLogin') ||
+          req.url.includes('RefreshToken') ||
+          req.url.includes('logout') ||
+          req.url.includes('ForgotPassword') ||
+          req.url.includes('ResetPassword') ||
+          req.url.includes('verify-email') ||
+          req.url.includes('ResendVerificationEmail'))
       ) {
-
         return throwError(() => error);
       }
 
       if (error.status === 401) {
         return handle401Error(req, next, authService, router);
+      }
+
+      // If 403 Forbidden, log out and redirect to login for both admin and mentee
+      if (error.status === 403) {
+        authService.clearToken();
+        router.navigate(['/login']);
+        return throwError(() => error);
       }
 
       return throwError(() => error);

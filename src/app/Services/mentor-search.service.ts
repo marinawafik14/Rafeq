@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Users3 } from '../Models/Users';
+import { Users } from '../Models/Users';
+import { MentorProfile } from '../Models/mentor-profile';
+import { environment } from '../environments/environment';
 
 export interface MentorSearchFilters {
   skills?: number[];
@@ -15,13 +17,14 @@ export interface MentorSearchFilters {
 }
 
 export interface MentorSearchResult {
-  mentors: Users3[];
+  mentors: Users[];
   total: number;
 }
 
 @Injectable({ providedIn: 'root' })
 export class MentorSearchService {
-  private apiUrl = '/api/users/mentors';
+  private apiUrl = `${environment.apiUrl}/users/mentors`;
+  private mentorApiUrl = `${environment.apiUrl}/mentors`;
 
   constructor(private http: HttpClient) {}
 
@@ -36,5 +39,9 @@ export class MentorSearchService {
     if (filters.page !== undefined) params = params.set('page', filters.page);
     if (filters.pageSize !== undefined) params = params.set('pageSize', filters.pageSize);
     return this.http.get<MentorSearchResult>(this.apiUrl, { params });
+  }
+
+  getMentorById(id: number): Observable<MentorProfile> {
+    return this.http.get<MentorProfile>(`${this.mentorApiUrl}/${id}`);
   }
 }

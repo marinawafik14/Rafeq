@@ -45,21 +45,12 @@ export class CvManagementComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.route.paramMap.subscribe(params => {
-      const menteeIdParam = params.get('menteeId');
-      this.menteeId = menteeIdParam ? +menteeIdParam : null;
-      
-      if (this.menteeId) {
-        this.loadCVs();
-      } else {
-        this.error = 'No mentee ID found.';
-        this.loading = false;
-      }
-    });
+    // No need to get menteeId for API call, just load CVs for current user
+    this.loadCVs();
   }
 
   private loadCVs() {
-    this.cvService.getMenteeCVs(this.menteeId!).subscribe({
+    this.cvService.getCurrentUserCVs().subscribe({
       next: (data) => {
         this.cvs = (data || []).map(cv => ({
           id: cv.cvId,
@@ -84,7 +75,7 @@ export class CvManagementComponent implements OnInit {
   }
 
   private loadCommentsForCV(cv: CV) {
-    this.http.get<any[]>(`${this.apiBaseUrl}/MenteeCVs/mentee/${this.menteeId}/comments/${cv.id}`, {
+    this.http.get<any[]>(`${this.apiBaseUrl}/MenteeCVs/comments/${cv.id}`, {
       headers: this.getAuthHeaders()
     }).subscribe({
       next: (comments) => {

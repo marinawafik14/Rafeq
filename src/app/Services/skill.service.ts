@@ -36,6 +36,11 @@ return this.http.get<Skills[]>(this.skillUrl);
     return this.http.get<Skills[]>('https://localhost:7001/api/admin/mentors');
   }
 
+  // get all skills for mentee (public endpoint)
+  getAllSkillsForMentee(): Observable<Skills[]> {
+    return this.http.get<Skills[]>('https://localhost:7001/api/skills');
+  }
+
 
 
 

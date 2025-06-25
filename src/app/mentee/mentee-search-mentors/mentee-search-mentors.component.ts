@@ -61,7 +61,7 @@ export class MenteeSearchMentorsComponent implements OnInit {
   }
 
   loadSkills() {
-    this.skillService.getAllSkills().subscribe(skills => this.skills = skills);
+    this.skillService.getAllSkillsForMentee().subscribe(skills => this.skills = skills);
   }
 
   fetchAllMentors() {
@@ -179,6 +179,11 @@ export class MenteeSearchMentorsComponent implements OnInit {
   }
 
   viewMentorProfile(mentorId: number) {
-    this.router.navigate(['/mentee/mentor', mentorId]);
+    if (this.menteeId) {
+      this.router.navigate(['/mentee', this.menteeId, 'mentor', mentorId]);
+    } else {
+      // Fallback if menteeId is not available
+      this.router.navigate(['/mentee/1/mentor', mentorId]);
+    }
   }
 }

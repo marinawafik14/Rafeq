@@ -1,78 +1,292 @@
+
+
 <div class="mentee-page d-flex">
   <mentee-layout></mentee-layout>
-  <main class="main-content flex-grow-1">
+  <main class="main-content flex-grow-1 bg-light">
     <div class="container py-4 mentor-profile-view" *ngIf="mentor">
-      <div class="row align-items-center mb-4">
-        <div class="col-12 col-md-3 text-center mb-3 mb-md-0">
-          <img [src]="mentor.profilePicture || 'assets/default-profile.png'" alt="Mentor Photo" class="rounded-circle shadow profile-photo">
-        </div>
-        <div class="col-12 col-md-6">
-          <h2 class="fw-bold mb-1">{{mentor.fullName || mentor.name}}</h2>
-          <div class="text-muted mb-2">{{mentor.title || ''}}</div>
-          <div class="mb-2">
-            <span class="badge bg-primary me-1 mb-1" *ngFor="let skill of mentor.skills">{{skill.Name || skill}}</span>
-          </div>
-          <div class="mb-2">
-            <i class="bi bi-star-fill text-warning"></i>
-            <span class="fw-bold">{{mentor.rating || 'N/A'}}</span>
-            <span class="text-muted">({{mentor.reviews?.length || 0}} reviews)</span>
-          </div>
-          <button class="btn btn-success btn-lg mt-2" (click)="bookSession()">Book a Session</button>
-        </div>
-      </div>
-      <div class="row g-4">
-        <div class="col-12 col-lg-8">
-          <div class="card mb-4">
-            <div class="card-header bg-white fw-bold">Bio</div>
-            <div class="card-body">{{mentor.bio}}</div>
-          </div>
-          <div class="card mb-4">
-            <div class="card-header bg-white fw-bold">Experience</div>
-            <div class="card-body">
-              <ul class="list-unstyled mb-0">
-                <li *ngFor="let exp of mentor.experience || []">
-                  <i class="bi bi-briefcase me-2 text-primary"></i>
-                  <span class="fw-bold">{{exp.role}}</span> at {{exp.company}} <span class="text-muted">({{exp.years}})</span>
-                </li>
-              </ul>
+      <!-- Profile Header Section -->
+      <div class="card shadow-sm mb-4">
+        <div class="card-body p-4">
+          <div class="row align-items-center">
+            <div class="col-12 col-md-3 text-center mb-4 mb-md-0">
+              <div class="position-relative d-inline-block">
+                <img [src]="mentor.profilePicture || 'assets/default-profile.png'" alt="Mentor Photo" class="rounded-circle shadow profile-photo img-thumbnail border-primary">
+                <span class="position-absolute bottom-0 end-0 bg-success p-2 rounded-circle border border-3 border-white"></span>
+              </div>
             </div>
-          </div>
-          <div class="card mb-4">
-            <div class="card-header bg-white fw-bold">Ratings & Reviews</div>
-            <div class="card-body p-0">
-              <ul class="list-group list-group-flush">
-                <li class="list-group-item" *ngFor="let review of mentor.reviews || []">
-                  <div class="d-flex align-items-center mb-1">
-                    <i class="bi bi-person-circle me-2 text-primary"></i>
-                    <span class="fw-bold me-2">{{review.user}}</span>
-                    <span class="text-warning"><i class="bi bi-star-fill"></i> {{review.rating}}</span>
-                    <span class="text-muted ms-2 small">{{review.date}}</span>
-                  </div>
-                  <div>{{review.comment}}</div>
-                </li>
-              </ul>
-              <div *ngIf="!mentor.reviews || !mentor.reviews.length" class="text-center text-muted py-4">No reviews yet.</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-12 col-lg-4">
-          <div class="card mb-4">
-            <div class="card-header bg-white fw-bold">Availability</div>
-            <div class="card-body">
-              <div *ngFor="let day of mentor.availability || mentor.availabilities || []" class="mb-3">
-                <div class="fw-bold mb-1"><i class="bi bi-calendar-event me-1"></i> {{day.date}}</div>
+            <div class="col-12 col-md-6">
+              <h2 class="fw-bold mb-2 text-primary">{{mentor.fullName}}</h2>
+              <div class="text-muted mb-3"><i class="bi bi-briefcase me-2"></i>{{mentor.role}}</div>
+              
+              <div class="d-flex flex-wrap align-items-center mb-3">
+                <div class="me-4">
+                  <i class="bi bi-star-fill text-warning me-1"></i>
+                  <span class="fw-bold">{{mentor.rating}}</span>
+                  <span class="text-muted small">({{mentor.reviews?.length || 0}})</span>
+                </div>
                 <div>
-                  <span class="badge bg-success me-1 mb-1" *ngFor="let slot of day.slots || []">{{slot}}</span>
+                  <i class="bi bi-cash-coin text-success me-1"></i>
+                  <span class="fw-bold">${{mentor.hourlyRate}}/hr</span>
                 </div>
               </div>
-              <div *ngIf="!(mentor.availability?.length || mentor.availabilities?.length)">
-                <span class="text-muted">No availability listed.</span>
+              
+              <div class="mb-3">
+                <span class="badge bg-light text-dark border me-2 mb-2" *ngFor="let skill of mentor.skills">
+                  <i class="bi bi-check-circle-fill text-primary me-1"></i>{{skill}}
+                </span>
+              </div>
+              
+              <button class="btn btn-primary btn-lg px-4 rounded-pill shadow-sm" (click)="bookSession()">
+                <i class="bi bi-calendar-plus me-2"></i>Book Session
+              </button>
+            </div>
+            <div class="col-12 col-md-3 text-end">
+              <!-- Layout Toggle Button -->
+              <button class="btn btn-outline-secondary rounded-pill" (click)="toggleLayout()" 
+                      title="Switch Layout">
+                <i class="bi me-2" 
+                   [class.bi-layout-text-sidebar-reverse]="availabilityOnLeft"
+                   [class.bi-layout-text-sidebar]="!availabilityOnLeft"></i>
+                {{availabilityOnLeft ? 'Move Right' : 'Move Left'}}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content Section -->
+      <div class="row g-4">
+        <!-- Availability Section - Conditional Position (Bigger - 8 columns) -->
+        <div class="col-12 col-lg-9" [class.order-lg-1]="availabilityOnLeft" [class.order-lg-2]="!availabilityOnLeft">
+          <!-- Availability Card -->
+          <div class="card shadow-sm" style="max-height: 500px;">
+            <div class="card-header bg-primary text-white fw-bold d-flex justify-content-between align-items-center">
+              <div>
+                <i class="bi bi-calendar2-week me-2"></i>Availability
+              </div>
+              <button class="btn btn-sm btn-outline-light rounded-pill" (click)="bookSession()">
+                <i class="bi bi-plus-circle me-1"></i>Book
+              </button>
+            </div>
+            <div class="card-body p-0">
+              <!-- No Availability State -->
+              <div *ngIf="!mentor.availabilities || mentor.availabilities.length === 0" 
+                   class="text-center text-muted py-4">
+                <i class="bi bi-calendar-x h3 d-block mb-2"></i>
+                No availability scheduled
+              </div>
+              
+              <!-- Availability Table -->
+              <div *ngIf="mentor.availabilities && mentor.availabilities.length > 0" class="table-responsive">
+                <!-- Table Controls -->
+                <div class="d-flex justify-content-between align-items-center p-3 border-bottom bg-light">
+                  <div class="d-flex align-items-center">
+                    <span class="small text-muted me-2">Sort by:</span>
+                    <select class="form-select form-select-sm" style="width: auto;" 
+                            [(ngModel)]="sortBy" (change)="onSortChange()">
+                      <option value="date">Date</option>
+                      <option value="day">Day</option>
+                      <option value="time">Time</option>
+                    </select>
+                    <button class="btn btn-sm btn-outline-secondary ms-2" 
+                            (click)="toggleSortOrder()">
+                      <i class="bi" [class.bi-sort-down]="sortOrder === 'asc'" 
+                         [class.bi-sort-up]="sortOrder === 'desc'"></i>
+                    </button>
+                  </div>
+                  <div class="small text-muted">
+                    Showing {{getStartIndex() + 1}}-{{getEndIndex()}} of {{getSortedAvailabilities().length}}
+                  </div>
+                </div>
+
+                <table class="table table-sm table-hover mb-0">
+                  <thead class="table-light">
+                    <tr>
+                      <th scope="col" class="border-0 fw-bold text-muted small" 
+                          style="cursor: pointer;" (click)="setSortBy('date')">
+                        DATE
+                        <i class="bi ms-1" 
+                           [class.bi-caret-up-fill]="sortBy === 'date' && sortOrder === 'asc'"
+                           [class.bi-caret-down-fill]="sortBy === 'date' && sortOrder === 'desc'"
+                           [class.bi-caret-up]="sortBy !== 'date'"></i>
+                      </th>
+                      <th scope="col" class="border-0 fw-bold text-muted small" 
+                          style="cursor: pointer;" (click)="setSortBy('time')">
+                        TIME
+                        <i class="bi ms-1" 
+                           [class.bi-caret-up-fill]="sortBy === 'time' && sortOrder === 'asc'"
+                           [class.bi-caret-down-fill]="sortBy === 'time' && sortOrder === 'desc'"
+                           [class.bi-caret-up]="sortBy !== 'time'"></i>
+                      </th>
+                      <th scope="col" class="border-0 fw-bold text-muted small">STATUS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let availability of getPaginatedAvailabilities(); trackBy: trackByDay" 
+                        class="border-bottom">
+                      <td class="py-3 border-0">
+                        <div class="d-flex align-items-center">
+                          <div class="bg-primary rounded-circle me-2" style="width: 8px; height: 8px;"></div>
+                          <div>
+                            <div class="fw-medium">
+                              {{getNextDateForDay(availability.dayOfWeek)}}
+                            </div>
+                            <div class="small text-muted">
+                              {{availability.dayName || getDayName(availability.dayOfWeek)}}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="py-3 border-0">
+                        <span class="badge bg-light text-dark border px-2 py-1">
+                          {{formatTime(availability.startTime)}} - {{formatTime(availability.endTime)}}
+                        </span>
+                      </td>
+                      <td class="py-3 border-0">
+                        <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                          <i class="bi bi-check-circle me-1"></i>Available
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <!-- Pagination -->
+                <div *ngIf="getSortedAvailabilities().length > pageSize" 
+                     class="d-flex justify-content-between align-items-center p-3 border-top bg-light">
+                  <!-- <div class="d-flex align-items-center">
+                    <span class="small text-muted me-2">Show:</span>
+                    <select class="form-select form-select-sm" style="width: auto;" 
+                            [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+                      <option value="3">3</option>
+                      <option value="5">5</option>
+                      <option value="7">7</option>
+                    </select>
+                    <span class="small text-muted ms-2">per page</span>
+                  </div> -->
+                  
+                  <nav aria-label="Availability pagination">
+                    <ul class="pagination pagination-sm mb-0">
+                      <li class="page-item" [class.disabled]="currentPage === 1">
+                        <button class="page-link" (click)="goToPage(currentPage - 1)" 
+                                [disabled]="currentPage === 1">
+                          <i class="bi bi-chevron-left"></i>
+                        </button>
+                      </li>
+                      
+                      <li *ngFor="let page of getPageNumbers()" 
+                          class="page-item" [class.active]="page === currentPage">
+                        <button class="page-link" (click)="goToPage(page)">
+                          {{page}}
+                        </button>
+                      </li>
+                      
+                      <li class="page-item" [class.disabled]="currentPage === getTotalPages()">
+                        <button class="page-link" (click)="goToPage(currentPage + 1)" 
+                                [disabled]="currentPage === getTotalPages()">
+                          <i class="bi bi-chevron-right"></i>
+                        </button>
+                      </li>
+                    </ul>
+                  </nav>
+                </div>
+              </div>
+              
+              <!-- Summary Footer -->
+              <div *ngIf="mentor.availabilities && mentor.availabilities.length > 0" 
+                   class="border-top bg-light p-3">
+                <div class="row text-center">
+                  <div class="col-6">
+                    <div class="fw-bold text-primary">{{mentor.availabilities.length}}</div>
+                    <div class="small text-muted">Days Available</div>
+                  </div>
+                  <div class="col-6">
+                    <div class="fw-bold text-success">{{calculateWeeklyHours(mentor.availabilities)}}h</div>
+                    <div class="small text-muted">Total Hours</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- About Me & Expertise Section - Conditional Position -->
+        <div class="col-12 col-lg-3" [class.order-lg-2]="availabilityOnLeft" [class.order-lg-1]="!availabilityOnLeft">
+          <!-- Bio Card -->
+          <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white fw-bold">
+              <i class="bi bi-person-lines-fill me-2"></i>About Me
+            </div>
+            <div class="card-body">
+              <p class="mb-0">{{mentor.bio}}</p>
+            </div>
+          </div>
+
+          <!-- Skills Card -->
+          <div class="card shadow-sm mb-4" *ngIf="(mentor.mentorSkills && mentor.mentorSkills.length > 0) || (mentor.skills && mentor.skills.length > 0)">
+            <div class="card-header bg-primary text-white fw-bold">
+              <i class="bi bi-tools me-2"></i>Expertise
+            </div>
+            <div class="card-body">
+              <div class="d-flex flex-wrap">
+                <!-- Display mentor skills (objects with name property) -->
+                <span class="badge bg-light text-dark border rounded-pill px-3 py-2 me-2 mb-2" 
+                      *ngFor="let skill of mentor.mentorSkills">
+                  <i class="bi bi-check-circle text-primary me-1"></i>{{skill.name}}
+                </span>
+                <!-- Display skills (string array) if mentorSkills is empty -->
+                <span class="badge bg-light text-dark border rounded-pill px-3 py-2 me-2 mb-2" 
+                      *ngFor="let skill of mentor.skills" 
+                      [style.display]="(mentor.mentorSkills && mentor.mentorSkills.length > 0) ? 'none' : 'inline-block'">
+                  <i class="bi bi-check-circle text-primary me-1"></i>{{skill}}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reviews Card -->
+          <div class="card shadow-sm" *ngIf="mentor.reviews && mentor.reviews.length > 0">
+            <div class="card-header bg-primary text-white fw-bold">
+              <i class="bi bi-chat-square-text me-2"></i>Testimonials
+            </div>
+            <div class="card-body p-0">
+              <div class="list-group list-group-flush">
+                <div class="list-group-item p-4" *ngFor="let review of mentor.reviews">
+                  <div class="d-flex align-items-center mb-2">
+                    <div class="bg-light rounded-circle p-2 me-3">
+                      <i class="bi bi-person-circle text-primary"></i>
+                    </div>
+                    <div>
+                      <span class="fw-bold d-block">{{review.user}}</span>
+                      <div class="d-flex align-items-center">
+                        <span class="text-warning">
+                          <i class="bi bi-star-fill"></i>
+                          <i class="bi bi-star-fill" *ngIf="review.rating > 1"></i>
+                          <i class="bi bi-star-fill" *ngIf="review.rating > 2"></i>
+                          <i class="bi bi-star-fill" *ngIf="review.rating > 3"></i>
+                          <i class="bi bi-star-fill" *ngIf="review.rating > 4"></i>
+                        </span>
+                        <span class="text-muted small ms-2">{{review.date}}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ps-5">{{review.comment}}</div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <div *ngIf="!mentor" class="text-center py-5 text-muted">Loading mentor profile...</div>
+    
+    <!-- Loading State -->
+    <div *ngIf="!mentor" class="d-flex justify-content-center align-items-center vh-50">
+      <div class="text-center">
+        <div class="spinner-border text-primary mb-3" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <div class="text-muted">Loading mentor profile...</div>
+      </div>
+    </div>
   </main>
 </div>

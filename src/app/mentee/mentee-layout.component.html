@@ -1,67 +1,80 @@
-<!-- Mentee Layout Wrapper -->
-<div class="mentee-layout container-fluid px-0">
-  <!-- Modern top navbar for mentee area -->
-
-  
-  <div class="row g-0">
-    <!-- Sidebar -->
-    <aside class="col-12 col-md-3 col-lg-2 mentee-sidebar" [class.open]="sidebarOpen">
-      <div class="sidebar-inner h-100 d-flex flex-column">
-        <div class="sidebar-header p-3 ">
-          <div class="d-flex flex-column  w-100 mb-2">
-            <div style="width:35px;height:3px;background-color:white;margin:6px 0; cursor:pointer;"(click)="toggleSidebar()"></div>
-            <div style="width:35px;height:3px;background-color:white;margin:6px 0; cursor:pointer;"(click)="toggleSidebar()"></div>
-            <div style="width:35px;height:3px;background-color:white;margin:6px 0;cursor:pointer;" (click)="toggleSidebar()"></div>
-          </div>
-        </div>
-        
-        <div class="sidebar-profile p-3 text-center">
-
-          <div class="profile-info">
-            <div class="fw-bold">{{ menteeName || 'Mentee' }}</div>
-            <div class="small" *ngIf="menteeId">ID: {{ menteeId }}</div>
-          </div>
-        </div>
-        
-        <div class="sidebar-menu flex-grow-1">
-          <ul class="nav flex-md-column flex-row w-100 justify-content-between">
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center py-2 px-2" [routerLink]="['/mentee', menteeId, 'dashboard']">
-                <i class="bi bi-house me-2"></i> <span class="d-none d-md-inline">Dashboard</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center py-2 px-2" [routerLink]="['/mentee', menteeId, 'bookings']">
-                <i class="bi bi-calendar-check me-2"></i> <span class="d-none d-md-inline">Bookings</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center py-2 px-2" [routerLink]="['/mentee', menteeId, 'search-mentors']">
-                <i class="bi bi-search me-2"></i> <span class="d-none d-md-inline">Find Mentors</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link d-flex align-items-center py-2 px-2" [routerLink]="['/mentee', menteeId, 'cv-management']">
-                <i class="bi bi-file-earmark-person me-2"></i> <span class="d-none d-md-inline">CV Management</span>
-              </a>
-            </li>
+<div class="sidebar close">
+      <div class="logo-details">
+        <i class="bx bxl-c-plus-plus"></i>
+        <span class="logo_name">Rafeq</span>
+      </div>
+      <ul class="nav-links">
+        <li>
+          <a [routerLink]="['/mentee', menteeId, 'dashboard']" (click)="navigateTo({route: 'dashboard'})">
+            <i class="bx bx-home"></i>
+            <span class="link_name">Dashboard</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" [routerLink]="['/mentee', menteeId, 'dashboard']">Dashboard</a></li>
           </ul>
-        </div>
-        
-        <div class="sidebar-footer p-3 d-flex flex-column align-items-center">
-          
-          <button class="btn btn-danger w-75 mt-2" (click)="logout()" style="display:block;margin:0 auto;">
-            <i class="bi bi-box-arrow-right"></i> Logout
-          </button>
-        </div>
-      </div>
-    </aside>
-    
-    <!-- Main Content -->
-    <main class="col" [class.sidebar-collapsed]="!sidebarOpen">
-      <div class="main-content-container">
-        <ng-content></ng-content>
-      </div>
-    </main>
-  </div>
-</div>
+        </li>
+        <li>
+          <a [routerLink]="['/mentee', menteeId, 'bookings']" (click)="navigateTo({route: 'bookings'})">
+            <i class="bx bx-calendar"></i>
+            <span class="link_name">Bookings</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" [routerLink]="['/mentee', menteeId, 'bookings']">Bookings</a></li>
+          </ul>
+        </li>
+        <li>
+          <a [routerLink]="['/mentee', menteeId, 'search-mentors']" (click)="navigateTo({route: 'search-mentors'})">
+            <i class="bx bx-search"></i>
+            <span class="link_name">Search Mentors</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" [routerLink]="['/mentee', menteeId, 'search-mentors']">Search Mentors</a></li>
+          </ul>
+        </li>
+        <li>
+          <a [routerLink]="['/mentee', menteeId, 'cv-management']" (click)="navigateTo({route: 'cv-management'})">
+            <i class="bx bx-file"></i>
+            <span class="link_name">CV Management</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" [routerLink]="['/mentee', menteeId, 'cv-management']">CV Management</a></li>
+          </ul>
+        </li>
+        <li>
+          <a [routerLink]="['/mentee', menteeId, 'booking-form']" (click)="navigateTo({route: 'booking-form'})">
+            <i class="bx bx-edit"></i>
+            <span class="link_name">Book a Session</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" [routerLink]="['/mentee', menteeId, 'booking-form']">Book a Session</a></li>
+          </ul>
+        </li>
+        <li>
+          <a [routerLink]="['/mentee', menteeId, 'booking-details', 0]" (click)="navigateTo({route: 'booking-details/0'})">
+            <i class="bx bx-detail"></i>
+            <span class="link_name">Booking Details</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" [routerLink]="['/mentee', menteeId, 'booking-details', 0]">Booking Details</a></li>
+          </ul>
+        </li>
+        <li>
+          <a href="#" (click)="logout()" style="cursor:pointer;">
+            <i class="bx bx-log-out"></i>
+            <span class="link_name">Logout</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><span class="link_name">Logout</span></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <div class="main-content">
+      <i class="bx bx-menu" (click)="toggleSidebar()"></i>
+      <ng-content></ng-content>
+      <router-outlet></router-outlet>
+    </div>
+
+
+
