@@ -31,8 +31,16 @@ import { BookingDetailsComponent } from './mentee/booking-details/booking-detail
 import { BookingFormComponent } from './mentee/booking-form/booking-form.component';
 import { MentorProfileViewComponent } from './mentee/mentor-profile-view/mentor-profile-view.component';
 
+import { DashboardComponent } from './features/mentor/dashboard/dashboard.component';
+import { ProfileManagementComponent } from './features/mentor/profile-management/profile-management.component';
+import { PaymentComponent } from './payment/payment.component';
+import { AvailabilityManagementComponent } from './features/mentor/availability-management/availability-management.component';
+import { PaymentConfirmationComponent } from './payment-confirmation/payment-confirmation.component';
+import { BookingsComponent } from './features/mentor/bookings/bookings.component';
+import { CVReviewComponent } from './features/mentor/cv-review/cv-review.component';
+import { ChatComponent } from './features/chat/chat.component';
 
-export const routes: Routes = [
+export const routes: Routes = [ 
   { path: '', redirectTo: 'home', pathMatch: 'full' },
 //Authentication routes
     { path: 'login', component: LoginComponent },
@@ -42,35 +50,48 @@ export const routes: Routes = [
  { path: 'verify-email/:token', component: VerifyEmailComponent },
   { path: 'resend-verification', component: ResendVerificationEmailComponent },
 
-
-   { path: 'home', component: HomeComponent},
-   { path: 'about', component: AboutComponent},
-    { path: 'contact', component: ContactComponent},
-    {path: 'emptystate' , component: EmptyStateComponent},
-    {path :'rating' , component: RatingStarsComponent},
-    {path : 'card', component : ReviewCardComponent},
-    {path :'list' , component : ReviewListComponent},
-    {path : 'summary', component : ReviewSummaryComponent},
-    {path : 'form' , component : WriteReviewFormComponent},
-  { path: 'admin', component: AdminDashboardComponent  , children: [
- { path: 'mentors', component: AdminPaymentsComponent },
-  {path :'skills', component: AdminSkillsComponent}, 
-  {path : 'users', component: AdminUsersComponent},
-  {path : 'users/edit-user/:id', component: EditUserComponent},
-  {path : 'add-user', component: AddUserComponent},
-  {path : 'bookings',component: AdminBookingsComponent},
-  {path : 'payments',component: AdminPaymentsComponent},
-  {path: 'charts', component: ChartsComponent},
-{path :'reviews',component: AdminReviewsComponent},
-{path:'home',component:HomeComponent}
-  ]
-},
-// MENTEE AREA ROUTES
-{
-  path: 'mentee/:menteeId',
-  redirectTo: 'mentee/:menteeId/dashboard',
-  pathMatch: 'full'
-},
+  { path: 'payment', component: PaymentComponent },
+  { path: 'payment-complete', component: PaymentConfirmationComponent },
+  { path: 'home', component: HomeComponent},
+  { path: 'about', component: AboutComponent},
+  { path: 'contact', component: ContactComponent},
+  { path: 'emptystate', component: EmptyStateComponent},
+  { path: 'rating', component: RatingStarsComponent},
+  { path: 'card', component: ReviewCardComponent},
+  { path: 'list', component: ReviewListComponent},
+  { path: 'summary', component: ReviewSummaryComponent},
+  { path: 'form', component: WriteReviewFormComponent},
+  
+  { path: 'admin', component: AdminDashboardComponent, children: [
+    { path: 'mentors', component: AdminPaymentsComponent },
+    { path: 'skills', component: AdminSkillsComponent}, 
+    { path: 'users', component: AdminUsersComponent},
+    { path: 'users/edit-user/:id', component: EditUserComponent},
+    { path: 'add-user', component: AddUserComponent},
+    { path: 'bookings', component: AdminBookingsComponent},
+    { path: 'payments', component: AdminPaymentsComponent},
+    { path: 'charts', component: ChartsComponent},
+    { path: 'reviews', component: AdminReviewsComponent},
+    { path: 'home', component: HomeComponent}
+  ]},
+  
+  // Mentor routes section
+  { path: 'mentor/dashboard', component: DashboardComponent },
+  { path: 'mentor/profile', component: ProfileManagementComponent },
+  { path: 'mentor/availability', component: AvailabilityManagementComponent },
+  { path: 'mentor/bookings', component: BookingsComponent },
+  { path: 'mentor/cv-review', component: CVReviewComponent },
+  
+  // Chat routes
+  { path: 'chat', component: ChatComponent },
+  { path: 'chat/:bookingId', component: ChatComponent },
+  
+  // MENTEE AREA ROUTES
+  {
+    path: 'mentee/:menteeId',
+    redirectTo: 'mentee/:menteeId/dashboard',
+    pathMatch: 'full'
+  },
 {
   path: 'mentee/:menteeId/dashboard',
   loadComponent: () => import('./mentee/mentee-dashboard/mentee-dashboard.component').then(m => m.MenteeDashboardComponent)
