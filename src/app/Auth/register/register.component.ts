@@ -2,7 +2,12 @@
 
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 
@@ -20,10 +25,12 @@ import { passwordsMatchValidator } from '../../shared/validators/password-match.
 })
 export class RegisterComponent implements OnInit {
   registerForm!: FormGroup;
+  showPassword: boolean = false;
+  showConfirmPassword: boolean = false;
 
   constructor(
     private authService: AuthService,
-    private router:  Router,
+    private router: Router,
     private toastr: ToastrService
   ) {}
 
@@ -50,16 +57,37 @@ export class RegisterComponent implements OnInit {
     );
   }
 
-  get fullName() { return this.registerForm.get('fullName'); }
-  get email() { return this.registerForm.get('email'); }
-  get password() { return this.registerForm.get('password'); }
-  get confirmPassword() { return this.registerForm.get('confirmPassword'); }
-  get role() { return this.registerForm.get('role'); }
+  get fullName() {
+    return this.registerForm.get('fullName');
+  }
+  get email() {
+    return this.registerForm.get('email');
+  }
+  get password() {
+    return this.registerForm.get('password');
+  }
+  get confirmPassword() {
+    return this.registerForm.get('confirmPassword');
+  }
+  get role() {
+    return this.registerForm.get('role');
+  }
+
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  toggleConfirmPasswordVisibility(): void {
+    this.showConfirmPassword = !this.showConfirmPassword;
+  }
 
   onSubmit(): void {
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
-      this.toastr.error('Please correct the errors in the form.', 'Validation Error');
+      this.toastr.error(
+        'Please correct the errors in the form.',
+        'Validation Error'
+      );
       return;
     }
 
@@ -75,7 +103,8 @@ export class RegisterComponent implements OnInit {
             this.toastr.warning(response.message, 'Email Already Registered');
           } else {
             this.toastr.warning(
-              response.message || 'Registration successful, but there was an issue sending the verification email.',
+              response.message ||
+                'Registration successful, but there was an issue sending the verification email.',
               'Registration Warning'
             );
             this.router.navigate(['/login']);
@@ -83,7 +112,11 @@ export class RegisterComponent implements OnInit {
         }
       },
       error: (err: any) => {
-        this.toastr.error(err.message || 'An unexpected error occurred during registration. try again', 'Error');
+        this.toastr.error(
+          err.message ||
+            'An unexpected error occurred during registration. try again',
+          'Error'
+        );
         console.error('Registration API error:', err);
       },
     });
