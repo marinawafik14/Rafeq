@@ -1,86 +1,132 @@
-<div class="container register-container">
-  <h2>Register</h2>
-  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-    <div class="mb-3">
-      <label for="fullName" class="form-label">Full Name</label>
-      <input type="text" id="fullName" formControlName="fullName" class="form-control" />
-      @if(fullName?.invalid && (fullName?.dirty || fullName?.touched)) {
-      <div class="text-danger">
-        @if(fullName?.errors?.['required']){
-        <p>Full Name is required.</p>
-        } @if(fullName?.errors?.['minlength']){
-        <p>Full Name must be at least 3 characters.</p>
-        } @if(fullName?.errors?.['maxlength']){
-        <p>Full Name cannot exceed 100 characters.</p>
-        } @if(fullName?.errors?.['pattern']){
-        <p>Full Name can only contain letters and spaces.</p>
-        }
+<div class="register-wrapper">
+  <div class="register-container">
+    <!-- Left side - Image -->
+    <div class="register-image-section">
+      <div class="register-image-container">
+        <img src="/images/SignUp.jpg" alt="Join Rafeq Community" class="register-image">
+        <div class="register-image-overlay">
+
+        </div>
       </div>
-      }
     </div>
 
-    <div class="mb-3">
-      <label for="email" class="form-label">Email</label>
-      <input type="email" id="email" formControlName="email" class="form-control" />
-      @if(email?.invalid && (email?.dirty || email?.touched)) {
-      <div class="text-danger">
-        @if(email?.errors?.['required']){
-        <p>Email is required.</p>
-        } @if(email?.errors?.['email']){
-        <p>Invalid email format.</p>
-        }
+    <!-- Right side - Registration Form -->
+    <div class="register-form-section">
+      <div class="register-form-container">
+        <div class="register-header">
+          <h2>Create Account</h2>
+          <p class="register-form-subtitle">Join Rafeq</p>
+        </div>
+
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+          <div class="form-group">
+            <label for="fullName" class="form-label">Full Name</label>
+            <input type="text" id="fullName" formControlName="fullName" class="form-control"
+              placeholder="Enter your full name" />
+            @if(fullName?.invalid && (fullName?.dirty || fullName?.touched)) {
+            <div class="error-message">
+              @if(fullName?.errors?.['required']){
+              <span>Full Name is required.</span>
+              } @if(fullName?.errors?.['minlength']){
+              <span>Full Name must be at least 3 characters.</span>
+              } @if(fullName?.errors?.['maxlength']){
+              <span>Full Name cannot exceed 100 characters.</span>
+              } @if(fullName?.errors?.['pattern']){
+              <span>Full Name can only contain letters and spaces.</span>
+              }
+            </div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="email" class="form-label">Email Address</label>
+            <input type="email" id="email" formControlName="email" class="form-control"
+              placeholder="Enter your email address" />
+            @if(email?.invalid && (email?.dirty || email?.touched)) {
+            <div class="error-message">
+              @if(email?.errors?.['required']){
+              <span>Email is required.</span>
+              } @if(email?.errors?.['email']){
+              <span>Invalid email format.</span>
+              }
+            </div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="password" class="form-label">Password</label>
+            <div class="password-input-container">
+              <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password"
+                class="form-control" placeholder="Enter your password" /> <button type="button" class="password-toggle"
+                (click)="togglePasswordVisibility()"
+                [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+                <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+              </button>
+            </div>
+            @if(password?.invalid && (password?.dirty || password?.touched)) {
+            <div class="error-message">
+              @if(password?.errors?.['required']){
+              <span>Password is required.</span>
+              } @if(password?.errors?.['minlength']){
+              <span>Password must be at least 6 characters.</span>
+              }
+            </div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword" class="form-label">Confirm Password</label>
+            <div class="password-input-container">
+              <input [type]="showConfirmPassword ? 'text' : 'password'" id="confirmPassword"
+                formControlName="confirmPassword" class="form-control" placeholder="Confirm your password" /> <button
+                type="button" class="password-toggle" (click)="toggleConfirmPasswordVisibility()"
+                [attr.aria-label]="showConfirmPassword ? 'Hide password' : 'Show password'">
+                <i [class]="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+              </button>
+            </div>
+            @if(confirmPassword?.invalid && (confirmPassword?.dirty || confirmPassword?.touched)) {
+            <div class="error-message">
+              @if(confirmPassword?.errors?.['required']){
+              <span>Confirm Password is required.</span>
+              }
+            </div>
+            }
+            @if(registerForm.errors?.['passwordsMismatch'] && confirmPassword?.touched) {
+            <div class="error-message">
+              <span>Passwords do not match.</span>
+            </div>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="role" class="form-label">I want to be a</label>
+            <select id="role" formControlName="role" class="form-control form-select">
+              <option value="Mentee">Mentee</option>
+              <option value="Mentor">Mentor </option>
+            </select>
+            @if(role?.invalid && (role?.dirty || role?.touched)) {
+            <div class="error-message">
+              @if(role?.errors?.['required']){
+              <span>Role is required.</span>
+              }
+            </div>
+            }
+          </div>
+
+        
+
+          <button type="submit" class="btn btn-primary" [disabled]="registerForm.invalid">
+            <span>Create Account</span>
+          </button>
+        </form>
+
+        <div class="register-links">
+          <p class="already-have-account">
+            Already have an account?
+            <a routerLink="/login" class="login-link">Sign In</a>
+          </p>
+        </div>
       </div>
-      }
     </div>
-
-    <div class="mb-3">
-      <label for="password" class="form-label">Password</label>
-      <input type="password" id="password" formControlName="password" class="form-control" />
-      @if(password?.invalid && (password?.dirty || password?.touched)) {
-      <div class="text-danger">
-        @if(password?.errors?.['required']){
-        <p>Password is required.</p>
-        } @if(password?.errors?.['minlength']){
-        <p>Password must be at least 6 characters.</p>
-        }
-      </div>
-      }
-    </div>
-
-    <div class="mb-3">
-      <label for="confirmPassword" class="form-label">Confirm Password</label>
-      <input type="password" id="confirmPassword" formControlName="confirmPassword" class="form-control" />
-      @if(confirmPassword?.invalid && (confirmPassword?.dirty || confirmPassword?.touched)) {
-      <div class="text-danger">
-        @if(confirmPassword?.errors?.['required']){
-        <p>Confirm Password is required.</p>
-        }
-      </div>
-      }
-      @if(registerForm.errors?.['passwordsMismatch'] && confirmPassword?.touched) {
-      <div class="text-danger">
-        <p>Passwords do not match.</p>
-      </div>
-      }
-    </div>
-
-    <div class="mb-3">
-      <label for="role" class="form-label">Role</label>
-      <select id="role" formControlName="role" class="form-control">
-        <option value="Mentee">Mentee</option>
-        <option value="Mentor">Mentor</option>
-      </select>
-      @if(role?.invalid && (role?.dirty || role?.touched)) {
-      <div class="text-danger">
-        @if(role?.errors?.['required']){
-        <p>Role is required.</p>
-        }
-      </div>
-      }
-    </div>
-
-    <button type="submit" class="btn btn-primary" [disabled]="registerForm.invalid">Register</button>
-  </form>
-
-  <p class="text-center mt-3">Already have an account? <a routerLink="/login">Login here</a></p>
+  </div>
 </div>
