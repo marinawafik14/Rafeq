@@ -43,7 +43,7 @@
             <h3 class="profile-name">{{ userProfile.fullName || 'Your Name' }}</h3>
             <p class="profile-role">
               <i class="fas fa-graduation-cap me-2"></i>
-              Professional Mentor
+              Mentor
             </p>
           </div>
 
@@ -73,10 +73,6 @@
             </h5>
             <input type="file" id="profileFileInput" (change)="onFileSelected($event)" accept="image/*"
               class="form-control file-input">
-            <small *ngIf="selectedFile" class="text-muted mt-2">
-              <i class="fas fa-file-image me-1"></i>
-              {{ selectedFile.name }}
-            </small>
             <button type="button" (click)="uploadProfilePhoto()" [disabled]="!selectedFile || isLoading"
               class="btn btn-primary w-100 mt-3">
               <i class="fas fa-upload me-2"></i>
@@ -90,34 +86,34 @@
       <div class="col-lg-8">
         <!-- Tabs Navigation -->
         <div class="tabs-container">
-          <ul class="nav nav-tabs custom-tabs" id="profileTabs" role="tablist">
+          <ul class="nav nav-tabs custom-tabs" role="tablist">
             <li class="nav-item" role="presentation">
-              <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile"
-                type="button" role="tab">
+              <button class="nav-link" [class.active]="activeTab === 'profile'" (click)="switchTab('profile')"
+                type="button">
                 <i class="fas fa-user me-2"></i>
-                Profile Information
+                Profile
               </button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link" id="settings-tab" data-bs-toggle="tab" data-bs-target="#settings" type="button"
-                role="tab">
+              <button class="nav-link" [class.active]="activeTab === 'settings'" (click)="switchTab('settings')"
+                type="button">
                 <i class="fas fa-cog me-2"></i>
-                Mentor Settings
+                Mentor
               </button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link" id="password-tab" data-bs-toggle="tab" data-bs-target="#password" type="button"
-                role="tab">
+              <button class="nav-link" [class.active]="activeTab === 'password'" (click)="switchTab('password')"
+                type="button">
                 <i class="fas fa-lock me-2"></i>
                 Change Password
               </button>
             </li>
           </ul>
 
-          <div class="tab-content" id="profileTabsContent">
+          <div class="tab-content">
             <!-- Profile Information Tab -->
-            <div class="tab-pane fade show active" id="profile" role="tabpanel">
-              <div class="form-card">
+            <div class="tab-pane" [class.active]="activeTab === 'profile'" [class.show]="activeTab === 'profile'">
+              <div class="form-card" *ngIf="activeTab === 'profile'">
                 <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
                   <div class="row g-3 mb-4">
                     <!-- Full Name -->
@@ -177,11 +173,9 @@
                   </div>
                 </form>
               </div>
-            </div>
-
-            <!-- Mentor Settings Tab -->
-            <div class="tab-pane fade" id="settings" role="tabpanel">
-              <div class="form-card">
+            </div> <!-- Mentor Settings Tab -->
+            <div class="tab-pane" [class.active]="activeTab === 'settings'" [class.show]="activeTab === 'settings'">
+              <div class="form-card" *ngIf="activeTab === 'settings'">
                 <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
                   <div class="row g-4 mb-4">
                     <!-- Hourly Rate -->
@@ -189,7 +183,7 @@
                       <div class="form-group">
                         <label for="hourlyRate" class="form-label">
                           <i class="fas fa-dollar-sign me-2"></i>
-                          Hourly Rate (USD)
+                          Hourly Rate ($)
                         </label>
                         <div class="input-group">
                           <span class="input-group-text">$</span>
@@ -252,11 +246,9 @@
                   </div>
                 </form>
               </div>
-            </div>
-
-            <!-- Change Password Tab -->
-            <div class="tab-pane fade" id="password" role="tabpanel">
-              <div class="form-card">
+            </div> <!-- Change Password Tab -->
+            <div class="tab-pane" [class.active]="activeTab === 'password'" [class.show]="activeTab === 'password'">
+              <div class="form-card" *ngIf="activeTab === 'password'">
                 <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
                   <div class="row g-3 mb-4">
                     <div class="col-12">
@@ -265,9 +257,17 @@
                           <i class="fas fa-key me-2"></i>
                           Current Password
                         </label>
-                        <input type="password" id="currentPassword" formControlName="currentPassword"
-                          class="form-control"
-                          [ngClass]="{'is-invalid': getControlError('currentPassword', passwordForm)}">
+                        <div class="input-group">
+                          <input [type]="showCurrentPassword ? 'text' : 'password'" id="currentPassword"
+                            formControlName="currentPassword" class="form-control"
+                            [ngClass]="{'is-invalid': getControlError('currentPassword', passwordForm)}"
+                            placeholder="Enter your current password">
+                          <button type="button" class="btn btn-outline-secondary password-toggle"
+                            (click)="togglePasswordVisibility('current')"
+                            [attr.aria-label]="showCurrentPassword ? 'Hide password' : 'Show password'">
+                            <i [class]="showCurrentPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                          </button>
+                        </div>
                         <div *ngIf="getControlError('currentPassword', passwordForm)" class="invalid-feedback">{{
                           getControlError('currentPassword', passwordForm) }}</div>
                       </div>
@@ -279,8 +279,17 @@
                           <i class="fas fa-lock me-2"></i>
                           New Password
                         </label>
-                        <input type="password" id="newPassword" formControlName="newPassword" class="form-control"
-                          [ngClass]="{'is-invalid': getControlError('newPassword', passwordForm)}">
+                        <div class="input-group">
+                          <input [type]="showNewPassword ? 'text' : 'password'" id="newPassword"
+                            formControlName="newPassword" class="form-control"
+                            [ngClass]="{'is-invalid': getControlError('newPassword', passwordForm)}"
+                            placeholder="Enter new password">
+                          <button type="button" class="btn btn-outline-secondary password-toggle"
+                            (click)="togglePasswordVisibility('new')"
+                            [attr.aria-label]="showNewPassword ? 'Hide password' : 'Show password'">
+                            <i [class]="showNewPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                          </button>
+                        </div>
                         <div *ngIf="getControlError('newPassword', passwordForm)" class="invalid-feedback">{{
                           getControlError('newPassword', passwordForm) }}</div>
                       </div>
@@ -292,9 +301,17 @@
                           <i class="fas fa-lock me-2"></i>
                           Confirm New Password
                         </label>
-                        <input type="password" id="confirmNewPassword" formControlName="confirmNewPassword"
-                          class="form-control"
-                          [ngClass]="{'is-invalid': getControlError('confirmNewPassword', passwordForm)}">
+                        <div class="input-group">
+                          <input [type]="showConfirmPassword ? 'text' : 'password'" id="confirmNewPassword"
+                            formControlName="confirmNewPassword" class="form-control"
+                            [ngClass]="{'is-invalid': getControlError('confirmNewPassword', passwordForm)}"
+                            placeholder="Confirm new password">
+                          <button type="button" class="btn btn-outline-secondary password-toggle"
+                            (click)="togglePasswordVisibility('confirm')"
+                            [attr.aria-label]="showConfirmPassword ? 'Hide password' : 'Show password'">
+                            <i [class]="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                          </button>
+                        </div>
                         <div *ngIf="getControlError('confirmNewPassword', passwordForm)" class="invalid-feedback">{{
                           getControlError('confirmNewPassword', passwordForm) }}</div>
                         <div
@@ -302,16 +319,6 @@
                           class="invalid-feedback d-block">Passwords do not match.</div>
                       </div>
                     </div>
-                  </div>
-
-                  <div class="password-requirements">
-                    <h6 class="text-muted mb-2">Password Requirements:</h6>
-                    <ul class="requirements-list">
-                      <li>At least 8 characters long</li>
-                      <li>Contains uppercase and lowercase letters</li>
-                      <li>Contains at least one number</li>
-                      <li>Contains at least one special character</li>
-                    </ul>
                   </div>
 
                   <div class="text-center mt-4">

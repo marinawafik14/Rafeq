@@ -31,51 +31,22 @@ export class MentorProfileComponent implements OnInit {
   isLoading: boolean = false;
   selectedFile: File | null = null;
 
+  // Simple tab management
+  activeTab = 'profile';
+
+  // Password visibility toggles
+  showCurrentPassword = false;
+  showNewPassword = false;
+  showConfirmPassword = false;
+
   constructor(
     private fb: FormBuilder,
     private userProfileService: UserProfileService
   ) {}
-
   ngOnInit(): void {
     this.initForms();
     this.loadSkills();
     this.loadUserProfile();
-    this.initializeBootstrapTabs();
-  }
-
-  // Initialize Bootstrap tabs functionality
-  private initializeBootstrapTabs(): void {
-    // Initialize tabs after component renders
-    setTimeout(() => {
-      const tabElements = document.querySelectorAll('[data-bs-toggle="tab"]');
-      tabElements.forEach((tabElement) => {
-        tabElement.addEventListener('click', (e) => {
-          e.preventDefault();
-          const target = (e.target as HTMLElement).getAttribute(
-            'data-bs-target'
-          );
-
-          // Remove active class from all tabs and panes
-          document
-            .querySelectorAll('.nav-link')
-            .forEach((el) => el.classList.remove('active'));
-          document.querySelectorAll('.tab-pane').forEach((el) => {
-            el.classList.remove('show', 'active');
-          });
-
-          // Add active class to clicked tab
-          (e.target as HTMLElement).classList.add('active');
-
-          // Show corresponding tab pane
-          if (target) {
-            const targetPane = document.querySelector(target);
-            if (targetPane) {
-              targetPane.classList.add('show', 'active');
-            }
-          }
-        });
-      });
-    }, 100);
   }
 
   initForms(): void {
@@ -281,7 +252,6 @@ export class MentorProfileComponent implements OnInit {
         this.isLoading = false;
       });
   }
-
   changePassword(): void {
     if (this.passwordForm.invalid) {
       this.errorMessage = 'Please correct the errors in the password form.';
@@ -306,8 +276,32 @@ export class MentorProfileComponent implements OnInit {
       .subscribe(() => {
         this.successMessage = 'Password changed successfully!';
         this.passwordForm.reset();
+        // Reset password visibility states
+        this.showCurrentPassword = false;
+        this.showNewPassword = false;
+        this.showConfirmPassword = false;
         this.isLoading = false;
       });
+  }
+  switchTab(tabName: string): void {
+    this.activeTab = tabName;
+    // Clear messages when switching tabs for better UX
+    this.errorMessage = '';
+    this.successMessage = '';
+  }
+
+  togglePasswordVisibility(field: 'current' | 'new' | 'confirm'): void {
+    switch (field) {
+      case 'current':
+        this.showCurrentPassword = !this.showCurrentPassword;
+        break;
+      case 'new':
+        this.showNewPassword = !this.showNewPassword;
+        break;
+      case 'confirm':
+        this.showConfirmPassword = !this.showConfirmPassword;
+        break;
+    }
   }
 
   private markFormGroupTouched(formGroup: FormGroup) {
