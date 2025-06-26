@@ -8,6 +8,23 @@
     </div>
   </div>
 
+  <!-- Toast Container -->
+  <div class="toast-container">
+    <div *ngFor="let toast of toasts" class="toast" [ngClass]="'toast-' + toast.type" (click)="removeToast(toast.id)">
+      <div class="toast-content">
+        <i class="fas" [ngClass]="{
+             'fa-check-circle': toast.type === 'success',
+             'fa-exclamation-triangle': toast.type === 'error',
+             'fa-info-circle': toast.type === 'info'
+           }"></i>
+        <span>{{ toast.message }}</span>
+      </div>
+      <button class="toast-close" (click)="removeToast(toast.id)">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+
   <!-- Main Content -->
   <div *ngIf="userProfile" class="main-content">
     <div class="row g-4">
@@ -31,6 +48,7 @@
 
           <div class="profile-stats">
             <div class="stat-item">
+              <!-- FIX: Changed to menteeSkills?.length -->
               <div class="stat-value">{{ userProfile.mentorSkills?.length || 0 }}</div>
               <div class="stat-label">Learning Skills</div>
             </div>
@@ -149,8 +167,7 @@
                   </div>
 
                   <div class="text-center">
-                    <button type="submit" class="btn btn-primary btn-lg px-4"
-                      [disabled]="profileForm.invalid">
+                    <button type="submit" class="btn btn-primary btn-lg px-4" [disabled]="profileForm.invalid">
                       <i class="fas fa-save me-2"></i>
                       Update Profile
                     </button>
@@ -169,7 +186,6 @@
                       <i class="fas fa-brain me-2"></i>
                       Skills I Want to Learn
                     </h5>
-                    <p class="text-muted mb-3">Select the skills you're interested in learning from mentors:</p>
                     <div *ngIf="allSkills.length > 0" class="skills-grid">
                       <div *ngFor="let skill of allSkills" class="skill-item">
                         <div class="form-check">
@@ -188,8 +204,7 @@
                   </div>
 
                   <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-primary btn-lg px-4"
-                      [disabled]="profileForm.invalid">
+                    <button type="submit" class="btn btn-primary btn-lg px-4" [disabled]="profileForm.invalid">
                       <i class="fas fa-save me-2"></i>
                       Update Learning Skills
                     </button>
@@ -201,7 +216,7 @@
             <!-- Change Password Tab -->
             <div class="tab-pane" [class.active]="activeTab === 'password'" [class.show]="activeTab === 'password'">
               <div class="form-card" *ngIf="activeTab === 'password'">
-            
+
 
                 <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
                   <div class="row g-3 mb-4">
@@ -276,8 +291,7 @@
                   </div>
 
                   <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-primary btn-lg px-4"
-                      [disabled]="passwordForm.invalid">
+                    <button type="submit" class="btn btn-primary btn-lg px-4" [disabled]="passwordForm.invalid">
                       <i class="fas fa-save me-2"></i>
                       Change Password
                     </button>
