@@ -14,7 +14,7 @@
       <div class="toast-content">
         <i class="fas" [ngClass]="{
              'fa-check-circle': toast.type === 'success',
-             'fa-exclamation-triangle': toast.type === 'error',
+             'fa-exclamation-circle': toast.type === 'error',
              'fa-info-circle': toast.type === 'info'
            }"></i>
         <span>{{ toast.message }}</span>

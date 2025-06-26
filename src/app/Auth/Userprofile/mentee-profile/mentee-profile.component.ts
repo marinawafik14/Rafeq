@@ -233,9 +233,16 @@ export class MenteeProfileComponent implements OnInit {
           this.showToast('error', `Failed to update profile: ${error.message}`);
           return throwError(() => error);
         })
-      )
-      .subscribe((updatedProfile) => {
+      )      .subscribe((updatedProfile) => {
         this.userProfile = updatedProfile;
+
+        // Update selected skills from the response to synchronize UI
+        if (this.userProfile.mentorSkills) {
+          this.selectedSkillIds = this.userProfile.mentorSkills.map((s: { id: any }) => s.id);
+        } else {
+          this.selectedSkillIds = [];
+        }
+
         this.showToast('success', 'Profile updated successfully!');
       });
   } // --- Change Password ---
