@@ -44,11 +44,8 @@
               <i class="fas fa-user-graduate me-2"></i>
               Mentee
             </p>
-          </div>
-
-          <div class="profile-stats">
+          </div>          <div class="profile-stats">
             <div class="stat-item">
-              <!-- FIX: Changed to menteeSkills?.length -->
               <div class="stat-value">{{ userProfile.mentorSkills?.length || 0 }}</div>
               <div class="stat-label">Learning Skills</div>
             </div>
@@ -64,6 +61,19 @@
                 <i class="fas fa-graduation-cap text-primary"></i>
               </div>
               <div class="stat-label">Learning Mode</div>
+            </div>
+          </div>
+
+          <!-- Selected Skills Display -->
+          <div class="selected-skills-section" *ngIf="userProfile.mentorSkills && userProfile.mentorSkills.length > 0">
+            <h6 class="section-title">
+              <i class="fas fa-brain me-2"></i>
+              Current Learning Skills
+            </h6>
+            <div class="skills-display">
+              <span *ngFor="let skill of userProfile.mentorSkills" class="skill-badge">
+                {{ skill.name }}
+              </span>
             </div>
           </div>
 
@@ -179,13 +189,13 @@
             <!-- Learning Skills Tab -->
             <div class="tab-pane" [class.active]="activeTab === 'skills'" [class.show]="activeTab === 'skills'">
               <div class="form-card" *ngIf="activeTab === 'skills'">
-                <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
-                  <!-- Skills Section -->
+                <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">                  <!-- Skills Section -->
                   <div class="skills-section">
                     <h5 class="section-title">
                       <i class="fas fa-brain me-2"></i>
                       Skills I Want to Learn
                     </h5>
+                    <p class="text-muted mb-3">Select the skills you're interested in learning from mentors. Your selections will be updated in your profile overview.</p>
                     <div *ngIf="allSkills.length > 0" class="skills-grid">
                       <div *ngFor="let skill of allSkills" class="skill-item">
                         <div class="form-check">

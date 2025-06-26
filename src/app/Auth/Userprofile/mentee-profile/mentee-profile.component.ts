@@ -75,8 +75,7 @@ export class MenteeProfileComponent implements OnInit {
           );
         }
       });
-  }
-  loadUserProfile(): void {
+  }  loadUserProfile(): void {
     this.userProfileService
       .getUserProfile()
       .pipe(
@@ -94,14 +93,17 @@ export class MenteeProfileComponent implements OnInit {
         this.userProfile = profile;
         this.patchProfileForm(profile);
 
-        // Set initially selected skills
-        if (this.userProfile.mentorSkills && this.allSkills.length > 0) {
+        // Set initially selected skills - ensure skills are loaded first
+        if (this.userProfile.mentorSkills) {
           this.selectedSkillIds = this.userProfile.mentorSkills.map(
             (s: { id: any }) => s.id
           );
+        } else {
+          this.selectedSkillIds = [];
         }
       });
   }
+
 
   // --- Form Initialization and Validation ---
   initForms(): void {
@@ -237,6 +239,7 @@ export class MenteeProfileComponent implements OnInit {
         this.userProfile = updatedProfile;
 
         // Update selected skills from the response to synchronize UI
+        // For mentee profile, the backend returns skills in mentorSkills property
         if (this.userProfile.mentorSkills) {
           this.selectedSkillIds = this.userProfile.mentorSkills.map((s: { id: any }) => s.id);
         } else {
