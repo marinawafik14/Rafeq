@@ -97,13 +97,50 @@ export class AuthService {
       .get(`${this.apiUrl}/verify-email/${token}`, { responseType: 'text' })
       .pipe(catchError(this.handleError));
   }
-
-  resendVerificationEmail(email: string): Observable<any> {
+  resendVerificationEmail(email: string): Observable<string> {
     return this.http
       .post(`${this.apiUrl}/ResendVerificationEmail`, JSON.stringify(email), {
         headers: { 'Content-Type': 'application/json' },
+        responseType: 'text',
       })
-      .pipe(catchError(this.handleError));
+      .pipe(
+        map((response: string) => {
+          // Handle the case where the response might be wrapped in quotes
+          if (response.startsWith('"') && response.endsWith('"')) {
+            return response.slice(1, -1); // Remove surrounding quotes
+          }
+          return response;
+        }),
+        catchError((error: HttpErrorResponse) => {
+          // Handle specific case where successful text response is treated as error
+          if (
+            error.error &&
+            typeof error.error === 'object' &&
+            error.error.text
+          ) {
+            const successMessage = error.error.text;
+            if (successMessage.includes('verification link has been sent')) {
+              // Return success as an observable
+              return new Observable<string>((observer) => {
+                observer.next(successMessage);
+                observer.complete();
+              });
+            }
+          }
+          // Handle case where error.error is the success message directly
+          if (
+            error.error &&
+            typeof error.error === 'string' &&
+            error.error.includes('verification link has been sent')
+          ) {
+            return new Observable<string>((observer) => {
+              observer.next(error.error);
+              observer.complete();
+            });
+          }
+          return this.handleError(error);
+        })
+      );
   }
 
   logout(): Observable<any> {
@@ -154,7 +191,6 @@ export class AuthService {
       !!this.currentUserSubject.value.accessToken
     );
   }
-
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'An unknown error occurred!';
 
@@ -168,7 +204,12 @@ export class AuthService {
         error.error
       );
     } else if (error.error && typeof error.error === 'object') {
-      if ((error.error as any).message) {
+      // Handle JSON parsing errors for text responses
+      if (error.error.text && typeof error.error.text === 'string') {
+        // This is likely a text response that failed JSON parsing
+        errorMessage = error.error.text;
+        console.log('Text response in error object:', error.error.text);
+      } else if ((error.error as any).message) {
         errorMessage = (error.error as any).message;
       } else if ((error.error as any).errors) {
         errorMessage = Object.values((error.error as any).errors)
