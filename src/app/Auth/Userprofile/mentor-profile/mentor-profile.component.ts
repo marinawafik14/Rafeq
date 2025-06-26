@@ -1,6 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { UserProfile } from '../../../Models/User/user-profile';
 import { Skill } from '../../../Models/Skills/skill';
 import { UserProfileService } from '../../../Services/user-profile.service';
@@ -13,10 +18,10 @@ import { ChangePassword } from '../../../Models/UserProfile/ChangePassword';
   selector: 'app-mentor-profile',
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './mentor-profile.component.html',
-  styleUrl: './mentor-profile.component.css'
+  styleUrl: './mentor-profile.component.css',
 })
-export class MentorProfileComponent {
-userProfile: UserProfile | null = null;
+export class MentorProfileComponent implements OnInit {
+  userProfile: UserProfile | null = null;
   profileForm!: FormGroup;
   passwordForm!: FormGroup;
   allSkills: Skill[] = [];
@@ -35,6 +40,42 @@ userProfile: UserProfile | null = null;
     this.initForms();
     this.loadSkills();
     this.loadUserProfile();
+    this.initializeBootstrapTabs();
+  }
+
+  // Initialize Bootstrap tabs functionality
+  private initializeBootstrapTabs(): void {
+    // Initialize tabs after component renders
+    setTimeout(() => {
+      const tabElements = document.querySelectorAll('[data-bs-toggle="tab"]');
+      tabElements.forEach((tabElement) => {
+        tabElement.addEventListener('click', (e) => {
+          e.preventDefault();
+          const target = (e.target as HTMLElement).getAttribute(
+            'data-bs-target'
+          );
+
+          // Remove active class from all tabs and panes
+          document
+            .querySelectorAll('.nav-link')
+            .forEach((el) => el.classList.remove('active'));
+          document.querySelectorAll('.tab-pane').forEach((el) => {
+            el.classList.remove('show', 'active');
+          });
+
+          // Add active class to clicked tab
+          (e.target as HTMLElement).classList.add('active');
+
+          // Show corresponding tab pane
+          if (target) {
+            const targetPane = document.querySelector(target);
+            if (targetPane) {
+              targetPane.classList.add('show', 'active');
+            }
+          }
+        });
+      });
+    }, 100);
   }
 
   initForms(): void {
@@ -42,20 +83,31 @@ userProfile: UserProfile | null = null;
       fullName: ['', Validators.maxLength(100)],
       email: ['', [Validators.email, Validators.maxLength(100)]],
       bio: ['', Validators.maxLength(1000)],
-      hourlyRate: [null as number | null, [Validators.min(0.01), Validators.max(1000)]],
-      isInterviewer: [false]
+      hourlyRate: [
+        null as number | null,
+        [Validators.min(0.01), Validators.max(1000)],
+      ],
+      isInterviewer: [false],
     });
 
-    this.passwordForm = this.fb.group({
-      currentPassword: ['', Validators.required],
-      newPassword: ['', [
-        Validators.required,
-        Validators.minLength(8),
-        Validators.maxLength(100),
-        Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$')
-      ]],
-      confirmNewPassword: ['', Validators.required]
-    }, { validator: this.passwordMatchValidator });
+    this.passwordForm = this.fb.group(
+      {
+        currentPassword: ['', Validators.required],
+        newPassword: [
+          '',
+          [
+            Validators.required,
+            Validators.minLength(8),
+            Validators.maxLength(100),
+            Validators.pattern(
+              '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$'
+            ),
+          ],
+        ],
+        confirmNewPassword: ['', Validators.required],
+      },
+      { validator: this.passwordMatchValidator }
+    );
   }
 
   passwordMatchValidator(form: FormGroup): { [key: string]: boolean } | null {
@@ -67,28 +119,33 @@ userProfile: UserProfile | null = null;
   loadUserProfile(): void {
     this.isLoading = true;
     this.errorMessage = '';
-    this.userProfileService.getUserProfile().pipe(
-      catchError(error => {
-        this.errorMessage = `Failed to load profile: ${error.message}`;
+    this.userProfileService
+      .getUserProfile()
+      .pipe(
+        catchError((error) => {
+          this.errorMessage = `Failed to load profile: ${error.message}`;
+          this.isLoading = false;
+          return throwError(() => error);
+        })
+      )
+      .subscribe((profile) => {
+        // Ensure it's a mentor profile
+        if (profile.role !== 'Mentor') {
+          this.errorMessage = 'Access Denied: Not a Mentor profile.';
+          this.isLoading = false;
+          return;
+        }
+        this.userProfile = profile;
+        this.patchProfileForm(profile);
         this.isLoading = false;
-        return throwError(() => error);
-      })
-    ).subscribe(profile => {
-      // Ensure it's a mentor profile
-      if (profile.role !== 'Mentor') {
-        this.errorMessage = 'Access Denied: Not a Mentor profile.';
-        this.isLoading = false;
-        return;
-      }
-      this.userProfile = profile;
-      this.patchProfileForm(profile);
-      this.isLoading = false;
 
-      // Set initially selected skills
-      if (this.userProfile.mentorSkills && this.allSkills.length > 0) {
-        this.selectedSkillIds = this.userProfile.mentorSkills.map((s: { id: any; }) => s.id);
-      }
-    });
+        // Set initially selected skills
+        if (this.userProfile.mentorSkills && this.allSkills.length > 0) {
+          this.selectedSkillIds = this.userProfile.mentorSkills.map(
+            (s: { id: any }) => s.id
+          );
+        }
+      });
   }
 
   patchProfileForm(profile: UserProfile): void {
@@ -97,22 +154,27 @@ userProfile: UserProfile | null = null;
       email: profile.email,
       bio: profile.bio,
       hourlyRate: profile.hourlyRate,
-      isInterviewer: profile.isInterviewer
+      isInterviewer: profile.isInterviewer,
     });
   }
 
   loadSkills(): void {
-    this.userProfileService.getSkills().pipe(
-      catchError(error => {
-        this.errorMessage = `Failed to load available skills: ${error.message}`;
-        return throwError(() => error);
-      })
-    ).subscribe(skills => {
-      this.allSkills = skills;
-      if (this.userProfile && this.userProfile.mentorSkills) {
-        this.selectedSkillIds = this.userProfile.mentorSkills.map((s: { id: any; }) => s.id);
-      }
-    });
+    this.userProfileService
+      .getSkills()
+      .pipe(
+        catchError((error) => {
+          this.errorMessage = `Failed to load available skills: ${error.message}`;
+          return throwError(() => error);
+        })
+      )
+      .subscribe((skills) => {
+        this.allSkills = skills;
+        if (this.userProfile && this.userProfile.mentorSkills) {
+          this.selectedSkillIds = this.userProfile.mentorSkills.map(
+            (s: { id: any }) => s.id
+          );
+        }
+      });
   }
 
   onSkillChange(event: any, skillId: number): void {
@@ -121,7 +183,9 @@ userProfile: UserProfile | null = null;
         this.selectedSkillIds.push(skillId);
       }
     } else {
-      this.selectedSkillIds = this.selectedSkillIds.filter(id => id !== skillId);
+      this.selectedSkillIds = this.selectedSkillIds.filter(
+        (id) => id !== skillId
+      );
     }
   }
 
@@ -155,23 +219,31 @@ userProfile: UserProfile | null = null;
     this.errorMessage = '';
     this.successMessage = '';
 
-    this.userProfileService.uploadProfilePictureFile(this.selectedFile).pipe(
-      catchError((error: HttpErrorResponse) => {
-        this.errorMessage = `Failed to upload profile picture: ${error.error || error.message}`;
-        this.isLoading = false;
-        return throwError(() => error);
-      })
-    ).subscribe(uploadedUrl => {
-      if (this.userProfile) {
-        this.userProfile.profilePicture = uploadedUrl;
-      }
-      this.selectedFile = null;
-      const fileInput = document.getElementById('profileFileInput') as HTMLInputElement;
-      if (fileInput) fileInput.value = '';
+    this.userProfileService
+      .uploadProfilePictureFile(this.selectedFile)
+      .pipe(
+        catchError((error: HttpErrorResponse) => {
+          this.errorMessage = `Failed to upload profile picture: ${
+            error.error || error.message
+          }`;
+          this.isLoading = false;
+          return throwError(() => error);
+        })
+      )
+      .subscribe((uploadedUrl) => {
+        if (this.userProfile) {
+          this.userProfile.profilePicture = uploadedUrl;
+        }
+        this.selectedFile = null;
+        const fileInput = document.getElementById(
+          'profileFileInput'
+        ) as HTMLInputElement;
+        if (fileInput) fileInput.value = '';
 
-      this.successMessage = 'Profile picture uploaded and updated successfully!';
-      this.isLoading = false;
-    });
+        this.successMessage =
+          'Profile picture uploaded and updated successfully!';
+        this.isLoading = false;
+      });
   }
 
   updateProfile(): void {
@@ -191,20 +263,23 @@ userProfile: UserProfile | null = null;
       bio: this.profileForm.get('bio')?.value,
       hourlyRate: this.profileForm.get('hourlyRate')?.value,
       isInterviewer: this.profileForm.get('isInterviewer')?.value,
-      skillIds: this.selectedSkillIds
+      skillIds: this.selectedSkillIds,
     };
 
-    this.userProfileService.updateMentorProfile(updateData).pipe(
-      catchError(error => {
-        this.errorMessage = `Failed to update profile: ${error.message}`;
+    this.userProfileService
+      .updateMentorProfile(updateData)
+      .pipe(
+        catchError((error) => {
+          this.errorMessage = `Failed to update profile: ${error.message}`;
+          this.isLoading = false;
+          return throwError(() => error);
+        })
+      )
+      .subscribe((updatedProfile) => {
+        this.userProfile = updatedProfile;
+        this.successMessage = 'Profile updated successfully!';
         this.isLoading = false;
-        return throwError(() => error);
-      })
-    ).subscribe(updatedProfile => {
-      this.userProfile = updatedProfile;
-      this.successMessage = 'Profile updated successfully!';
-      this.isLoading = false;
-    });
+      });
   }
 
   changePassword(): void {
@@ -219,21 +294,24 @@ userProfile: UserProfile | null = null;
     this.successMessage = '';
 
     const passwordData: ChangePassword = this.passwordForm.value;
-    this.userProfileService.changePassword(passwordData).pipe(
-      catchError(error => {
-        this.errorMessage = `Failed to change password: ${error.message}`;
+    this.userProfileService
+      .changePassword(passwordData)
+      .pipe(
+        catchError((error) => {
+          this.errorMessage = `Failed to change password: ${error.message}`;
+          this.isLoading = false;
+          return throwError(() => error);
+        })
+      )
+      .subscribe(() => {
+        this.successMessage = 'Password changed successfully!';
+        this.passwordForm.reset();
         this.isLoading = false;
-        return throwError(() => error);
-      })
-    ).subscribe(() => {
-      this.successMessage = 'Password changed successfully!';
-      this.passwordForm.reset();
-      this.isLoading = false;
-    });
+      });
   }
 
   private markFormGroupTouched(formGroup: FormGroup) {
-    Object.values(formGroup.controls).forEach(control => {
+    Object.values(formGroup.controls).forEach((control) => {
       control.markAsTouched();
       if ((control as any).controls) {
         this.markFormGroupTouched(control as FormGroup);
@@ -244,19 +322,35 @@ userProfile: UserProfile | null = null;
   getControlError(controlName: string, form: FormGroup): string | null {
     const control = form.get(controlName);
     if (control?.invalid && (control.dirty || control.touched)) {
-      if (control.errors?.['required']) { return 'This field is required.'; }
-      if (control.errors?.['email']) { return 'Invalid email format.'; }
-      if (control.errors?.['maxlength']) { return `Too long (max ${control.errors['maxlength'].requiredLength} chars).`; }
-      if (control.errors?.['minlength']) { return `Too short (min ${control.errors['minlength'].requiredLength} chars).`; }
+      if (control.errors?.['required']) {
+        return 'This field is required.';
+      }
+      if (control.errors?.['email']) {
+        return 'Invalid email format.';
+      }
+      if (control.errors?.['maxlength']) {
+        return `Too long (max ${control.errors['maxlength'].requiredLength} chars).`;
+      }
+      if (control.errors?.['minlength']) {
+        return `Too short (min ${control.errors['minlength'].requiredLength} chars).`;
+      }
       if (control.errors?.['pattern']) {
-        if (controlName === 'newPassword') { return 'Password must contain at least 8 chars, one uppercase, one lowercase, one digit, and one special char.'; }
+        if (controlName === 'newPassword') {
+          return 'Password must contain at least 8 chars, one uppercase, one lowercase, one digit, and one special char.';
+        }
         return 'Invalid format.';
       }
       if (control.errors?.['min'] || control.errors?.['max']) {
-        if (controlName === 'hourlyRate') { return 'Hourly rate must be between 0.01 and 1000.00.'; }
+        if (controlName === 'hourlyRate') {
+          return 'Hourly rate must be between 0.01 and 1000.00.';
+        }
       }
     }
-    if (controlName === 'confirmNewPassword' && form.errors?.['mismatch'] && (control?.dirty || control?.touched)) {
+    if (
+      controlName === 'confirmNewPassword' &&
+      form.errors?.['mismatch'] &&
+      (control?.dirty || control?.touched)
+    ) {
       return 'Passwords do not match.';
     }
     return null;
