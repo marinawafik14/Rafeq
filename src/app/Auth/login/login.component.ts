@@ -72,6 +72,16 @@ export class LoginComponent implements OnInit {
   togglePasswordVisibility(): void {
     this.showPassword = !this.showPassword;
   }
+
+  resetFormData(): void {
+    this.loginForm.reset({
+      email: '',
+      password: '',
+      rememberMe: false
+    });
+    this.showPassword = false;
+  }
+
   onSubmit(): void {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
@@ -83,9 +93,7 @@ export class LoginComponent implements OnInit {
       email: this.loginForm.value.email,
       password: this.loginForm.value.password,
       rememberMe: this.loginForm.value.rememberMe
-    };
-
-    this.authService.login(loginDto).subscribe({
+    };    this.authService.login(loginDto).subscribe({
       next: (response: { message: string, tokenData: TokenResponseDto }) => {
         this.toastr.success(response.message || 'Login successful!', 'Success');
 
@@ -97,6 +105,9 @@ export class LoginComponent implements OnInit {
           // Remove remember me from localStorage
           localStorage.removeItem('rememberMe');
         }
+
+        // Reset form data after successful login
+        this.resetFormData();
 
         // Redirect based on role
         if (response.tokenData.role && response.tokenData.role.toLowerCase() === 'admin') {
@@ -130,11 +141,13 @@ export class LoginComponent implements OnInit {
             email: decodedToken.email,
             profilePicture: decodedToken.picture || null,
             role: 'Mentee'
-          };
-
-          this.authService.externalLogin(externalLoginDto).subscribe({
+          };          this.authService.externalLogin(externalLoginDto).subscribe({
             next: (apiResponse: { message: string, tokenData: TokenResponseDto }) => {
               this.toastr.success(apiResponse.message || 'Google login successful!', 'Success');
+
+              // Reset form data after successful Google login
+              this.resetFormData();
+
               // Redirect based on role
               if (apiResponse.tokenData.role && apiResponse.tokenData.role.toLowerCase() === 'admin') {
                 this.router.navigate(['/admin']);

@@ -81,6 +81,18 @@ export class RegisterComponent implements OnInit {
     this.showConfirmPassword = !this.showConfirmPassword;
   }
 
+  resetFormData(): void {
+    this.registerForm.reset({
+      fullName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      role: 'Mentee',
+    });
+    this.showPassword = false;
+    this.showConfirmPassword = false;
+  }
+
   onSubmit(): void {
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
@@ -92,11 +104,14 @@ export class RegisterComponent implements OnInit {
     }
 
     const registerDto: RegisterDto = this.registerForm.value as RegisterDto;
-
     this.authService.register(registerDto).subscribe({
       next: (response: RegisterResponseDto) => {
         if (response.isSuccess) {
           this.toastr.success(response.message, 'Registration Success');
+
+          // Reset form data after successful registration
+          this.resetFormData();
+
           this.router.navigate(['/login']);
         } else {
           if (response.isEmailAlreadyRegistered) {
@@ -107,6 +122,10 @@ export class RegisterComponent implements OnInit {
                 'Registration successful, but there was an issue sending the verification email.',
               'Registration Warning'
             );
+
+            // Reset form data even on warning case since registration was successful
+            this.resetFormData();
+
             this.router.navigate(['/login']);
           }
         }

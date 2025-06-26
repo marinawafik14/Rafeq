@@ -83,6 +83,18 @@ export class ResetPasswordComponent implements OnInit {
     this.showConfirmPassword = !this.showConfirmPassword;
   }
 
+  resetFormData(): void {
+    // Reset form but keep the token
+    const currentToken = this.token?.value;
+    this.resetPasswordForm.reset({
+      token: currentToken,
+      newPassword: '',
+      confirmNewPassword: '',
+    });
+    this.showNewPassword = false;
+    this.showConfirmPassword = false;
+  }
+
   onSubmit(): void {
     if (!this.tokenFound || !this.token?.value) {
       this.toastr.error(
@@ -106,13 +118,16 @@ export class ResetPasswordComponent implements OnInit {
       token: this.token?.value,
       newPassword: this.newPassword?.value,
     };
-
     this.authService.resetPassword(resetPasswordDto).subscribe({
       next: (response: string) => {
         this.toastr.success(
           response || 'Password has been reset successfully!',
           'Success'
         );
+
+        // Reset form data after successful password reset
+        this.resetFormData();
+
         this.router.navigate(['/login']);
       },
       error: (err: any) => {
