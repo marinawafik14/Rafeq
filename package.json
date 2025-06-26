@@ -18,6 +18,7 @@
     "@angular/platform-browser": "19.2.13",
     "@angular/platform-browser-dynamic": "19.2.13",
     "@angular/router": "19.2.13",
+    "@microsoft/signalr": "^8.0.7",
     "bootstrap": "^5.3.6",
     "echarts": "^5.6.0",
     "ngx-echarts": "^19.0.0",

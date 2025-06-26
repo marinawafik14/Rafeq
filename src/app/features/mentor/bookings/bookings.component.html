@@ -1,0 +1,552 @@
+<div class="bookings-management">
+  <!-- Header Section -->
+  <div class="bookings-header py-5 text-white">
+    <div class="container">
+      <div class="row align-items-center">
+        <div class="col-md-8">
+          <h1 class="display-5 fw-bold mb-2">Manage Bookings</h1>
+          <p class="lead mb-0">View and manage all your mentoring sessions</p>
+        </div>
+        <div class="col-md-4 text-md-end">
+          <div class="stats-summary">
+            <div class="d-flex gap-3 text-center">
+              <div class="stat-item">
+                <div class="stat-number">{{ bookingStats?.upcomingBookings || 0 }}</div>
+                <div class="stat-label">Upcoming</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-number">{{ bookingStats?.pendingBookings || 0 }}</div>
+                <div class="stat-label">Pending</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container py-4">
+    <!-- Error Alert -->
+    <div *ngIf="error" class="alert alert-danger mb-4 rounded-3 shadow-sm" role="alert">
+      <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+    </div>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="text-center py-5">
+      <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3 text-muted">Loading your bookings...</p>
+    </div>
+
+    <!-- Tabs and Filters -->
+    <div *ngIf="!isLoading" class="filters-section mb-4">
+      <div class="row g-3">
+        <!-- Tab Navigation -->
+        <div class="col-12">
+          <div class="tab-navigation">
+            <div class="nav nav-pills" role="tablist">
+              <button *ngFor="let tab of tabs" 
+                      class="nav-link"
+                      [class.active]="activeTab === tab.id"
+                      (click)="setActiveTab(tab.id)"
+                      type="button">
+                {{ tab.label }}
+                <span class="badge ms-2">{{ tab.count }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Single Form Group for All Filters -->
+        <div class="col-12">
+          <form [formGroup]="searchForm" class="filters-form">
+            <div class="row g-3">
+              <!-- Search and Basic Filters Row -->
+              <div class="col-lg-8">
+                <div class="d-flex gap-2 flex-wrap">
+                  <!-- Search Input -->
+                  <div class="search-input-group">
+                    <div class="input-group">
+                      <span class="input-group-text bg-white border-end-0">
+                        <i class="fas fa-search text-muted"></i>
+                      </span>
+                      <input type="text" 
+                             formControlName="searchQuery"
+                             class="form-control border-start-0" 
+                             placeholder="Search by mentee name...">
+                    </div>
+                  </div>
+
+                  <!-- Status Filter -->
+                  <select formControlName="statusFilter" class="form-select filter-select">
+                    <option value="">All Status</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Confirmed">Confirmed</option>
+                    <option value="InProgress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                  </select>
+
+                  <!-- Session Type Filter -->
+                  <select formControlName="sessionTypeFilter" class="form-select filter-select">
+                    <option value="">All Types</option>
+                    <option value="Mentorship">Mentorship</option>
+                    <option value="Interview">Interview</option>
+                  </select>
+
+                  <!-- Payment Status Filter -->
+                  <select formControlName="paymentStatusFilter" class="form-select filter-select">
+                    <option value="">All Payments</option>
+                    <option value="Paid">Paid</option>
+                    <option value="Unpaid">Unpaid</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Date Filters and Sort Row -->
+              <div class="col-lg-4">
+                <div class="d-flex gap-2">
+                  <!-- Date From -->
+                  <input type="date" 
+                         formControlName="dateFromFilter"
+                         class="form-control" 
+                         title="From Date">
+                  
+                  <!-- Date To -->
+                  <input type="date" 
+                         formControlName="dateToFilter"
+                         class="form-control" 
+                         title="To Date">
+
+                  <!-- Sort -->
+                  <select formControlName="sortBy" class="form-select">
+                    <option value="date">Sort by Date</option>
+                    <option value="mentee">Sort by Mentee</option>
+                    <option value="status">Sort by Status</option>
+                    <option value="amount">Sort by Amount</option>
+                  </select>
+
+                  <!-- Sort Order -->
+                  <select formControlName="sortOrder" class="form-select">
+                    <option value="desc">Newest First</option>
+                    <option value="asc">Oldest First</option>
+                  </select>
+
+                  <!-- Clear Filters -->
+                  <button type="button" 
+                          class="btn btn-outline-secondary" 
+                          (click)="clearFilters()"
+                          title="Clear Filters">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bookings List -->
+    <div *ngIf="!isLoading" class="bookings-container">
+      <!-- Empty State -->
+      <div *ngIf="filteredBookings.length === 0" class="empty-state text-center py-5">
+        <div class="empty-icon mb-3">
+          <i class="fas fa-calendar-times fa-4x text-muted"></i>
+        </div>
+        <h4 class="text-muted mb-3">No Bookings Found</h4>
+        <p class="text-muted mb-4">
+          <span *ngIf="activeTab === 'all'">You don't have any bookings yet.</span>
+          <span *ngIf="activeTab === 'upcoming'">No upcoming sessions scheduled.</span>
+          <span *ngIf="activeTab === 'pending'">No pending bookings to review.</span>
+          <span *ngIf="activeTab === 'completed'">No completed sessions yet.</span>
+          <span *ngIf="activeTab === 'cancelled'">No cancelled bookings.</span>
+        </p>
+        <div *ngIf="searchForm.get('searchQuery')?.value || statusFilter || sessionTypeFilter">
+          <button class="btn btn-outline-primary rounded-pill" (click)="clearFilters()">
+            <i class="fas fa-filter me-2"></i>Clear Filters
+          </button>
+        </div>
+      </div>
+
+      <!-- Bookings Grid -->
+      <div *ngIf="filteredBookings.length > 0" class="bookings-grid">
+        <div *ngFor="let booking of getPaginatedBookings()" class="booking-card">
+          <div class="card h-100 shadow-sm border-0">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <div class="session-info">
+                <h6 class="mb-1 fw-bold">{{ booking.sessionType }} Session</h6>
+                <small class="text-muted">
+                  <i class="fas fa-calendar me-1"></i>
+                  {{ formatDateTime(booking.startDateTime) }}
+                </small>
+              </div>
+              <div class="status-badges">
+                <span [ngClass]="getStatusBadgeClass(booking.status)">
+                  {{ booking.status }}
+                </span>
+              </div>
+            </div>
+
+            <div class="card-body">
+              <!-- Mentee Info -->
+              <div class="mentee-section mb-3">
+                <div class="d-flex align-items-center">
+                  <div class="mentee-avatar me-3">
+                    <i class="fas fa-user-circle fa-2x text-primary"></i>
+                  </div>
+                  <div>
+                    <h6 class="mb-1 fw-semibold">{{ booking.menteeName }}</h6>
+                    <small class="text-muted">Mentee</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Session Details -->
+              <div class="session-details mb-3">
+                <div class="row g-2">
+                  <div class="col-6">
+                    <div class="detail-item">
+                      <i class="fas fa-clock text-muted me-2"></i>
+                      <span class="small">{{ getTimeUntilSession(booking) }}</span>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="detail-item">
+                      <i class="fas fa-dollar-sign text-muted me-2"></i>
+                      <span class="small fw-semibold">${{ booking.totalAmount }}</span>
+                    </div>
+                  </div>
+                  <div class="col-6">
+                    <div class="detail-item">
+                      <span [ngClass]="getPaymentStatusBadgeClass(booking.paymentStatus)" class="small">
+                        {{ booking.paymentStatus }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="col-6" *ngIf="booking.googleMeetLink">
+                    <div class="detail-item">
+                      <i class="fas fa-video text-muted me-2"></i>
+                      <span class="small">Meet Ready</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="action-buttons">
+                <div class="d-flex gap-2 flex-wrap">
+                  <!-- Simple join button that won't conflict -->
+                  <button *ngIf="canShowJoinButton(booking)" 
+                          class="btn btn-primary btn-sm rounded-pill"
+                          (click)="joinSessionFromBookings(booking)">
+                    <i class="fas fa-video me-1"></i>
+                    Join Session
+                  </button>
+                  
+                  <!-- Keep existing action buttons -->
+                  <button *ngFor="let action of getActions(booking)" 
+                          class="btn btn-sm rounded-pill"
+                          [ngClass]="action.cssClass"
+                          [disabled]="!action.enabled || isUpdatingStatus"
+                          (click)="executeAction(action, booking)">
+                    <i [class]="action.icon + ' me-1'"></i>
+                    {{ action.label }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <nav *ngIf="totalPages > 1" class="pagination-nav mt-4">
+        <ul class="pagination justify-content-center">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <button class="page-link" (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+          </li>
+          
+          <li *ngFor="let page of [].constructor(Math.min(totalPages, 5)); let i = index" 
+              class="page-item" 
+              [class.active]="(currentPage <= 3 ? i + 1 : currentPage - 3 + i + 1) === currentPage">
+            <button class="page-link" 
+                    (click)="changePage(currentPage <= 3 ? i + 1 : currentPage - 3 + i + 1)">
+              {{ currentPage <= 3 ? i + 1 : currentPage - 3 + i + 1 }}
+            </button>
+          </li>
+          
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <button class="page-link" (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+
+    <!-- Summary Stats -->
+    <div *ngIf="!isLoading && bookingStats" class="stats-section mt-5">
+      <div class="row g-4">
+        <div class="col-md-6 col-lg-3">
+          <div class="stats-card h-100">
+            <div class="stats-icon">
+              <i class="fas fa-calendar-check"></i>
+            </div>
+            <div class="stats-content">
+              <h4 class="stats-number">{{ bookingStats.totalBookings }}</h4>
+              <p class="stats-label">Total Sessions</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3">
+          <div class="stats-card h-100">
+            <div class="stats-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div class="stats-content">
+              <h4 class="stats-number">{{ bookingStats.upcomingBookings }}</h4>
+              <p class="stats-label">Upcoming</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3">
+          <div class="stats-card h-100">
+            <div class="stats-icon">
+              <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="stats-content">
+              <h4 class="stats-number">${{ bookingStats.totalEarnings }}</h4>
+              <p class="stats-label">Total Earnings</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6 col-lg-3">
+          <div class="stats-card h-100">
+            <div class="stats-icon">
+              <i class="fas fa-trophy"></i>
+            </div>
+            <div class="stats-content">
+              <h4 class="stats-number">{{ bookingStats.completedBookings }}</h4>
+              <p class="stats-label">Completed</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Booking Details Modal -->
+<div *ngIf="showDetailsModal && selectedBooking" class="modal d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5)">
+  <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+    <div class="modal-content rounded-4 shadow">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold">
+          <i class="fas fa-info-circle me-2 text-primary"></i>Booking Details
+        </h5>
+        <button type="button" class="btn-close" (click)="closeDetailsModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="booking-details">
+          <!-- Session Info -->
+          <div class="detail-section mb-4">
+            <h6 class="section-title">Session Information</h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="detail-item">
+                  <label class="detail-label">Session Type</label>
+                  <div class="detail-value">{{ selectedBooking.sessionType }}</div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="detail-item">
+                  <label class="detail-label">Status</label>
+                  <span [ngClass]="getStatusBadgeClass(selectedBooking.status)">
+                    {{ selectedBooking.status }}
+                  </span>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="detail-item">
+                  <label class="detail-label">Start Time</label>
+                  <div class="detail-value">{{ formatDateTime(selectedBooking.startDateTime) }}</div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="detail-item">
+                  <label class="detail-label">End Time</label>
+                  <div class="detail-value">{{ formatDateTime(selectedBooking.endDateTime) }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mentee Info -->
+          <div class="detail-section mb-4">
+            <h6 class="section-title">Mentee Information</h6>
+            <div class="mentee-info-detailed">
+              <div class="d-flex align-items-center">
+                <div class="mentee-avatar me-3">
+                  <i class="fas fa-user-circle fa-3x text-primary"></i>
+                </div>
+                <div>
+                  <h6 class="mb-1">{{ selectedBooking.menteeName }}</h6>
+                  <small class="text-muted">Booking ID: #{{ selectedBooking.bookingId }}</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Info -->
+          <div class="detail-section mb-4">
+            <h6 class="section-title">Payment Information</h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="detail-item">
+                  <label class="detail-label">Total Amount</label>
+                  <div class="detail-value fw-bold">${{ selectedBooking.totalAmount }}</div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="detail-item">
+                  <label class="detail-label">Payment Status</label>
+                  <span [ngClass]="getPaymentStatusBadgeClass(selectedBooking.paymentStatus)">
+                    {{ selectedBooking.paymentStatus }}
+                  </span>
+                </div>
+              </div>
+              <div class="col-md-6" *ngIf="selectedBooking.commission">
+                <div class="detail-item">
+                  <label class="detail-label">Platform Fee</label>
+                  <div class="detail-value">${{ selectedBooking.commission }}</div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="detail-item">
+                  <label class="detail-label">Your Earnings</label>
+                  <div class="detail-value fw-bold text-success">
+                    ${{ selectedBooking.totalAmount - (selectedBooking.commission || 0) }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Google Meet Info -->
+          <div *ngIf="selectedBooking.googleMeetLink" class="detail-section">
+            <h6 class="section-title">Session Link</h6>
+            <div class="google-meet-section">
+              <div class="input-group">
+                <input type="text" 
+                       class="form-control" 
+                       [value]="selectedBooking.googleMeetLink" 
+                       readonly>
+                <button class="btn btn-outline-primary" 
+                        type="button"
+                        (click)="copyToClipboard(selectedBooking.googleMeetLink!)">
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-secondary rounded-pill" (click)="closeDetailsModal()">
+          Close
+        </button>
+        <div class="action-buttons-modal">
+          <button *ngFor="let action of getActions(selectedBooking)" 
+                  class="btn rounded-pill"
+                  [ngClass]="action.cssClass"
+                  [disabled]="!action.enabled || isUpdatingStatus"
+                  (click)="executeAction(action, selectedBooking)">
+            <i [class]="action.icon + ' me-1'"></i>
+            {{ action.label }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Reschedule Modal -->
+<div *ngIf="showRescheduleModal && selectedBooking" class="modal d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5)">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content rounded-4 shadow">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold">
+          <i class="fas fa-calendar-alt me-2 text-primary"></i>Reschedule Session
+        </h5>
+        <button type="button" class="btn-close" (click)="closeRescheduleModal()"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="rescheduleForm" (ngSubmit)="submitReschedule()">
+          <div class="row g-3">
+            <div class="col-12">
+              <label for="rescheduleDate" class="form-label fw-semibold">New Date</label>
+              <input type="date" 
+                     id="rescheduleDate"
+                     formControlName="startDate"
+                     class="form-control rounded-pill"
+                     [class.is-invalid]="isFieldInvalid(rescheduleForm, 'startDate')">
+              <div *ngIf="isFieldInvalid(rescheduleForm, 'startDate')" class="invalid-feedback">
+                {{ getFieldError(rescheduleForm, 'startDate') }}
+              </div>
+            </div>
+
+            <div class="col-6">
+              <label for="rescheduleStartTime" class="form-label fw-semibold">Start Time</label>
+              <input type="time" 
+                     id="rescheduleStartTime"
+                     formControlName="startTime"
+                     class="form-control rounded-pill"
+                     [class.is-invalid]="isFieldInvalid(rescheduleForm, 'startTime')">
+              <div *ngIf="isFieldInvalid(rescheduleForm, 'startTime')" class="invalid-feedback">
+                {{ getFieldError(rescheduleForm, 'startTime') }}
+              </div>
+            </div>
+
+            <div class="col-6">
+              <label for="rescheduleEndTime" class="form-label fw-semibold">End Time</label>
+              <input type="time" 
+                     id="rescheduleEndTime"
+                     formControlName="endTime"
+                     class="form-control rounded-pill"
+                     [class.is-invalid]="isFieldInvalid(rescheduleForm, 'endTime')">
+              <div *ngIf="isFieldInvalid(rescheduleForm, 'endTime')" class="invalid-feedback">
+                {{ getFieldError(rescheduleForm, 'endTime') }}
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-3 p-3 bg-light rounded-3">
+            <h6 class="fw-semibold mb-2">Current Session Details</h6>
+            <p class="small mb-1"><strong>Date:</strong> {{ formatDateTime(selectedBooking.startDateTime) }}</p>
+            <p class="small mb-1"><strong>Mentee:</strong> {{ selectedBooking.menteeName }}</p>
+            <p class="small mb-0"><strong>Type:</strong> {{ selectedBooking.sessionType }}</p>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-secondary rounded-pill" (click)="closeRescheduleModal()">
+          Cancel
+        </button>
+        <button type="button" 
+                class="btn btn-primary rounded-pill" 
+                (click)="submitReschedule()"
+                [disabled]="rescheduleForm.invalid">
+          <i class="fas fa-calendar-check me-2"></i>
+          Reschedule Session
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

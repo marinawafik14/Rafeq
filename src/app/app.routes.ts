@@ -28,9 +28,12 @@ import { ProfileManagementComponent } from './features/mentor/profile-management
 import { PaymentComponent } from './payment/payment.component';
 import { AvailabilityManagementComponent } from './features/mentor/availability-management/availability-management.component';
 import { PaymentConfirmationComponent } from './payment-confirmation/payment-confirmation.component';
+import { BookingsComponent } from './features/mentor/bookings/bookings.component';
+import { CVReviewComponent } from './features/mentor/cv-review/cv-review.component';
+import { ChatComponent } from './features/chat/chat.component';
+import { ProfileRedirectComponent } from './Auth/Userprofile/profile-redirect/profile-redirect.component';
 import { MentorProfileComponent } from './Auth/Userprofile/mentor-profile/mentor-profile.component';
 import { MenteeProfileComponent } from './Auth/Userprofile/mentee-profile/mentee-profile.component';
-import { ProfileRedirectComponent } from './Auth/Userprofile/profile-redirect/profile-redirect.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -42,38 +45,45 @@ export const routes: Routes = [
  { path: 'verify-email/:token', component: VerifyEmailComponent },
   { path: 'resend-verification', component: ResendVerificationEmailComponent },
     // Unified User Profile Route for both Mentor and Mentee
-    { path: 'user-profile', component: ProfileRedirectComponent }, // This route now uses the redirector
-  { path: 'mentor-profile', component: MentorProfileComponent }, // Specific route for mentor profile
+    { path: 'user-profile', component: ProfileRedirectComponent },
+  { path: 'mentor-profile', component: MentorProfileComponent },
   { path: 'mentee-profile', component: MenteeProfileComponent },
 
-{ path: 'payment', component: PaymentComponent },
-{path : 'payment-complete', component : PaymentConfirmationComponent},
-   { path: 'home', component: HomeComponent},
-   { path: 'about', component: AboutComponent},
-    { path: 'contact', component: ContactComponent},
-    {path: 'emptystate' , component: EmptyStateComponent},
-    {path :'rating' , component: RatingStarsComponent},
-    {path : 'card', component : ReviewCardComponent},
-    {path :'list' , component : ReviewListComponent},
-    {path : 'summary', component : ReviewSummaryComponent},
-    {path : 'form' , component : WriteReviewFormComponent},
-  { path: 'admin', component: AdminDashboardComponent  , children: [
- { path: 'mentors', component: AdminPaymentsComponent },
-  {path :'skills', component: AdminSkillsComponent},
-  {path : 'users', component: AdminUsersComponent},
-  {path : 'users/edit-user/:id', component: EditUserComponent},
-  {path : 'add-user', component: AddUserComponent},
-  {path : 'bookings',component: AdminBookingsComponent},
-  {path : 'payments',component: AdminPaymentsComponent},
-  {path: 'charts', component: ChartsComponent},
-{path :'reviews',component: AdminReviewsComponent},
-{path:'home',component:HomeComponent}
-  ]
-},
-{ path: 'mentor/dashboard', component: DashboardComponent },
-{ path: 'mentor/profile', component: ProfileManagementComponent },
-{ path: 'mentor/availability', component: AvailabilityManagementComponent },
+  { path: 'payment', component: PaymentComponent },
+  { path: 'payment-complete', component: PaymentConfirmationComponent },
+  { path: 'home', component: HomeComponent},
+  { path: 'about', component: AboutComponent},
+  { path: 'contact', component: ContactComponent},
+  { path: 'emptystate', component: EmptyStateComponent},
+  { path: 'rating', component: RatingStarsComponent},
+  { path: 'card', component: ReviewCardComponent},
+  { path: 'list', component: ReviewListComponent},
+  { path: 'summary', component: ReviewSummaryComponent},
+  { path: 'form', component: WriteReviewFormComponent},
 
+  { path: 'admin', component: AdminDashboardComponent, children: [
+    { path: 'mentors', component: AdminPaymentsComponent },
+    { path: 'skills', component: AdminSkillsComponent},
+    { path: 'users', component: AdminUsersComponent},
+    { path: 'users/edit-user/:id', component: EditUserComponent},
+    { path: 'add-user', component: AddUserComponent},
+    { path: 'bookings', component: AdminBookingsComponent},
+    { path: 'payments', component: AdminPaymentsComponent},
+    { path: 'charts', component: ChartsComponent},
+    { path: 'reviews', component: AdminReviewsComponent},
+    { path: 'home', component: HomeComponent}
+  ]},
+
+  // Mentor routes section
+  { path: 'mentor/dashboard', component: DashboardComponent },
+  { path: 'mentor/profile', component: ProfileManagementComponent },
+  { path: 'mentor/availability', component: AvailabilityManagementComponent },
+  { path: 'mentor/bookings', component: BookingsComponent },
+  { path: 'mentor/cv-review', component: CVReviewComponent },
+
+  // Chat routes
+  { path: 'chat', component: ChatComponent },
+  { path: 'chat/:bookingId', component: ChatComponent }
 ];
 
 
