@@ -370,6 +370,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       if (sentMessage) {
         console.log('✅ Message sent successfully:', sentMessage);
 
+       
+        this.messages.push(sentMessage);
+        this.shouldScrollToBottom = true;
+
         // Clear input immediately
         this.newMessage = '';
         this.selectedFile = null;
