@@ -26,9 +26,6 @@ export class MentorProfileComponent implements OnInit {
   passwordForm!: FormGroup;
   allSkills: Skill[] = [];
   selectedSkillIds: number[] = [];
-  errorMessage: string = '';
-  successMessage: string = '';
-  isLoading: boolean = false;
   selectedFile: File | null = null;
 
   // Simple tab management
@@ -39,10 +36,34 @@ export class MentorProfileComponent implements OnInit {
   showNewPassword = false;
   showConfirmPassword = false;
 
+  // Toast notifications
+  toasts: Array<{
+    id: number;
+    type: 'success' | 'error' | 'info';
+    message: string;
+  }> = [];
+  private toastIdCounter = 0;
+
   constructor(
     private fb: FormBuilder,
     private userProfileService: UserProfileService
   ) {}
+
+  // Toast management methods
+  showToast(type: 'success' | 'error' | 'info', message: string): void {
+    const id = ++this.toastIdCounter;
+    this.toasts.push({ id, type, message });
+
+    // Auto-hide toast after 4 seconds
+    setTimeout(() => {
+      this.removeToast(id);
+    }, 4000);
+  }
+
+  removeToast(id: number): void {
+    this.toasts = this.toasts.filter((toast) => toast.id !== id);
+  }
+
   ngOnInit(): void {
     this.initForms();
     this.loadSkills();
@@ -86,29 +107,23 @@ export class MentorProfileComponent implements OnInit {
     const confirmNewPassword = form.get('confirmNewPassword')?.value;
     return newPassword === confirmNewPassword ? null : { mismatch: true };
   }
-
   loadUserProfile(): void {
-    this.isLoading = true;
-    this.errorMessage = '';
     this.userProfileService
       .getUserProfile()
       .pipe(
         catchError((error) => {
-          this.errorMessage = `Failed to load profile: ${error.message}`;
-          this.isLoading = false;
+          this.showToast('error', `Failed to load profile: ${error.message}`);
           return throwError(() => error);
         })
       )
       .subscribe((profile) => {
         // Ensure it's a mentor profile
         if (profile.role !== 'Mentor') {
-          this.errorMessage = 'Access Denied: Not a Mentor profile.';
-          this.isLoading = false;
+          this.showToast('error', 'Access Denied: Not a Mentor profile.');
           return;
         }
         this.userProfile = profile;
         this.patchProfileForm(profile);
-        this.isLoading = false;
 
         // Set initially selected skills
         if (this.userProfile.mentorSkills && this.allSkills.length > 0) {
@@ -128,13 +143,15 @@ export class MentorProfileComponent implements OnInit {
       isInterviewer: profile.isInterviewer,
     });
   }
-
   loadSkills(): void {
     this.userProfileService
       .getSkills()
       .pipe(
         catchError((error) => {
-          this.errorMessage = `Failed to load available skills: ${error.message}`;
+          this.showToast(
+            'error',
+            `Failed to load available skills: ${error.message}`
+          );
           return throwError(() => error);
         })
       )
@@ -159,45 +176,41 @@ export class MentorProfileComponent implements OnInit {
       );
     }
   }
-
   onFileSelected(event: any): void {
     const file: File = event.target.files[0];
     if (file) {
       if (!file.type.startsWith('image/')) {
-        this.errorMessage = 'Please select an image file (e.g., JPG, PNG).';
+        this.showToast(
+          'error',
+          'Please select an image file (e.g., JPG, PNG).'
+        );
         this.selectedFile = null;
         return;
       }
       if (file.size > 5 * 1024 * 1024) {
-        this.errorMessage = 'File size exceeds 5MB limit.';
+        this.showToast('error', 'File size exceeds 5MB limit.');
         this.selectedFile = null;
         return;
       }
       this.selectedFile = file;
-      this.errorMessage = '';
     } else {
       this.selectedFile = null;
     }
   }
-
   uploadProfilePhoto(): void {
     if (!this.selectedFile) {
-      this.errorMessage = 'Please select a file to upload.';
+      this.showToast('error', 'Please select a file to upload.');
       return;
     }
-
-    this.isLoading = true;
-    this.errorMessage = '';
-    this.successMessage = '';
 
     this.userProfileService
       .uploadProfilePictureFile(this.selectedFile)
       .pipe(
         catchError((error: HttpErrorResponse) => {
-          this.errorMessage = `Failed to upload profile picture: ${
-            error.error || error.message
-          }`;
-          this.isLoading = false;
+          this.showToast(
+            'error',
+            `Failed to upload profile picture: ${error.error || error.message}`
+          );
           return throwError(() => error);
         })
       )
@@ -211,22 +224,18 @@ export class MentorProfileComponent implements OnInit {
         ) as HTMLInputElement;
         if (fileInput) fileInput.value = '';
 
-        this.successMessage =
-          'Profile picture uploaded and updated successfully!';
-        this.isLoading = false;
+        this.showToast(
+          'success',
+          'Profile picture uploaded and updated successfully!'
+        );
       });
   }
-
   updateProfile(): void {
     if (this.profileForm.invalid) {
-      this.errorMessage = 'Please correct the errors in the profile form.';
+      this.showToast('error', 'Please correct the errors in the profile form.');
       this.markFormGroupTouched(this.profileForm);
       return;
     }
-
-    this.isLoading = true;
-    this.errorMessage = '';
-    this.successMessage = '';
 
     const updateData: UpdateMentorProfile = {
       fullName: this.profileForm.get('fullName')?.value,
@@ -241,53 +250,50 @@ export class MentorProfileComponent implements OnInit {
       .updateMentorProfile(updateData)
       .pipe(
         catchError((error) => {
-          this.errorMessage = `Failed to update profile: ${error.message}`;
-          this.isLoading = false;
+          this.showToast('error', `Failed to update profile: ${error.message}`);
           return throwError(() => error);
         })
       )
       .subscribe((updatedProfile) => {
         this.userProfile = updatedProfile;
-        this.successMessage = 'Profile updated successfully!';
-        this.isLoading = false;
+        this.showToast('success', 'Profile updated successfully!');
       });
   }
   changePassword(): void {
     if (this.passwordForm.invalid) {
-      this.errorMessage = 'Please correct the errors in the password form.';
+      this.showToast(
+        'error',
+        'Please correct the errors in the password form.'
+      );
       this.markFormGroupTouched(this.passwordForm);
       return;
     }
-
-    this.isLoading = true;
-    this.errorMessage = '';
-    this.successMessage = '';
 
     const passwordData: ChangePassword = this.passwordForm.value;
     this.userProfileService
       .changePassword(passwordData)
       .pipe(
         catchError((error) => {
-          this.errorMessage = `Failed to change password: ${error.message}`;
-          this.isLoading = false;
+          this.showToast(
+            'error',
+            `Failed to change password: ${error.message}`
+          );
           return throwError(() => error);
         })
       )
       .subscribe(() => {
-        this.successMessage = 'Password changed successfully!';
+        this.showToast('success', 'Password changed successfully!');
         this.passwordForm.reset();
         // Reset password visibility states
         this.showCurrentPassword = false;
         this.showNewPassword = false;
         this.showConfirmPassword = false;
-        this.isLoading = false;
       });
   }
   switchTab(tabName: string): void {
     this.activeTab = tabName;
-    // Clear messages when switching tabs for better UX
-    this.errorMessage = '';
-    this.successMessage = '';
+    // Clear any existing toasts when switching tabs for better UX
+    this.toasts = [];
   }
 
   togglePasswordVisibility(field: 'current' | 'new' | 'confirm'): void {

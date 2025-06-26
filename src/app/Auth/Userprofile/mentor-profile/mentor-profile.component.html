@@ -7,22 +7,20 @@
       </h1>
     </div>
   </div>
-
-  <!-- Status Messages -->
-  <div class="status-messages">
-    <div *ngIf="isLoading" class="alert alert-info animate-fade-in" role="alert">
-      <i class="fas fa-spinner fa-spin me-2"></i>
-      Loading profile...
-    </div>
-
-    <div *ngIf="errorMessage" class="alert alert-danger animate-fade-in" role="alert">
-      <i class="fas fa-exclamation-triangle me-2"></i>
-      <strong>Error!</strong> {{ errorMessage }}
-    </div>
-
-    <div *ngIf="successMessage" class="alert alert-success animate-fade-in" role="alert">
-      <i class="fas fa-check-circle me-2"></i>
-      <strong>Success!</strong> {{ successMessage }}
+  <!-- Toast Container -->
+  <div class="toast-container">
+    <div *ngFor="let toast of toasts" class="toast" [ngClass]="'toast-' + toast.type" (click)="removeToast(toast.id)">
+      <div class="toast-content">
+        <i class="fas" [ngClass]="{
+             'fa-check-circle': toast.type === 'success',
+             'fa-exclamation-triangle': toast.type === 'error',
+             'fa-info-circle': toast.type === 'info'
+           }"></i>
+        <span>{{ toast.message }}</span>
+      </div>
+      <button class="toast-close" (click)="removeToast(toast.id)">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
   </div>
 
@@ -72,11 +70,10 @@
               Update Photo
             </h5>
             <input type="file" id="profileFileInput" (change)="onFileSelected($event)" accept="image/*"
-              class="form-control file-input">
-            <button type="button" (click)="uploadProfilePhoto()" [disabled]="!selectedFile || isLoading"
-              class="btn btn-primary w-100 mt-3">
+              class="form-control file-input"> <button type="button" (click)="uploadProfilePhoto()"
+              [disabled]="!selectedFile" class="btn btn-primary w-100 mt-3">
               <i class="fas fa-upload me-2"></i>
-              {{ isLoading ? 'Uploading...' : 'Upload Photo' }}
+              Upload Photo
             </button>
           </div>
         </div>
@@ -163,12 +160,10 @@
                       </div>
                     </div>
                   </div>
-
                   <div class="text-center">
-                    <button type="submit" class="btn btn-primary btn-lg px-4"
-                      [disabled]="profileForm.invalid || isLoading">
+                    <button type="submit" class="btn btn-primary btn-lg px-4" [disabled]="profileForm.invalid">
                       <i class="fas fa-save me-2"></i>
-                      {{ isLoading ? 'Updating...' : 'Update Profile' }}
+                      Update Profile
                     </button>
                   </div>
                 </form>
@@ -231,17 +226,16 @@
                         </div>
                       </div>
                     </div>
-                    <p *ngIf="allSkills.length === 0 && !isLoading" class="text-muted text-center mt-3">
+                    <p *ngIf="allSkills.length === 0" class="text-muted text-center mt-3">
                       <i class="fas fa-info-circle me-2"></i>
                       No skills available. Please contact support.
                     </p>
                   </div>
 
                   <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-primary btn-lg px-4"
-                      [disabled]="profileForm.invalid || isLoading">
+                    <button type="submit" class="btn btn-primary btn-lg px-4" [disabled]="profileForm.invalid">
                       <i class="fas fa-save me-2"></i>
-                      {{ isLoading ? 'Updating...' : 'Update Settings' }}
+                      Update Settings
                     </button>
                   </div>
                 </form>
@@ -320,12 +314,10 @@
                       </div>
                     </div>
                   </div>
-
                   <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-primary btn-lg px-4"
-                      [disabled]="passwordForm.invalid || isLoading">
+                    <button type="submit" class="btn btn-primary btn-lg px-4" [disabled]="passwordForm.invalid">
                       <i class="fas fa-save me-2"></i>
-                      {{ isLoading ? 'Changing...' : 'Change Password' }}
+                      Change Password
                     </button>
                   </div>
                 </form>
