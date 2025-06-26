@@ -21,6 +21,7 @@ declare const google: any;
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   returnUrl: string = '/';
+  showPassword: boolean = false;
 
   private GOOGLE_CLIENT_ID = '574047622774-8h2bqlvm7dmhogsqn735e4bicj5qkjci.apps.googleusercontent.com';
 
@@ -33,11 +34,11 @@ export class LoginComponent implements OnInit {
   ) {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
-
   ngOnInit(): void {
     this.loginForm = new FormGroup({
       email: new FormControl('', [Validators.required, Validators.email]),
       password: new FormControl('', [Validators.required]),
+      rememberMe: new FormControl(false)
     });
 
     if (typeof google !== 'undefined') {
@@ -64,10 +65,13 @@ export class LoginComponent implements OnInit {
       console.warn('Google Identity Services script not loaded. External login may not function.');
     }
   }
-
   get email() { return this.loginForm.get('email'); }
   get password() { return this.loginForm.get('password'); }
+  get rememberMe() { return this.loginForm.get('rememberMe'); }
 
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
   onSubmit(): void {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
@@ -75,11 +79,25 @@ export class LoginComponent implements OnInit {
       return;
     }
 
-    const loginDto: LoginDto = this.loginForm.value as LoginDto;
+    const loginDto: LoginDto = {
+      email: this.loginForm.value.email,
+      password: this.loginForm.value.password,
+      rememberMe: this.loginForm.value.rememberMe
+    };
 
     this.authService.login(loginDto).subscribe({
       next: (response: { message: string, tokenData: TokenResponseDto }) => {
         this.toastr.success(response.message || 'Login successful!', 'Success');
+
+        // Handle remember me functionality
+        if (loginDto.rememberMe) {
+          // Store login state in localStorage for persistence
+          localStorage.setItem('rememberMe', 'true');
+        } else {
+          // Remove remember me from localStorage
+          localStorage.removeItem('rememberMe');
+        }
+
         // Redirect based on role
         if (response.tokenData.role && response.tokenData.role.toLowerCase() === 'admin') {
           this.router.navigate(['/admin']);

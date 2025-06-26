@@ -6,7 +6,7 @@
         <img src="/images/Login.jpg" alt="Welcome to Rafeq" class="login-image">
         <div class="login-image-overlay">
           <div class="login-image-content">
-          
+
           </div>
         </div>
       </div>
@@ -23,40 +23,43 @@
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
           <div class="form-group">
             <label for="email" class="form-label">Email Address</label>
-            <input
-              type="email"
-              id="email"
-              formControlName="email"
-              class="form-control"
-              placeholder="Enter your email"
-            />
+            <input type="email" id="email" formControlName="email" class="form-control"
+              placeholder="Enter your email" />
             @if(email?.invalid && (email?.dirty || email?.touched)) {
-              <div class="error-message">
-                @if(email?.errors?.['required']){
-                  <span>Email is required.</span>
-                } @if(email?.errors?.['email']){
-                  <span>Invalid email format.</span>
-                }
-              </div>
+            <div class="error-message">
+              @if(email?.errors?.['required']){
+              <span>Email is required.</span>
+              } @if(email?.errors?.['email']){
+              <span>Invalid email format.</span>
+              }
+            </div>
+            }
+          </div>
+          <div class="form-group">
+            <label for="password" class="form-label">Password</label>
+            <div class="password-input-container">
+              <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password"
+                class="form-control password-input" placeholder="Enter your password" />
+              <button type="button" class="password-toggle-btn" (click)="togglePasswordVisibility()"
+                [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+                <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+              </button>
+            </div>
+            @if(password?.invalid && (password?.dirty || password?.touched)) {
+            <div class="error-message">
+              @if(password?.errors?.['required']){
+              <span>Password is required.</span>
+              }
+            </div>
             }
           </div>
 
-          <div class="form-group">
-            <label for="password" class="form-label">Password</label>
-            <input
-              type="password"
-              id="password"
-              formControlName="password"
-              class="form-control"
-              placeholder="Enter your password"
-            />
-            @if(password?.invalid && (password?.dirty || password?.touched)) {
-              <div class="error-message">
-                @if(password?.errors?.['required']){
-                  <span>Password is required.</span>
-                }
-              </div>
-            }
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="rememberMe" class="checkbox-input" />
+              <span class="checkbox-custom"></span>
+              <span class="checkbox-text">Remember Me</span>
+            </label>
           </div>
 
           <button type="submit" class="btn btn-primary" [disabled]="loginForm.invalid">
