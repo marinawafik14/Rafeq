@@ -30,7 +30,7 @@ export class SignalrChatService {
   // Create hub connection
   private createConnection(): void {
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(`${environment.apiUrl}/chatHub`, {
+      .withUrl('https://localhost:7001/chatHub', {
         accessTokenFactory: () => this.authService.getToken() || '',
         transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.LongPolling
       })

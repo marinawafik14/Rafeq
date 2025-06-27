@@ -250,9 +250,22 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  // Update the selectConversation method to handle SignalR connection issues
+  // 1. Always join the SignalR room when selecting a conversation
   async selectConversation(conversation: ChatConversation): Promise<void> {
     console.log('🔗 Selecting conversation:', conversation.bookingId);
+
+    // Always join the SignalR room for this conversation
+    const signalRState = this.signalrService.getConnectionState();
+    if (signalRState === 'Connected') {
+      try {
+        await this.signalrService.joinChatRoom(conversation.bookingId);
+        console.log('✅ Joined SignalR room for booking:', conversation.bookingId);
+      } catch (signalRError) {
+        console.warn('⚠️ Could not join SignalR room:', signalRError);
+      }
+    } else {
+      console.log('SignalR not connected, skipping chat room operations');
+    }
 
     if (this.selectedConversation?.bookingId === conversation.bookingId) {
       console.log('⏭️ Same conversation already selected');
@@ -303,21 +316,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.participants = null; // Explicitly set to null on error
       }
 
-      // 3. Join SignalR room (if working)
-      const signalRState = this.signalrService.getConnectionState();
-      console.log('🔗 SignalR connection state:', signalRState);
-
-      if (signalRState === 'Connected') {
-        try {
-          await this.signalrService.joinChatRoom(conversation.bookingId);
-          console.log('✅ Joined SignalR room for booking:', conversation.bookingId);
-        } catch (signalRError) {
-          console.warn('⚠️ Could not join SignalR room:', signalRError);
-        }
-      } else {
-        console.log('SignalR not connected, skipping chat room operations');
-      }
-
       this.shouldScrollToBottom = true;
       this.isLoadingMessages = false;
 
@@ -333,6 +331,16 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         menteeName: conversation.menteeName,
         totalMessages: this.messages.length
       });
+
+      // After loading messages
+      if (this.messages && this.messages.length > 0) {
+        this.messages.forEach(msg => {
+          if (!msg.isRead && msg.senderId !== this.currentUserId) {
+            this.markMessageAsRead(msg.messageId);
+            msg.isRead = true; // Optimistically update UI
+          }
+        });
+      }
 
     } catch (error) {
       console.error('❌ Error selecting conversation:', error);
@@ -676,5 +684,10 @@ You should see: ${this.getUserName(conversation)}`);
     }
     
     console.log('✅ Refresh completed');
+  }
+
+  // 2. Add a debug method to check SignalR connection state
+  checkSignalRConnection(): void {
+    alert('SignalR state: ' + this.signalrService.getConnectionState());
   }
 }
