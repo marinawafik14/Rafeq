@@ -259,6 +259,37 @@
   cursor: pointer;
 }
 
+/* Emoji Picker */
+.emoji-picker {
+  display: flex;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+  z-index: 10;
+}
+
+.emoji {
+  font-size: 1.3rem;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.emoji:hover {
+  transform: scale(1.2);
+}
+
+/* Message Actions */
+.message-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Edit Message Box */
+.edit-message-box textarea {
+  min-height: 40px;
+  resize: vertical;
+}
+
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
   .conversations-sidebar {
@@ -326,4 +357,40 @@
 .conversations-list::-webkit-scrollbar-thumb:hover,
 .messages-area::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
+}
+
+.my-reaction {
+  border: 2px solid #0a2e65;
+  background: #e0f0ff;
+}
+
+/* Voice Recording Button Styles */
+.voice-btn {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  border: 2px solid #e9ecef;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  background: #fff;
+  color: #0a2e65;
+  transition: all 0.2s;
+  margin-right: 8px;
+}
+.voice-btn.recording {
+  background: #ef4444;
+  color: #fff;
+  border-color: #ef4444;
+  animation: pulse-recording 1s infinite;
+}
+.voice-btn[disabled], .voice-btn.uploading {
+  background: #9ca3af;
+  color: #fff;
+  cursor: not-allowed;
+}
+@keyframes pulse-recording {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
