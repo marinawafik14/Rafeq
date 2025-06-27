@@ -30,7 +30,7 @@ export class MenteeProfileComponent implements OnInit {
   allSkills: Skill[] = [];
   selectedSkillIds: number[] = [];
   selectedFile: File | null = null;
-  activeTab = 'profile'; // Default active tab
+  activeTab = 'profile';
 
   showCurrentPassword = false;
   showNewPassword = false;
@@ -75,7 +75,8 @@ export class MenteeProfileComponent implements OnInit {
           );
         }
       });
-  }  loadUserProfile(): void {
+  }
+  loadUserProfile(): void {
     this.userProfileService
       .getUserProfile()
       .pipe(
@@ -103,7 +104,6 @@ export class MenteeProfileComponent implements OnInit {
         }
       });
   }
-
 
   // --- Form Initialization and Validation ---
   initForms(): void {
@@ -235,13 +235,16 @@ export class MenteeProfileComponent implements OnInit {
           this.showToast('error', `Failed to update profile: ${error.message}`);
           return throwError(() => error);
         })
-      )      .subscribe((updatedProfile) => {
+      )
+      .subscribe((updatedProfile) => {
         this.userProfile = updatedProfile;
 
         // Update selected skills from the response to synchronize UI
         // For mentee profile, the backend returns skills in mentorSkills property
         if (this.userProfile.mentorSkills) {
-          this.selectedSkillIds = this.userProfile.mentorSkills.map((s: { id: any }) => s.id);
+          this.selectedSkillIds = this.userProfile.mentorSkills.map(
+            (s: { id: any }) => s.id
+          );
         } else {
           this.selectedSkillIds = [];
         }
