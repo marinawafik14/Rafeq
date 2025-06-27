@@ -10,7 +10,7 @@ import { catchError, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
 import { CommonModule } from '@angular/common';
-import { UserProfile } from '../../../Models/User/user-profile';
+import { UserProfile } from '../../../Models/UserProfile/UserProfile';
 import { Skill } from '../../../Models/Skills/skill';
 import { UserProfileService } from '../../../Services/user-profile.service';
 import { UpdateMenteeProfile } from '../../../Models/UserProfile/UpdateMenteeProfileDto';
@@ -69,8 +69,10 @@ export class MenteeProfileComponent implements OnInit {
       )
       .subscribe((skills) => {
         this.allSkills = skills;
-        if (this.userProfile && this.userProfile.mentorSkills) {
-          this.selectedSkillIds = this.userProfile.mentorSkills.map(
+        // When skills are loaded, if userProfile already exists, populate selectedSkillIds
+        if (this.userProfile && this.userProfile.menteeSkills) {
+          // Changed from mentorSkills to menteeSkills
+          this.selectedSkillIds = this.userProfile.menteeSkills.map(
             (s: { id: any }) => s.id
           );
         }
@@ -95,8 +97,8 @@ export class MenteeProfileComponent implements OnInit {
         this.patchProfileForm(profile);
 
         // Set initially selected skills - ensure skills are loaded first
-        if (this.userProfile.mentorSkills) {
-          this.selectedSkillIds = this.userProfile.mentorSkills.map(
+        if (this.userProfile && this.userProfile.menteeSkills) {
+          this.selectedSkillIds = this.userProfile.menteeSkills.map(
             (s: { id: any }) => s.id
           );
         } else {
@@ -239,10 +241,8 @@ export class MenteeProfileComponent implements OnInit {
       .subscribe((updatedProfile) => {
         this.userProfile = updatedProfile;
 
-        // Update selected skills from the response to synchronize UI
-        // For mentee profile, the backend returns skills in mentorSkills property
-        if (this.userProfile.mentorSkills) {
-          this.selectedSkillIds = this.userProfile.mentorSkills.map(
+        if (this.userProfile && this.userProfile.menteeSkills) {
+          this.selectedSkillIds = this.userProfile.menteeSkills.map(
             (s: { id: any }) => s.id
           );
         } else {

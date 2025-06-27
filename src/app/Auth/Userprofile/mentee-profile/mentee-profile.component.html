@@ -8,7 +8,6 @@
     </div>
   </div>
 
-  <!-- Toast Container -->
   <div class="toast-container">
     <div *ngFor="let toast of toasts" class="toast" [ngClass]="'toast-' + toast.type" (click)="removeToast(toast.id)">
       <div class="toast-content">
@@ -16,7 +15,7 @@
              'fa-check-circle': toast.type === 'success',
              'fa-exclamation-circle': toast.type === 'error',
              'fa-info-circle': toast.type === 'info'
-           }"></i>
+            }"></i>
         <span>{{ toast.message }}</span>
       </div>
       <button class="toast-close" (click)="removeToast(toast.id)">
@@ -25,10 +24,8 @@
     </div>
   </div>
 
-  <!-- Main Content -->
   <div *ngIf="userProfile" class="main-content">
     <div class="row g-4">
-      <!-- Left Column - Profile Overview -->
       <div class="col-lg-4">
         <div class="profile-card">
           <div class="profile-header">
@@ -44,9 +41,10 @@
               <i class="fas fa-user-graduate me-2"></i>
               Mentee
             </p>
-          </div>          <div class="profile-stats">
+          </div>
+          <div class="profile-stats">
             <div class="stat-item">
-              <div class="stat-value">{{ userProfile.mentorSkills?.length || 0 }}</div>
+              <div class="stat-value">{{ userProfile.menteeSkills?.length || 0 }}</div>
               <div class="stat-label">Learning Skills</div>
             </div>
             <div class="stat-item">
@@ -64,20 +62,18 @@
             </div>
           </div>
 
-          <!-- Selected Skills Display -->
-          <div class="selected-skills-section" *ngIf="userProfile.mentorSkills && userProfile.mentorSkills.length > 0">
+          <!-- <div class="selected-skills-section" *ngIf="userProfile.menteeSkills && userProfile.menteeSkills.length > 0">
             <h6 class="section-title">
               <i class="fas fa-brain me-2"></i>
               Current Learning Skills
             </h6>
             <div class="skills-display">
-              <span *ngFor="let skill of userProfile.mentorSkills" class="skill-badge">
+              <span *ngFor="let skill of userProfile.menteeSkills" class="skill-badge">
                 {{ skill.name }}
               </span>
             </div>
-          </div>
+          </div> -->
 
-          <!-- Photo Upload Section (Integrated with overview) -->
           <div class="photo-upload-section">
             <h5 class="section-title">
               <i class="fas fa-image me-2"></i>
@@ -94,9 +90,7 @@
         </div>
       </div>
 
-      <!-- Right Column - Forms (Tabs) -->
       <div class="col-lg-8">
-        <!-- Tabs Navigation -->
         <div class="tabs-container">
           <ul class="nav nav-tabs custom-tabs" role="tablist">
             <li class="nav-item" role="presentation">
@@ -123,12 +117,10 @@
           </ul>
 
           <div class="tab-content">
-            <!-- Profile Information Tab -->
             <div class="tab-pane" [class.active]="activeTab === 'profile'" [class.show]="activeTab === 'profile'">
               <div class="form-card" *ngIf="activeTab === 'profile'">
                 <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
                   <div class="row g-3 mb-4">
-                    <!-- Full Name -->
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="fullName" class="form-label">
@@ -142,7 +134,6 @@
                       </div>
                     </div>
 
-                    <!-- Email -->
                     <div class="col-md-6">
                       <div class="form-group">
                         <label for="email" class="form-label">
@@ -160,7 +151,6 @@
                       </div>
                     </div>
 
-                    <!-- Bio -->
                     <div class="col-12">
                       <div class="form-group">
                         <label for="bio" class="form-label">
@@ -186,7 +176,6 @@
               </div>
             </div>
 
-            <!-- Learning Skills Tab -->
             <div class="tab-pane" [class.active]="activeTab === 'skills'" [class.show]="activeTab === 'skills'">
               <div class="form-card" *ngIf="activeTab === 'skills'">
                 <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
@@ -222,7 +211,6 @@
               </div>
             </div>
 
-            <!-- Change Password Tab -->
             <div class="tab-pane" [class.active]="activeTab === 'password'" [class.show]="activeTab === 'password'">
               <div class="form-card" *ngIf="activeTab === 'password'">
 

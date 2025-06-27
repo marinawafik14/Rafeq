@@ -1,5 +1,4 @@
 export interface UserProfile {
-  mentorSkills: any;
   id: number;
   fullName: string;
   email: string;
@@ -8,8 +7,12 @@ export interface UserProfile {
   isEmailVerified: boolean;
   role: string;
   isActive: boolean;
-  createdAt: string;
+  createdAt: Date;
   isMentor: boolean;
-  isInterviewer: boolean;
+  isInterviewer?: boolean;
   hourlyRate?: number;
+  mentorSkills?: { id: number; name: string }[];
+  menteeSkills?: { id: number; name: string }[];
+  skills?: string[];
+  availabilities?: any[];
 }
