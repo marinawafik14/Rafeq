@@ -11,7 +11,7 @@ export interface Mentor {
   bio: string;
   skills: string[]; // List of skill names for display
   mentorSkills: Skill[]; // List of Skill objects with id and name
-  availabilities: any[]; // Assuming AvailabilityDto, define if needed
+  availabilities: any[];
   isMentor: boolean;
   isInterviewer?: boolean;
 }
