@@ -342,6 +342,12 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         });
       }
 
+      // After marking messages as read
+      const conv = this.conversations.find(c => c.bookingId === conversation.bookingId);
+      if (conv) {
+        conv.unreadCount = 0;
+      }
+
     } catch (error) {
       console.error('❌ Error selecting conversation:', error);
       this.isLoadingMessages = false;
