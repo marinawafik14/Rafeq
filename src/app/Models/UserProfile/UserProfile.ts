@@ -11,8 +11,8 @@ export interface UserProfile {
   isMentor: boolean;
   isInterviewer?: boolean;
   hourlyRate?: number;
-  mentorSkills?: { id: number; name: string }[];
-  menteeSkills?: { id: number; name: string }[];
-  skills?: string[];
+  mentorSkills?: { id: number; name: string; }[];
+ menteeSkills?: { id: number; name: string; }[];
+   skills?: string[];
   availabilities?: any[];
 }

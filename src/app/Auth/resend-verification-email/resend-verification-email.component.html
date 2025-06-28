@@ -1,23 +1,50 @@
-<div class="container resend-verification-container">
-  <h2>Resend Verification Email</h2>
-  <form [formGroup]="resendForm" (ngSubmit)="onSubmit()">
-    <div class="mb-3">
-      <label for="email" class="form-label">Email</label>
-      <input type="email" id="email" formControlName="email" class="form-control" />
-      @if(email?.invalid && (email?.dirty || email?.touched)) {
-      <div class="text-danger">
-        @if(email?.errors?.['required']){
-        <p>Email is required.</p>
-        } @if(email?.errors?.['email']){
-        <p>Invalid email format.</p>
-        }
-      </div>
-      }
-    </div>
-    <button type="submit" class="btn btn-primary" [disabled]="resendForm.invalid">Resend Verification Email</button>
-  </form>
+<div class="resend-verification-wrapper">
+  <div class="resend-verification-container">
+    <!-- Left side - Image -->
+    <div class="resend-verification-image-section">
+      <div class="resend-verification-image-container">
+        <img src="/images/verfiyEmail.jpg" alt="Verify Your Email" class="resend-verification-image">
+        <div class="resend-verification-image-overlay">
 
-  <p class="text-center mt-3">
-    <a routerLink="/login">Back to Login</a>
-  </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right side - Form -->
+    <div class="resend-verification-form-section">
+      <div class="resend-verification-form-container">
+        <div class="resend-verification-header">
+          <h2>Resend Verification</h2>
+          </div>
+
+        <form [formGroup]="resendForm" (ngSubmit)="onSubmit()" class="resend-verification-form">
+          <div class="form-group">
+            <label for="email" class="form-label">Email Address</label>
+            <input type="email" id="email" formControlName="email" class="form-control"
+              placeholder="Enter your email address" />
+            @if(email?.invalid && (email?.dirty || email?.touched)) {
+            <div class="error-message">
+              @if(email?.errors?.['required']){
+              <span>Email is required.</span>
+              } @if(email?.errors?.['email']){
+              <span>Invalid email format.</span>
+              }
+            </div>
+            }
+          </div>
+
+          <button type="submit" class="btn btn-primary" [disabled]="resendForm.invalid">
+            <span>Resend Verification Email</span>
+          </button>
+        </form>
+
+        <div class="resend-verification-links">
+          <p class="back-to-login">
+            Already verified?
+            <a routerLink="/login" class="login-link">Sign In</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

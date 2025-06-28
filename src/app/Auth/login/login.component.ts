@@ -1,6 +1,11 @@
 import { Component, OnInit, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { AuthService } from '../../Services/auth.service';
@@ -16,13 +21,15 @@ declare const google: any;
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrl: './login.component.css',
 })
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   returnUrl: string = '/';
+  showPassword: boolean = false;
 
-  private GOOGLE_CLIENT_ID = '574047622774-8h2bqlvm7dmhogsqn735e4bicj5qkjci.apps.googleusercontent.com';
+  private GOOGLE_CLIENT_ID =
+    '976759573700-s519knu28logettgf4cp1dkrev1ikb2s.apps.googleusercontent.com';
 
   constructor(
     private authService: AuthService,
@@ -33,11 +40,11 @@ export class LoginComponent implements OnInit {
   ) {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
-
   ngOnInit(): void {
     this.loginForm = new FormGroup({
       email: new FormControl('', [Validators.required, Validators.email]),
       password: new FormControl('', [Validators.required]),
+      rememberMe: new FormControl(false),
     });
 
     if (typeof google !== 'undefined') {
@@ -57,16 +64,37 @@ export class LoginComponent implements OnInit {
           text: 'signin_with',
           shape: 'rectangular',
           locale: 'en-US',
-          logo_alignment: 'left'
+          logo_alignment: 'left',
         }
       );
     } else {
-      console.warn('Google Identity Services script not loaded. External login may not function.');
+      console.warn(
+        'Google Identity Services script not loaded. External login may not function.'
+      );
     }
   }
+  get email() {
+    return this.loginForm.get('email');
+  }
+  get password() {
+    return this.loginForm.get('password');
+  }
+  get rememberMe() {
+    return this.loginForm.get('rememberMe');
+  }
 
-  get email() { return this.loginForm.get('email'); }
-  get password() { return this.loginForm.get('password'); }
+  togglePasswordVisibility(): void {
+    this.showPassword = !this.showPassword;
+  }
+
+  resetFormData(): void {
+    this.loginForm.reset({
+      email: '',
+      password: '',
+      rememberMe: false,
+    });
+    this.showPassword = false;
+  }
 
   onSubmit(): void {
     if (this.loginForm.invalid) {
@@ -75,25 +103,45 @@ export class LoginComponent implements OnInit {
       return;
     }
 
-    const loginDto: LoginDto = this.loginForm.value as LoginDto;
-
+    const loginDto: LoginDto = {
+      email: this.loginForm.value.email,
+      password: this.loginForm.value.password,
+      rememberMe: this.loginForm.value.rememberMe,
+    };
     this.authService.login(loginDto).subscribe({
-      next: (response: { message: string, tokenData: TokenResponseDto }) => {
+      next: (response: { message: string; tokenData: TokenResponseDto }) => {
         this.toastr.success(response.message || 'Login successful!', 'Success');
+
+        // Handle remember me functionality
+        if (loginDto.rememberMe) {
+          // Store login state in localStorage for persistence
+          localStorage.setItem('rememberMe', 'true');
+        } else {
+          // Remove remember me from localStorage
+          localStorage.removeItem('rememberMe');
+        }
+
+        // Reset form data after successful login
+        this.resetFormData();
+
         // Redirect based on role
-        if (response.tokenData.role && response.tokenData.role.toLowerCase() === 'admin') {
+        if (
+          response.tokenData.role &&
+          response.tokenData.role.toLowerCase() === 'admin'
+        ) {
           this.router.navigate(['/admin']);
         } else {
           this.router.navigate([this.returnUrl]);
         }
       },
       error: (err: any) => {
-        const errorMessage = err.error && typeof err.error === 'string'
-                              ? err.error
-                              : 'Login failed: Invalid credentials or unverified email.';
+        const errorMessage =
+          err.error && typeof err.error === 'string'
+            ? err.error
+            : 'Login failed: Invalid credentials or unverified email.';
         this.toastr.error(errorMessage, 'Error');
         console.error('Login error:', err);
-      }
+      },
     });
   }
 
@@ -108,37 +156,58 @@ export class LoginComponent implements OnInit {
           const externalLoginDto: ExternalLoginDto = {
             provider: 'google',
             idToken: idToken,
-            fullName: decodedToken.name || (decodedToken.given_name + ' ' + decodedToken.family_name) || 'Google User',
+            fullName:
+              decodedToken.name ||
+              decodedToken.given_name + ' ' + decodedToken.family_name ||
+              'Google User',
             email: decodedToken.email,
             profilePicture: decodedToken.picture || null,
-            role: 'Mentee'
+            role: 'Mentee',
           };
-
           this.authService.externalLogin(externalLoginDto).subscribe({
-            next: (apiResponse: { message: string, tokenData: TokenResponseDto }) => {
-              this.toastr.success(apiResponse.message || 'Google login successful!', 'Success');
+            next: (apiResponse: {
+              message: string;
+              tokenData: TokenResponseDto;
+            }) => {
+              this.toastr.success(
+                apiResponse.message || 'Google login successful!',
+                'Success'
+              );
+
+              // Reset form data after successful Google login
+              this.resetFormData();
+
               // Redirect based on role
-              if (apiResponse.tokenData.role && apiResponse.tokenData.role.toLowerCase() === 'admin') {
+              if (
+                apiResponse.tokenData.role &&
+                apiResponse.tokenData.role.toLowerCase() === 'admin'
+              ) {
                 this.router.navigate(['/admin']);
               } else {
                 this.router.navigate([this.returnUrl]);
               }
             },
             error: (err: any) => {
-              const errorMessage = err.error && typeof err.error === 'string'
-                                    ? err.error
-                                    : 'Google login failed. Please try again.';
+              const errorMessage =
+                err.error && typeof err.error === 'string'
+                  ? err.error
+                  : 'Google login failed. Please try again.';
               this.toastr.error(errorMessage, 'Error');
               console.error('Google login error:', err);
-            }
+            },
           });
-
         } catch (error) {
           console.error('Failed to decode Google ID token:', error);
-          this.toastr.error('Google login failed due to token processing error.', 'Error');
+          this.toastr.error(
+            'Google login failed due to token processing error.',
+            'Error'
+          );
         }
       } else {
-        this.toastr.error('Google login failed: No credential received from Google.', 'Error');
+        this.toastr.error(
+          'Google login failed: No credential received from Google.',
+          'Error'
+        );
       }
     });
   }
