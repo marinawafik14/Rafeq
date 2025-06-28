@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewChecked } from '@angular/core';
+import { Component, OnInit, OnDestroy, ElementRef, ViewChild, AfterViewChecked, ViewChildren, QueryList } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -12,11 +12,12 @@ import { ChatMessage } from '../../Models/Chat/chat-message';
 import { ChatConversation } from '../../Models/Chat/chat-conversation';
 import { ConversationParticipants } from '../../Models/Chat/conversation-participants';
 import { SendMessageRequest } from '../../Models/Chat/send-message-request';
+import { VoiceMessageComponent } from '../../shared/components/voice-message/voice-message.component';
 
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, VoiceMessageComponent],
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css']
 })
@@ -52,6 +53,22 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   // Add these properties
   private lastLoadTime = 0;
   private readonly LOAD_THROTTLE_MS = 2000; // 2 seconds
+
+  // Voice message
+  isRecording = false;
+  isUploadingVoice = false;
+  recordingDuration = 0;
+  audioChunks: Blob[] = [];
+  mediaRecorder: any = null;
+  recordingTimer: any = null;
+
+  // Reactions
+  showEmojiPicker: { [messageId: number]: boolean } = {};
+  emojiList: string[] = ['👍', '❤️', '😂', '😮', '😢', '👏'];
+
+  // Edit message
+  editingMessageId: number | null = null;
+  editedMessageText: string = '';
 
   constructor(
     private chatService: ChatService,
@@ -184,6 +201,19 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
 
     this.subscriptions.push(messageReceivedSub, typingSub);
+
+    this.signalrService.messageReaction$.subscribe(reaction => {
+      if (reaction && this.messages) {
+        const msg = this.messages.find(m => m.messageId === reaction.messageId);
+        if (msg) {
+          // Option 1: Push the new reaction
+          msg.reactions = msg.reactions || [];
+          msg.reactions.push(reaction);
+          // Option 2: Or reload all reactions for this message
+          // this.chatService.getMessageReactions(msg.messageId).subscribe(reactions => msg.reactions = reactions);
+        }
+      }
+    });
   }
 
   private async loadConversations(): Promise<void> {
@@ -250,9 +280,22 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  // Update the selectConversation method to handle SignalR connection issues
+  // 1. Always join the SignalR room when selecting a conversation
   async selectConversation(conversation: ChatConversation): Promise<void> {
     console.log('🔗 Selecting conversation:', conversation.bookingId);
+
+    // Always join the SignalR room for this conversation
+    const signalRState = this.signalrService.getConnectionState();
+    if (signalRState === 'Connected') {
+      try {
+        await this.signalrService.joinChatRoom(conversation.bookingId);
+        console.log('✅ Joined SignalR room for booking:', conversation.bookingId);
+      } catch (signalRError) {
+        console.warn('⚠️ Could not join SignalR room:', signalRError);
+      }
+    } else {
+      console.log('SignalR not connected, skipping chat room operations');
+    }
 
     if (this.selectedConversation?.bookingId === conversation.bookingId) {
       console.log('⏭️ Same conversation already selected');
@@ -266,14 +309,17 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     try {
       // 1. Load actual messages from the API
       console.log('📥 Loading messages for booking:', conversation.bookingId);
-      const messagesFromAPI = await this.chatService.getChatHistory(conversation.bookingId).toPromise() || [];
+      const messages = await this.chatService.getChatHistory(conversation.bookingId).toPromise() || [];
       
-      console.log('📨 Messages loaded from API:', messagesFromAPI.length);
-      console.log('📋 Message details:', messagesFromAPI);
+      console.log('📨 Messages loaded from API:', messages.length);
+      console.log('📋 Message details:', messages);
 
-      if (messagesFromAPI.length > 0) {
+      if (messages.length > 0) {
         // Use real messages from database
-        this.messages = messagesFromAPI;
+        await Promise.all(messages.map(async (msg) => {
+          msg.reactions = await this.chatService.getMessageReactions(msg.messageId).toPromise();
+        }));
+        this.messages = messages;
       } else {
         // Only show welcome message if NO messages exist in database
         this.messages = [
@@ -303,21 +349,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.participants = null; // Explicitly set to null on error
       }
 
-      // 3. Join SignalR room (if working)
-      const signalRState = this.signalrService.getConnectionState();
-      console.log('🔗 SignalR connection state:', signalRState);
-
-      if (signalRState === 'Connected') {
-        try {
-          await this.signalrService.joinChatRoom(conversation.bookingId);
-          console.log('✅ Joined SignalR room for booking:', conversation.bookingId);
-        } catch (signalRError) {
-          console.warn('⚠️ Could not join SignalR room:', signalRError);
-        }
-      } else {
-        console.log('SignalR not connected, skipping chat room operations');
-      }
-
       this.shouldScrollToBottom = true;
       this.isLoadingMessages = false;
 
@@ -333,6 +364,22 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         menteeName: conversation.menteeName,
         totalMessages: this.messages.length
       });
+
+      // After loading messages
+      if (this.messages && this.messages.length > 0) {
+        this.messages.forEach(msg => {
+          if (!msg.isRead && msg.senderId !== this.currentUserId) {
+            this.markMessageAsRead(msg.messageId);
+            msg.isRead = true; // Optimistically update UI
+          }
+        });
+      }
+
+      // After marking messages as read
+      const conv = this.conversations.find(c => c.bookingId === conversation.bookingId);
+      if (conv) {
+        conv.unreadCount = 0;
+      }
 
     } catch (error) {
       console.error('❌ Error selecting conversation:', error);
@@ -369,6 +416,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       
       if (sentMessage) {
         console.log('✅ Message sent successfully:', sentMessage);
+
+       
+        this.messages.push(sentMessage);
+        this.shouldScrollToBottom = true;
 
         // Clear input immediately
         this.newMessage = '';
@@ -448,11 +499,219 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
+  // --- VOICE RECORDING STATE & LOGIC ---
+  // Start recording on button press
+  async startVoiceRecording() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      Swal.fire('Not supported', 'Your browser does not support audio recording.', 'error');
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      this.mediaRecorder = new (window as any).MediaRecorder(stream, {
+        mimeType: this.getSupportedMimeType()
+      });
+      this.audioChunks = [];
+      this.isRecording = true;
+      this.recordingDuration = 0;
+      this.mediaRecorder.ondataavailable = (e: any) => {
+        if (e.data.size > 0) this.audioChunks.push(e.data);
+      };
+      this.mediaRecorder.onstop = () => {
+        this.isRecording = false;
+        clearInterval(this.recordingTimer);
+      };
+      this.mediaRecorder.start(100);
+      this.startRecordingTimer();
+    } catch (error) {
+      Swal.fire('Error', 'Microphone access denied or unavailable.', 'error');
+    }
+  }
+
+  // Stop and upload recording
+  async stopVoiceRecording() {
+    if (!this.mediaRecorder || !this.isRecording) return;
+    this.isUploadingVoice = true;
+    clearInterval(this.recordingTimer);
+    this.mediaRecorder.onstop = async () => {
+      this.isRecording = false;
+      const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+      if (audioBlob.size > 0 && this.recordingDuration >= 1) {
+        await this.uploadVoiceMessage(audioBlob);
+      } else {
+        Swal.fire('Too Short', 'Recording too short. Please record at least 1 second.', 'warning');
+      }
+      this.cleanupVoiceRecording();
+      this.isUploadingVoice = false;
+    };
+    this.mediaRecorder.stop();
+  }
+
+  // Cancel recording (on mouseleave/slide)
+  cancelVoiceRecording() {
+    if (this.mediaRecorder && this.isRecording) {
+      this.mediaRecorder.stop();
+      this.cleanupVoiceRecording();
+      this.isRecording = false;
+      this.isUploadingVoice = false;
+    }
+  }
+
+  private startRecordingTimer() {
+    this.recordingTimer = setInterval(() => {
+      this.recordingDuration++;
+      if (this.recordingDuration >= 600) {
+        this.stopVoiceRecording();
+      }
+    }, 1000);
+  }
+
+  private getSupportedMimeType(): string {
+    const types = [
+      'audio/webm;codecs=opus',
+      'audio/webm',
+      'audio/mp4',
+      'audio/mpeg'
+    ];
+    for (const type of types) {
+      if ((window as any).MediaRecorder.isTypeSupported(type)) {
+        return type;
+      }
+    }
+    return 'audio/webm';
+  }
+
+  private async uploadVoiceMessage(audioBlob: Blob) {
+    if (!this.selectedConversation) return;
+    try {
+      const audioFile = new File([audioBlob], 'voice-message.webm', { type: 'audio/webm' });
+      console.log('Uploading voice message:', {
+        bookingId: this.selectedConversation?.bookingId,
+        audioFile,
+        type: audioFile.type,
+        size: audioFile.size
+      });
+      await this.chatService.uploadVoiceMessage(this.selectedConversation.bookingId, audioFile).toPromise();
+      await this.loadMessages();
+    } catch (err) {
+      Swal.fire('Error', 'Failed to send voice message.', 'error');
+    }
+  }
+
+  private cleanupVoiceRecording() {
+    clearInterval(this.recordingTimer);
+    this.recordingDuration = 0;
+    this.audioChunks = [];
+    this.mediaRecorder = null;
+  }
+
+  formatRecordingTime(seconds: number): string {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  }
+
+  // --- REACTIONS ---
+  toggleEmojiPicker(messageId: number) {
+    this.showEmojiPicker[messageId] = !this.showEmojiPicker[messageId];
+  }
+
+  async addReaction(messageId: number, emoji: string): Promise<void> {
+    const msg = this.messages.find(m => m.messageId === messageId);
+    if (!msg) return;
+
+    const myReaction = this.getMyReaction(msg);
+
+    if (myReaction && myReaction.reactionType === emoji) {
+      // Remove reaction if clicking the same one
+      try {
+        await this.chatService.removeReaction(messageId, emoji).toPromise();
+        // Remove from UI
+        msg.reactions = (msg.reactions ?? []).filter((r: any) => !(r.userId === this.currentUserId && r.reactionType === emoji));
+      } catch (err) {
+        Swal.fire('Error', 'Failed to remove reaction.', 'error');
+      }
+    } else {
+      // Remove old reaction if exists
+      if (myReaction) {
+        await this.chatService.removeReaction(messageId, myReaction.reactionType).toPromise();
+        msg.reactions = (msg.reactions ?? []).filter((r: any) => !(r.userId === this.currentUserId));
+      }
+      // Add new reaction
+      try {
+        await this.chatService.addReaction(messageId, emoji).toPromise();
+        // Reload reactions for this message
+        msg.reactions = await this.chatService.getMessageReactions(messageId).toPromise();
+      } catch (err) {
+        Swal.fire('Error', 'Failed to add reaction.', 'error');
+      }
+    }
+    this.showEmojiPicker[messageId] = false;
+  }
+
+  async removeReaction(messageId: number, emoji: string) {
+    try {
+      await this.chatService.removeReaction(messageId, emoji).toPromise();
+      await this.loadMessages();
+    } catch (err) {
+      Swal.fire('Error', 'Failed to remove reaction.', 'error');
+    }
+  }
+
+  // --- EDIT MESSAGE ---
+  startEditMessage(message: ChatMessage) {
+    this.editingMessageId = message.messageId;
+    this.editedMessageText = message.messageText;
+  }
+
+  async saveEditMessage(message: ChatMessage) {
+    try {
+      await this.chatService.editMessage(message.messageId, this.editedMessageText).toPromise();
+      await this.loadMessages();
+      this.editingMessageId = null;
+    } catch (err) {
+      Swal.fire('Error', 'Failed to edit message.', 'error');
+    }
+  }
+
+  cancelEditMessage() {
+    this.editingMessageId = null;
+    this.editedMessageText = '';
+  }
+
+  // --- DELETE MESSAGE ---
+  async deleteMessage(message: ChatMessage) {
+    const result = await Swal.fire({
+      title: 'Delete message?',
+      text: 'This action cannot be undone.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Delete'
+    });
+    if (result.isConfirmed) {
+      try {
+        await this.chatService.deleteMessage(message.messageId).toPromise();
+        await this.loadMessages();
+      } catch (err) {
+        Swal.fire('Error', 'Failed to delete message.', 'error');
+      }
+    }
+  }
+
   private async loadMessages(): Promise<void> {
     if (!this.selectedConversation) return;
 
     try {
-      this.messages = await this.chatService.getChatHistory(this.selectedConversation.bookingId).toPromise() || [];
+      const messages = await this.chatService.getChatHistory(this.selectedConversation.bookingId).toPromise() || [];
+      await Promise.all(messages.map(async (msg) => {
+        msg.reactions = await this.chatService.getMessageReactions(msg.messageId).toPromise();
+        
+        // For voice messages, the VoiceMessageComponent will handle loading voice info
+        // No need to manually set URLs here anymore
+      }));
+      this.messages = messages;
       this.shouldScrollToBottom = true;
     } catch (error) {
       console.error('Error loading messages:', error);
@@ -626,6 +885,53 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
+  openAttachmentInNewTab(messageId: number, fileName: string): void {
+    this.chatService.downloadAttachment(messageId).subscribe({
+      next: (blob: Blob) => {
+        // Try to detect PDF and set correct MIME type
+        let fileType = '';
+        if (fileName.toLowerCase().endsWith('.pdf')) {
+          fileType = 'application/pdf';
+        } else if (fileName.toLowerCase().endsWith('.docx')) {
+          fileType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        } else if (fileName.toLowerCase().endsWith('.doc')) {
+          fileType = 'application/msword';
+        } else if (fileName.toLowerCase().endsWith('.jpg') || fileName.toLowerCase().endsWith('.jpeg')) {
+          fileType = 'image/jpeg';
+        } else if (fileName.toLowerCase().endsWith('.png')) {
+          fileType = 'image/png';
+        } else if (fileName.toLowerCase().endsWith('.gif')) {
+          fileType = 'image/gif';
+        }
+        const typedBlob = fileType ? new Blob([blob], { type: fileType }) : blob;
+        const url = window.URL.createObjectURL(typedBlob);
+        const newTab = window.open(url, '_blank');
+        if (!newTab) {
+          this.downloadAttachment(messageId, fileName);
+          Swal.fire({
+            icon: 'info',
+            title: 'Popup Blocked',
+            text: 'Your browser blocked the popup. The file will download instead.',
+            confirmButtonColor: '#0a2e65'
+          });
+        } else {
+          setTimeout(() => {
+            window.URL.revokeObjectURL(url);
+          }, 1000);
+        }
+      },
+      error: (error: any) => {
+        console.error('Error opening attachment:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Failed to Open',
+          text: 'Unable to open the file. Please try downloading instead.',
+          confirmButtonColor: '#0a2e65'
+        });
+      }
+    });
+  }
+
   // Enhanced debug method to see what's happening
   debugUserInfo(conversation: ChatConversation): void {
     console.log('🔍 DETAILED DEBUG INFO:');
@@ -672,5 +978,87 @@ You should see: ${this.getUserName(conversation)}`);
     }
     
     console.log('✅ Refresh completed');
+  }
+
+  // 2. Add a debug method to check SignalR connection state
+  checkSignalRConnection(): void {
+    alert('SignalR state: ' + this.signalrService.getConnectionState());
+  }
+
+  getMyReaction(message: any): any | undefined {
+    return message.reactions?.find((r: any) => r.userId === this.currentUserId);
+  }
+
+  // Helper method to get file icon class
+  getFileIconClass(fileName: string): string {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    
+    switch (extension) {
+      case 'pdf':
+        return 'pdf-icon';
+      case 'doc':
+      case 'docx':
+        return 'word-icon';
+      case 'xls':
+      case 'xlsx':
+        return 'excel-icon';
+      case 'ppt':
+      case 'pptx':
+        return 'powerpoint-icon';
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+      case 'bmp':
+      case 'svg':
+        return 'image-icon';
+      default:
+        return 'generic-icon';
+    }
+  }
+
+  // Helper method to get file icon
+  getFileIcon(fileName: string): string {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    
+    switch (extension) {
+      case 'pdf':
+        return 'fas fa-file-pdf';
+      case 'doc':
+      case 'docx':
+        return 'fas fa-file-word';
+      case 'xls':
+      case 'xlsx':
+        return 'fas fa-file-excel';
+      case 'ppt':
+      case 'pptx':
+        return 'fas fa-file-powerpoint';
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+      case 'bmp':
+      case 'svg':
+        return 'fas fa-file-image';
+      case 'zip':
+      case 'rar':
+      case '7z':
+        return 'fas fa-file-archive';
+      case 'txt':
+        return 'fas fa-file-alt';
+      default:
+        return 'fas fa-file';
+    }
+  }
+
+  // Helper method to format file size
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 }

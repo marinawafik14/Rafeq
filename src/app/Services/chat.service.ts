@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
 import { Observable, forkJoin, of } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { environment } from '../environments/environment.development';
@@ -191,5 +191,77 @@ export class ChatService {
     
     const allowedStatuses = ['confirmed', 'inprogress', 'completed'];
     return allowedStatuses.includes(sessionStatus.toLowerCase());
+  }
+
+  // 1. Upload voice message
+  uploadVoiceMessage(bookingId: number, audioFile: File): Observable<ChatMessage> {
+    const formData = new FormData();
+    formData.append('bookingId', bookingId.toString());
+    formData.append('audioFile', audioFile);
+
+    return this.http.post<any>(
+      `${environment.apiUrl}/chat/voice-message`,
+      formData
+    );
+  }
+
+  // 2. Add reaction
+  addReaction(messageId: number, reactionType: string): Observable<any> {
+    return this.http.post<any>(
+      `${environment.apiUrl}/chat/messages/${messageId}/reaction`,
+      { messageId, reactionType }
+    );
+  }
+
+  // 3. Remove reaction
+  removeReaction(messageId: number, reactionType: string): Observable<any> {
+    const params = new HttpParams().set('reactionType', reactionType);
+    return this.http.delete<any>(
+      `${environment.apiUrl}/chat/messages/${messageId}/reaction`,
+      { params }
+    );
+  }
+
+  // 4. Get reactions for a message
+  getMessageReactions(messageId: number): Observable<any[]> {
+    return this.http.get<{success: boolean, data: any[]}>(`${this.apiUrl}/chat/messages/${messageId}/reactions`)
+      .pipe(
+        map(response => response.data || []),
+        catchError(error => {
+          console.error('Error fetching reactions:', error);
+          return of([]);
+        })
+      );
+  }
+
+  // 5. Edit message
+  editMessage(messageId: number, messageText: string): Observable<ChatMessage> {
+    return this.http.put<any>(
+      `${environment.apiUrl}/chat/messages/${messageId}`,
+      { messageId, messageText }
+    );
+  }
+
+  // 6. Delete message
+  deleteMessage(messageId: number): Observable<any> {
+    return this.http.delete<any>(
+      `${environment.apiUrl}/chat/messages/${messageId}`
+    );
+  }
+
+  // Add this method for voice message info (if not already present)
+  async getVoiceMessageInfo(fileName: string): Promise<any> {
+    try {
+      const response = await this.http.get<any>(`${this.apiUrl}/chat/voice-info/${fileName}`).toPromise();
+      return response;
+    } catch (error) {
+      console.error('Error fetching voice message info:', error);
+      return { exists: false, fileName, fileSize: 0 };
+    }
+  }
+
+  // Add this method for the stream URL (if not already present)
+  getVoiceStreamUrl(fileName: string): string {
+    return `${this.apiUrl}/chat/voice/${fileName}`;
   }
 }

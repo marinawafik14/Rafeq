@@ -1,0 +1,77 @@
+<div class="voice-message" [class.sent]="isSent" [class.received]="!isSent">
+  <!-- Hidden Audio Element -->
+  <audio
+    #audioPlayer
+    (loadedmetadata)="onLoadedMetadata()"
+    (timeupdate)="onTimeUpdate()"
+    (ended)="onEnded()"
+    (error)="onError()"
+    (canplay)="onCanPlay()"
+    preload="none">
+  </audio>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="voice-loading">
+    <div class="loading-spinner"></div>
+    <span>Loading voice message...</span>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="hasError && !isLoading" class="voice-error">
+    <i class="fas fa-exclamation-triangle"></i>
+    <span>Voice message unavailable</span>
+  </div>
+
+  <!-- Voice Player -->
+  <div *ngIf="!isLoading && !hasError && voiceInfo?.exists" class="voice-player">
+    
+    <!-- Play/Pause Button -->
+    <button class="play-button" (click)="togglePlay()" [disabled]="isLoadingAudio">
+      <i *ngIf="!isPlaying && !isLoadingAudio" class="fas fa-play"></i>
+      <i *ngIf="isPlaying && !isLoadingAudio" class="fas fa-pause"></i>
+      <i *ngIf="isLoadingAudio" class="fas fa-spinner fa-spin"></i>
+    </button>
+
+    <!-- Waveform and Progress -->
+    <div class="voice-content">
+      <div class="waveform-container" (click)="seekTo($event)">
+        <!-- Animated Waveform -->
+        <div class="waveform">
+          <div 
+            *ngFor="let bar of waveformBars; let i = index" 
+            class="waveform-bar"
+            [style.height.%]="bar"
+            [class.active]="progress > (i / waveformBars.length) * 100"
+            [class.playing]="isPlaying && progress > (i / waveformBars.length) * 100">
+          </div>
+        </div>
+        
+        <!-- Progress Overlay -->
+        <div class="progress-overlay" [style.width.%]="progress"></div>
+      </div>
+
+      <!-- Time and Controls -->
+      <div class="voice-controls">
+        <span class="time-display">
+          {{ isPlaying ? formatTime(currentTime) : formatTime(duration) }}
+        </span>
+        
+        <button class="speed-button" (click)="changePlaybackSpeed()">
+          {{ playbackSpeed }}x
+        </button>
+      </div>
+    </div>
+
+    <!-- Voice Info -->
+    <div class="voice-info">
+      <i class="fas fa-microphone"></i>
+      <span class="file-size">{{ voiceInfo?.fileSizeFormatted || 'Unknown size' }}</span>
+    </div>
+  </div>
+
+  <!-- Message Timestamp -->
+  <div class="message-time">
+    {{ timestamp | date:'HH:mm' }}
+    <i *ngIf="isSent" class="fas fa-check-double message-status"></i>
+  </div>
+</div>
