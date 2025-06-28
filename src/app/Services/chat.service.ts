@@ -249,10 +249,19 @@ export class ChatService {
     );
   }
 
-  getVoiceFileUrl(fileName: string): Promise<string | null> {
-    return this.http.get<any>(`${this.apiUrl}/chat/file-status/${fileName}`)
-      .toPromise()
-      .then(response => (response.exists && response.fileSize > 0) ? response.correctUrl : null)
-      .catch(() => null);
+  // Add this method for voice message info (if not already present)
+  async getVoiceMessageInfo(fileName: string): Promise<any> {
+    try {
+      const response = await this.http.get<any>(`${this.apiUrl}/chat/voice-info/${fileName}`).toPromise();
+      return response;
+    } catch (error) {
+      console.error('Error fetching voice message info:', error);
+      return { exists: false, fileName, fileSize: 0 };
+    }
+  }
+
+  // Add this method for the stream URL (if not already present)
+  getVoiceStreamUrl(fileName: string): string {
+    return `${this.apiUrl}/chat/voice/${fileName}`;
   }
 }

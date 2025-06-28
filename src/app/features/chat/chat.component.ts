@@ -12,11 +12,12 @@ import { ChatMessage } from '../../Models/Chat/chat-message';
 import { ChatConversation } from '../../Models/Chat/chat-conversation';
 import { ConversationParticipants } from '../../Models/Chat/conversation-participants';
 import { SendMessageRequest } from '../../Models/Chat/send-message-request';
+import { VoiceMessageComponent } from '../../shared/components/voice-message/voice-message.component';
 
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, VoiceMessageComponent],
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css']
 })
@@ -706,6 +707,9 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       const messages = await this.chatService.getChatHistory(this.selectedConversation.bookingId).toPromise() || [];
       await Promise.all(messages.map(async (msg) => {
         msg.reactions = await this.chatService.getMessageReactions(msg.messageId).toPromise();
+        
+        // For voice messages, the VoiceMessageComponent will handle loading voice info
+        // No need to manually set URLs here anymore
       }));
       this.messages = messages;
       this.shouldScrollToBottom = true;
@@ -884,7 +888,23 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   openAttachmentInNewTab(messageId: number, fileName: string): void {
     this.chatService.downloadAttachment(messageId).subscribe({
       next: (blob: Blob) => {
-        const url = window.URL.createObjectURL(blob);
+        // Try to detect PDF and set correct MIME type
+        let fileType = '';
+        if (fileName.toLowerCase().endsWith('.pdf')) {
+          fileType = 'application/pdf';
+        } else if (fileName.toLowerCase().endsWith('.docx')) {
+          fileType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        } else if (fileName.toLowerCase().endsWith('.doc')) {
+          fileType = 'application/msword';
+        } else if (fileName.toLowerCase().endsWith('.jpg') || fileName.toLowerCase().endsWith('.jpeg')) {
+          fileType = 'image/jpeg';
+        } else if (fileName.toLowerCase().endsWith('.png')) {
+          fileType = 'image/png';
+        } else if (fileName.toLowerCase().endsWith('.gif')) {
+          fileType = 'image/gif';
+        }
+        const typedBlob = fileType ? new Blob([blob], { type: fileType }) : blob;
+        const url = window.URL.createObjectURL(typedBlob);
         const newTab = window.open(url, '_blank');
         if (!newTab) {
           this.downloadAttachment(messageId, fileName);
@@ -967,17 +987,5 @@ You should see: ${this.getUserName(conversation)}`);
 
   getMyReaction(message: any): any | undefined {
     return message.reactions?.find((r: any) => r.userId === this.currentUserId);
-  }
-
-  async setVoiceUrlsForMessages() {
-    for (const message of this.messages) {
-      if (message.isVoiceMessage && message.attachments?.length) {
-        for (const attachment of message.attachments) {
-          if (attachment.isVoiceMessage) {
-            attachment.fullUrl = await this.chatService.getVoiceFileUrl(attachment.fileName) || '';
-          }
-        }
-      }
-    }
   }
 }

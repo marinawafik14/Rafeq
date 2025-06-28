@@ -193,10 +193,13 @@
                   </div>
 
                   <!-- Voice Message Player -->
-                  <div *ngIf="message.isVoiceMessage && message.attachments && message.attachments.length > 0" class="voice-message p-2 bg-light rounded">
-                    <i class="fas fa-microphone me-2"></i>
-                    <audio controls [src]="message.attachments[0].fullUrl" style="width: 200px;"></audio>
-                  </div>
+                  <app-voice-message 
+                    *ngIf="message.isVoiceMessage && message.attachments && message.attachments.length > 0"
+                    [fileName]="message.attachments[0].fileName"
+                    [isSent]="isMyMessage(message)"
+                    [senderName]="message.senderName"
+                    [timestamp]="message.sentAt">
+                  </app-voice-message>
 
                   <!-- Only show text if not a voice message -->
                   <div *ngIf="!message.isVoiceMessage && message.messageText" class="message-text">
