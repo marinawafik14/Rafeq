@@ -270,20 +270,23 @@
 
                   <!-- Message Actions (Edit, Delete, Reactions) -->
                   <div *ngIf="isMyMessage(message)" class="message-actions d-flex gap-2 mt-1">
-                    <!-- Edit -->
-                    <button class="btn btn-sm btn-link text-info p-0" *ngIf="editingMessageId !== message.messageId"
+                    <!-- Edit Button - Only show for text messages, not voice messages -->
+                    <button class="btn btn-sm btn-link text-info p-0" 
+                            *ngIf="editingMessageId !== message.messageId && !message.isVoiceMessage"
                             (click)="startEditMessage(message)">
                       <i class="fas fa-edit"></i>
                     </button>
-                    <!-- Delete -->
+                    
+                    <!-- Delete Button - Keep for all message types -->
                     <button class="btn btn-sm btn-link text-danger p-0"
                             (click)="deleteMessage(message)">
                       <i class="fas fa-trash"></i>
                     </button>
                   </div>
 
-                  <!-- Inline edit input -->
-                  <div *ngIf="editingMessageId === message.messageId" class="edit-message-box mt-2">
+                  <!-- Inline edit input - Only show for text messages -->
+                  <div *ngIf="editingMessageId === message.messageId && !message.isVoiceMessage" 
+                       class="edit-message-box mt-2">
                     <textarea [(ngModel)]="editedMessageText" class="form-control mb-2"></textarea>
                     <button class="btn btn-sm btn-success me-2" (click)="saveEditMessage(message)">Save</button>
                     <button class="btn btn-sm btn-secondary" (click)="cancelEditMessage()">Cancel</button>
