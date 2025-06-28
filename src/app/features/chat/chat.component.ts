@@ -988,4 +988,77 @@ You should see: ${this.getUserName(conversation)}`);
   getMyReaction(message: any): any | undefined {
     return message.reactions?.find((r: any) => r.userId === this.currentUserId);
   }
+
+  // Helper method to get file icon class
+  getFileIconClass(fileName: string): string {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    
+    switch (extension) {
+      case 'pdf':
+        return 'pdf-icon';
+      case 'doc':
+      case 'docx':
+        return 'word-icon';
+      case 'xls':
+      case 'xlsx':
+        return 'excel-icon';
+      case 'ppt':
+      case 'pptx':
+        return 'powerpoint-icon';
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+      case 'bmp':
+      case 'svg':
+        return 'image-icon';
+      default:
+        return 'generic-icon';
+    }
+  }
+
+  // Helper method to get file icon
+  getFileIcon(fileName: string): string {
+    const extension = fileName.split('.').pop()?.toLowerCase();
+    
+    switch (extension) {
+      case 'pdf':
+        return 'fas fa-file-pdf';
+      case 'doc':
+      case 'docx':
+        return 'fas fa-file-word';
+      case 'xls':
+      case 'xlsx':
+        return 'fas fa-file-excel';
+      case 'ppt':
+      case 'pptx':
+        return 'fas fa-file-powerpoint';
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+      case 'bmp':
+      case 'svg':
+        return 'fas fa-file-image';
+      case 'zip':
+      case 'rar':
+      case '7z':
+        return 'fas fa-file-archive';
+      case 'txt':
+        return 'fas fa-file-alt';
+      default:
+        return 'fas fa-file';
+    }
+  }
+
+  // Helper method to format file size
+  formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 Bytes';
+    
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
 }

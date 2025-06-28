@@ -206,20 +206,42 @@
                     {{ message.messageText }}
                   </div>
 
-                  <!-- Attachments -->
+                  <!-- Enhanced Attachments Section -->
                   <div *ngIf="message.attachments && message.attachments.length > 0" 
                        class="attachments mt-2">
                     <div *ngFor="let attachment of message.attachments">
                       <ng-container *ngIf="!attachment.isVoiceMessage">
-                        <div class="attachment-item d-flex align-items-center gap-2">
-                          <i class="fas fa-file-pdf text-danger"></i>
-                          <span>{{ attachment.fileName }}</span>
-                          <button class="btn btn-sm btn-outline-primary" (click)="downloadAttachment(message.messageId, attachment.fileName)">
-                            <i class="fas fa-download"></i> Download
-                          </button>
-                          <button class="btn btn-sm btn-outline-secondary" (click)="openAttachmentInNewTab(message.messageId, attachment.fileName)">
-                            <i class="fas fa-external-link-alt"></i> Open
-                          </button>
+                        <div class="attachment-item">
+                          <div class="file-info">
+                            <!-- Dynamic File Icon based on file type -->
+                            <div class="file-icon" [ngClass]="getFileIconClass(attachment.fileName)">
+                              <i [class]="getFileIcon(attachment.fileName)"></i>
+                            </div>
+                            
+                            <div class="file-details">
+                              <span class="file-name" [title]="attachment.fileName">
+                                {{ attachment.fileName }}
+                              </span>
+                              <span class="file-size" *ngIf="attachment.fileSize">
+                                {{ formatFileSize(attachment.fileSize) }}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div class="attachment-actions">
+                            <button class="btn btn-outline-primary btn-sm" 
+                                    (click)="downloadAttachment(message.messageId, attachment.fileName)"
+                                    title="Download file">
+                              <i class="fas fa-download me-1"></i>
+                              Download
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" 
+                                    (click)="openAttachmentInNewTab(message.messageId, attachment.fileName)"
+                                    title="Open in new tab">
+                              <i class="fas fa-external-link-alt me-1"></i>
+                              Open
+                            </button>
+                          </div>
                         </div>
                       </ng-container>
                     </div>
