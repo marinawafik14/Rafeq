@@ -1,0 +1,12 @@
+/* Basic styling for faq.component */
+.accordion-button:not(.collapsed) {
+  background-color: #e7f1ff; /* Lighter blue for active item */
+  color: #004085; /* Darker blue text */
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .125);
+}
+
+.btn-outline-info.active {
+  background-color: #17a2b8; /* Bootstrap info color */
+  color: white;
+  border-color: #17a2b8;
+}

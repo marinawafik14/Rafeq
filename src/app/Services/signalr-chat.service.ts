@@ -17,6 +17,7 @@ export class SignalrChatService {
   private messageRead = new BehaviorSubject<{messageId: number, userId: number} | null>(null);
   private userTyping = new BehaviorSubject<{bookingId: number, userId: number, isTyping: boolean} | null>(null);
   private userOnline = new BehaviorSubject<{userId: number, isOnline: boolean} | null>(null);
+  private messageReaction = new BehaviorSubject<any>(null);
 
   constructor(private authService: AuthService) { }
 
@@ -30,7 +31,7 @@ export class SignalrChatService {
   // Create hub connection
   private createConnection(): void {
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(`${environment.apiUrl}/chatHub`, {
+      .withUrl('https://localhost:7001/chatHub', {
         accessTokenFactory: () => this.authService.getToken() || '',
         transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.LongPolling
       })
@@ -122,6 +123,11 @@ export class SignalrChatService {
     this.hubConnection.on('MessageEdited', (message: ChatMessage) => {
       console.log('✏️ Message edited:', message);
     });
+
+    this.hubConnection.on('MessageReaction', (reaction) => {
+      console.log('Received MessageReaction event:', reaction);
+      this.messageReaction.next(reaction);
+    });
   }
 
   // Join booking chat room
@@ -186,6 +192,10 @@ export class SignalrChatService {
 
   get userOnline$(): Observable<{userId: number, isOnline: boolean} | null> {
     return this.userOnline.asObservable();
+  }
+
+  get messageReaction$(): Observable<any> {
+    return this.messageReaction.asObservable();
   }
 
   // Get connection status

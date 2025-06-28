@@ -1,0 +1,19 @@
+/* Basic styling for articles-list.component */
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.card-subtitle {
+  font-size: 0.85rem;
+  color: #6c757d;
+}
+
+.card-text {
+  font-size: 0.9rem;
+}
+
+.btn-outline-primary.active {
+  background-color: #007bff;
+  color: white;
+}

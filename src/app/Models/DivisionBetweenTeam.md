@@ -709,3 +709,10 @@ CREATE INDEX IX_MessageReadStatus_UserId ON MessageReadStatus(UserId);
 
 -- 21. Default Roles
 INSERT INTO Roles (RoleName) VALUES ('Admin'), ('Mentor'), ('Mentee');
+CREATE TABLE MessageReactions (
+    ReactionId INT PRIMARY KEY IDENTITY(1,1),
+    MessageId INT FOREIGN KEY REFERENCES ChatMessages(MessageId),
+    UserId INT FOREIGN KEY REFERENCES Users(UserId),
+    ReactionType NVARCHAR(50),
+    CreatedAt DATETIME
+);

@@ -1,0 +1,51 @@
+<div class="container my-5">
+  <h2>Help & Support</h2>
+  <p class="lead">Find answers to common questions about Rafeeq.</p>
+
+  <div class="input-group mb-4">
+    <input type="text" class="form-control" placeholder="Search questions..." [(ngModel)]="searchQuery" (input)="onSearch()">
+    <button class="btn btn-outline-secondary" type="button" (click)="onSearch()">Search</button>
+  </div>
+
+  <div class="d-flex flex-wrap mb-4">
+    <button class="btn btn-outline-info me-2 mb-2" [class.active]="!currentCategoryFilter" (click)="filterByCategory(undefined)">
+      All ({{ allFaqs.length }})
+    </button>
+    <button class="btn btn-outline-info me-2 mb-2" *ngFor="let category of categories"
+            [class.active]="currentCategoryFilter === category.categoryName"
+            (click)="filterByCategory(category.categoryName)">
+      {{ category.categoryName }} ({{ category.questionCount }})
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading FAQs...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && filteredFaqs.length === 0" class="alert alert-info">
+    No FAQs found matching your criteria.
+  </div>
+
+  <div class="accordion" id="faqAccordion">
+    <div class="accordion-item" *ngFor="let faq of filteredFaqs; let i = index">
+      <h2 class="accordion-header" [id]="'heading' + faq.faqId">
+        <button class="accordion-button" type="button" [class.collapsed]="faq.faqId !== expandedFaqId"
+                (click)="toggleFaq(faq.faqId)"
+                [attr.aria-expanded]="faq.faqId === expandedFaqId ? 'true' : 'false'"
+                [attr.aria-controls]="'collapse' + faq.faqId">
+          {{ faq.question }}
+        </button>
+      </h2>
+      <div [id]="'collapse' + faq.faqId" class="accordion-collapse collapse"
+           [class.show]="faq.faqId === expandedFaqId"
+           [attr.aria-labelledby]="'heading' + faq.faqId" data-bs-parent="#faqAccordion">
+        <div class="accordion-body">
+          {{ faq.answer }}
+          <p class="text-end mt-2"><small class="text-muted">Views: {{ faq.viewCount }}</small></p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

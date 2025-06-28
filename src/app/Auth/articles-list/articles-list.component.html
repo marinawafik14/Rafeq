@@ -1,0 +1,41 @@
+<div class="container my-5">
+  <h2>Knowledge Base</h2>
+  <p class="lead">Find helpful articles on mentoring, career development, and interviews.</p>
+
+  <div class="my-4">
+    <button class="btn btn-outline-primary me-2 mb-2" [class.active]="!currentCategoryFilter" (click)="filterByCategory(undefined)">All Articles</button>
+    <button class="btn btn-outline-primary me-2 mb-2" [class.active]="currentCategoryFilter === 'Mentoring'" (click)="filterByCategory('Mentoring')">Mentoring</button>
+    <button class="btn btn-outline-primary me-2 mb-2" [class.active]="currentCategoryFilter === 'Career'" (click)="filterByCategory('Career')">Career</button>
+    <button class="btn btn-outline-primary me-2 mb-2" [class.active]="currentCategoryFilter === 'Interview'" (click)="filterByCategory('Interview')">Interview</button>
+    <button class="btn btn-outline-primary me-2 mb-2" [class.active]="currentCategoryFilter === 'CV'" (click)="filterByCategory('CV')">CV</button>
+  </div>
+
+  <div class="input-group mb-4">
+    <input type="text" class="form-control" placeholder="Search articles..." [(ngModel)]="searchQuery" (input)="onSearch()">
+    <button class="btn btn-outline-secondary" type="button" (click)="onSearch()">Search</button>
+  </div>
+
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading articles...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && articles.length === 0" class="alert alert-info">
+    No articles found.
+  </div>
+
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    <div class="col" *ngFor="let article of filteredArticles">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">{{ article.title }}</h5>
+          <h6 class="card-subtitle mb-2 text-muted">{{ article.category }}</h6>
+          <p class="card-text">{{ article.summary }}</p>
+          <p class="card-text text-end"><small class="text-muted">By {{ article.authorName }} | {{ article.createdAt | date:'mediumDate' }} | Views: {{ article.viewCount }}</small></p>
+          <a [routerLink]="['/articles', article.articleId]" class="btn btn-sm btn-primary">Read More</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

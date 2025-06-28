@@ -1,0 +1,28 @@
+/* Basic styling for article-detail.component */
+.article-content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1.5rem auto;
+  border-radius: 8px;
+}
+
+.article-content h1, .article-content h2, .article-content h3, .article-content h4, .article-content h5, .article-content h6 {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600; /* Make headings slightly bolder */
+}
+
+.article-content p {
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+
+.article-content ul, .article-content ol {
+  margin-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.article-content strong {
+  font-weight: 700;
+}

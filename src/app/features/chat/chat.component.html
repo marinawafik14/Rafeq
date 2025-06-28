@@ -152,19 +152,6 @@
                 </small>
               </div>
             </div>
-            
-            <!-- Update the chat header buttons -->
-            <div class="d-flex gap-2">
-              <button (click)="refreshConversations()"
-                      class="btn btn-outline-primary btn-sm">
-                <i class="fas fa-sync-alt"></i> Refresh
-              </button>
-              
-              <button (click)="debugUserInfo(selectedConversation)"
-                      class="btn btn-warning btn-sm">
-                🔍 Debug
-              </button>
-            </div>
           </div>
         </div>
 
@@ -205,32 +192,58 @@
                     </small>
                   </div>
 
-                  <!-- Message content -->
-                  <div *ngIf="message.messageText" class="message-text">
+                  <!-- Voice Message Player -->
+                  <app-voice-message 
+                    *ngIf="message.isVoiceMessage && message.attachments && message.attachments.length > 0"
+                    [fileName]="message.attachments[0].fileName"
+                    [isSent]="isMyMessage(message)"
+                    [senderName]="message.senderName"
+                    [timestamp]="message.sentAt">
+                  </app-voice-message>
+
+                  <!-- Only show text if not a voice message -->
+                  <div *ngIf="!message.isVoiceMessage && message.messageText" class="message-text">
                     {{ message.messageText }}
                   </div>
 
-                  <!-- Voice message indicator -->
-                  <div *ngIf="message.isVoiceMessage" class="voice-message p-2 bg-light rounded">
-                    <i class="fas fa-microphone me-2"></i>
-                    Voice Message
-                  </div>
-
-                  <!-- Attachments -->
+                  <!-- Enhanced Attachments Section -->
                   <div *ngIf="message.attachments && message.attachments.length > 0" 
                        class="attachments mt-2">
-                    <div *ngFor="let attachment of message.attachments" 
-                         class="attachment-item border rounded p-2 mb-2">
-                      <div class="d-flex align-items-center justify-content-between">
-                        <div class="d-flex align-items-center">
-                          <i class="fas fa-file me-2"></i>
-                          <span class="attachment-name">{{ attachment.fileName }}</span>
+                    <div *ngFor="let attachment of message.attachments">
+                      <ng-container *ngIf="!attachment.isVoiceMessage">
+                        <div class="attachment-item">
+                          <div class="file-info">
+                            <!-- Dynamic File Icon based on file type -->
+                            <div class="file-icon" [ngClass]="getFileIconClass(attachment.fileName)">
+                              <i [class]="getFileIcon(attachment.fileName)"></i>
+                            </div>
+                            
+                            <div class="file-details">
+                              <span class="file-name" [title]="attachment.fileName">
+                                {{ attachment.fileName }}
+                              </span>
+                              <span class="file-size" *ngIf="attachment.fileSize">
+                                {{ formatFileSize(attachment.fileSize) }}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div class="attachment-actions">
+                            <button class="btn btn-outline-primary btn-sm" 
+                                    (click)="downloadAttachment(message.messageId, attachment.fileName)"
+                                    title="Download file">
+                              <i class="fas fa-download me-1"></i>
+                              Download
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" 
+                                    (click)="openAttachmentInNewTab(message.messageId, attachment.fileName)"
+                                    title="Open in new tab">
+                              <i class="fas fa-external-link-alt me-1"></i>
+                              Open
+                            </button>
+                          </div>
                         </div>
-                        <button class="btn btn-sm btn-outline-primary rounded-pill"
-                                (click)="downloadAttachment(attachment.messageId, attachment.fileName)">
-                          <i class="fas fa-download"></i>
-                        </button>
-                      </div>
+                      </ng-container>
                     </div>
                   </div>
 
@@ -238,8 +251,10 @@
                   <div *ngIf="message.reactions && message.reactions.length > 0" 
                        class="reactions mt-2">
                     <div class="d-flex gap-1">
-                      <span *ngFor="let reaction of message.reactions" 
-                            class="reaction-item badge bg-light text-dark">
+                      <span *ngFor="let reaction of message.reactions"
+                            class="reaction-item badge bg-light text-dark"
+                            [class.my-reaction]="reaction.userId === currentUserId"
+                            (click)="addReaction(message.messageId, reaction.reactionType)">
                         {{ reaction.reactionType }} {{ reaction.userName }}
                       </span>
                     </div>
@@ -251,6 +266,43 @@
                       <i class="fas fa-check" [class.text-primary]="message.isRead"></i>
                       {{ message.isRead ? 'Read' : 'Sent' }}
                     </small>
+                  </div>
+
+                  <!-- Message Actions (Edit, Delete, Reactions) -->
+                  <div *ngIf="isMyMessage(message)" class="message-actions d-flex gap-2 mt-1">
+                    <!-- Edit Button - Only show for text messages, not voice messages -->
+                    <button class="btn btn-sm btn-link text-info p-0" 
+                            *ngIf="editingMessageId !== message.messageId && !message.isVoiceMessage"
+                            (click)="startEditMessage(message)">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    
+                    <!-- Delete Button - Keep for all message types -->
+                    <button class="btn btn-sm btn-link text-danger p-0"
+                            (click)="deleteMessage(message)">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+
+                  <!-- Inline edit input - Only show for text messages -->
+                  <div *ngIf="editingMessageId === message.messageId && !message.isVoiceMessage" 
+                       class="edit-message-box mt-2">
+                    <textarea [(ngModel)]="editedMessageText" class="form-control mb-2"></textarea>
+                    <button class="btn btn-sm btn-success me-2" (click)="saveEditMessage(message)">Save</button>
+                    <button class="btn btn-sm btn-secondary" (click)="cancelEditMessage()">Cancel</button>
+                  </div>
+
+                  <!-- Reaction button (for all messages) -->
+                  <button class="btn btn-sm btn-link text-warning p-0 ms-2"
+                          (click)="toggleEmojiPicker(message.messageId)">
+                    <i class="fas fa-smile"></i>
+                  </button>
+                  <!-- Emoji picker -->
+                  <div *ngIf="showEmojiPicker[message.messageId]" class="emoji-picker bg-light border rounded p-2 mt-1">
+                    <span *ngFor="let emoji of emojiList" class="emoji cursor-pointer me-1"
+                          (click)="addReaction(message.messageId, emoji)">
+                      {{ emoji }}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -307,6 +359,27 @@
                        class="d-none"
                        (change)="onFileSelected($event)"
                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.gif">
+              </button>
+
+              <!-- Voice Recording Button (Hold to Record) -->
+              <button class="btn btn-outline-secondary voice-btn" type="button"
+                      (mousedown)="startVoiceRecording()"
+                      (mouseup)="stopVoiceRecording()"
+                      (mouseleave)="cancelVoiceRecording()"
+                      (touchstart)="startVoiceRecording()"
+                      (touchend)="stopVoiceRecording()"
+                      [class.recording]="isRecording"
+                      [disabled]="isSending || isUploadingVoice">
+                <ng-container *ngIf="!isRecording && !isUploadingVoice">
+                  <i class="fas fa-microphone"></i>
+                </ng-container>
+                <ng-container *ngIf="isRecording">
+                  <i class="fas fa-stop"></i>
+                  <span class="ms-1 text-danger">{{ formatRecordingTime(recordingDuration) }}</span>
+                </ng-container>
+                <ng-container *ngIf="isUploadingVoice">
+                  <i class="fas fa-spinner fa-spin"></i>
+                </ng-container>
               </button>
 
               <!-- Text Input -->

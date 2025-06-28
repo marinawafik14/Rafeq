@@ -1,0 +1,31 @@
+<div class="container my-5">
+  <div *ngIf="loading" class="text-center">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading article...</span>
+    </div>
+  </div>
+
+  <div *ngIf="!loading && article" class="card shadow-sm p-4">
+    <button class="btn btn-outline-secondary btn-sm mb-3" [routerLink]="['/articles']">
+      &larr; Back to Articles
+    </button>
+
+    <h1 class="card-title mb-3">{{ article.title }}</h1>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <span class="badge bg-info text-dark me-2">{{ article.category }}</span>
+        <small class="text-muted">By {{ article.authorName }} | {{ article.createdAt | date:'mediumDate' }} | Views: {{ article.viewCount }}</small>
+      </div>
+      <small class="text-muted">Views: {{ article.viewCount }}</small>
+    </div>
+
+    <hr>
+
+    <div class="article-content" [innerHTML]="article.content"></div>
+  </div>
+
+  <div *ngIf="!loading && !article" class="alert alert-warning text-center">
+    Article not found.
+    <a [routerLink]="['/articles']" class="alert-link">Go back to articles list.</a>
+  </div>
+</div>

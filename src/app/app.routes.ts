@@ -34,6 +34,9 @@ import { ChatComponent } from './features/chat/chat.component';
 import { ProfileRedirectComponent } from './Auth/Userprofile/profile-redirect/profile-redirect.component';
 import { MentorProfileComponent } from './Auth/Userprofile/mentor-profile/mentor-profile.component';
 import { MenteeProfileComponent } from './Auth/Userprofile/mentee-profile/mentee-profile.component';
+import { ArticlesListComponent } from './Auth/articles-list/articles-list.component';
+import { ArticleDetailComponent } from './Auth/article-detail/article-detail.component';
+import { FaqComponent } from './Auth/faq/faq.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -48,6 +51,10 @@ export const routes: Routes = [
     { path: 'user-profile', component: ProfileRedirectComponent },
   { path: 'mentor-profile', component: MentorProfileComponent },
   { path: 'mentee-profile', component: MenteeProfileComponent },
+//FQA and Articals
+   { path: 'articles', component: ArticlesListComponent },
+  { path: 'articles/:id', component: ArticleDetailComponent },
+  { path: 'faq', component: FaqComponent },
 
   { path: 'payment', component: PaymentComponent },
   { path: 'payment-complete', component: PaymentConfirmationComponent },
@@ -73,6 +80,9 @@ export const routes: Routes = [
     { path: 'reviews', component: AdminReviewsComponent},
     { path: 'home', component: HomeComponent}
   ]},
+
+
+
 
   // Mentor routes section
   { path: 'mentor/dashboard', component: DashboardComponent },
