@@ -109,7 +109,6 @@ export class RegisterComponent implements OnInit {
         if (response.isSuccess) {
           this.toastr.success(response.message, 'Registration Success');
 
-          // Reset form data after successful registration
           this.resetFormData();
 
           this.router.navigate(['/login']);
@@ -124,7 +123,8 @@ export class RegisterComponent implements OnInit {
             );
 
             // Reset form data even on warning case since registration was successful
-            this.resetFormData();
+
+                       this.resetFormData();
 
             this.router.navigate(['/login']);
           }
