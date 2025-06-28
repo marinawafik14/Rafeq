@@ -1,6 +1,5 @@
 <div class="register-wrapper">
   <div class="register-container">
-    <!-- Left side - Image -->
     <div class="register-image-section">
       <div class="register-image-container">
         <img src="/images/SignUp.jpg" alt="Join Rafeq Community" class="register-image">
@@ -10,7 +9,6 @@
       </div>
     </div>
 
-    <!-- Right side - Registration Form -->
     <div class="register-form-section">
       <div class="register-form-container">
         <div class="register-header">
@@ -18,11 +16,11 @@
           <p class="register-form-subtitle">Join Rafeq</p>
         </div>
 
-        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form">
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="register-form" autocomplete="off">
           <div class="form-group">
             <label for="fullName" class="form-label">Full Name</label>
             <input type="text" id="fullName" formControlName="fullName" class="form-control"
-              placeholder="Enter your full name" />
+              placeholder="Enter your full name" autocomplete="name" />
             @if(fullName?.invalid && (fullName?.dirty || fullName?.touched)) {
             <div class="error-message">
               @if(fullName?.errors?.['required']){
@@ -39,9 +37,9 @@
           </div>
 
           <div class="form-group">
-            <label for="email" class="form-label">Email Address</label>
+            <label for="email" class="form-label">Email </label>
             <input type="email" id="email" formControlName="email" class="form-control"
-              placeholder="Enter your email address" />
+              placeholder="Enter your email " autocomplete="email" />
             @if(email?.invalid && (email?.dirty || email?.touched)) {
             <div class="error-message">
               @if(email?.errors?.['required']){
@@ -57,8 +55,8 @@
             <label for="password" class="form-label">Password</label>
             <div class="password-input-container">
               <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password"
-                class="form-control" placeholder="Enter your password" /> <button type="button" class="password-toggle"
-                (click)="togglePasswordVisibility()"
+                class="form-control" placeholder="Enter your password" autocomplete="new-password" />
+              <button type="button" class="password-toggle" (click)="togglePasswordVisibility()"
                 [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
                 <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
               </button>
@@ -78,8 +76,9 @@
             <label for="confirmPassword" class="form-label">Confirm Password</label>
             <div class="password-input-container">
               <input [type]="showConfirmPassword ? 'text' : 'password'" id="confirmPassword"
-                formControlName="confirmPassword" class="form-control" placeholder="Confirm your password" /> <button
-                type="button" class="password-toggle" (click)="toggleConfirmPasswordVisibility()"
+                formControlName="confirmPassword" class="form-control" placeholder="Confirm your password"
+                autocomplete="new-password" />
+              <button type="button" class="password-toggle" (click)="toggleConfirmPasswordVisibility()"
                 [attr.aria-label]="showConfirmPassword ? 'Hide password' : 'Show password'">
                 <i [class]="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
               </button>
@@ -112,8 +111,6 @@
             </div>
             }
           </div>
-
-        
 
           <button type="submit" class="btn btn-primary" [disabled]="registerForm.invalid">
             <span>Create Account</span>

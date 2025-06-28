@@ -262,7 +262,12 @@ export class MenteeProfileComponent implements OnInit {
       return;
     }
 
-    const passwordData: ChangePassword = this.passwordForm.value;
+    const passwordData: ChangePassword = {
+      currentPassword: this.passwordForm.get('currentPassword')?.value,
+      newPassword: this.passwordForm.get('newPassword')?.value,
+      confirmNewPassword: this.passwordForm.get('confirmNewPassword')?.value,
+    };
+
     this.userProfileService
       .changePassword(passwordData)
       .pipe(
@@ -274,7 +279,7 @@ export class MenteeProfileComponent implements OnInit {
           return throwError(() => error);
         })
       )
-      .subscribe(() => {
+      .subscribe((response) => {
         this.showToast('success', 'Password changed successfully!');
         this.passwordForm.reset();
         // Reset password visibility states

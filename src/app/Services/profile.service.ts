@@ -8,6 +8,7 @@ import { ProfileUpdateRequest } from '../Models/User/profile-update-request';
 import { Skill } from '../Models/Skills/skill';
 import { UserSkill } from '../Models/Skills/user-skill';
 import { FileUploadResponse } from '../Models/Upload/file-upload-response';
+import { ChangePassword } from '../Models/UserProfile/ChangePassword';
 
 @Injectable({
   providedIn: 'root'
@@ -33,6 +34,8 @@ export class ProfileService {
       );
   }
 
+
+
   // Update hourly rate only
   updateHourlyRate(hourlyRate: number): Observable<any> {
     return this.http.put(`${this.apiUrl}/users/hourly-rate`, { hourlyRate });
@@ -42,7 +45,7 @@ export class ProfileService {
   uploadProfilePicture(file: File): Observable<string> {
     const formData = new FormData();
     formData.append('file', file);
-    
+
     return this.http.post<FileUploadResponse>(`${this.apiUrl}/users/profile-picture`, formData)
       .pipe(
         map(response => response.profilePictureUrl)
@@ -77,4 +80,6 @@ export class ProfileService {
         map(response => response.skills)
       );
   }
+
+    
 }
