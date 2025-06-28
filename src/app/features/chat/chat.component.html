@@ -56,10 +56,11 @@
             <!-- Profile Picture -->
             <div class="profile-pic me-3 position-relative">
               <!-- Update all avatar images to use the correct path -->
-              <img [src]="getUserProfilePicture(conversation) || getDefaultAvatarPath()" 
+              <img [src]="getUserProfilePicture(conversation)" 
                    [alt]="getUserName(conversation)"
                    class="rounded-circle"
-                   style="width: 45px; height: 45px; object-fit: cover;">
+                   style="width: 45px; height: 45px; object-fit: cover;"
+                   (error)="onImageError($event)">
 
               
               <!-- New conversation indicator -->
@@ -137,11 +138,11 @@
           <div class="d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center">
               <!-- Show OTHER participant's info, not your own -->
-              <img [src]="getUserProfilePicture(selectedConversation) || getDefaultAvatarPath()" 
+              <img [src]="getUserProfilePicture(selectedConversation)" 
                    [alt]="getUserName(selectedConversation)"
                    class="rounded-circle me-3 header-avatar"
                    style="width: 50px; height: 50px; object-fit: cover;"
-                   onerror="this.src='/images/default-avatar.png'">
+                   (error)="onImageError($event)">
               <div>
                 <h6 class="mb-0 fw-bold">{{ getUserName(selectedConversation) }}</h6>
                 <small class="text-muted">
@@ -179,7 +180,7 @@
                      [alt]="message.senderName"
                      class="rounded-circle me-2"
                      style="width: 32px; height: 32px; object-fit: cover;"
-                     onerror="this.src='/images/default-avatar.png'">
+                     (error)="onImageError($event)">
                 
                 <div class="message-bubble p-3 rounded-3 flex-grow-1" [class.ms-2]="isMyMessage(message)">
                   <div class="message-header d-flex justify-content-between align-items-center mb-2">
