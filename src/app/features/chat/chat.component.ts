@@ -4,10 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
+import { environment } from '../../environments/environment.development';
 
 import { ChatService } from '../../Services/chat.service';
 import { SignalrChatService } from '../../Services/signalr-chat.service';
 import { AuthService } from '../../Services/auth.service'; 
+import { ProfileService } from '../../Services/profile.service'; 
 import { ChatMessage } from '../../Models/Chat/chat-message';
 import { ChatConversation } from '../../Models/Chat/chat-conversation';
 import { ConversationParticipants } from '../../Models/Chat/conversation-participants';
@@ -70,12 +72,15 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   editingMessageId: number | null = null;
   editedMessageText: string = '';
 
+  private apiUrl = environment.apiUrl;
+
   constructor(
     private chatService: ChatService,
     private signalrService: SignalrChatService,
     private route: ActivatedRoute,
     private router: Router,
-    private authService: AuthService // Add this import
+    private authService: AuthService,
+    private profileService: ProfileService // Add this service
   ) {
     // Use AuthService to get the current user ID properly
     const currentUser = this.authService.currentUserValue;
@@ -919,14 +924,43 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   getUserProfilePicture(conversation: ChatConversation): string {
+    if (!conversation) return this.getDefaultAvatarPath();
+    
+    let profilePicUrl = '';
+    
     // Show the OTHER participant's profile picture
     if (this.currentUserId === conversation.mentorId) {
       // You are the mentor, show the mentee's picture
-      return conversation.menteeProfilePicture || '';
+      profilePicUrl = conversation.menteeProfilePicture || '';
     } else {
       // You are the mentee, show the mentor's picture
-      return conversation.mentorProfilePicture || '';
+      profilePicUrl = conversation.mentorProfilePicture || '';
     }
+    
+    // Process the URL properly
+    if (profilePicUrl && profilePicUrl.trim() !== '') {
+      // If it's already a full URL, return it
+      if (profilePicUrl.startsWith('http')) {
+        return profilePicUrl;
+      }
+      
+      // If it's a path that doesn't start with slash, add it
+      if (!profilePicUrl.startsWith('/')) {
+        profilePicUrl = '/' + profilePicUrl;
+      }
+      
+      // If it's a relative path, make it absolute using environment.apiUrl
+      if (!profilePicUrl.includes(this.apiUrl) && profilePicUrl.startsWith('/')) {
+        // Don't add apiUrl if it's just a local path to /images folder
+        if (!profilePicUrl.startsWith('/images')) {
+          return this.apiUrl + profilePicUrl;
+        }
+      }
+      
+      return profilePicUrl;
+    }
+    
+    return this.getDefaultAvatarPath();
   }
 
   getOtherParticipant(): any {
@@ -1173,5 +1207,14 @@ You should see: ${this.getUserName(conversation)}`);
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  onImageError(event: Event): void {
+    const imgElement = event.target as HTMLImageElement;
+    console.log('Image failed to load:', imgElement.src);
+    imgElement.src = this.getDefaultAvatarPath();
+    
+    // Add onerror=null to prevent infinite error loop if default image also fails
+    imgElement.onerror = null;
   }
 }
