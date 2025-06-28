@@ -94,6 +94,15 @@ export class LoginComponent implements OnInit {
       rememberMe: false,
     });
     this.showPassword = false;
+
+    // Reset Google Sign-In if available
+    if (
+      typeof google !== 'undefined' &&
+      google.accounts &&
+      google.accounts.id
+    ) {
+      google.accounts.id.cancel();
+    }
   }
 
   onSubmit(): void {
