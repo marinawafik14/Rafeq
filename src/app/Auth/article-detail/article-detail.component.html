@@ -1,31 +1,65 @@
-<div class="container my-5">
-  <div *ngIf="loading" class="text-center">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Loading article...</span>
-    </div>
-  </div>
-
-  <div *ngIf="!loading && article" class="card shadow-sm p-4">
-    <button class="btn btn-outline-secondary btn-sm mb-3" [routerLink]="['/articles']">
-      &larr; Back to Articles
-    </button>
-
-    <h1 class="card-title mb-3">{{ article.title }}</h1>
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <div>
-        <span class="badge bg-info text-dark me-2">{{ article.category }}</span>
-        <small class="text-muted">By {{ article.authorName }} | {{ article.createdAt | date:'mediumDate' }}</small>
+<div class="article-detail-wrapper">
+  <div class="container">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-container">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading article...</span>
       </div>
-      <small class="text-muted">Views: {{ article.viewCount }}</small>
+      <p class="mt-3 text-muted">Loading article content...</p>
     </div>
 
-    <hr>
+    <!-- Article Content -->
+    <div *ngIf="!loading && article">
+      <!-- Back Button -->
+      <a class="back-button" [routerLink]="['/articles']">
+        <i class="fas fa-arrow-left"></i>Back to Articles
+      </a>
 
-    <div class="article-content" [innerHTML]="article.content"></div>
-  </div>
+      <!-- Article Container -->
+      <div class="article-container">
+        <!-- Article Header -->
+        <div class="article-header">
+          <div class="article-header-content">
+            <h1 class="article-title">{{ article.title }}</h1>
 
-  <div *ngIf="!loading && !article" class="alert alert-warning text-center">
-    Article not found.
-    <a [routerLink]="['/articles']" class="alert-link">Go back to articles list.</a>
+            <div class="article-meta">
+              <span class="category-badge">
+                <i class="fas fa-tag"></i>{{ article.category }}
+              </span>
+
+              <div class="meta-item">
+                <i class="fas fa-user"></i>
+                <span>{{ article.authorName }}</span>
+              </div>
+
+              <div class="meta-item">
+                <i class="fas fa-calendar"></i>
+                <span>{{ article.createdAt | date:'MMMM d, y' }}</span>
+              </div>
+
+              <div class="meta-item">
+                <i class="fas fa-eye"></i>
+                <span>{{ article.viewCount }} views</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Article Body -->
+        <div class="article-body">
+          <div class="article-content" [innerHTML]="article.content"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Article Not Found -->
+    <div *ngIf="!loading && !article" class="article-not-found">
+      <i class="fas fa-file-times"></i>
+      <h3>Article Not Found</h3>
+      <p>Sorry, the article you're looking for doesn't exist or has been removed.</p>
+      <a [routerLink]="['/articles']" class="btn">
+        <i class="fas fa-arrow-left me-2"></i>Back to Articles
+      </a>
+    </div>
   </div>
 </div>

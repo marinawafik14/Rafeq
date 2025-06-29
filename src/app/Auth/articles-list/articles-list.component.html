@@ -1,55 +1,122 @@
-<div class="container my-5">
-  <h2>Knowledge Base</h2>
-  <p class="lead">Find helpful articles on mentoring, career development, and interviews.</p>
-
-  <div class="my-4">
-    <button class="btn btn-outline-primary me-2 mb-2" [class.active]="!currentCategoryFilter" (click)="filterByCategory(undefined)">All Articles</button>
-    <button class="btn btn-outline-primary me-2 mb-2" [class.active]="currentCategoryFilter === 'Mentoring'" (click)="filterByCategory('Mentoring')">Mentoring</button>
-    <button class="btn btn-outline-primary me-2 mb-2" [class.active]="currentCategoryFilter === 'Career'" (click)="filterByCategory('Career')">Career</button>
-    <button class="btn btn-outline-primary me-2 mb-2" [class.active]="currentCategoryFilter === 'Interview'" (click)="filterByCategory('Interview')">Interview</button>
-    <button class="btn btn-outline-primary me-2 mb-2" [class.active]="currentCategoryFilter === 'CV'" (click)="filterByCategory('CV')">CV</button>
-  </div>
-
-  <div class="input-group mb-4">
-    <input type="text" class="form-control" placeholder="Search articles..." [(ngModel)]="searchQuery" (input)="onSearch()">
-    <button class="btn btn-outline-secondary" type="button" (click)="onSearch()">Search</button>
-  </div>
-
-  <div *ngIf="loading" class="text-center">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Loading articles...</span>
-    </div>
-  </div>
-
-  <div *ngIf="!loading && articles.length === 0" class="alert alert-info">
-    No articles found matching your criteria.
-  </div>
-
-  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-    <div class="col" *ngFor="let article of articles">
-      <div class="card h-100 shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title">{{ article.title }}</h5>
-          <h6 class="card-subtitle mb-2 text-muted">{{ article.category }}</h6>
-          <p class="card-text">{{ article.summary }}</p>
-          <p class="card-text text-end"><small class="text-muted">By {{ article.authorName }} | {{ article.createdAt | date:'mediumDate' }} | Views: {{ article.viewCount }}</small></p>
-          <a [routerLink]="['/articles', article.articleId]" class="btn btn-sm btn-primary">Read More</a>
-        </div>
+<div class="articles-wrapper">
+  <!-- Header Section -->
+  <div class="articles-header">
+    <div class="container">
+      <div class="text-center">
+        <h2><i class="fas fa-book-open me-3"></i>Knowledge Base</h2>
       </div>
     </div>
   </div>
 
-  <nav *ngIf="totalPages > 1 && !loading" aria-label="Article pagination" class="mt-4">
-    <ul class="pagination justify-content-center">
-      <li class="page-item" [class.disabled]="currentPage === 1">
-        <a class="page-link" (click)="goToPage(currentPage - 1)">Previous</a>
-      </li>
-      <li class="page-item" *ngFor="let page of pagesArray" [class.active]="page === currentPage">
-        <a class="page-link" (click)="goToPage(page)">{{ page }}</a>
-      </li>
-      <li class="page-item" [class.disabled]="currentPage === totalPages">
-        <a class="page-link" (click)="goToPage(currentPage + 1)">Next</a>
-      </li>
-    </ul>
-  </nav>
+  <div class="container">
+    <!-- Filter Section -->
+    <div class="filter-container">
+      <div class="filter-title">
+        <i class="fas fa-filter me-2"></i>Filter by Category
+      </div>
+      <div class="d-flex flex-wrap">
+        <button class="btn btn-outline-primary" [class.active]="!currentCategoryFilter"
+          (click)="filterByCategory(undefined)">
+          <i class="fas fa-th-large me-2"></i>All Articles
+        </button>
+        <button class="btn btn-outline-primary" [class.active]="currentCategoryFilter === 'Mentoring'"
+          (click)="filterByCategory('Mentoring')">
+          <i class="fas fa-users me-2"></i>Mentoring
+        </button>
+        <button class="btn btn-outline-primary" [class.active]="currentCategoryFilter === 'Career'"
+          (click)="filterByCategory('Career')">
+          <i class="fas fa-briefcase me-2"></i>Career
+        </button>
+        <button class="btn btn-outline-primary" [class.active]="currentCategoryFilter === 'Interview'"
+          (click)="filterByCategory('Interview')">
+          <i class="fas fa-comments me-2"></i>Interview
+        </button>
+        <button class="btn btn-outline-primary" [class.active]="currentCategoryFilter === 'CV'"
+          (click)="filterByCategory('CV')">
+          <i class="fas fa-file-alt me-2"></i>CV
+        </button>
+      </div>
+    </div>
+
+    <!-- Search Section -->
+    <div class="search-container">
+      <div class="input-group">
+        <input type="text" class="form-control" placeholder="Search articles "
+          [(ngModel)]="searchQuery" (input)="onSearch()">
+        <button class="btn" type="button" (click)="onSearch()">
+          <i class="fas fa-search me-2"></i>Search
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-container text-center">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading articles...</span>
+      </div>
+      <p class="mt-3 text-muted">Loading amazing articles for you...</p>
+    </div>
+
+    <!-- No Articles Found -->
+    <div *ngIf="!loading && articles.length === 0" class="no-articles">
+      <i class="fas fa-search"></i>
+      <h4>No articles found</h4>
+      <p class="text-muted">Try adjusting your search terms or browse different categories</p>
+      <button class="btn btn-primary" (click)="filterByCategory(undefined)">
+        <i class="fas fa-refresh me-2"></i>Show All Articles
+      </button>
+    </div>
+
+    <!-- Articles Grid -->
+    <div class="articles-grid" *ngIf="!loading && articles.length > 0">
+      <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div class="col" *ngFor="let article of articles">
+          <div class="card article-card">
+            <div class="card-body">
+              <span class="card-subtitle">
+                <i class="fas fa-tag me-1"></i>{{ article.category }}
+              </span>
+              <h5 class="card-title">{{ article.title }}</h5>
+              <p class="card-text">{{ article.summary }}</p>
+              <div class="card-meta">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <i class="fas fa-user me-1"></i>{{ article.authorName }}
+                  </div>
+                  <div>
+                    <i class="fas fa-calendar me-1"></i>{{ article.createdAt | date:'MMM d, y' }}
+                  </div>
+                </div>
+                <div class="mt-1">
+                  <i class="fas fa-eye me-1"></i>{{ article.viewCount }} views
+                </div>
+              </div>
+              <a [routerLink]="['/articles', article.articleId]" class="btn btn-read-more">
+                <i class="fas fa-arrow-right me-2"></i>Read More
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <nav *ngIf="totalPages > 1 && !loading" aria-label="Article pagination" class="pagination-container">
+      <ul class="pagination">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <a class="page-link" (click)="goToPage(currentPage - 1)">
+            <i class="fas fa-chevron-left me-1"></i>Previous
+          </a>
+        </li>
+        <li class="page-item" *ngFor="let page of pagesArray" [class.active]="page === currentPage">
+          <a class="page-link" (click)="goToPage(page)">{{ page }}</a>
+        </li>
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+          <a class="page-link" (click)="goToPage(currentPage + 1)">
+            Next<i class="fas fa-chevron-right ms-1"></i>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
 </div>
