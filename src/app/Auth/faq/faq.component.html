@@ -1,0 +1,121 @@
+<div class="faq-wrapper">
+  <div class="faq-header">
+    <div class="container">
+      <div class="text-center">
+        <h2><i class="fas fa-question-circle me-3"></i>Help & Support</h2>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="search-container">
+      <div class="input-group">
+        <input type="text" class="form-control" placeholder="Search questions and answers..." [(ngModel)]="searchQuery"
+          (input)="onSearch()">
+        <button class="btn" type="button" (click)="onSearch()">
+          <i class="fas fa-search me-2"></i>Search
+        </button>
+      </div>
+    </div>
+
+    <div class="filter-container">
+      <div class="filter-title">
+        <i class="fas fa-filter"></i>Filter by Category
+      </div>
+      <div class="d-flex flex-wrap align-items-center">
+        <select class="form-select faq-category-select" [ngModel]="currentCategoryFilter"
+          (change)="filterByCategory($event)">
+          <option value="">All Categories ({{ totalFaqs }})</option>
+          <option *ngFor="let category of categories" [value]="category.categoryName">
+            {{ category.categoryName }} ({{ category.questionCount }})
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div *ngIf="loading" class="loading-container">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading FAQs...</span>
+      </div>
+      <p class="mt-3 text-muted">Loading frequently asked questions...</p>
+    </div>
+
+    <div *ngIf="!loading && filteredFaqs.length === 0" class="no-faqs">
+      <i class="fas fa-search"></i>
+      <h4>No FAQs found</h4>
+      <p class="text-muted">Try adjusting your search terms or browse different categories</p>
+      <button class="btn" (click)="showAllFaqs()">
+        <i class="fas fa-refresh me-2"></i>Show All FAQs
+      </button>
+    </div>
+
+    <div class="faq-accordion" *ngIf="!loading && filteredFaqs.length > 0">
+      <div class="accordion" id="faqAccordion">
+        <div class="accordion-item" *ngFor="let faq of filteredFaqs; let i = index">
+          <h2 class="accordion-header" [id]="'heading' + faq.faqId">
+            <button class="accordion-button" type="button" [class.collapsed]="faq.faqId !== expandedFaqId"
+              (click)="toggleFaq(faq.faqId)" [attr.aria-expanded]="faq.faqId === expandedFaqId ? 'true' : 'false'"
+              [attr.aria-controls]="'collapse' + faq.faqId">
+              <div class="accordion-button-content">
+                <span class="question-number">{{ (currentPage - 1) * pageSize + i + 1 }}</span> <span>{{ faq.question }}</span>
+              </div>
+            </button>
+          </h2>
+          <div [id]="'collapse' + faq.faqId" class="accordion-collapse collapse"
+            [class.show]="faq.faqId === expandedFaqId" [attr.aria-labelledby]="'heading' + faq.faqId"
+            data-bs-parent="#faqAccordion">
+            <div class="accordion-body">
+              <p>{{ faq.answer }}</p>
+              <div class="faq-meta">
+                <div class="view-count">
+                  <i class="fas fa-eye"></i>
+                  <span>{{ faq.viewCount }} views</span>
+                </div>
+                <div class="helpful-actions">
+                  <small class="text-muted me-2">Was this helpful?</small>
+                  <button class="btn btn-sm btn-outline-success ms-1" title="Yes, this was helpful"
+                          (click)="markFaqAsHelpful(faq.faqId, $event)">
+                    <i class="fas fa-thumbs-up"></i> {{ faq.helpfulCount }}
+                  </button>
+                  <button class="btn btn-sm btn-outline-danger ms-1" title="No, this wasn't helpful"
+                          (click)="markFaqAsNotHelpful(faq.faqId, $event)">
+                    <i class="fas fa-thumbs-down"></i> {{ faq.notHelpfulCount }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <nav *ngIf="totalPages > 1 && !loading" aria-label="FAQ pagination" class="mt-4">
+      <ul class="pagination justify-content-center">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <a class="page-link" (click)="goToPage(currentPage - 1)">Previous</a>
+        </li>
+        <li class="page-item" *ngFor="let page of pagesArray" [class.active]="page === currentPage">
+          <a class="page-link" (click)="goToPage(page)">{{ page }}</a>
+        </li>
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+          <a class="page-link" (click)="goToPage(currentPage + 1)">Next</a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="need-help-section mt-5" *ngIf="!loading">
+      <div class="text-center p-4 bg-light rounded">
+        <h5><i class="fas fa-headset me-2"></i>Still need help?</h5>
+        <p class="text-muted mb-3">Can't find what you're looking for? Our support team is here to help.</p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+          <button class="btn btn-primary" (click)="goToContactPage()">
+            <i class="fas fa-envelope me-2"></i>Contact Support
+          </button>
+          <button class="btn btn-outline-primary" (click)="goToChatPage()">
+            <i class="fas fa-comments me-2"></i>Live Chat
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
