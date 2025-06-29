@@ -1,91 +1,209 @@
 <mentee-layout [menteeName]="menteeName" [menteeId]="menteeId">
-  <div class="dashboard-page d-flex">
-    <main class="main-content flex-grow-1">
-      <div class="container py-4">
-        <div class="row mb-4">
-          <div class="col-12">
-            <div class="welcome-section p-4 rounded text-white mb-3" style="background:#0a2e65;">
-              <h2 class="mb-1">Welcome back, {{menteeName || 'Mentee'}}!</h2>
-              <p class="mb-0" *ngIf="menteeName; else loading">Ready to continue your learning journey?</p>
-              <ng-template #loading>
-                <span>Loading...</span>
+  <div class="dashboard-page">
+    <main class="main-content">
+      <div class="container-fluid">
+        <!-- Hero Section -->
+        <div class="hero-section">
+          <div class="hero-content">
+            <div class="hero-text">
+              <h1 class="hero-title">
+                <span class="greeting">Welcome back,</span>
+                <span class="name">{{menteeName || 'Mentee'}}!</span>
+              </h1>
+              <p class="hero-subtitle" *ngIf="menteeName; else loadingGreeting">
+                <i class="bi bi-rocket-takeoff me-2"></i>
+                Ready to accelerate your learning journey?
+              </p>
+              <ng-template #loadingGreeting>
+                <div class="loading-skeleton">
+                  <div class="skeleton-line"></div>
+                </div>
+              </ng-template>
+            </div>
+            <div class="hero-decoration">
+              <div class="floating-icons">
+                <i class="bi bi-lightbulb icon-float"></i>
+                <i class="bi bi-graph-up-arrow icon-float"></i>
+                <i class="bi bi-trophy icon-float"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card" *ngFor="let stat of stats; trackBy: trackByStat" [class.loading]="isLoading">
+            <div class="stat-icon-wrapper" [style.background]="stat.color">
+              <i class="bi {{stat.icon}} stat-icon"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{isLoading ? '...' : stat.value}}</div>
+              <div class="stat-label">{{stat.label}}</div>
+            </div>
+            <!-- <div class="stat-trend" [ngClass]="stat.trend" *ngIf="!isLoading">
+              <i class="bi" [ngClass]="getTrendIcon(stat.trend)"></i>
+              <span>{{stat.change || '+0%'}}</span>
+            </div> -->
+          </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="content-grid">
+          <!-- Upcoming Sessions -->
+          <div class="content-card sessions-card">
+            <div class="card-header">
+              <div class="header-content">
+                <h3 class="card-title">
+                  <i class="bi bi-calendar-event me-2"></i>
+                  Upcoming Sessions
+                </h3>
+                <div class="session-count">{{(upcomingSessions?.length || 0)}} sessions</div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div *ngIf="upcomingSessions && upcomingSessions.length; else noUpcomingSessions" class="sessions-list">
+                <div class="session-item" *ngFor="let session of upcomingSessions; trackBy: trackBySession">
+                  <div class="session-avatar">
+                    <img [src]="session.mentorAvatar || '/images/default-avatar.png'" 
+                         [alt]="session.mentor" 
+                         class="mentor-avatar">
+                  </div>
+                  <div class="session-details">
+                    <h4 class="session-mentor">{{session.mentor}}</h4>
+                    <div class="session-meta">
+                      <div class="session-date">
+                        <i class="bi bi-calendar3 me-1"></i>
+                        {{session.date}}
+                      </div>
+                      <div class="session-time">
+                        <i class="bi bi-clock me-1"></i>
+                        {{session.time}}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="session-actions">
+                    <button class="btn btn-join" 
+                            *ngIf="session.status==='upcoming'" 
+                            [disabled]="!isSessionStartingSoon(session)"
+                            (click)="joinSession(session)">
+                      <i class="bi bi-camera-video me-1"></i>
+                      {{isSessionStartingSoon(session) ? 'Join Now' : 'Join Soon'}}
+                    </button>
+                    <span *ngIf="session.status!=='upcoming'" 
+                          class="status-badge" 
+                          [ngClass]="'status-' + session.status">
+                      {{session.status | titlecase}}
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <ng-template #noUpcomingSessions>
+                <div class="empty-state">
+                  <div class="empty-icon">
+                    <i class="bi bi-calendar-x"></i>
+                  </div>
+                  <h4 class="empty-title">No upcoming sessions</h4>
+                  <p class="empty-message">Book a session with a mentor to get started</p>
+                  <button class="btn btn-primary" (click)="navigateToSearchMentors()">
+                    <i class="bi bi-search me-2"></i>Find Mentors
+                  </button>
+                </div>
               </ng-template>
             </div>
           </div>
-        </div>
-        <div class="row g-3 mb-4">
-          <div class="col-6 col-md-3" *ngFor="let stat of stats">
-            <div class="card text-center shadow-sm h-100">
-              <div class="card-body">
-                <i class="bi {{stat.icon}} fs-2 mb-2" style="color:#0a2e65;"></i>
-                <h4 class="fw-bold mb-0">{{stat.value}}</h4>
-                <div class="text-muted small">{{stat.label}}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="row g-4">
-          <div class="col-12 col-lg-7">
-            <div class="card shadow-sm mb-4">
-              <div class="card-header bg-white fw-bold">Upcoming Sessions</div>
-              <div class="card-body p-0">
-                <div *ngIf="upcomingSessions.length; else noSessions">
-                  <ul class="list-group list-group-flush">
-                    <li class="list-group-item d-flex align-items-center justify-content-between" *ngFor="let session of upcomingSessions">
-                      <div>
-                        <div class="fw-bold">{{session.mentor}}</div>
-                        <div class="text-muted small">{{session.date}} at {{session.time}}</div>
-                      </div>
-                      <a [href]="session.joinUrl" class="btn btn-success btn-sm" *ngIf="session.status==='upcoming'" style="background:linear-gradient(to right bottom, #0a2e65, #1b74e4);color:#fff;border:none;">
-                        <i class="bi bi-camera-video"></i> Join
-                      </a>
-                      <span *ngIf="session.status!=='upcoming'" class="badge bg-secondary">{{session.status}}</span>
-                    </li>
-                  </ul>
+
+          <!-- Completed Sessions -->
+          <div class="content-card completed-card">
+            <div class="card-header">
+              <div class="header-content">
+                <h3 class="card-title">
+                  <i class="bi bi-check-circle me-2"></i>
+                  Recent Completions
+                </h3>
+                <div class="view-all-link">
+                  <a href="#" class="text-link">View All</a>
                 </div>
-                <ng-template #noSessions>
-                  <div class="text-center text-muted py-4">No upcoming sessions.</div>
-                </ng-template>
               </div>
             </div>
-            <!-- Completed Sessions Section -->
-            <div class="card shadow-sm mb-4">
-              <div class="card-header bg-white fw-bold">Completed Sessions</div>
-              <div class="card-body p-0">
-                <div *ngIf="completedSessions.length; else noCompleted">
-                  <ul class="list-group list-group-flush">
-                    <li class="list-group-item d-flex align-items-center justify-content-between" *ngFor="let session of completedSessions">
-                      <div>
-                        <div class="fw-bold">{{session.mentor}}</div>
-                        <div class="text-muted small">{{session.date}} at {{session.time}}</div>
-                      </div>
-                      <span class="badge bg-success">Completed</span>
-                    </li>
-                  </ul>
-                </div>
-                <ng-template #noCompleted>
-                  <div class="text-center text-muted py-4">No completed sessions.</div>
-                </ng-template>
-              </div>
-            </div>
-          </div>
-          <div class="col-12 col-lg-5">
-            <div class="card shadow-sm mb-4">
-              <div class="card-header bg-white fw-bold">Recent Activity</div>
-              <div class="card-body p-0">
-                <ul class="list-group list-group-flush">
-                  <li class="list-group-item d-flex align-items-center" *ngFor="let activity of recentActivity">
-                    <i class="bi bi-dot fs-3 me-2" style="color:#0a2e65;"></i>
-                    <div>
-                      <div>{{activity.text}}</div>
-                      <div class="text-muted small">{{activity.date}}</div>
+            <div class="card-body">
+              <div *ngIf="completedSessions && completedSessions.length; else noCompletedSessions" class="completed-list">
+                <div class="completed-item" *ngFor="let session of (completedSessions || []).slice(0, 5); trackBy: trackBySession">
+                  <div class="completion-indicator">
+                    <i class="bi bi-check-circle-fill"></i>
+                  </div>
+                  <div class="completion-details">
+                    <h5 class="completion-mentor">{{session.mentor}}</h5>
+                    <div class="completion-date">
+                      <i class="bi bi-calendar3 me-1"></i>
+                      {{session.date}}
                     </div>
-                  </li>
-                </ul>
-                <div *ngIf="!recentActivity.length" class="text-center text-muted py-4">No recent activity.</div>
+                  </div>
+                  <div class="completion-rating" *ngIf="session.rating">
+                    <div class="rating-stars">
+                      <i class="bi bi-star-fill" *ngFor="let star of [1,2,3,4,5]; let i=index"
+                         [class.active]="i < session.rating"></i>
+                    </div>
+                  </div>
+                </div>
               </div>
+              <ng-template #noCompletedSessions>
+                <div class="empty-state small">
+                  <div class="empty-icon">
+                    <i class="bi bi-hourglass-split"></i>
+                  </div>
+                  <h5 class="empty-title">No completed sessions yet</h5>
+                  <p class="empty-message">Your completed sessions will appear here</p>
+                </div>
+              </ng-template>
             </div>
           </div>
+
+          
+
+          <!-- Quick Actions -->
+          <!-- <div class="content-card actions-card">
+            <div class="card-header">
+              <div class="header-content">
+                <h3 class="card-title">
+                  <i class="bi bi-lightning me-2"></i>
+                  Quick Actions
+                </h3>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="quick-actions">
+                <button class="quick-action-btn" (click)="navigateToSearchMentors()">
+                  <div class="action-icon">
+                    <i class="bi bi-search"></i>
+                  </div>
+                  <div class="action-text">
+                    <div class="action-title">Find Mentors</div>
+                    <div class="action-subtitle">Browse and book sessions</div>
+                  </div>
+                </button>
+                
+                <button class="quick-action-btn" (click)="navigateToBookings()">
+                  <div class="action-icon">
+                    <i class="bi bi-calendar-check"></i>
+                  </div>
+                  <div class="action-text">
+                    <div class="action-title">My Bookings</div>
+                    <div class="action-subtitle">View all sessions</div>
+                  </div>
+                </button>
+                
+                <button class="quick-action-btn" (click)="navigateToProfile()">
+                  <div class="action-icon">
+                    <i class="bi bi-person-gear"></i>
+                  </div>
+                  <div class="action-text">
+                    <div class="action-title">Profile</div>
+                    <div class="action-subtitle">Update your info</div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div> -->
         </div>
       </div>
     </main>

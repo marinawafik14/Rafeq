@@ -4,15 +4,21 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface MentorCard {
+  id?: number;
   userId: number;
   fullName: string;
   email: string;
+  role?: string | null;
   profilePicture: string | null;
   bio: string | null;
   hourlyRate: number;
-  skills: { Name: string }[];
+  mentorSkills?: { id: number; name: string; mentorsCount: number }[];
+  skills: { Name: string; id: number }[]; // Skills formatted for display
+  skillsArray?: string[]; // Original skills array from backend
   availabilities: any[];
-  rating?: number | null; // Added for mentor rating
+  rating?: number | null;
+  isMentor?: boolean;
+  isInterviewer?: boolean;
 }
 
 export interface MenteeDashboard {

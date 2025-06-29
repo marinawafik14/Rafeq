@@ -38,7 +38,8 @@ import { environment } from '../environments/environment.development';
     }
 
     login(dto: LoginDto): Observable<any> {
-      return this.http.post(`${this.apiUrl}/login`, dto).pipe(
+      // Temporary fix: Direct backend call
+      return this.http.post('https://localhost:7001/api/Auth/login', dto).pipe(
         tap((response: any) => {
           if (response && response.tokenData) {
             this.setToken(response.tokenData);

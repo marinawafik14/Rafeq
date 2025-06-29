@@ -1,8 +1,4 @@
 <div class="sidebar close">
-      <div class="logo-details">
-        <i class="bx bxl-c-plus-plus"></i>
-        <span class="logo_name">Rafeq</span>
-      </div>
       <ul class="nav-links">
         <li>
           <a [routerLink]="['/mentee', menteeId, 'dashboard']" (click)="navigateTo({route: 'dashboard'})">
@@ -25,7 +21,7 @@
         <li>
           <a [routerLink]="['/mentee', menteeId, 'search-mentors']" (click)="navigateTo({route: 'search-mentors'})">
             <i class="bx bx-search"></i>
-            <span class="link_name">Search Mentors</span>
+            <span class="link_name">Find Mentors</span>
           </a>
           <ul class="sub-menu blank">
             <li><a class="link_name" [routerLink]="['/mentee', menteeId, 'search-mentors']">Search Mentors</a></li>
@@ -41,24 +37,6 @@
           </ul>
         </li>
         <li>
-          <a [routerLink]="['/mentee', menteeId, 'booking-form']" (click)="navigateTo({route: 'booking-form'})">
-            <i class="bx bx-edit"></i>
-            <span class="link_name">Book a Session</span>
-          </a>
-          <ul class="sub-menu blank">
-            <li><a class="link_name" [routerLink]="['/mentee', menteeId, 'booking-form']">Book a Session</a></li>
-          </ul>
-        </li>
-        <li>
-          <a [routerLink]="['/mentee', menteeId, 'booking-details', 0]" (click)="navigateTo({route: 'booking-details/0'})">
-            <i class="bx bx-detail"></i>
-            <span class="link_name">Booking Details</span>
-          </a>
-          <ul class="sub-menu blank">
-            <li><a class="link_name" [routerLink]="['/mentee', menteeId, 'booking-details', 0]">Booking Details</a></li>
-          </ul>
-        </li>
-        <li>
           <a href="#" (click)="logout()" style="cursor:pointer;">
             <i class="bx bx-log-out"></i>
             <span class="link_name">Logout</span>
@@ -70,11 +48,13 @@
       </ul>
     </div>
 
-    <div class="main-content">
-      <i class="bx bx-menu" (click)="toggleSidebar()"></i>
+    <section class="home-section">
+      <div class="home-content">
+        <i class="bx bx-menu" (click)="toggleSidebar()"></i>
+      </div>
       <ng-content></ng-content>
       <router-outlet></router-outlet>
-    </div>
+    </section>
 
 
 

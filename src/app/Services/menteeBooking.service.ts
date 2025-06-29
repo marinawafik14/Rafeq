@@ -43,4 +43,9 @@ export class menteeBookingservice {
   }): Observable<any> {
     return this.http.post(`/api/MenteeBookings/mentee/${menteeId}/bookings?mentorId=${mentorId}`, booking);
   }
+
+  // Cancel booking by ID
+  cancelBooking(bookingId: number): Observable<any> {
+    return this.http.delete(`https://localhost:7001/api/MenteeBookings/${bookingId}`);
+  }
 }

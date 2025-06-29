@@ -21,6 +21,10 @@ export class MenteeBookingsComponent implements OnInit {
   pageSize = 5;
   bookings: any[] = [];
   menteeId: number|null = null;
+  
+  // Properties for cancel booking modal
+  bookingToCancel: any = null;
+  showCancelModal = false;
 
   constructor(
     private menteeBookingservice: menteeBookingservice,
@@ -122,9 +126,28 @@ export class MenteeBookingsComponent implements OnInit {
   }
 
   bookingTabDate(booking: any): 'upcoming' | 'past' {
+    // Check if booking has ended based on endDateTime
+    if (booking.endDateTime) {
+      const now = new Date();
+      const endTime = new Date(booking.endDateTime);
+      return endTime > now ? 'upcoming' : 'past';
+    }
+    // Fallback to checking startDateTime if no endDateTime
     const now = new Date();
     const start = new Date(booking.startDateTime);
     return start > now ? 'upcoming' : 'past';
+  }
+
+  getBookingStatus(booking: any): string {
+    // If booking has ended, mark as completed
+    if (booking.endDateTime) {
+      const endTime = new Date(booking.endDateTime);
+      const now = new Date();
+      if (endTime <= now) {
+        return 'Completed';
+      }
+    }
+    return booking.status || 'Scheduled';
   }
 
   getBookingById(bookingId: number) {
@@ -142,5 +165,40 @@ export class MenteeBookingsComponent implements OnInit {
         this.router.navigate(['/mentee', this.menteeId, 'booking-details', id]);
       }
     });
+  }
+
+  // Cancel modal methods
+  confirmCancel(booking: any) {
+    this.bookingToCancel = booking;
+    this.showCancelModal = true;
+  }
+
+  closeCancelModal() {
+    this.showCancelModal = false;
+    this.bookingToCancel = null;
+  }
+
+  confirmCancelBooking() {
+    if (!this.bookingToCancel || !this.menteeId) return;
+    
+    const bookingId = this.bookingToCancel.bookingId || this.bookingToCancel.id;
+    this.http.delete(`/api/Bookings/${bookingId}`, {
+      headers: { 'Authorization': `Bearer ${this.getAuthToken()}` }
+    }).subscribe({
+      next: () => {
+        this.bookings = this.bookings.filter(b => 
+          (b.bookingId || b.id) !== bookingId
+        );
+        this.closeCancelModal();
+      },
+      error: (err) => {
+        console.error('Error cancelling booking:', err);
+        this.closeCancelModal();
+      }
+    });
+  }
+
+  private getAuthToken(): string {
+    return document.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1] || '';
   }
 }

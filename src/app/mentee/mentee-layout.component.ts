@@ -26,15 +26,16 @@ export class MenteeLayoutComponent implements OnInit, AfterViewInit {
   constructor(private router: Router, private route: ActivatedRoute) {}
 
   ngOnInit() {
-    if (!this.menteeId) {
-      // Try to get menteeId from route params if not provided as input
-      this.route.paramMap.subscribe(params => {
-        const id = params.get('menteeId');
-        if (id) {
-          this.menteeId = +id;
-        }
-      });
-    }
+    // Always try to get menteeId from route params
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('menteeId');
+      if (id) {
+        this.menteeId = +id;
+        console.log('MenteeLayoutComponent: menteeId set to', this.menteeId);
+      } else {
+        console.warn('MenteeLayoutComponent: menteeId not found in route params');
+      }
+    });
   }
 
   ngAfterViewInit(): void {

@@ -19,12 +19,14 @@ export class BookingFormComponent {
   sessionType: 'mentorship' | 'interview' | null = null;
   selectedDate: string | null = null;
   availableDates: string[] = []; // Example, replace with API
+  availableDays: string[] = []; // Available day names
   availableSlots: string[] = [];
   selectedSlot: string | null = null;
   price = 0;
   termsAccepted = false;
   paymentComplete = false;
   mentorId: number|null = null;
+  menteeId: number|null = null;
   mentor: any = null;
   showMentorship = false;
   showInterview = false;
@@ -37,25 +39,51 @@ export class BookingFormComponent {
     private http: HttpClient,
     private authService: AuthService
   ) {
+    // Get menteeId from route parameters
+    this.route.paramMap.subscribe(params => {
+      const menteeId = params.get('menteeId');
+      this.menteeId = menteeId ? +menteeId : null;
+      
+      // If no menteeId in route, try to get it from auth token
+      if (!this.menteeId) {
+        const token = document.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1];
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            this.menteeId = payload.menteeId || payload.userId || null;
+          } catch (e) {
+            console.error('Failed to parse token:', e);
+          }
+        }
+      }
+    });
+
     this.route.queryParams.subscribe(params => {
       if (params['mentorId']) {
         this.mentorId = +params['mentorId'];
+        console.log('Loading mentor information for ID:', this.mentorId); // Debug log
         // Fetch mentor details for session type and availability
-        this.http.get(`/api/mentors/${this.mentorId}`).subscribe({
+        this.http.get(`https://localhost:7001/api/mentors/${this.mentorId}`).subscribe({
           next: (mentor: any) => {
+            console.log('Mentor loaded successfully:', mentor); // Debug log
             this.mentor = mentor;
             // Defensive: handle boolean values and string 'true'/'false'
             this.showMentorship = mentor.isMentor === true || mentor.isMentor === 'true';
             this.showInterview = mentor.isInterviewer === true || mentor.isInterviewer === 'true';
             // Set available dates from availabilities
             this.availableDates = this.getAvailableDatesFromAvailabilities(mentor.availabilities);
+            // Set available days (day names)
+            this.availableDays = this.getAvailableDayNames(mentor.availabilities);
           },
-          error: _ => {
+          error: (error) => {
+            console.error('Failed to load mentor:', error); // Debug log
             this.mentor = null;
             this.showMentorship = false;
             this.showInterview = false;
           }
         });
+      } else {
+        console.warn('No mentorId found in query parameters'); // Debug log
       }
     });
   }
@@ -75,6 +103,14 @@ export class BookingFormComponent {
     return result;
   }
 
+  getAvailableDayNames(availabilities: any[]): string[] {
+    if (!availabilities || availabilities.length === 0) return [];
+    
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const uniqueDays = [...new Set(availabilities.map(a => a.dayOfWeek))];
+    return uniqueDays.map(dayOfWeek => dayNames[dayOfWeek]).filter(Boolean);
+  }
+
   // Example pricing logic
   get calculatedPrice() {
     return this.sessionType === 'interview' ? 100 : 60;
@@ -89,26 +125,95 @@ export class BookingFormComponent {
 
   selectDate(date: string) {
     this.selectedDate = date;
+    console.log('Selected date:', date); // Debug log
+    
     // Find slots for this date from mentor's availabilities
     this.availableSlots = this.getSlotsForDate(date);
+    console.log('Available slots for', date, ':', this.availableSlots); // Debug log
+    
     this.selectedSlot = null;
     this.nextStep();
   }
 
   getSlotsForDate(date: string): string[] {
-    if (!this.mentor || !this.mentor.availabilities) return [];
-    const d = new Date(date);
-    const dayOfWeek = d.getDay();
+    console.log('Getting slots for date:', date); // Debug log
+    console.log('Mentor object:', this.mentor); // Debug log
+    
+    if (!this.mentor || !this.mentor.availabilities) {
+      console.log('No mentor or availabilities found'); // Debug log
+      return [];
+    }
+    
+    let dayOfWeek: number;
+    
+    // Check if the date is a day name (like "Saturday") or a date string (like "2025-06-26")
+    const dayNameToNumber: { [key: string]: number } = {
+      'Sunday': 0,
+      'Monday': 1,
+      'Tuesday': 2,
+      'Wednesday': 3,
+      'Thursday': 4,
+      'Friday': 5,
+      'Saturday': 6
+    };
+
+    if (dayNameToNumber.hasOwnProperty(date)) {
+      // It's a day name
+      dayOfWeek = dayNameToNumber[date];
+      console.log('Converting day name', date, 'to day number:', dayOfWeek);
+    } else {
+      // It's a date string, parse it
+      const d = new Date(date);
+      dayOfWeek = d.getDay();
+      console.log('Parsing date string', date, 'to day number:', dayOfWeek);
+    }
+
+    console.log('Day of week for', date, ':', dayOfWeek); // Debug log
+    console.log('All availabilities:', this.mentor.availabilities); // Debug log
+
+    if (isNaN(dayOfWeek)) {
+      console.log('Invalid date or day name:', date); // Debug log
+      return [];
+    }
+    
     const slots: string[] = [];
-    (this.mentor.availabilities as Array<any>).filter((a: any) => a.dayOfWeek === dayOfWeek).forEach((a: any) => {
-      // Generate slots for each availability (hourly slots)
-      const start = parseInt(a.startTime.split(':')[0], 10);
-      const end = parseInt(a.endTime.split(':')[0], 10);
-      for (let h = start; h < end; h++) {
-        slots.push((h < 10 ? '0' : '') + h + ':00');
+    
+    // Filter availabilities for the selected day
+    const dayAvailabilities = this.mentor.availabilities.filter((a: any) => a.dayOfWeek === dayOfWeek);
+    console.log('Filtered availabilities for day', dayOfWeek, ':', dayAvailabilities); // Debug log
+    
+    dayAvailabilities.forEach((availability: any) => {
+      // Parse start and end times
+      const startTime = availability.startTime; // "09:00:00"
+      const endTime = availability.endTime;     // "12:00:00"
+      
+      console.log('Processing availability:', startTime, 'to', endTime); // Debug log
+      
+      const startHour = parseInt(startTime.split(':')[0], 10);
+      const endHour = parseInt(endTime.split(':')[0], 10);
+      
+      // Generate hourly time slots (e.g., "9:00-10:00", "10:00-11:00")
+      for (let hour = startHour; hour < endHour; hour++) {
+        const nextHour = hour + 1;
+        const timeSlot = `${hour}:00-${nextHour}:00`;
+        
+        // Avoid duplicates
+        if (!slots.includes(timeSlot)) {
+          slots.push(timeSlot);
+          console.log('Added slot:', timeSlot); // Debug log
+        }
       }
     });
-    return slots;
+    
+    // Sort slots by start time
+    const sortedSlots = slots.sort((a, b) => {
+      const aStart = parseInt(a.split(':')[0]);
+      const bStart = parseInt(b.split(':')[0]);
+      return aStart - bStart;
+    });
+    
+    console.log('Final sorted slots:', sortedSlots); // Debug log
+    return sortedSlots;
   }
 
   selectSessionType(type: 'mentorship' | 'interview') {
@@ -124,7 +229,7 @@ export class BookingFormComponent {
   completePayment() {
     // Check authentication
     const user = this.authService.currentUserValue;
-    const menteeId = user && user.userId ? user.userId : null;
+    const menteeId = user && user.userId ? user.userId : this.menteeId;
     if (!menteeId) {
       this.bookingError = 'You must be logged in to book a session.';
       this.router.navigate(['/login']);
@@ -138,23 +243,42 @@ export class BookingFormComponent {
       this.bookingError = 'Mentor info missing. Please try again.';
       return;
     }
-    // Construct start and end datetime (assume 1 hour slot for demo)
-    const startDateTime = `${this.selectedDate}T${this.selectedSlot}:00`;
-    const endDateTime = `${this.selectedDate}T${this.selectedSlot}:59`;
-    const booking = {
+
+    // Extract start and end time from selected slot (e.g., "9:00-10:00")
+    const [startTime, endTime] = this.selectedSlot.split('-');
+    const startDateTime = `${this.selectedDate}T${startTime}:00`;
+    const endDateTime = `${this.selectedDate}T${endTime}:00`;
+
+    // Create booking session data object
+    const bookingData = {
+      menteeId: menteeId,
+      mentorId: this.mentorId,
+      mentorName: this.mentor.firstName + ' ' + this.mentor.lastName,
       sessionType: this.sessionType,
+      selectedDate: this.selectedDate,
+      selectedSlot: this.selectedSlot,
       startDateTime,
-      endDateTime
+      endDateTime,
+      price: this.calculatedPrice,
+      mentorHourlyRate: this.mentor.hourlyRate || 0,
+      termsAccepted: this.termsAccepted,
+      timestamp: new Date().toISOString()
     };
-    this.menteeBookingservice.createBookingForMentee(menteeId, this.mentorId, booking).subscribe({
-      next: (response: any) => {
-        this.paymentComplete = true;
-        this.bookingError = null;
-        this.nextStep();
-      },
-      error: err => {
-        this.bookingError = 'Booking failed. Please try again.';
-      }
-    });
+
+    // Log booking session data to console
+    console.log('=== BOOKING SESSION DATA ===');
+    console.log('Booking Details:', bookingData);
+    console.log('===========================');
+
+    // Navigate to payment component with booking data
+    if (this.menteeId) {
+      this.router.navigate(['/mentee', this.menteeId, 'payment'], {
+        state: { bookingData: bookingData }
+      });
+    } else {
+      this.router.navigate(['/payment'], {
+        state: { bookingData: bookingData }
+      });
+    }
   }
 }

@@ -53,7 +53,7 @@ export class SignalrChatService {
         this.connectionState.next('Connected');
         this.setupEventListeners();
       })
-      .catch(err => {
+      .catch((err: any) => {
         console.error('❌ Error starting SignalR connection:', err);
         this.connectionState.next('Error');
         // Retry after 5 seconds
@@ -61,12 +61,12 @@ export class SignalrChatService {
       });
 
     // Setup automatic reconnection handlers
-    this.hubConnection.onclose(error => {
+    this.hubConnection.onclose((error: Error | undefined) => {
       console.log('SignalR connection closed. Error:', error);
       this.connectionState.next('Disconnected');
     });
 
-    this.hubConnection.onreconnecting(error => {
+    this.hubConnection.onreconnecting((error?: Error) => {
       console.log('SignalR reconnecting. Error:', error);
       this.connectionState.next('Reconnecting');
     });

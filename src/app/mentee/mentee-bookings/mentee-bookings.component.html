@@ -27,8 +27,15 @@
                   <span class="badge bg-danger me-1" *ngIf="booking.status==='Cancelled' || booking.status==='cancelled'">Cancelled</span>
                 </div>
                 <div class="d-flex gap-2 flex-wrap">
-                  <a *ngIf="booking.googleMeetLink" class="btn btn-success btn-sm" [href]="booking.googleMeetLink" target="_blank"><i class="bi bi-camera-video"></i> Join</a>
+                  <a *ngIf="booking.googleMeetLink && bookingTabDate(booking) === 'upcoming'" class="btn btn-success btn-sm" [href]="booking.googleMeetLink" target="_blank"><i class="bi bi-camera-video"></i> Join</a>
                   <button class="btn btn-outline-primary btn-sm" (click)="viewBookingDetails(booking)"><i class="bi bi-eye"></i> View Details</button>
+                  <button *ngIf="bookingTabDate(booking) === 'upcoming' && booking.status !== 'Cancelled' && booking.status !== 'cancelled'" 
+                          class="btn btn-outline-danger btn-sm" 
+                          data-bs-toggle="modal" 
+                          data-bs-target="#cancelModal"
+                          (click)="cancelBooking(booking)">
+                    <i class="bi bi-x-circle"></i> Cancel
+                  </button>
                 </div>
               </div>
             </div>
@@ -53,4 +60,32 @@
       </ng-template>
     </div>
   </main>
+</div>
+
+<!-- Cancel Booking Confirmation Modal -->
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="cancelModalLabel">Cancel Booking</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="bookingToCancel">
+          <p>Are you sure you want to cancel your <strong>{{bookingToCancel.sessionType || 'session'}}</strong> with <strong>{{bookingToCancel.mentorName}}</strong>?</p>
+          <div class="text-muted small">
+            <i class="bi bi-calendar-event me-1"></i> {{bookingToCancel.startDateTime | date:'medium'}}
+          </div>
+          <div class="alert alert-warning mt-3">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            This action cannot be undone. You may be charged a cancellation fee depending on the timing.
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keep Booking</button>
+        <button type="button" class="btn btn-danger" (click)="confirmCancelBooking()">Yes, Cancel Booking</button>
+      </div>
+    </div>
+  </div>
 </div>

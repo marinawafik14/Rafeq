@@ -1,233 +1,247 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { MenteeLayoutComponent } from '../mentee-layout.component';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MentorSearchService } from '../../Services/mentor-search.service';
-import { MentorProfile } from '../../Models/mentor-profile';
+import { HttpClient } from '@angular/common/http';
+import { ReviewService, MentorReview } from '../../Services/review.service';
 
 @Component({
   selector: 'app-mentor-profile-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, MenteeLayoutComponent],
+  imports: [CommonModule, MenteeLayoutComponent],
   templateUrl: './mentor-profile-view.component.html',
   styleUrls: ['./mentor-profile-view.component.css']
 })
 export class MentorProfileViewComponent implements OnInit {
-  mentor: MentorProfile | null = null;
+  mentor: any = null;
   mentorId: number | null = null;
   menteeId: number | null = null;
-  
-  // Pagination properties
-  currentPage: number = 1;
-  pageSize: number = 3;
-  
-  // Sorting properties
-  sortBy: string = 'date';
-  sortOrder: 'asc' | 'desc' = 'asc';
-  
-  // Layout properties
-  availabilityOnLeft: boolean = true;
+  reviews: MentorReview[] = [];
+  loading = true;
+
+  // Additional properties for enhanced UI
+  showAllReviews = false;
+  showAllSkills = false;
+  reviewsPerPage = 3;
+  isFavorite = false;
 
   constructor(
     private route: ActivatedRoute, 
-    private mentorSearchService: MentorSearchService, 
-    private router: Router
+    private http: HttpClient, 
+    public router: Router,
+    private reviewService: ReviewService
   ) {}
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
-      const mentorId = params.get('id');
+      // Get menteeId from route
       const menteeId = params.get('menteeId');
+      this.menteeId = menteeId ? +menteeId : null;
       
+      // If no menteeId in route, try to get it from auth token
+      if (!this.menteeId) {
+        const token = document.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1];
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            this.menteeId = payload.menteeId || payload.userId || null;
+          } catch (e) {
+            console.error('Failed to parse token:', e);
+          }
+        }
+      }
+      
+      // Get mentorId from route
+      const mentorId = params.get('id');
       if (mentorId) {
         this.mentorId = +mentorId;
+        this.loadMentorData();
       }
-      
-      if (menteeId) {
-        this.menteeId = +menteeId;
-      }
-      
-      if (this.mentorId) {
-        this.mentorSearchService.getMentorById(this.mentorId).subscribe({
-          next: (data: MentorProfile) => this.mentor = data,
-          error: (err: any) => {
-            console.error('Error fetching mentor data:', err);
-            this.mentor = null;
+    });
+  }
+
+  private loadMentorData() {
+    if (!this.mentorId) return;
+
+    this.loading = true;
+    
+    // Load mentor profile first
+    this.http.get(`https://localhost:7001/api/mentors/${this.mentorId}`).subscribe({
+      next: (mentorData) => {
+        this.mentor = mentorData;
+        console.log('Mentor data loaded:', this.mentor);
+        
+        // Then load reviews separately
+        this.reviewService.getMentorReviews(this.mentorId!).subscribe({
+          next: (reviews) => {
+            this.reviews = reviews;
+            console.log('Reviews loaded:', this.reviews);
+            this.loading = false;
+          },
+          error: (reviewError) => {
+            console.warn('Failed to load reviews (this is OK):', reviewError);
+            this.reviews = []; // Set empty array if reviews fail
+            this.loading = false;
           }
         });
+      },
+      error: (err) => {
+        console.error('Error loading mentor data:', err);
+        this.loading = false;
+        this.mentor = null;
+        this.reviews = [];
       }
     });
   }
 
-  getDayName(dayOfWeek: number): string {
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    return days[dayOfWeek] || 'Unknown';
+  hasAvailability(): boolean {
+    return this.mentor?.availabilities && this.mentor.availabilities.length > 0;
   }
 
-  getNextDateForDay(dayOfWeek: number): string {
-    const today = new Date();
-    const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  getGroupedAvailabilities(): any[] {
+    if (!this.mentor?.availabilities) return [];
     
-    let daysUntilTarget = dayOfWeek - currentDay;
+    const grouped = new Map();
     
-    // If the target day is today or in the past this week, get next week's occurrence
-    if (daysUntilTarget <= 0) {
-      daysUntilTarget += 7;
+    this.mentor.availabilities.forEach((availability: any) => {
+      const dayName = availability.dayName;
+      const timeSlot = this.formatTimeRange(availability.startTime, availability.endTime);
+      
+      if (grouped.has(dayName)) {
+        grouped.get(dayName).push(timeSlot);
+      } else {
+        grouped.set(dayName, [timeSlot]);
+      }
+    });
+    
+    return Array.from(grouped.entries()).map(([dayName, timeSlots]) => ({
+      dayName,
+      timeSlots
+    }));
+  }
+
+  private formatTimeRange(startTime: string, endTime: string): string {
+    const formatTime = (time: string) => {
+      const [hours, minutes] = time.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const hour12 = hour % 12 || 12;
+      return `${hour12}:${minutes} ${ampm}`;
+    };
+    
+    return `${formatTime(startTime)} - ${formatTime(endTime)}`;
+  }
+
+  // Image error handler
+  onImageError(event: any) {
+    event.target.src = '/images/default-avatar.png';
+  }
+
+  // Get mentor skills
+  getMentorSkills(): string[] {
+    if (this.mentor?.mentorSkills) {
+      return this.mentor.mentorSkills.map((skill: any) => 
+        typeof skill === 'string' ? skill : skill.name || skill.skillName
+      );
     }
-    
-    const targetDate = new Date(today);
-    targetDate.setDate(today.getDate() + daysUntilTarget);
-    
-    // Format as d-m-y
-    const day = targetDate.getDate();
-    const month = targetDate.getMonth() + 1; // getMonth() returns 0-11
-    const year = targetDate.getFullYear();
-    
-    return `${day}-${month}-${year}`;
+    return this.mentor?.skills || [];
   }
 
-  formatTime(time: string): string {
-    if (!time) return '';
-    
-    // Convert 24-hour format to 12-hour format
-    const [hours, minutes] = time.split(':');
-    const hour = parseInt(hours);
-    const ampm = hour >= 12 ? 'PM' : 'AM';
-    const displayHour = hour % 12 || 12;
-    
-    return `${displayHour}:${minutes} ${ampm}`;
+  // Calculate average rating
+  getAverageRating(): number {
+    if (!this.reviews || this.reviews.length === 0) return 0;
+    const sum = this.reviews.reduce((acc, review) => acc + review.rating, 0);
+    return Math.round((sum / this.reviews.length) * 10) / 10;
   }
 
-  trackByDay(index: number, availability: any): any {
-    return availability.availabilityId || index;
+  // Get star array for rating display
+  getStarArray(rating: number): boolean[] {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(i <= Math.floor(rating));
+    }
+    return stars;
   }
 
-  calculateWeeklyHours(availabilities: any[]): number {
-    if (!availabilities) return 0;
-    
-    let totalHours = 0;
-    availabilities.forEach(availability => {
-      if (availability.startTime && availability.endTime) {
-        const start = new Date(`1970-01-01T${availability.startTime}`);
-        const end = new Date(`1970-01-01T${availability.endTime}`);
-        const diffMs = end.getTime() - start.getTime();
-        const diffHours = diffMs / (1000 * 60 * 60);
-        totalHours += diffHours;
-      }
+  // Format review date
+  formatReviewDate(dateString: string): string {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
     });
-    
-    return Math.round(totalHours);
+  }
+
+  // Get displayed reviews based on showAllReviews flag
+  getDisplayedReviews(): MentorReview[] {
+    if (this.showAllReviews) {
+      return this.reviews;
+    }
+    return this.reviews.slice(0, this.reviewsPerPage);
+  }
+
+  // Get experience years (placeholder - can be calculated from mentor data)
+  getExperienceYears(): string {
+    // This would be calculated from mentor's experience data
+    return this.mentor?.experienceYears || '5+';
+  }
+
+  // Get sessions count (placeholder)
+  getSessionsCount(): string {
+    return this.mentor?.sessionsCompleted || '50+';
+  }
+
+  // Get response time (placeholder)
+  getResponseTime(): string {
+    return this.mentor?.responseTime || '< 2h';
+  }
+
+  // Toggle favorite status
+  toggleFavorite() {
+    this.isFavorite = !this.isFavorite;
+    // Here you would typically call an API to save the favorite status
+  }
+
+  // TrackBy functions for performance
+  trackByReview(index: number, review: MentorReview): number {
+    return review.id;
+  }
+
+  trackByAvailability(index: number, availability: any): string {
+    return availability.dayName;
+  }
+
+  trackByTimeSlot(index: number, timeSlot: string): string {
+    return timeSlot;
   }
 
   bookSession() {
-    if (this.mentorId && this.menteeId) {
-      this.router.navigate([`/mentee/${this.menteeId}/booking-form`], { 
-        queryParams: { mentorId: this.mentorId } 
+    if (this.mentorId && this.hasAvailability()) {
+      if (this.menteeId) {
+        // Navigate directly to the booking-form with menteeId
+        const navigationPath = ['/mentee', this.menteeId, 'booking-form'];
+        console.log('Navigating to booking form:', navigationPath); // Debug log
+        
+        this.router.navigate(navigationPath, { 
+          queryParams: { 
+            mentorId: this.mentorId,
+            mentorName: this.mentor?.fullName,
+            hourlyRate: this.mentor?.hourlyRate
+          } 
+        });
+      } else {
+        console.error('No menteeId available for navigation');
+        // Show an error message to the user instead of redirecting to login
+        alert('Unable to book session. Please log in again.');
+        this.router.navigate(['/login']);
+      }
+    } else {
+      console.log('Cannot book session:', {
+        mentorId: this.mentorId,
+        hasAvailability: this.hasAvailability(),
+        mentor: this.mentor
       });
     }
-  }
-
-  getSortedAvailabilities(): any[] {
-    if (!this.mentor?.availabilities) return [];
-    
-    const sorted = [...this.mentor.availabilities].sort((a, b) => {
-      let comparison = 0;
-      
-      switch (this.sortBy) {
-        case 'date':
-          const dateA = this.getDateForSorting(a.dayOfWeek);
-          const dateB = this.getDateForSorting(b.dayOfWeek);
-          comparison = dateA.getTime() - dateB.getTime();
-          break;
-        case 'day':
-          comparison = a.dayOfWeek - b.dayOfWeek;
-          break;
-        case 'time':
-          comparison = a.startTime.localeCompare(b.startTime);
-          break;
-      }
-      
-      return this.sortOrder === 'asc' ? comparison : -comparison;
-    });
-    
-    return sorted;
-  }
-
-  getPaginatedAvailabilities(): any[] {
-    const sorted = this.getSortedAvailabilities();
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    return sorted.slice(startIndex, endIndex);
-  }
-
-  getDateForSorting(dayOfWeek: number): Date {
-    const today = new Date();
-    const currentDay = today.getDay();
-    let daysUntilTarget = dayOfWeek - currentDay;
-    
-    if (daysUntilTarget <= 0) {
-      daysUntilTarget += 7;
-    }
-    
-    const targetDate = new Date(today);
-    targetDate.setDate(today.getDate() + daysUntilTarget);
-    return targetDate;
-  }
-
-  getTotalPages(): number {
-    return Math.ceil(this.getSortedAvailabilities().length / this.pageSize);
-  }
-
-  getPageNumbers(): number[] {
-    const totalPages = this.getTotalPages();
-    const pages: number[] = [];
-    
-    for (let i = 1; i <= totalPages; i++) {
-      pages.push(i);
-    }
-    
-    return pages;
-  }
-
-  getStartIndex(): number {
-    return (this.currentPage - 1) * this.pageSize;
-  }
-
-  getEndIndex(): number {
-    const endIndex = this.currentPage * this.pageSize;
-    const totalItems = this.getSortedAvailabilities().length;
-    return Math.min(endIndex, totalItems);
-  }
-
-  goToPage(page: number): void {
-    if (page >= 1 && page <= this.getTotalPages()) {
-      this.currentPage = page;
-    }
-  }
-
-  onPageSizeChange(): void {
-    this.currentPage = 1; // Reset to first page when page size changes
-  }
-
-  setSortBy(column: string): void {
-    if (this.sortBy === column) {
-      this.toggleSortOrder();
-    } else {
-      this.sortBy = column;
-      this.sortOrder = 'asc';
-    }
-  }
-
-  onSortChange(): void {
-    this.currentPage = 1; // Reset to first page when sorting changes
-  }
-
-  toggleSortOrder(): void {
-    this.sortOrder = this.sortOrder === 'asc' ? 'desc' : 'asc';
-  }
-
-  toggleLayout(): void {
-    this.availabilityOnLeft = !this.availabilityOnLeft;
   }
 }

@@ -5,9 +5,7 @@
   padding: 0;
   box-sizing: border-box;
   font-family: "Poppins", sans-serif;
-}
-body, html {
-  background: transparent !important;
+
 }
 .sidebar {
   position: fixed;
@@ -15,7 +13,7 @@ body, html {
   left: 0;
   height: 100%;
   width: 260px;
-  background: #11101d;
+  background: linear-gradient(to right , #020e21,#0a2e65); /* Modern gradient */
   z-index: 100;
   transition: all 0.5s ease;
   color: #e4e9f7;
@@ -212,29 +210,39 @@ body, html {
 .sidebar .profile-details .job {
   font-size: 12px;
 }
-.main-content {
+.home-section {
   position: relative;
+  /*background: #e4e9f7;*/
   height: 100vh;
   left: 260px;
   width: calc(100% - 260px);
   transition: all 0.5s ease;
-  background: transparent;
-  padding: 0;
-  margin: 0;
 }
-.sidebar.close ~ .main-content {
+.sidebar.close ~ .home-section {
   left: 78px;
   width: calc(100% - 78px);
 }
-.main-content .bx-menu {
+.home-section .home-content {
+  height: 60px;
+  display: flex;
+  align-items: center;
+}
+.home-content{
+  position: absolute;
+    padding: 0px 0 80px;
+}
+.home-section .home-content .bx-menu,
+.home-section .home-content .text {
   color: #11101d;
   font-size: 35px;
-  margin: 15px;
+}
+.home-section .home-content .bx-menu {
+  margin: 0 15px;
   cursor: pointer;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 99;
+}
+.home-section .home-content .text {
+  font-size: 26px;
+  font-weight: 600;
 }
 @media (max-width: 420px) {
   .sidebar.close .nav-links li .sub-menu {
@@ -247,10 +255,11 @@ body, html {
   flex-direction: column;
   flex: 1;
   min-height: 100%;
-  background: transparent !important;
 }
 
-.main-content {
+.home-section,
+.home-content,
+.container.my-4 {
   flex: 1;
   display: flex;
   flex-direction: column;

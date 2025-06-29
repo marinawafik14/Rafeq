@@ -1,74 +1,374 @@
 <div class="mentee-page d-flex">
-  <mentee-layout>
-    <div class="container py-4">
-      <div class="row">
-        <aside class="col-md-3 mb-4">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h5 class="card-title">Filter by Skills</h5>
-              <div *ngFor="let skill of skills" class="form-check mb-2">
-                <input class="form-check-input" type="checkbox" [id]="'skill-' + skill.SkillId" (change)="onSkillChange(skill.SkillId, $event)">
-                <label class="form-check-label" [for]="'skill-' + skill.SkillId">{{ skill.Name }}</label>
-              </div>
-              <h5 class="card-title mt-4">Price Range</h5>
-              <div class="input-group mb-2">
-                <span class="input-group-text">Min</span>
-                <input type="number" class="form-control" placeholder="Min" (change)="onMinPriceChange($event)">
-              </div>
-              <div class="input-group mb-2">
-                <span class="input-group-text">Max</span>
-                <input type="number" class="form-control" placeholder="Max" (change)="onMaxPriceChange($event)">
-              </div>
-              <h5 class="card-title mt-4">Minimum Rating</h5>
-              <select class="form-select mb-2" (change)="onRatingChange($event)">
-                <option value="">Any</option>
-                <option *ngFor="let r of [5,4,3,2,1]" [value]="r">{{r}}+</option>
-              </select>
-              <h5 class="card-title mt-4">Sort By</h5>
-              <select class="form-select" (change)="onSortChange($event)">
-                <option *ngFor="let opt of sortOptions" [value]="opt.value">{{opt.label}}</option>
-              </select>
-            </div>
-          </div>
-        </aside>
-        <main class="col-md-9">
-          <div class="d-flex justify-content-between align-items-center mb-3">
+  <mentee-layout [menteeId]="menteeId">
+    <div class="search-mentors-wrapper">
+      <div class="container-fluid py-4">
+        <!-- Page Header -->
+        <div class="page-header mb-4">
+          <div class="d-flex align-items-center justify-content-between">
             <div>
-              <button class="btn me-2 mentor-toggle-btn" (click)="toggleView('grid')" [class.active]="viewMode==='grid'" style="border:2px solid #0a2e65;color:#0a2e65;background:#fff;">
-                <i class="bi bi-grid-3x3-gap"></i> Grid
-              </button>
-              <button class="btn mentor-toggle-btn" (click)="toggleView('list')" [class.active]="viewMode==='list'" style="border:2px solid #0a2e65;color:#0a2e65;background:#fff;">
-                <i class="bi bi-list"></i> List
-              </button>
+              <h2 class="page-title mb-1">
+                <i class="bi bi-people-fill me-2 text-primary"></i>
+                Find Your Perfect Mentor
+              </h2>
+              <p class="page-subtitle text-muted">Connect with experienced professionals to advance your career</p>
             </div>
-            <div *ngIf="isLoading" class="fw-bold" style="color:#0a2e65;">Loading...</div>
           </div>
-          <div *ngIf="emptyState && !isLoading" class="alert alert-warning text-center">No mentors found. Try adjusting your filters.</div>
-          <div *ngIf="!emptyState && !isLoading">
-            <div class="row g-3">
-              <div *ngFor="let mentor of mentors" class="col-md-6 col-lg-4">
-                <div class="card h-100 shadow-sm mentor-card text-center p-3" style="cursor:pointer" (click)="viewMentorProfile(mentor.userId)">
-                  <img [src]="mentor.profilePicture || 'assets/default-profile.png'" alt="Profile" class="card-img-top mx-auto mb-2" style="width:80px;height:80px;object-fit:cover;border-radius:50%;border:2px solid #eee;">
-                  <div class="card-body p-2">
-                    <div class="fw-bold">{{mentor.fullName}}</div>
-                    <div class="text-muted mb-1">${{mentor.hourlyRate}}/hr</div>
-                    <div *ngIf="mentor.rating">
-                      <span class="badge bg-warning text-dark me-1 mb-1"><i class="bi bi-star-fill"></i> {{mentor.rating}}/5</span>
+        </div>
+
+        <div class="row g-4">
+          <!-- Enhanced Sidebar -->
+          <aside class="col-lg-3">
+            <div class="filters-sidebar">
+              <!-- Skills Filter Card -->
+              <div class="filter-card mb-4">
+                <div class="filter-card-header">
+                  <h5 class="filter-title">
+                    <i class="bi bi-code-slash me-2"></i>Skills & Technologies
+                  </h5>
+                </div>
+                <div class="filter-card-body">
+                  <div class="search-input-wrapper mb-3">
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-0">
+                        <i class="bi bi-search text-muted"></i>
+                      </span>
+                      <input type="text" class="form-control border-0 shadow-none" 
+                             placeholder="Search skills..." 
+                             [(ngModel)]="skillSearchTerm" (input)="filterSkills()">
                     </div>
-                    <div *ngIf="mentor.skills.length; else noSkills">
-                      <span class="badge me-1 mb-1" *ngFor="let skill of mentor.skills" style="background:#fff;color:#0a2e65;border:1px solid #0a2e65;">{{skill.Name}}</span>
+                  </div>
+                  
+                  <div class="skills-container">
+                    <!-- Debug info -->
+                    <div *ngIf="filteredSkills.length === 0 && !skillSearchTerm" 
+                         class="empty-skills-notice">
+                      <i class="bi bi-info-circle me-1"></i>
+                      No skills available (Total: {{skills.length}})
                     </div>
-                    <ng-template #noSkills>
-                      <span class="text-muted small">No skills listed</span>
-                    </ng-template>
-                    <!-- <div *ngIf="mentor.bio" class="mt-2 small text-muted">{{mentor.bio}}</div> -->
-                    <div *ngIf="mentor.email" class="mt-1 small"><i class="bi bi-envelope"></i> {{mentor.email}}</div>
+                    
+                    <div *ngFor="let skill of filteredSkills; trackBy: trackBySkillId" class="skill-checkbox-item">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" 
+                               [id]="'skill-' + skill.SkillId" 
+                               [checked]="isSkillSelected(skill.SkillId)"
+                               (change)="onSkillChange(skill.SkillId, $event)">
+                        <label class="form-check-label" [for]="'skill-' + skill.SkillId">
+                          {{ skill.Name }}
+                        </label>
+                      </div>
+                    </div>
+                    
+                    <div *ngIf="filteredSkills.length === 0 && skillSearchTerm" 
+                         class="no-results-notice">
+                      <i class="bi bi-search me-1"></i>
+                      No skills found for "{{skillSearchTerm}}"
+                    </div>
+                  </div>
+                  
+                  <!-- Selected Skills Display -->
+                  <div *ngIf="getSelectedSkills().length > 0" class="selected-skills-section">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                      <small class="text-muted fw-medium">Selected Skills:</small>
+                      <button class="btn btn-link btn-sm p-0 text-decoration-none" (click)="clearSkillFilters()">
+                        <small><i class="bi bi-x-circle me-1"></i>Clear all</small>
+                      </button>
+                    </div>
+                    <div class="selected-skills-tags">
+                      <span *ngFor="let skill of getSelectedSkills()" class="skill-tag">
+                        {{skill.Name}}
+                        <i class="bi bi-x" (click)="removeSkillFilter(skill.SkillId)"></i>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Price Range Filter Card -->
+              <div class="filter-card mb-4">
+                <div class="filter-card-header">
+                  <h5 class="filter-title">
+                    <i class="bi bi-currency-dollar me-2"></i>Price Range
+                  </h5>
+                </div>
+                <div class="filter-card-body">
+                  <div class="price-inputs">
+                    <div class="input-group mb-3">
+                      <span class="input-group-text bg-light border-0">Min $</span>
+                      <input type="number" class="form-control border-0 shadow-none" 
+                             placeholder="0" [(ngModel)]="minPrice" (change)="onMinPriceChange($event)">
+                    </div>
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-0">Max $</span>
+                      <input type="number" class="form-control border-0 shadow-none" 
+                             placeholder="∞" [(ngModel)]="maxPrice" (change)="onMaxPriceChange($event)">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Rating Filter Card -->
+              <div class="filter-card mb-4">
+                <div class="filter-card-header">
+                  <h5 class="filter-title">
+                    <i class="bi bi-star-fill me-2"></i>Minimum Rating
+                  </h5>
+                </div>
+                <div class="filter-card-body">
+                  <select class="form-select border-0 shadow-none" [(ngModel)]="minRating" (change)="onRatingChange($event)">
+                    <option value="">Any Rating</option>
+                    <option *ngFor="let r of [5,4,3,2,1]" [value]="r">
+                      {{r}}+ <span class="rating-stars">★</span>
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Sort Options Card -->
+              <div class="filter-card mb-4">
+                <div class="filter-card-header">
+                  <h5 class="filter-title">
+                    <i class="bi bi-sort-down me-2"></i>Sort By
+                  </h5>
+                </div>
+                <div class="filter-card-body">
+                  <select class="form-select border-0 shadow-none" [(ngModel)]="sortBy" (change)="onSortChange($event)">
+                    <option *ngFor="let opt of sortOptions" [value]="opt.value">{{opt.label}}</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Clear All Button -->
+              <div class="clear-filters-section" *ngIf="hasActiveFilters()">
+                <button class="btn btn-outline-danger w-100" (click)="clearAllFilters()">
+                  <i class="bi bi-arrow-clockwise me-2"></i>Clear All Filters
+                </button>
+              </div>
+            </div>
+          </aside>
+          <!-- Enhanced Main Content -->
+          <main class="col-lg-9">
+            <!-- Search Header Card -->
+            <div class="search-header-card mb-4">
+              <div class="search-header-body">
+                <div class="search-title-section mb-3">
+                  <h4 class="search-title">
+                    <i class="bi bi-search me-2"></i>Search & Filter Mentors
+                    <span *ngIf="hasActiveFilters()" class="active-filters-badge">
+                      {{getActiveFiltersCount()}} active
+                    </span>
+                  </h4>
+                </div>
+                
+                <div class="search-controls-row">
+                  <div class="search-input-section">
+                    <div class="enhanced-search-input">
+                      <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0">
+                          <i class="bi bi-person-search text-primary"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0 shadow-none" 
+                               placeholder="Search by mentor name..." 
+                               [(ngModel)]="searchName" (input)="onSearchChange()">
+                        <button *ngIf="searchName" class="btn btn-outline-secondary border-start-0" 
+                                type="button" (click)="clearSearch()">
+                          <i class="bi bi-x"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="results-per-page-section">
+                    <div class="d-flex align-items-center">
+                      <label class="form-label me-2 mb-0 text-muted small">Show:</label>
+                      <select class="form-select form-select-sm border-0 shadow-none" 
+                              [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+                        <option [value]="3">3 per page</option>
+                        <option [value]="6">6 per page</option>
+                        <option [value]="12">12 per page</option>
+                        <option [value]="24">24 per page</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Enhanced Active Filters Display -->
+                <div *ngIf="hasActiveFilters()" class="active-filters-section">
+                  <div class="active-filters-header">
+                    <small class="text-muted fw-medium">
+                      <i class="bi bi-funnel me-1"></i>Active Filters:
+                    </small>
+                    <button class="btn btn-link btn-sm p-0 ms-2 text-decoration-none" (click)="clearAllFilters()">
+                      <small><i class="bi bi-x-circle me-1"></i>Clear All</small>
+                    </button>
+                  </div>
+                  <div class="active-filters-tags">
+                    <span *ngIf="searchName" class="filter-tag filter-tag-search">
+                      <i class="bi bi-person me-1"></i>{{searchName}}
+                      <i class="bi bi-x ms-1" (click)="clearSearch()"></i>
+                    </span>
+                    <span *ngIf="minPrice" class="filter-tag filter-tag-price">
+                      <i class="bi bi-currency-dollar me-1"></i>Min: ${{minPrice}}
+                      <i class="bi bi-x ms-1" (click)="clearPriceFilter('min')"></i>
+                    </span>
+                    <span *ngIf="maxPrice" class="filter-tag filter-tag-price">
+                      <i class="bi bi-currency-dollar me-1"></i>Max: ${{maxPrice}}
+                      <i class="bi bi-x ms-1" (click)="clearPriceFilter('max')"></i>
+                    </span>
+                    <span *ngIf="minRating" class="filter-tag filter-tag-rating">
+                      <i class="bi bi-star-fill me-1"></i>{{minRating}}+ stars
+                      <i class="bi bi-x ms-1" (click)="clearRatingFilter()"></i>
+                    </span>
+                    <span *ngFor="let skill of getSelectedSkills()" class="filter-tag filter-tag-skill">
+                      <i class="bi bi-code-slash me-1"></i>{{skill.Name}}
+                      <i class="bi bi-x ms-1" (click)="removeSkillFilter(skill.SkillId)"></i>
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-        </main>
+
+            <!-- Results Summary & Actions -->
+            <div class="results-summary-section mb-4">
+              <div class="d-flex align-items-center justify-content-between">
+                <div class="results-info">
+                  <div *ngIf="isLoading" class="loading-indicator">
+                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <span class="text-muted">Finding mentors...</span>
+                  </div>
+                  <div *ngIf="!isLoading && totalItems > 0" class="results-count">
+                    <span class="text-muted">
+                      <strong>{{startItem}}-{{endItem}}</strong> of <strong>{{totalItems}}</strong> mentors found
+                    </span>
+                  </div>
+                </div>
+                
+                <div class="action-buttons">
+                  <div *ngIf="hasActiveFilters()" class="me-2">
+                    <button class="btn btn-outline-primary btn-sm" (click)="clearAllFilters()">
+                      <i class="bi bi-funnel me-1"></i>Clear All Filters
+                    </button>
+                  </div>
+                  <div *ngIf="!hasActiveFilters()">
+                    <button class="btn btn-outline-secondary btn-sm" (click)="refresh()">
+                      <i class="bi bi-arrow-clockwise me-1"></i>Refresh
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Enhanced Results Section -->
+            <div class="mentors-results-section">
+              <!-- Empty State -->
+              <div *ngIf="emptyState && !isLoading" class="empty-state-card">
+                <div class="empty-state-content">
+                  <div class="empty-state-icon">
+                    <i class="bi bi-search"></i>
+                  </div>
+                  <h5 class="empty-state-title">No mentors found</h5>
+                  <p class="empty-state-message">
+                    Try adjusting your search criteria or clearing some filters to see more results.
+                  </p>
+                  <button class="btn btn-primary" (click)="clearAllFilters()">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Clear All Filters
+                  </button>
+                </div>
+              </div>
+
+              <!-- Mentors Grid -->
+              <div *ngIf="!emptyState && !isLoading" class="mentors-grid">
+                <div class="row g-4">
+                  <div *ngFor="let mentor of mentors; trackBy: trackByMentorId" class="col-xl-4 col-lg-6 col-md-6">
+                    <div class="mentor-card-enhanced" (click)="viewMentorProfile(mentor.userId)">
+                      <div class="mentor-card-header">
+                        <div class="mentor-avatar-section">
+                          <img [src]="mentor.profilePicture || '/images/default-avatar.png'" 
+                               alt="{{mentor.fullName}}" class="mentor-avatar"
+                               (error)="onImageError($event)">
+                          <div *ngIf="mentor.rating" class="mentor-rating-badge">
+                            <i class="bi bi-star-fill"></i>
+                            {{mentor.rating}}
+                          </div>
+                        </div>
+                        <div class="mentor-basic-info">
+                          <h5 class="mentor-name">{{mentor.fullName}}</h5>
+                          <div class="mentor-price">
+                            <i class="bi bi-currency-dollar"></i>
+                            <span class="price-value">${{mentor.hourlyRate}}</span>
+                            <span class="price-unit">/hour</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="mentor-card-body">
+                        <div class="mentor-skills-section">
+                          <div *ngIf="mentor.skills.length > 0; else noSkillsTemplate" class="skills-list">
+                            <span *ngFor="let skill of mentor.skills.slice(0, 4); trackBy: trackBySkillName" 
+                                  class="skill-badge">
+                              {{skill.Name}}
+                            </span>
+                            <span *ngIf="mentor.skills.length > 4" class="more-skills-badge">
+                              +{{mentor.skills.length - 4}} more
+                            </span>
+                          </div>
+                          <ng-template #noSkillsTemplate>
+                            <div class="no-skills-notice">
+                              <i class="bi bi-info-circle me-1"></i>
+                              <span>No skills listed</span>
+                            </div>
+                          </ng-template>
+                        </div>
+                      </div>
+                      
+                      <div class="mentor-card-footer">
+                        <button class="btn btn-primary btn-sm w-100" (click)="viewMentorProfile(mentor.userId); $event.stopPropagation()">
+                          <i class="bi bi-eye me-1"></i>View Profile
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Enhanced Pagination -->
+            <div class="pagination-section" *ngIf="totalItems > 0 && !isLoading">
+              <div class="pagination-info">
+                <div class="pagination-summary">
+                  <span class="text-muted">
+                    Showing <strong>{{startItem}}</strong> to <strong>{{endItem}}</strong> of <strong>{{totalItems}}</strong> mentors
+                  </span>
+                </div>
+              </div>
+              
+              <nav *ngIf="totalPages > 1" aria-label="Mentor pagination" class="mt-3">
+                <ul class="pagination pagination-enhanced justify-content-center">
+                  <li class="page-item" [class.disabled]="currentPage === 1">
+                    <button class="page-link" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+                      <i class="bi bi-chevron-left"></i>
+                      <span class="d-none d-sm-inline">Previous</span>
+                    </button>
+                  </li>
+                  
+                  <li class="page-item" 
+                      [class.active]="page === currentPage" 
+                      *ngFor="let page of getPaginationRange(currentPage, totalPages)">
+                    <button class="page-link" (click)="goToPage(page)">{{page}}</button>
+                  </li>
+                  
+                  <li class="page-item" [class.disabled]="currentPage === totalPages">
+                    <button class="page-link" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
+                      <span class="d-none d-sm-inline">Next</span>
+                      <i class="bi bi-chevron-right"></i>
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            </div>
+          </main>
+        </div>
       </div>
     </div>
   </mentee-layout>
