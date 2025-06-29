@@ -1,0 +1,36 @@
+<div class="notification-badge-container" (click)="toggleDropdown($event)">
+  <!-- Bell Icon with Badge -->
+  <div class="notification-bell" [class.has-notifications]="unreadCount > 0">
+    <i class="fas fa-bell"></i>
+    <span *ngIf="unreadCount > 0" 
+          class="notification-count"
+          [class.large-count]="unreadCount > 99">
+      {{ unreadCount > 99 ? '99+' : unreadCount }}
+    </span>
+  </div>
+
+  <!-- Simple Dropdown (Optional) -->
+  <div *ngIf="showDropdown" class="notification-dropdown">
+    <div class="dropdown-header">
+      <h6 class="mb-1">Notifications</h6>
+      <span class="text-muted small">{{ unreadCount }} unread</span>
+    </div>
+    
+    <div class="dropdown-body">
+      <div class="text-center py-3">
+        <i class="fas fa-bell fa-2x text-muted mb-2"></i>
+        <p class="text-muted small mb-2">View all notifications</p>
+        <a routerLink="/notifications" 
+           class="btn btn-primary btn-sm"
+           (click)="navigateToNotifications()">
+          View All
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Backdrop to close dropdown -->
+<div *ngIf="showDropdown" 
+     class="dropdown-backdrop" 
+     (click)="closeDropdown()"></div>

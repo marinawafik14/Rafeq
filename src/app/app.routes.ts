@@ -34,6 +34,7 @@ import { ChatComponent } from './features/chat/chat.component';
 import { ProfileRedirectComponent } from './Auth/Userprofile/profile-redirect/profile-redirect.component';
 import { MentorProfileComponent } from './Auth/Userprofile/mentor-profile/mentor-profile.component';
 import { MenteeProfileComponent } from './Auth/Userprofile/mentee-profile/mentee-profile.component';
+import { NotificationsComponent } from './features/notifications/notifications.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -83,7 +84,10 @@ export const routes: Routes = [
 
   // Chat routes
   { path: 'chat', component: ChatComponent },
-  { path: 'chat/:bookingId', component: ChatComponent }
+  { path: 'chat/:bookingId', component: ChatComponent },
+
+  // Notifications route
+  { path: 'notifications', component: NotificationsComponent }
 ];
 
 

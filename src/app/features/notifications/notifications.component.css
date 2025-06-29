@@ -1,0 +1,105 @@
+.notification-item {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+}
+
+.notification-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.notification-item.unread {
+  background: linear-gradient(135deg, #f8f9ff 0%, #e3f2fd 100%);
+  border-left-color: #007bff;
+}
+
+.notification-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.notification-icon[data-type="SessionReminder"] {
+  background: #e3f2fd;
+  color: #1976d2;
+}
+
+.notification-icon[data-type="NewBooking"] {
+  background: #e8f5e8;
+  color: #388e3c;
+}
+
+.notification-icon[data-type="NewReview"] {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.notification-icon[data-type="PaymentConfirmed"] {
+  background: #e1f5fe;
+  color: #0277bd;
+}
+
+.notification-icon[data-type="BookingCancelled"] {
+  background: #ffebee;
+  color: #d32f2f;
+}
+
+.notification-icon[data-type="SystemNotification"] {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.notification-icon i {
+  font-size: 18px;
+}
+
+.notification-content .notification-message {
+  line-height: 1.4;
+  color: #333;
+}
+
+.notification-item.unread .notification-message {
+  font-weight: 600;
+}
+
+.unread-indicator {
+  width: 8px;
+  height: 8px;
+  background: #007bff;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.notification-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .notification-item .d-flex {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .notification-icon {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .notification-icon i {
+    font-size: 16px;
+  }
+}
