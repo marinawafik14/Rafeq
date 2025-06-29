@@ -4,10 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
+import { environment } from '../../environments/environment.development';
 
 import { ChatService } from '../../Services/chat.service';
 import { SignalrChatService } from '../../Services/signalr-chat.service';
 import { AuthService } from '../../Services/auth.service'; 
+import { ProfileService } from '../../Services/profile.service'; 
 import { ChatMessage } from '../../Models/Chat/chat-message';
 import { ChatConversation } from '../../Models/Chat/chat-conversation';
 import { ConversationParticipants } from '../../Models/Chat/conversation-participants';
@@ -70,12 +72,15 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   editingMessageId: number | null = null;
   editedMessageText: string = '';
 
+  private apiUrl = environment.apiUrl;
+
   constructor(
     private chatService: ChatService,
     private signalrService: SignalrChatService,
     private route: ActivatedRoute,
     private router: Router,
-    private authService: AuthService // Add this import
+    private authService: AuthService,
+    private profileService: ProfileService // Add this service
   ) {
     // Use AuthService to get the current user ID properly
     const currentUser = this.authService.currentUserValue;
@@ -153,45 +158,49 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   private setupSignalRListeners(): void {
-    // New message received
+    console.log('🔗 Setting up SignalR listeners...');
+
+    // Message received (for attachments and new messages)
     const messageReceivedSub = this.signalrService.messageReceived$.subscribe(message => {
-      if (message && this.selectedConversation) {
-        // Add message to current conversation if it belongs here
-        const messageConversation = this.conversations.find(c => c.conversationId === message.conversationId);
+      console.log('📨 SignalR: New message received:', message);
+      
+      if (message && this.selectedConversation && message.senderId !== this.currentUserId) {
+        // Only add messages from OTHER users via SignalR
+        if (message.bookingId === this.selectedConversation.bookingId) {
+          console.log('➕ Adding message from other user to current conversation');
+          this.messages.push(message);
+          this.shouldScrollToBottom = true;
+          
+          // Mark as read since it's not from current user
+          this.markMessageAsRead(message.messageId);
+        }
+        
+        // Update conversation list
+        const messageConversation = this.conversations.find(c => c.bookingId === message.bookingId);
         if (messageConversation) {
-          // Update conversation last message
           messageConversation.lastMessage = {
             messageId: message.messageId,
-            messageText: message.messageText,
+            messageText: message.messageText || '[Attachment]',
             senderId: message.senderId,
             sentAt: message.sentAt,
             isRead: false
           };
           messageConversation.lastMessageAt = message.sentAt;
           
-          // If it's the selected conversation, add to messages
-          if (messageConversation.conversationId === this.selectedConversation.conversationId) {
-            this.messages.push(message);
-            this.shouldScrollToBottom = true;
-            
-            // Mark as read if not from current user
-            if (message.senderId !== this.currentUserId) {
-              this.markMessageAsRead(message.messageId);
-            }
-          } else {
-            // Update unread count for other conversations
+          if (messageConversation.bookingId !== this.selectedConversation?.bookingId) {
             messageConversation.unreadCount++;
           }
         }
       }
     });
 
-    // User typing
+    // Typing indicators
     const typingSub = this.signalrService.userTyping$.subscribe(data => {
+      console.log('⌨️ SignalR: Typing indicator:', data);
+      
       if (data && data.userId !== this.currentUserId) {
         this.typingUsers[data.userId] = data.isTyping;
         
-        // Clear typing after 3 seconds if still typing
         if (data.isTyping) {
           setTimeout(() => {
             this.typingUsers[data.userId] = false;
@@ -200,20 +209,94 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       }
     });
 
-    this.subscriptions.push(messageReceivedSub, typingSub);
-
-    this.signalrService.messageReaction$.subscribe(reaction => {
+    // Message reactions
+    const reactionSub = this.signalrService.messageReaction$.subscribe(reaction => {
+      console.log('👍 SignalR: Message reaction received:', reaction);
+      
       if (reaction && this.messages) {
         const msg = this.messages.find(m => m.messageId === reaction.messageId);
         if (msg) {
-          // Option 1: Push the new reaction
-          msg.reactions = msg.reactions || [];
-          msg.reactions.push(reaction);
-          // Option 2: Or reload all reactions for this message
-          // this.chatService.getMessageReactions(msg.messageId).subscribe(reactions => msg.reactions = reactions);
+          this.chatService.getMessageReactions(msg.messageId).subscribe(reactions => {
+            msg.reactions = reactions;
+          });
         }
       }
     });
+
+    // IMPROVED: Message deletion
+    const messageDeletedSub = this.signalrService.messageDeleted$.subscribe(data => {
+      console.log('🗑️ SignalR: Message deleted event received:', data);
+      
+      if (data && this.messages) {
+        let messageIdToDelete = data.messageId;
+        let bookingIdToCheck = data.bookingId;
+        
+        // If bookingId is 0, use current conversation's bookingId
+        if (bookingIdToCheck === 0 && this.selectedConversation) {
+          bookingIdToCheck = this.selectedConversation.bookingId;
+        }
+        
+        console.log(`🗑️ Attempting to delete message ${messageIdToDelete} from booking ${bookingIdToCheck}`);
+        
+        // Only process if it's for current conversation OR if we have a valid bookingId
+        if (!this.selectedConversation || bookingIdToCheck === this.selectedConversation.bookingId) {
+          const messageIndex = this.messages.findIndex(m => m.messageId === messageIdToDelete);
+          if (messageIndex > -1) {
+            console.log('✅ Removing message from UI via SignalR');
+            this.messages.splice(messageIndex, 1);
+            
+            // Update conversation last message if needed
+            this.updateConversationLastMessage();
+          } else {
+            console.log('⚠️ Message not found in current messages list');
+          }
+        }
+      }
+    });
+
+    // IMPROVED: Message editing
+    const messageEditedSub = this.signalrService.messageEdited$.subscribe(editedMessage => {
+      console.log('✏️ SignalR: Message edited event received:', editedMessage);
+      
+      if (editedMessage && this.messages && editedMessage.senderId !== this.currentUserId) {
+        // Only handle edits from OTHER users
+        const messageIndex = this.messages.findIndex(m => m.messageId === editedMessage.messageId);
+        if (messageIndex > -1) {
+          console.log('✅ Updating message from other user via SignalR');
+          this.messages[messageIndex] = { ...this.messages[messageIndex], ...editedMessage };
+          
+          // Update conversation last message if needed
+          this.updateConversationLastMessage();
+        }
+      }
+    });
+
+    this.subscriptions.push(
+      messageReceivedSub, 
+      typingSub, 
+      reactionSub,
+      messageDeletedSub,
+      messageEditedSub
+    );
+  }
+
+  // Add this helper method:
+  private updateConversationLastMessage(): void {
+    if (!this.selectedConversation || this.messages.length === 0) return;
+
+    const lastMessage = this.messages[this.messages.length - 1];
+    const conversation = this.conversations.find(c => c.bookingId === this.selectedConversation!.bookingId);
+    
+    if (conversation && lastMessage) {
+      conversation.lastMessage = {
+        messageId: lastMessage.messageId,
+        messageText: lastMessage.messageText || '[Attachment]',
+        senderId: lastMessage.senderId,
+        sentAt: lastMessage.sentAt,
+        isRead: lastMessage.isRead
+      };
+      conversation.lastMessageAt = lastMessage.sentAt;
+    }
   }
 
   private async loadConversations(): Promise<void> {
@@ -690,12 +773,47 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       cancelButtonColor: '#3085d6',
       confirmButtonText: 'Delete'
     });
+    
     if (result.isConfirmed) {
       try {
+        console.log('🗑️ Deleting message:', message.messageId);
+
         await this.chatService.deleteMessage(message.messageId).toPromise();
-        await this.loadMessages();
-      } catch (err) {
-        Swal.fire('Error', 'Failed to delete message.', 'error');
+        
+        console.log('✅ Message deleted successfully');
+        
+        // Update UI immediately
+        const messageIndex = this.messages.findIndex(m => m.messageId === message.messageId);
+        if (messageIndex > -1) {
+          this.messages.splice(messageIndex, 1);
+          console.log('✅ Message removed from UI');
+        }
+        
+        // Update conversation last message if needed
+        this.updateConversationLastMessage();
+        
+        // Show success notification
+        Swal.fire({
+          icon: 'success',
+          title: 'Deleted!',
+          text: 'Message has been deleted successfully.',
+          timer: 2000,
+          showConfirmButton: false,
+          toast: true,
+          position: 'top-end'
+        });
+          
+      } catch (err: any) {
+        console.error('❌ Error deleting message:', err);
+        
+        const errorMessage = err?.error?.message || err?.message || 'Failed to delete message';
+        
+        Swal.fire({
+          icon: 'error',
+          title: 'Failed to Delete',
+          text: errorMessage,
+          confirmButtonColor: '#0a2e65'
+        });
       }
     }
   }
@@ -806,14 +924,43 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   getUserProfilePicture(conversation: ChatConversation): string {
+    if (!conversation) return this.getDefaultAvatarPath();
+    
+    let profilePicUrl = '';
+    
     // Show the OTHER participant's profile picture
     if (this.currentUserId === conversation.mentorId) {
       // You are the mentor, show the mentee's picture
-      return conversation.menteeProfilePicture || '';
+      profilePicUrl = conversation.menteeProfilePicture || '';
     } else {
       // You are the mentee, show the mentor's picture
-      return conversation.mentorProfilePicture || '';
+      profilePicUrl = conversation.mentorProfilePicture || '';
     }
+    
+    // Process the URL properly
+    if (profilePicUrl && profilePicUrl.trim() !== '') {
+      // If it's already a full URL, return it
+      if (profilePicUrl.startsWith('http')) {
+        return profilePicUrl;
+      }
+      
+      // If it's a path that doesn't start with slash, add it
+      if (!profilePicUrl.startsWith('/')) {
+        profilePicUrl = '/' + profilePicUrl;
+      }
+      
+      // If it's a relative path, make it absolute using environment.apiUrl
+      if (!profilePicUrl.includes(this.apiUrl) && profilePicUrl.startsWith('/')) {
+        // Don't add apiUrl if it's just a local path to /images folder
+        if (!profilePicUrl.startsWith('/images')) {
+          return this.apiUrl + profilePicUrl;
+        }
+      }
+      
+      return profilePicUrl;
+    }
+    
+    return this.getDefaultAvatarPath();
   }
 
   getOtherParticipant(): any {
@@ -1060,5 +1207,14 @@ You should see: ${this.getUserName(conversation)}`);
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  }
+
+  onImageError(event: Event): void {
+    const imgElement = event.target as HTMLImageElement;
+    console.log('Image failed to load:', imgElement.src);
+    imgElement.src = this.getDefaultAvatarPath();
+    
+    // Add onerror=null to prevent infinite error loop if default image also fails
+    imgElement.onerror = null;
   }
 }
