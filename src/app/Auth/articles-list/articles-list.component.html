@@ -22,11 +22,11 @@
   </div>
 
   <div *ngIf="!loading && articles.length === 0" class="alert alert-info">
-    No articles found.
+    No articles found matching your criteria.
   </div>
 
   <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-    <div class="col" *ngFor="let article of filteredArticles">
+    <div class="col" *ngFor="let article of articles">
       <div class="card h-100 shadow-sm">
         <div class="card-body">
           <h5 class="card-title">{{ article.title }}</h5>
@@ -38,4 +38,18 @@
       </div>
     </div>
   </div>
+
+  <nav *ngIf="totalPages > 1 && !loading" aria-label="Article pagination" class="mt-4">
+    <ul class="pagination justify-content-center">
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <a class="page-link" (click)="goToPage(currentPage - 1)">Previous</a>
+      </li>
+      <li class="page-item" *ngFor="let page of pagesArray" [class.active]="page === currentPage">
+        <a class="page-link" (click)="goToPage(page)">{{ page }}</a>
+      </li>
+      <li class="page-item" [class.disabled]="currentPage === totalPages">
+        <a class="page-link" (click)="goToPage(currentPage + 1)">Next</a>
+      </li>
+    </ul>
+  </nav>
 </div>

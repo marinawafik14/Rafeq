@@ -1,23 +1,25 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { ArticleDto } from '../../Models/articles/ArticleDto';
-import { ArticlesService } from '../../Services/articles.service';
 import { ToastrService } from 'ngx-toastr';
+import { ArticlesService } from '../../Services/articles.service';
+import { ArticleDto } from '../../Models/articles/ArticleDto';
+import { finalize } from 'rxjs';
 
 @Component({
   selector: 'app-article-detail',
+  standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './article-detail.component.html',
   styleUrl: './article-detail.component.css'
 })
 export class ArticleDetailComponent implements OnInit {
 
-   article: ArticleDto | null = null;
+  article: ArticleDto | null = null;
   loading: boolean = true;
+  articleId: number | null = null;
 
-
-   constructor(
+  constructor(
     private route: ActivatedRoute,
     private articlesService: ArticlesService,
     private toastr: ToastrService
@@ -25,9 +27,9 @@ export class ArticleDetailComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.paramMap.subscribe(params => {
-      const articleId = Number(params.get('id'));
-      if (articleId) {
-        this.loadArticle(articleId);
+      this.articleId = Number(params.get('id'));
+      if (this.articleId) {
+        this.loadArticle(this.articleId);
       } else {
         this.toastr.error('Article ID is missing.', 'Error');
         this.loading = false;
@@ -35,20 +37,31 @@ export class ArticleDetailComponent implements OnInit {
     });
   }
 
-  loadArticle(id: number): void {
+   loadArticle(id: number): void {
     this.loading = true;
-    this.articlesService.getArticleById(id).subscribe({
-      next: (data) => {
+    this.articlesService.getArticleById(id).pipe(
+      finalize(() => this.loading = false)
+    ).subscribe({
+      next: (data: ArticleDto) => {
         this.article = data;
-        this.loading = false;
+        this.articlesService.incrementViewCount(id).subscribe({
+          next: () => {
+
+            if (this.article) {
+              this.article.viewCount++;
+            }
+          },
+          error: (err) => {
+            console.error('Error incrementing view count:', err);
+
+          }
+        });
       },
-      error: (err) => {
+      error: (err: any) => { 
         this.toastr.error(err.message || 'Failed to load article.', 'Error');
         console.error('Error loading article:', err);
-        this.loading = false;
-        this.article = null; // Ensure article is null on error/not found
+        this.article = null;
       }
     });
   }
-
 }
