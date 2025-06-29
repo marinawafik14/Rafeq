@@ -3,13 +3,21 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
 @import "../node_modules/swiper/swiper.min.css";
 
-a{
-    text-decoration: none;
-    color: inherit;
+a {
+  text-decoration: none;
+  color: inherit;
 }
+<<<<<<< HEAD
 
 body, html {
 font-family: 'Poppins', sans-serif;
+=======
+/* You can add global styles to this file, and also import other style files */
+
+body,
+html {
+  font-family: "Poppins", sans-serif;
+>>>>>>> 923bb6463914ae4ca3679312499815019e0c8279
   margin: 0;
   padding: 0;
   height: 100%;
