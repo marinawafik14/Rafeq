@@ -17,9 +17,6 @@ export class SignalrChatService {
   private messageRead = new BehaviorSubject<{messageId: number, userId: number} | null>(null);
   private userTyping = new BehaviorSubject<{bookingId: number, userId: number, isTyping: boolean} | null>(null);
   private userOnline = new BehaviorSubject<{userId: number, isOnline: boolean} | null>(null);
-  private messageReaction = new BehaviorSubject<any>(null);
-  private messageDeleted = new BehaviorSubject<{messageId: number, bookingId: number} | null>(null);
-  private messageEdited = new BehaviorSubject<ChatMessage | null>(null);
 
   constructor(private authService: AuthService) { }
 
@@ -33,7 +30,7 @@ export class SignalrChatService {
   // Create hub connection
   private createConnection(): void {
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl('https://localhost:7001/chatHub', {
+      .withUrl(`${environment.apiUrl}/chatHub`, {
         accessTokenFactory: () => this.authService.getToken() || '',
         transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.LongPolling
       })
@@ -56,7 +53,7 @@ export class SignalrChatService {
         this.connectionState.next('Connected');
         this.setupEventListeners();
       })
-      .catch((err: any) => {
+      .catch(err => {
         console.error('❌ Error starting SignalR connection:', err);
         this.connectionState.next('Error');
         // Retry after 5 seconds
@@ -64,12 +61,12 @@ export class SignalrChatService {
       });
 
     // Setup automatic reconnection handlers
-    this.hubConnection.onclose((error: Error | undefined) => {
+    this.hubConnection.onclose(error => {
       console.log('SignalR connection closed. Error:', error);
       this.connectionState.next('Disconnected');
     });
 
-    this.hubConnection.onreconnecting((error?: Error) => {
+    this.hubConnection.onreconnecting(error => {
       console.log('SignalR reconnecting. Error:', error);
       this.connectionState.next('Reconnecting');
     });
@@ -92,56 +89,14 @@ export class SignalrChatService {
 
     // Handle message read receipts
     this.hubConnection.on('MessageRead', (data: {messageId: number, userId: number}) => {
-      console.log('👁 Message read via SignalR:', data);
+      console.log('👁️ Message read via SignalR:', data);
       this.messageRead.next(data);
     });
 
     // Handle typing indicators
     this.hubConnection.on('UserTyping', (data: {bookingId: number, userId: number, isTyping: boolean}) => {
-      console.log('⌨ User typing via SignalR:', data);
+      console.log('⌨️ User typing via SignalR:', data);
       this.userTyping.next(data);
-    });
-
-    this.hubConnection.on('MessageReaction', (reaction) => {
-      console.log('👍 Received MessageReaction event:', reaction);
-      this.messageReaction.next(reaction);
-    });
-
-    // FIXED: Handle message deletion with flexible data format
-    this.hubConnection.on('MessageDeleted', (data: any) => {
-      console.log('🗑 Message deleted via SignalR (raw):', data);
-      
-      // Handle both formats: {messageId, bookingId} or just messageId
-      let deletionData: {messageId: number, bookingId: number};
-      
-      if (typeof data === 'object' && data.messageId && data.bookingId) {
-        // Proper format
-        deletionData = data;
-      } else if (typeof data === 'number') {
-        // Just messageId - we need to find the bookingId from current conversation
-        deletionData = {
-          messageId: data,
-          bookingId: 0 // Will be handled in component
-        };
-      } else {
-        console.error('Invalid MessageDeleted data format:', data);
-        return;
-      }
-      
-      console.log('🗑 Processed deletion data:', deletionData);
-      this.messageDeleted.next(deletionData);
-    });
-
-    // FIXED: Handle message editing with validation
-    this.hubConnection.on('MessageEdited', (data: any) => {
-      console.log('✏ Message edited via SignalR (raw):', data);
-      
-      // Validate the edited message data
-      if (data && data.messageId && data.messageText !== undefined) {
-        this.messageEdited.next(data as ChatMessage);
-      } else {
-        console.error('Invalid MessageEdited data format:', data);
-      }
     });
 
     // Handle user online/offline status
@@ -158,6 +113,14 @@ export class SignalrChatService {
     // Handle additional events
     this.hubConnection.on('AllMessagesRead', (userId: number) => {
       console.log('📖 All messages read by user:', userId);
+    });
+
+    this.hubConnection.on('MessageDeleted', (messageId: number) => {
+      console.log('🗑️ Message deleted:', messageId);
+    });
+
+    this.hubConnection.on('MessageEdited', (message: ChatMessage) => {
+      console.log('✏️ Message edited:', message);
     });
   }
 
@@ -195,11 +158,11 @@ export class SignalrChatService {
         await this.joinBookingChat(bookingId);
         console.log('✅ Joined SignalR chat room for booking:', bookingId);
       } catch (error) {
-        console.warn('⚠ Could not join SignalR chat room:', error);
+        console.warn('⚠️ Could not join SignalR chat room:', error);
         throw error;
       }
     } else {
-      console.log('⚠ SignalR not connected, cannot join chat room');
+      console.log('⚠️ SignalR not connected, cannot join chat room');
       throw new Error('SignalR not connected');
     }
   }
@@ -223,18 +186,6 @@ export class SignalrChatService {
 
   get userOnline$(): Observable<{userId: number, isOnline: boolean} | null> {
     return this.userOnline.asObservable();
-  }
-
-  get messageReaction$(): Observable<any> {
-    return this.messageReaction.asObservable();
-  }
-
-  get messageDeleted$(): Observable<{messageId: number, bookingId: number} | null> {
-    return this.messageDeleted.asObservable();
-  }
-
-  get messageEdited$(): Observable<ChatMessage | null> {
-    return this.messageEdited.asObservable();
   }
 
   // Get connection status
