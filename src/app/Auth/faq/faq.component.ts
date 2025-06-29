@@ -5,6 +5,7 @@ import { FaqDto } from '../../Models/FQA/FaqDto'; // Assuming this path
 import { FaqCategoryDto } from '../../Models/FQA/FaqCategoryDto'; // Assuming this path
 import { FaqService } from '../../Services/faq.service'; // Assuming this path
 import { ToastrService } from 'ngx-toastr';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-faq',
@@ -14,30 +15,34 @@ import { ToastrService } from 'ngx-toastr';
   styleUrl: './faq.component.css'
 })
 export class FaqComponent implements OnInit {
-  allFaqs: FaqDto[] = []; // All fetched FAQs
-  filteredFaqs: FaqDto[] = []; // FAQs currently displayed (after filter/search)
+   filteredFaqs: FaqDto[] = [];
   categories: FaqCategoryDto[] = [];
   searchQuery: string = '';
-  currentCategoryFilter: string | undefined; // This will hold the selected category string or undefined
-  expandedFaqId: number | null = null; // Tracks the currently open FAQ item
+  currentCategoryFilter: string | undefined;
+
+  expandedFaqId: number | null = null;
   loading: boolean = true;
+
+  currentPage: number = 1;
+  pageSize: number = 10;
+  totalFaqs: number = 0;
+  totalPages: number = 0;
 
   constructor(
     private faqService: FaqService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
     this.loadFaqCategories();
-    this.loadFaq(); // Load all FAQs initially
+    this.loadFaqs();
   }
 
   loadFaqCategories(): void {
     this.faqService.getFaqCategories().subscribe({
       next: (data) => {
         this.categories = data;
-        // Optional: If you want to explicitly set a default 'All' category at the start of your categories array:
-        // this.categories.unshift({ categoryName: 'All', questionCount: this.allFaqs.length });
       },
       error: (err) => {
         this.toastr.error(err.message || 'Failed to load FAQ categories.', 'Error');
@@ -46,66 +51,122 @@ export class FaqComponent implements OnInit {
     });
   }
 
-  // loadFaq() now always loads all FAQs, and filtering happens locally
-  loadFaq(): void {
+  loadFaqs(): void {
     this.loading = true;
-    // Assuming getFaq() without a parameter fetches all FAQs
-    this.faqService.getFaq().subscribe({ // No category parameter here, as we filter locally
-      next: (data) => {
-        this.allFaqs = data;
-        this.applyFilterAndSearch(); // Apply initial filter and search
+    this.faqService.getFaq(
+      this.currentCategoryFilter,
+      this.searchQuery,
+      this.currentPage,
+      this.pageSize
+    ).subscribe({
+      next: (pagedResult) => {
+        this.filteredFaqs = pagedResult.items;
+        this.totalFaqs = pagedResult.totalCount;
+        this.totalPages = pagedResult.totalPages;
         this.loading = false;
       },
       error: (err) => {
         this.toastr.error(err.message || 'Failed to load FAQs.', 'Error');
         console.error('Error loading FAQs:', err);
         this.loading = false;
+        this.filteredFaqs = [];
+        this.totalFaqs = 0;
+        this.totalPages = 0;
       }
     });
   }
 
-  // This method is called when the select dropdown value changes
   filterByCategory(event: Event): void {
     const selectElement = event.target as HTMLSelectElement;
     const category = selectElement.value;
-    // If the value from the select is an empty string, treat it as undefined for "All Categories"
     this.currentCategoryFilter = (category === '' ? undefined : category);
-    this.applyFilterAndSearch();
-    this.expandedFaqId = null; // Close any open FAQ when filter changes
+    this.currentPage = 1;
+    this.loadFaqs();
+    this.expandedFaqId = null;
   }
 
   onSearch(): void {
-    this.applyFilterAndSearch();
-    this.expandedFaqId = null; // Close any open FAQ when search changes
+    this.currentPage = 1;
+    this.loadFaqs();
+    this.expandedFaqId = null;
   }
 
-  applyFilterAndSearch(): void {
-    let tempFaqs = [...this.allFaqs];
-
-    if (this.currentCategoryFilter) {
-      tempFaqs = tempFaqs.filter(faq => faq.category === this.currentCategoryFilter);
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages && page !== this.currentPage) {
+      this.currentPage = page;
+      this.loadFaqs();
+      this.expandedFaqId = null;
     }
-
-    if (this.searchQuery) {
-      const lowerCaseQuery = this.searchQuery.toLowerCase();
-      tempFaqs = tempFaqs.filter(faq =>
-        faq.question.toLowerCase().includes(lowerCaseQuery) ||
-        faq.answer.toLowerCase().includes(lowerCaseQuery)
-      );
-    }
-    // Sort the filtered FAQs by SortOrder, then by FAQId
-    this.filteredFaqs = tempFaqs.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0) || a.faqId - b.faqId);
   }
 
-  // Reset filters and show all FAQs
+  get pagesArray(): number[] {
+    return Array.from({ length: this.totalPages }, (_, i) => i + 1);
+  }
+
   showAllFaqs(): void {
     this.currentCategoryFilter = undefined;
     this.searchQuery = '';
-    this.applyFilterAndSearch();
+    this.currentPage = 1;
+    this.loadFaqs();
     this.expandedFaqId = null;
   }
 
   toggleFaq(faqId: number): void {
+    if (this.expandedFaqId !== faqId) {
+      this.faqService.incrementFaqViewCount(faqId).subscribe({
+        next: () => {
+          const faqToUpdate = this.filteredFaqs.find(f => f.faqId === faqId);
+          if (faqToUpdate) {
+            faqToUpdate.viewCount++;
+          }
+        },
+        error: (err) => {
+          console.error('Error incrementing FAQ view count:', err);
+        }
+      });
+    }
     this.expandedFaqId = this.expandedFaqId === faqId ? null : faqId;
+  }
+
+  markFaqAsHelpful(faqId: number, event: Event): void {
+    event.stopPropagation();
+    this.faqService.incrementFaqHelpfulCount(faqId).subscribe({
+      next: () => {
+        const faq = this.filteredFaqs.find(f => f.faqId === faqId);
+        if (faq) {
+          faq.helpfulCount++;
+          this.toastr.success('Thank you for your feedback!', 'Helpful');
+        }
+      },
+      error: (err) => {
+        this.toastr.error('Failed to register feedback.', 'Error');
+        console.error('Error marking FAQ as helpful:', err);
+      }
+    });
+  }
+
+  markFaqAsNotHelpful(faqId: number, event: Event): void {
+    event.stopPropagation();
+    this.faqService.incrementFaqNotHelpfulCount(faqId).subscribe({
+      next: () => {
+        const faq = this.filteredFaqs.find(f => f.faqId === faqId);
+        if (faq) {
+          faq.notHelpfulCount++;
+          this.toastr.info('Thank you for your feedback!', 'Not Helpful');
+        }
+      },
+      error: (err) => {
+        this.toastr.error('Failed to register feedback.', 'Error');
+        console.error('Error marking FAQ as not helpful:', err);
+      }
+    });
+  }
+
+  goToContactPage(): void {
+    this.router.navigate(['/contact']);
+  }
+
+  goToChatPage(): void {
+    this.router.navigate(['/chat']);
   }
 }
