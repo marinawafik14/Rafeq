@@ -37,6 +37,7 @@ import { MenteeProfileComponent } from './Auth/Userprofile/mentee-profile/mentee
 import { ArticlesListComponent } from './Auth/articles-list/articles-list.component';
 import { ArticleDetailComponent } from './Auth/article-detail/article-detail.component';
 import { FaqComponent } from './Auth/faq/faq.component';
+import { NotificationsComponent } from './features/notifications/notifications.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -95,4 +96,7 @@ export const routes: Routes = [
   // Chat routes
   { path: 'chat', component: ChatComponent },
   { path: 'chat/:bookingId', component: ChatComponent },
+
+  // Notifications route
+  { path: 'notifications', component: NotificationsComponent }
 ];
