@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../environments/environment.development';
 import { MentorBookingDetails } from '../Models/Booking/mentor-booking-details';
@@ -287,5 +287,50 @@ export class MentorBookingService {
     if (days > 0) return `${days}d ${hours}h`;
     if (hours > 0) return `${hours}h ${minutes}m`;
     return `${minutes}m`;
+  }
+
+  // Check if a booking should be automatically marked as completed
+  shouldAutoComplete(booking: MentorBookingDetails): boolean {
+    const now = new Date();
+    const sessionEnd = new Date(booking.endDateTime);
+    
+    // Auto-complete sessions that have ended but are still marked as InProgress or Confirmed
+    return (booking.status === 'InProgress' || booking.status === 'Confirmed') && now > sessionEnd;
+  }
+
+  // Process and auto-update booking statuses
+  processBookingStatuses(bookings: MentorBookingDetails[]): Observable<MentorBookingDetails[]> {
+    const now = new Date();
+    const updatedBookings: MentorBookingDetails[] = [];
+    const updatePromises: Observable<MentorBookingDetails>[] = [];
+    
+    bookings.forEach(booking => {
+      if (this.shouldAutoComplete(booking)) {
+        console.log(`Auto-completing booking ${booking.bookingId} that ended at ${booking.endDateTime}`);
+        
+        // Update the local booking status immediately
+        const localUpdatedBooking = { ...booking, status: 'Completed' as const };
+        updatedBookings.push(localUpdatedBooking);
+        
+        // Queue backend update
+        const updateObservable = this.updateBookingStatus(booking.bookingId, { status: 'Completed' });
+        updatePromises.push(updateObservable);
+      } else {
+        updatedBookings.push(booking);
+      }
+    });
+    
+    // If there are updates to make, process them
+    if (updatePromises.length > 0) {
+      // Fire all updates in parallel, but don't wait for them to complete
+      updatePromises.forEach(update => {
+        update.subscribe({
+          next: (updatedBooking) => console.log(`Successfully auto-completed booking ${updatedBooking.bookingId}`),
+          error: (error) => console.error(`Failed to auto-complete booking:`, error)
+        });
+      });
+    }
+    
+    return of(updatedBookings);
   }
 }

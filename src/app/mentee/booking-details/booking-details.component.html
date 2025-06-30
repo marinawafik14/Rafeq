@@ -1,0 +1,115 @@
+<div class="mentee-page d-flex">
+  <mentee-layout></mentee-layout>
+  <main class="main-content flex-grow-1">
+    <div class="container py-4 booking-details">
+      <ng-container *ngIf="loading">
+        <div class="text-center py-5">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      </ng-container>
+      <ng-container *ngIf="!loading && error">
+        <div class="alert alert-danger text-center">{{ error }}</div>
+      </ng-container>
+      <ng-container *ngIf="!loading && booking">
+        <!-- Status Banner -->
+        <div class="status-banner-container">
+          <div *ngIf="booking.status==='upcoming' || booking.status==='Upcoming' || booking.status==='Scheduled'" 
+               class="alert alert-primary text-center fw-bold">
+            <i class="bi bi-clock-history me-2"></i>
+            Upcoming Session
+          </div>
+          <div *ngIf="booking.status==='completed' || booking.status==='Completed'" 
+               class="alert alert-success text-center fw-bold">
+            <i class="bi bi-check-circle me-2"></i>
+            Completed Session
+          </div>
+          <div *ngIf="booking.status==='cancelled' || booking.status==='Cancelled'" 
+               class="alert alert-danger text-center fw-bold">
+            <i class="bi bi-x-circle me-2"></i>
+            Cancelled Session
+          </div>
+        </div>
+        
+        <!-- Centered Content Container -->
+        <div class="content-wrapper">
+          <div class="booking-details-content">
+            <!-- Mentor & Session Details -->
+            <div class="details-section">
+              <div class="card mb-4">
+              <div class="card-body d-flex align-items-center">
+                <img [src]="booking.mentor.photo" alt="Mentor Photo" class="rounded-circle shadow me-3" style="width:70px;height:70px;object-fit:cover;">
+                <div>
+                  <div class="fw-bold fs-5">{{booking.mentor.name}}</div>
+                  <div class="text-muted">{{booking.mentor.title}}</div>
+                  <div class="mt-2">
+                    <i class="bi bi-calendar-event me-1"></i> {{booking.date}}
+                    <span class="mx-2">|</span>
+                    <i class="bi bi-clock me-1"></i> {{booking.time}}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card mb-4">
+              <div class="card-body d-flex flex-wrap align-items-center justify-content-between">
+                <div>
+                  <div class="fw-bold mb-1">Google Meet</div>
+                  <div class="text-muted small mb-2">Join your session at the scheduled time.</div>
+                  <a *ngIf="booking.status==='upcoming' || booking.status==='Upcoming' || booking.status==='Scheduled'" [href]="booking.meetUrl" target="_blank" class="btn btn-success btn-sm">
+                    <i class="bi bi-camera-video"></i> Join Google Meet
+                  </a>
+                  <span *ngIf="booking.status!=='upcoming' && booking.status!=='Upcoming' && booking.status!=='Scheduled'" class="badge bg-secondary">Not available</span>
+                </div>
+                <!-- <div>
+                  <div class="fw-bold mb-1">Chat</div>
+                  <a [href]="booking.chatUrl" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-chat-dots"></i> Go to Chat
+                  </a>
+                </div> -->
+              </div>
+            </div>
+            <div class="card mb-4">
+              <div class="card-header bg-white fw-bold">Payment Information</div>
+              <div class="card-body">
+                <div class="d-flex justify-content-between">
+                  <span>Amount:</span>
+                  <span class="fw-bold text-success">${{booking.payment.amount}}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span>Method:</span>
+                  <span>{{booking.payment.method}}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span>Status:</span>
+                  <span class="badge bg-success">{{booking.payment.status}}</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span>Transaction ID:</span>
+                  <span class="text-muted small">{{booking.payment.transactionId}}</span>
+                </div>
+              </div>
+            </div>
+            <div class="card mb-4" *ngIf="booking.status==='completed' || booking.status==='Completed'">
+              <div class="card-header bg-white fw-bold">Your Review</div>
+              <div class="card-body">
+                <div *ngIf="booking.review; else noReview">
+                  <div class="mb-2">
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <span class="fw-bold">{{booking.review.rating}}</span>
+                    <span class="text-muted ms-2 small">{{booking.review.date}}</span>
+                  </div>
+                  <div>{{booking.review.comment}}</div>
+                </div>
+                <ng-template #noReview>
+                  <div class="text-muted">You have not left a review for this session yet.</div>
+                </ng-template>
+              </div>
+            </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </main>
+</div>
