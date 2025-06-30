@@ -1,22 +1,24 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterModule } from '@angular/router';
 import { AuthService } from '../Services/auth.service';
-
 import { TokenResponseDto } from '../Models/Auth/TokenResponseDto';
 import { Subject, takeUntil } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
+import { NotificationBadgeComponent } from '../shared/components/notification-badge/notification-badge.component';
 
 @Component({
   selector: 'app-header',
-  imports: [RouterModule, RouterLink, CommonModule],
+  standalone: true,
+  imports: [RouterModule, RouterLink, CommonModule, NotificationBadgeComponent],
   templateUrl: './header.component.html',
   styleUrl: './header.component.css'
 })
-export class HeaderComponent implements OnInit ,OnDestroy {
- currentUser: TokenResponseDto | null = null;
+export class HeaderComponent implements OnInit, OnDestroy {
+  currentUser: TokenResponseDto | null = null;
   private destroy = new Subject<void>();
-constructor(
+  
+  constructor(
     private authService: AuthService,
     private router: Router,
     private toastr: ToastrService
@@ -31,7 +33,6 @@ constructor(
   }
 
   logout(): void {
-
     if (!this.authService.isLoggedIn()) {
       this.toastr.info('You are already logged out.', 'Info');
       this.router.navigate(['/login']);
@@ -44,14 +45,13 @@ constructor(
         this.router.navigate(['/login']);
       },
       error: (err) => {
-
         if (err.status === 401) {
-            this.toastr.info('Your session has expired or you are already logged out.', 'Session Ended');
-            this.authService.clearToken();
-            this.router.navigate(['/login']);
+          this.toastr.info('Your session has expired or you are already logged out.', 'Session Ended');
+          this.authService.clearToken();
+          this.router.navigate(['/login']);
         } else {
-            this.toastr.error(err.error?.message || 'Logout failed unexpectedly. Please try again.', 'Error');
-            console.error('Logout failed unexpectedly:', err);
+          this.toastr.error(err.error?.message || 'Logout failed unexpectedly. Please try again.', 'Error');
+          console.error('Logout failed unexpectedly:', err);
         }
       }
     });
@@ -61,5 +61,4 @@ constructor(
     this.destroy.next();
     this.destroy.complete();
   }
-
 }

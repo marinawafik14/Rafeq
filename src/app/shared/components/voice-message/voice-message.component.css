@@ -1,0 +1,364 @@
+.voice-message {
+  max-width: 280px;
+  min-width: 220px;
+  padding: 12px 16px;
+  border-radius: 18px;
+  margin: 4px 0;
+  position: relative;
+  font-family: 'Poppins', sans-serif;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.voice-message:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.voice-message.sent {
+  background: linear-gradient(135deg, #0a2e65, #1b74e4);
+  color: white;
+  margin-left: auto;
+  margin-right: 8px;
+}
+
+.voice-message.sent .play-button {
+  background: rgba(255, 255, 255, 0.95);
+  color: #0a2e65;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.voice-message.sent .waveform-bar.active {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+/* Enhanced visibility for sent messages */
+.voice-message.sent .time-display {
+  color: white !important;
+  font-weight: 700 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.2);
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 12px !important;
+}
+
+.voice-message.sent .speed-button {
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: white !important;
+  font-weight: 600 !important;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.voice-message.sent .speed-button:hover {
+  background: rgba(255, 255, 255, 0.35) !important;
+  color: white !important;
+}
+
+.voice-message.sent .voice-info {
+  color: rgba(255, 255, 255, 0.95) !important;
+  font-weight: 600 !important;
+}
+
+.voice-message.sent .message-time {
+  color: rgba(255, 255, 255, 0.95) !important;
+  font-weight: 600 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.voice-message.received {
+  background: #ffffff;
+  margin-left: 8px;
+  margin-right: auto;
+  border: 1px solid #e9ecef;
+}
+
+.voice-message.received .play-button {
+  background: linear-gradient(135deg, #0a2e65, #1b74e4);
+  color: white;
+}
+
+.voice-message.received .waveform-bar.active {
+  background: #1b74e4;
+}
+
+/* Enhanced visibility for received messages */
+.voice-message.received .time-display {
+  color: #0a2e65 !important;
+  font-weight: 700 !important;
+  background: rgba(10, 46, 101, 0.1);
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 12px !important;
+}
+
+.voice-message.received .speed-button {
+  background: rgba(10, 46, 101, 0.1) !important;
+  color: #0a2e65 !important;
+  font-weight: 600 !important;
+  border: 1px solid rgba(10, 46, 101, 0.2);
+}
+
+.voice-message.received .speed-button:hover {
+  background: rgba(10, 46, 101, 0.2) !important;
+  color: #0a2e65 !important;
+}
+
+.voice-message.received .voice-info {
+  color: #495057 !important;
+  font-weight: 600 !important;
+}
+
+.voice-message.received .message-time {
+  color: #495057 !important;
+  font-weight: 600 !important;
+}
+
+.voice-loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  color: #6c757d;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.loading-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #e9ecef;
+  border-top: 2px solid #1b74e4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.voice-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  color: #dc3545;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.voice-player {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 6px 0;
+}
+
+.play-button {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 16px;
+  box-shadow: 0 3px 12px rgba(10, 46, 101, 0.25);
+}
+
+.play-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(10, 46, 101, 0.35);
+}
+
+.play-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.play-button i {
+  margin-left: 2px;
+}
+
+.voice-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.waveform-container {
+  position: relative;
+  height: 36px;
+  cursor: pointer;
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.08);
+  transition: all 0.2s ease;
+}
+
+.waveform-container:hover {
+  background: rgba(0, 0, 0, 0.12);
+}
+
+.waveform {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 12px;
+  gap: 3px;
+}
+
+.waveform-bar {
+  width: 3px;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 2px;
+  min-height: 6px;
+  transition: all 0.2s ease;
+}
+
+.voice-message.sent .waveform-bar {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.waveform-bar.active {
+  background: #1b74e4;
+}
+
+.voice-message.sent .waveform-bar.active {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.waveform-bar.playing {
+  animation: pulse 0.6s ease-in-out infinite alternate;
+}
+
+.progress-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: rgba(27, 116, 228, 0.15);
+  border-radius: 18px;
+  transition: width 0.1s ease;
+  pointer-events: none;
+}
+
+.voice-message.sent .progress-overlay {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.voice-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.time-display {
+  font-family: 'Courier New', monospace;
+  font-weight: 700;
+  font-size: 12px;
+  border-radius: 6px;
+  padding: 2px 6px;
+  min-width: 40px;
+  text-align: center;
+}
+
+.speed-button {
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 12px;
+  border: 1px solid;
+  transition: all 0.2s ease;
+  min-width: 30px;
+  text-align: center;
+}
+
+.voice-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.voice-info i {
+  font-size: 12px;
+}
+
+.message-time {
+  text-align: right;
+  font-size: 11px;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.message-status {
+  font-size: 12px;
+  color: #1b74e4;
+}
+
+.voice-message.sent .message-status {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0% { transform: scaleY(1); }
+  100% { transform: scaleY(1.4); }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .voice-message {
+    max-width: 260px;
+    min-width: 200px;
+    padding: 10px 14px;
+  }
+  
+  .play-button {
+    width: 38px;
+    height: 38px;
+    font-size: 14px;
+  }
+  
+  .waveform {
+    padding: 0 10px;
+    gap: 2px;
+  }
+  
+  .waveform-bar {
+    width: 2px;
+  }
+
+  .time-display {
+    font-size: 11px !important;
+  }
+  
+  .speed-button {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+}
+
+/* High contrast mode for better accessibility */
+@media (prefers-contrast: high) {
+  .voice-message.sent .time-display {
+    background: rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  .voice-message.received .time-display {
+    background: rgba(10, 46, 101, 0.2) !important;
+    border: 1px solid rgba(10, 46, 101, 0.3);
+  }
+}

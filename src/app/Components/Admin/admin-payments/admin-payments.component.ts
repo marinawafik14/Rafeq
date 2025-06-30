@@ -1,6 +1,6 @@
 import { Component, NgModule, OnInit } from '@angular/core';
 import { PaymentService } from '../../../Services/payment.service';
-import { Payments } from '../../../Models/Payments';
+import { Payments } from '../../../Models/Payments/Payments';
 import { CommonModule } from '@angular/common';
 import { NGX_ECHARTS_CONFIG, NgxEchartsModule } from 'ngx-echarts';
 

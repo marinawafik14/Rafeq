@@ -31,11 +31,21 @@
               About Us
             </a>
           </li>
-          <li class="nav-item mx-2">
+         
+            <li class="nav-item mx-2">
             <a class="nav-link rounded-pill px-3" routerLink="/contact" routerLinkActive="active">
               Contact
             </a>
           </li>
+
+
+             <li class="nav-item mx-2" *ngIf="currentUser">
+            <a class="nav-link rounded-pill px-3" routerLink="/user-profile" routerLinkActive="active">
+              My Profile
+            </a>
+          </li>
+
+
          
              <li class="nav-item mx-2">
             <a class="nav-link rounded-pill px-3" routerLink="/messages" routerLinkActive="active">
@@ -45,19 +55,24 @@
         
           </li>
         </ul>
-         <div class="d-flex gap-2">
-          <ng-container *ngIf="!currentUser">
-            <button class="btn btn-login" routerLink="/login">Log In</button>
-            <button class="btn btn-sign" routerLink="/register">Sign Up</button>
-          </ng-container>
+        <div class="d-flex align-items-center gap-3">
+  <!-- Notification Badge - Show only for logged-in users -->
+  <app-notification-badge *ngIf="currentUser"></app-notification-badge>
+  
+  <div class="d-flex gap-2">
+    <ng-container *ngIf="!currentUser">
+      <button class="btn btn-login" routerLink="/login">Log In</button>
+      <button class="btn btn-sign" routerLink="/register">Sign Up</button>
+    </ng-container>
 
-          <ng-container *ngIf="currentUser">
-            <span class="navbar-text me-2 d-none d-lg-block">
-              Welcome, {{ currentUser.fullName }}
-            </span>
-            <button class="btn btn-logout" (click)="logout()">Log Out</button>
-          </ng-container>
-        </div>
+    <ng-container *ngIf="currentUser">
+      <span class="navbar-text me-2 d-none d-lg-block">
+        Welcome, {{ currentUser.fullName }}
+      </span>
+      <button class="btn btn-logout" (click)="logout()">Log Out</button>
+    </ng-container>
+  </div>
+</div>
       </div>
     </div>
   </nav>

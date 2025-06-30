@@ -1,0 +1,304 @@
+<div class="mentee-profile-container">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="hero-title">
+        <i class="fas fa-user-graduate me-2"></i>
+        Mentee Profile
+      </h1>
+    </div>
+  </div>
+
+  <div class="toast-container">
+    <div *ngFor="let toast of toasts" class="toast" [ngClass]="'toast-' + toast.type" (click)="removeToast(toast.id)">
+      <div class="toast-content">
+        <i class="fas" [ngClass]="{
+             'fa-check-circle': toast.type === 'success',
+             'fa-exclamation-circle': toast.type === 'error',
+             'fa-info-circle': toast.type === 'info'
+            }"></i>
+        <span>{{ toast.message }}</span>
+      </div>
+      <button class="toast-close" (click)="removeToast(toast.id)">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="userProfile" class="main-content">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <div class="profile-card">
+          <div class="profile-header">
+            <div class="profile-avatar">
+              <img [src]="userProfile.profilePicture || 'https://placehold.co/120x120/EEEEEE/999999?text=No+Photo'"
+                alt="Profile Picture" class="avatar-img">
+              <div class="avatar-overlay">
+                <i class="fas fa-camera"></i>
+              </div>
+            </div>
+            <h3 class="profile-name">{{ userProfile.fullName || 'Your Name' }}</h3>
+            <p class="profile-role">
+              <i class="fas fa-user-graduate me-2"></i>
+              Mentee
+            </p>
+          </div>
+          <div class="profile-stats">
+            <div class="stat-item">
+              <div class="stat-value">{{ userProfile.menteeSkills?.length || 0 }}</div>
+              <div class="stat-label">Learning Skills</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">
+                <i class="fas fa-check-circle text-success" *ngIf="userProfile.isEmailVerified"></i>
+                <i class="fas fa-times-circle text-danger" *ngIf="!userProfile.isEmailVerified"></i>
+              </div>
+              <div class="stat-label">Email Status</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">
+                <i class="fas fa-graduation-cap text-primary"></i>
+              </div>
+              <div class="stat-label">Learning Mode</div>
+            </div>
+          </div>
+
+          <!-- <div class="selected-skills-section" *ngIf="userProfile.menteeSkills && userProfile.menteeSkills.length > 0">
+            <h6 class="section-title">
+              <i class="fas fa-brain me-2"></i>
+              Current Learning Skills
+            </h6>
+            <div class="skills-display">
+              <span *ngFor="let skill of userProfile.menteeSkills" class="skill-badge">
+                {{ skill.name }}
+              </span>
+            </div>
+          </div> -->
+
+          <div class="photo-upload-section">
+            <h5 class="section-title">
+              <i class="fas fa-image me-2"></i>
+              Update Photo
+            </h5>
+            <input type="file" id="profileFileInput" (change)="onFileSelected($event)" accept="image/*"
+              class="form-control file-input">
+            <button type="button" (click)="uploadProfilePhoto()" [disabled]="!selectedFile"
+              class="btn btn-primary w-100 mt-3">
+              <i class="fas fa-upload me-2"></i>
+              Upload Photo
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-8">
+        <div class="tabs-container">
+          <ul class="nav nav-tabs custom-tabs" role="tablist">
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" [class.active]="activeTab === 'profile'" (click)="switchTab('profile')"
+                type="button">
+                <i class="fas fa-user me-2"></i>
+                Profile
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" [class.active]="activeTab === 'skills'" (click)="switchTab('skills')"
+                type="button">
+                <i class="fas fa-brain me-2"></i>
+                Learning Skills
+              </button>
+            </li>
+            <li class="nav-item" role="presentation">
+              <button class="nav-link" [class.active]="activeTab === 'password'" (click)="switchTab('password')"
+                type="button">
+                <i class="fas fa-lock me-2"></i>
+                Change Password
+              </button>
+            </li>
+          </ul>
+
+          <div class="tab-content">
+            <div class="tab-pane" [class.active]="activeTab === 'profile'" [class.show]="activeTab === 'profile'">
+              <div class="form-card" *ngIf="activeTab === 'profile'">
+                <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+                  <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="fullName" class="form-label">
+                          <i class="fas fa-user me-2"></i>
+                          Full Name
+                        </label>
+                        <input type="text" id="fullName" formControlName="fullName" class="form-control"
+                          [ngClass]="{'is-invalid': getControlError('fullName', profileForm)}">
+                        <div *ngIf="getControlError('fullName', profileForm)" class="invalid-feedback">{{
+                          getControlError('fullName', profileForm) }}</div>
+                      </div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="email" class="form-label">
+                          <i class="fas fa-envelope me-2"></i>
+                          Email Address
+                        </label>
+                        <input type="email" id="email" formControlName="email" class="form-control"
+                          [ngClass]="{'is-invalid': getControlError('email', profileForm)}">
+                        <div *ngIf="getControlError('email', profileForm)" class="invalid-feedback">{{
+                          getControlError('email', profileForm) }}</div>
+                        <small *ngIf="!userProfile.isEmailVerified" class="text-warning mt-1">
+                          <i class="fas fa-exclamation-triangle me-1"></i>
+                          Email not verified. Please check your inbox.
+                        </small>
+                      </div>
+                    </div>
+
+                    <div class="col-12">
+                      <div class="form-group">
+                        <label for="bio" class="form-label">
+                          <i class="fas fa-align-left me-2"></i>
+                          About Me
+                        </label>
+                        <textarea id="bio" formControlName="bio" rows="4" class="form-control"
+                          [ngClass]="{'is-invalid': getControlError('bio', profileForm)}"
+                          placeholder="Tell us about your learning goals and interests..."></textarea>
+                        <div *ngIf="getControlError('bio', profileForm)" class="invalid-feedback">{{
+                          getControlError('bio', profileForm) }}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="text-center">
+                    <button type="submit" class="btn btn-primary btn-lg px-4" [disabled]="profileForm.invalid">
+                      <i class="fas fa-save me-2"></i>
+                      Update Profile
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <div class="tab-pane" [class.active]="activeTab === 'skills'" [class.show]="activeTab === 'skills'">
+              <div class="form-card" *ngIf="activeTab === 'skills'">
+                <form [formGroup]="profileForm" (ngSubmit)="updateProfile()">
+                  <div class="skills-section">
+                    <h5 class="section-title">
+                      <i class="fas fa-brain me-2"></i>
+                      Skills I Want to Learn
+                    </h5>
+                    <div *ngIf="allSkills.length > 0" class="skills-grid">
+                      <div *ngFor="let skill of allSkills" class="skill-item">
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" [id]="'skill-' + skill.id" [value]="skill.id"
+                            [checked]="selectedSkillIds.includes(skill.id)" (change)="onSkillChange($event, skill.id)">
+                          <label class="form-check-label" [for]="'skill-' + skill.id">
+                            {{ skill.name }}
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <p *ngIf="allSkills.length === 0" class="text-muted text-center mt-3">
+                      <i class="fas fa-info-circle me-2"></i>
+                      No skills available. Please contact support.
+                    </p>
+                  </div>
+
+                  <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg px-4" [disabled]="profileForm.invalid">
+                      <i class="fas fa-save me-2"></i>
+                      Update Learning Skills
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <div class="tab-pane" [class.active]="activeTab === 'password'" [class.show]="activeTab === 'password'">
+              <div class="form-card" *ngIf="activeTab === 'password'">
+
+
+                <form [formGroup]="passwordForm" (ngSubmit)="changePassword()">
+                  <div class="row g-3 mb-4">
+                    <div class="col-12">
+                      <div class="form-group">
+                        <label for="currentPassword" class="form-label">
+                          <i class="fas fa-key me-2"></i>
+                          Current Password
+                        </label>
+                        <div class="input-group">
+                          <input [type]="showCurrentPassword ? 'text' : 'password'" id="currentPassword"
+                            formControlName="currentPassword" class="form-control"
+                            [ngClass]="{'is-invalid': getControlError('currentPassword', passwordForm)}"
+                            placeholder="Enter your current password">
+                          <button type="button" class="btn btn-outline-secondary password-toggle"
+                            (click)="togglePasswordVisibility('current')"
+                            [attr.aria-label]="showCurrentPassword ? 'Hide password' : 'Show password'">
+                            <i [class]="showCurrentPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                          </button>
+                        </div>
+                        <div *ngIf="getControlError('currentPassword', passwordForm)" class="invalid-feedback">{{
+                          getControlError('currentPassword', passwordForm) }}</div>
+                      </div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="newPassword" class="form-label">
+                          <i class="fas fa-lock me-2"></i>
+                          New Password
+                        </label>
+                        <div class="input-group">
+                          <input [type]="showNewPassword ? 'text' : 'password'" id="newPassword"
+                            formControlName="newPassword" class="form-control"
+                            [ngClass]="{'is-invalid': getControlError('newPassword', passwordForm)}"
+                            placeholder="Enter new password">
+                          <button type="button" class="btn btn-outline-secondary password-toggle"
+                            (click)="togglePasswordVisibility('new')"
+                            [attr.aria-label]="showNewPassword ? 'Hide password' : 'Show password'">
+                            <i [class]="showNewPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                          </button>
+                        </div>
+                        <div *ngIf="getControlError('newPassword', passwordForm)" class="invalid-feedback">{{
+                          getControlError('newPassword', passwordForm) }}</div>
+                      </div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <div class="form-group">
+                        <label for="confirmNewPassword" class="form-label">
+                          <i class="fas fa-lock me-2"></i>
+                          Confirm New Password
+                        </label>
+                        <div class="input-group">
+                          <input [type]="showConfirmPassword ? 'text' : 'password'" id="confirmNewPassword"
+                            formControlName="confirmNewPassword" class="form-control"
+                            [ngClass]="{'is-invalid': getControlError('confirmNewPassword', passwordForm)}"
+                            placeholder="Confirm new password">
+                          <button type="button" class="btn btn-outline-secondary password-toggle"
+                            (click)="togglePasswordVisibility('confirm')"
+                            [attr.aria-label]="showConfirmPassword ? 'Hide password' : 'Show password'">
+                            <i [class]="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                          </button>
+                        </div>
+                        <div *ngIf="getControlError('confirmNewPassword', passwordForm)" class="invalid-feedback">{{
+                          getControlError('confirmNewPassword', passwordForm) }}</div>
+                        <div
+                          *ngIf="passwordForm.errors?.['mismatch'] && (passwordForm.get('confirmNewPassword')?.dirty || passwordForm.get('confirmNewPassword')?.touched)"
+                          class="invalid-feedback d-block">Passwords do not match.</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg px-4" [disabled]="passwordForm.invalid">
+                      <i class="fas fa-save me-2"></i>
+                      Change Password
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

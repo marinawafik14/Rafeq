@@ -1,45 +1,80 @@
-<div class="container login-container">
-  <h2>Login</h2>
-  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-    <div class="mb-3">
-      <label for="email" class="form-label">Email</label>
-      <input type="email" id="email" formControlName="email" class="form-control" />
-      @if(email?.invalid && (email?.dirty || email?.touched)) {
-      <div class="text-danger">
-        @if(email?.errors?.['required']){
-        <p>Email is required.</p>
-        } @if(email?.errors?.['email']){
-        <p>Invalid email format.</p>
-        }
+<div class="login-wrapper">
+  <div class="login-container">
+    <!-- Left side - Image -->
+    <div class="login-image-section">
+      <div class="login-image-container">
+        <img src="/images/Login.jpg" alt="Welcome to Rafeq" class="login-image">
+        <div class="login-image-overlay">
+          <div class="login-image-content">
+
+          </div>
+        </div>
       </div>
-      }
     </div>
 
-    <div class="mb-3">
-      <label for="password" class="form-label">Password</label>
-      <input type="password" id="password" formControlName="password" class="form-control" />
-      @if(password?.invalid && (password?.dirty || password?.touched)) {
-      <div class="text-danger">
-        @if(password?.errors?.['required']){
-        <p>Password is required.</p>
-        }
+    <!-- Right side - Login Form -->
+    <div class="login-form-section">
+      <div class="login-form-container">
+        <div class="login-header">
+          <h2>Sign In</h2>
+          <p class="login-subtitle">Welcome to Rafeq</p>
+        </div>
+
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+          <div class="form-group">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" formControlName="email" class="form-control"
+              placeholder="Enter your email" />
+            @if(email?.invalid && (email?.dirty || email?.touched)) {
+            <div class="error-message">
+              @if(email?.errors?.['required']){
+              <span>Email is required.</span>
+              } @if(email?.errors?.['email']){
+              <span>Invalid email format.</span>
+              }
+            </div>
+            }
+          </div>
+          <div class="form-group">
+            <label for="password" class="form-label">password</label>
+            <div class="password-input-container">
+              <input [type]="showPassword ? 'text' : 'password'" id="password" formControlName="password"
+                class="form-control password-input" placeholder="Enter your password" />
+              <button type="button" class="password-toggle-btn" (click)="togglePasswordVisibility()"
+                [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+                <i [class]="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+              </button>
+            </div>
+            @if(password?.invalid && (password?.dirty || password?.touched)) {
+            <div class="error-message">
+              @if(password?.errors?.['required']){
+              <span>Password is required.</span>
+              }
+            </div>
+            }
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" formControlName="rememberMe" class="checkbox-input" />
+              <span class="checkbox-custom"></span>
+              <span class="checkbox-text">Remember Me</span>
+            </label>
+          </div>
+
+          <button type="submit" class="btn btn-primary" [disabled]="loginForm.invalid">
+            <span>Sign In</span>
+          </button>
+        </form>
+
+        <div class="login-links">
+          <a routerLink="/forgot-password" class="forgot-password-link">Forgot Password?</a>
+          <a routerLink="/resend-verification" class="resend-link">Resend Verification Email</a>
+        </div>
+        <div class="google-login-section">
+          <div id="google-btn-container" class="google-btn-wrapper"></div>
+        </div>
       </div>
-      }
     </div>
-
-    <button type="submit" class="btn btn-primary" [disabled]="loginForm.invalid">Login</button>
-  </form>
-
-  <div class="text-center mt-3">
-    <a routerLink="/forgot-password" class="d-block mb-2">Forgot Password?</a>
-    <a routerLink="/resend-verification" class="d-block">Resend Verification Email</a>
   </div>
-
-  <hr class="my-4">
-
-  <div class="google-login-section text-center">
-    <p class="text-muted">Or continue with:</p>
-    <div id="google-btn-container" class="d-flex justify-content-center"></div>
-  </div>
-
 </div>

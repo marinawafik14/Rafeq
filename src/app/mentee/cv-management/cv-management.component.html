@@ -1,0 +1,90 @@
+<mentee-layout [menteeName]="menteeName" [menteeId]="menteeId">
+  <div class="container py-4 cv-management">
+    <h3 class="mb-4 text-center">CV Management</h3>
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="dropzone card p-4 text-center mb-2" [class.drag-over]="dragOver"
+          (drop)="onFileDrop($event)" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)">
+          <i class="bi bi-cloud-arrow-up display-4 text-primary mb-2"></i>
+          <div class="mb-2">Drag & drop your CV here, or <label class="text-primary fw-bold"
+              style="cursor:pointer;">browse
+            <input type="file" accept=".pdf,.doc,.docx" (change)="onFileSelect($event)" hidden></label></div>
+          <div class="text-muted small">PDF or Word, max 2MB</div>
+          <div *ngIf="fileError" class="alert alert-danger mt-2 py-2">{{fileError}}</div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+        <div *ngIf="cvs.length; else emptyCVs">
+          <div class="table-responsive">
+            <table class="table align-middle table-hover">
+              <thead>
+                <tr>
+                  <th>File</th>
+                  <th>Uploaded</th>
+                  <th>Comments</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let cv of cvs">
+                  <td><i class="bi bi-file-earmark-text me-2"></i>{{cv.name}}</td>
+                  <td>{{cv.uploadedAt}}</td>
+
+                  <td>
+                    <button class="btn btn-link p-0" (click)="openCommentsModal(cv)">
+                      <i class="bi bi-chat-dots"></i> {{cv.comments.length}} comment{{cv.comments.length === 1 ? '' : 's'}}
+                    </button>
+                  </td>
+                  <td>
+                    <button class="btn btn-outline-danger btn-sm" (click)="deleteCV(cv)"><i class="bi bi-trash"></i>
+                      Delete</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <ng-template #emptyCVs>
+          <div class="text-center text-muted py-5">
+            <i class="bi bi-file-earmark-x display-4 mb-3"></i>
+            <div>No CVs uploaded yet.</div>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+    <ng-container *ngIf="loading">Loading...</ng-container>
+    <ng-container *ngIf="error">{{error}}</ng-container>
+  </div>
+
+  <!-- Comments Modal -->
+  <ng-container *ngIf="showCommentsModal">
+    <div class="modal-backdrop fade show"></div>
+    <div class="modal d-block" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Comments for {{selectedCV?.name}}</h5>
+            <button type="button" class="btn-close" (click)="closeCommentsModal()"></button>
+          </div>
+          <div class="modal-body">
+            <div *ngIf="selectedComments.length; else noComments">
+              <div *ngFor="let comment of selectedComments" class="mb-3">
+                <div class="fw-bold">{{comment.mentorName}} <span class="text-muted small">({{comment.createdAt | date:'short'}})</span>
+                </div>
+                <div>{{comment.comment}}</div>
+              </div>
+            </div>
+            <ng-template #noComments>
+              <div class="text-muted">No comments for this CV.</div>
+            </ng-template>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" (click)="closeCommentsModal()">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</mentee-layout>
