@@ -13,6 +13,7 @@ import { catchError, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { UpdateMentorProfile } from '../../../Models/UserProfile/UpdateMentorProfileDto';
 import { ChangePassword } from '../../../Models/UserProfile/ChangePassword';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-mentor-profile',
@@ -46,7 +47,8 @@ export class MentorProfileComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private userProfileService: UserProfileService
+    private userProfileService: UserProfileService,
+    private router: Router
   ) {}
 
   // Toast management methods
@@ -360,4 +362,8 @@ export class MentorProfileComponent implements OnInit {
     }
     return null;
   }
+  goToMentorDashboard(): void {
+  this.router.navigate(['/mentor/dashboard']);
+}
+
 }

@@ -502,6 +502,15 @@
   background: #28a745;
   color: white;
 }
+.btn-outline-success {
+  border-color: #0a2e65;
+  color: #0a2e65;
+
+  &:hover {
+    background-color: #0a2e65;
+    color: white;
+  }
+}
 
 .toast-error {
   background: #dc3545;

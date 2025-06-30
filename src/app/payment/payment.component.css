@@ -74,7 +74,18 @@ strong {
     border: 1px solid #0a2e65;
   }
 }
+.StripeElement {
+  background-color: #f8f9fa !important;
+  border: 1px solid #ced4da !important;
+  padding: 1rem !important;
+  border-radius: 2rem !important; /* Matches rounded-pill */
+}
 
+.StripeElement--focus {
+  border-color: #0a2e65 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 0.2rem rgba(10, 46, 101, 0.25) !important;
+}
 .icon-primary {
   color: #0a2e65;
 }

@@ -52,6 +52,7 @@ export class MenteeProfileComponent implements OnInit {
     this.initForms();
     this.loadSkills();
     this.loadUserProfile();
+    
   }
 
   // --- Core Data Loading ---
@@ -365,4 +366,6 @@ export class MenteeProfileComponent implements OnInit {
   removeToast(id: number): void {
     this.toasts = this.toasts.filter((toast) => toast.id !== id);
   }
+
+  
 }
