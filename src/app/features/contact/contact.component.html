@@ -170,7 +170,7 @@
           <h4 class="mb-4 fw-bold">Send Us a Message</h4>
 
           <!-- Contact Form -->
-          <form >
+          <form  [formGroup]="contactForm" (ngSubmit)="submitForm()">
             <div class="mb-3">
               <label for="name" class="form-label">Your Name</label>
               <input type="text" class="form-control rounded-pill" id="name" formControlName="name"

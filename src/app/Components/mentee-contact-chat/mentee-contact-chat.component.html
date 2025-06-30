@@ -1,0 +1,52 @@
+<div class="chat-main-panel">
+  <div class="chat-header block text-center ">
+    
+    <i class="fa-brands fa-rocketchat fa-2xl" style="color: #ffffff;"></i> Messages
+  </div>
+
+  <div class="chat-messages-area " #chatBox > 
+    <div *ngFor="let item of chatItems" [ngClass]="{'message-row': true, 'mentee-row': item.sender === 'mentee', 'admin-row': item.sender === 'admin'}">
+    
+      <ng-container *ngIf="item.sender === 'admin'">
+      
+        <div class="message-bubble admin-bubble">
+          <p class="message-text">{{ item.text }}</p>
+          <span class="message-time">{{ item.createdAt | date:'shortTime' }}</span>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="item.sender === 'mentee'">
+        <div class="message-bubble mentee-bubble">
+          <p class="message-text">{{ item.text }}</p>
+          <span class="message-time">
+            {{ item.createdAt | date:'shortTime' }}
+            <!-- Read checkmark icon -->
+            <svg class="read-icon" xmlns="http://www.w3.org/2000/svg" height="16px" viewBox="0 0 24 24" width="16px" fill="#FFFFFF">
+                <path d="M0 0h24v24H0z" fill="none"/>
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+          </span>
+        </div>
+        <img src="https://placehold.co/32x32/adb5bd/ffffff?text=U" alt="Mentee Profile Picture" class="message-profile-picture">
+      </ng-container>
+    </div>
+  </div>
+
+  <form class="message-input-form" (ngSubmit)="sendMessage()">
+    <textarea
+      [(ngModel)]="newMessage"
+      name="newMessage"
+      placeholder="Type your message..."
+      required
+      rows="1"
+      (input)="autoGrowTextarea($event)"
+      #messageInput
+    ></textarea>
+    <button type="submit" [disabled]="!newMessage.trim()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24px" height="24px">
+        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+        <path d="M0 0h24v24H0z" fill="none"/>
+      </svg>
+    </button>
+  </form>
+</div>

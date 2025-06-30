@@ -119,7 +119,7 @@ export class LoginComponent implements OnInit {
               this.toastr.success(apiResponse.message || 'Google login successful!', 'Success');
               // Redirect based on role
               if (apiResponse.tokenData.role && apiResponse.tokenData.role.toLowerCase() === 'admin') {
-                this.router.navigate(['/admin']);
+                this.router.navigate(['/admin/charts']);
               } else {
                 this.router.navigate([this.returnUrl]);
               }
