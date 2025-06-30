@@ -47,16 +47,16 @@ export class DashboardComponent implements OnInit {
       }
     });
 
-    this.loadTodaysSessions();
-  }
-
-  loadTodaysSessions(): void {
-    const today = new Date();
-    
-    this.mentorService.getTodayBookings(this.mentorId).subscribe({
+    // Load today's sessions
+    this.mentorService.getTodaySessions(this.mentorId).subscribe({
       next: (sessions) => {
-        // Process and auto-complete any ended sessions
-        this.todaySessions = this.processSessionStatuses(sessions);
+        this.todaySessions = sessions;
+        // Add this debug line
+        console.log('Today sessions data:', sessions);
+        sessions.forEach(session => {
+          console.log(`Session ${session.bookingId}: status=${session.status}, googleMeetLink=${session.googleMeetLink}`);
+        });
+        this.isLoading = false;
       },
       error: (error) => {
         this.error = 'Failed to load today\'s sessions';
@@ -68,48 +68,12 @@ export class DashboardComponent implements OnInit {
     // Load upcoming sessions
     this.mentorService.getUpcomingBookings(this.mentorId).subscribe({
       next: (sessions) => {
-        const now = new Date();
-        // Filter for truly upcoming sessions (not ended) and limit to 5
-        this.upcomingSessions = sessions
-          .filter(session => {
-            const sessionEnd = new Date(session.endDateTime);
-            return now < sessionEnd && (session.status === 'Confirmed' || session.status === 'Pending' || session.status === 'InProgress');
-          })
-          .slice(0, 5);
+        this.upcomingSessions = sessions.slice(0, 5); // Only get the first 5 upcoming sessions
       },
       error: (error) => {
         console.error('Error loading upcoming sessions:', error);
       }
     });
-  }
-
-  // Process session statuses and auto-update completed sessions
-  processSessionStatuses(sessions: MentorBooking[]): MentorBooking[] {
-    const now = new Date();
-    const updatedSessions: MentorBooking[] = [];
-    
-    sessions.forEach(session => {
-      const sessionEnd = new Date(session.endDateTime);
-      
-      // Auto-complete sessions that have ended but are still marked as InProgress or Confirmed
-      if ((session.status === 'InProgress' || session.status === 'Confirmed') && now > sessionEnd) {
-        console.log(`Auto-completing session ${session.bookingId} that ended at ${sessionEnd}`);
-        
-        // Update the local session status
-        const updatedSession = { ...session, status: 'Completed' };
-        updatedSessions.push(updatedSession);
-        
-        // Update the backend status (fire and forget)
-        this.mentorService.updateBookingStatus(session.bookingId, { status: 'Completed' }).subscribe({
-          next: () => console.log(`Successfully auto-completed session ${session.bookingId}`),
-          error: (error) => console.error(`Failed to auto-complete session ${session.bookingId}:`, error)
-        });
-      } else {
-        updatedSessions.push(session);
-      }
-    });
-    
-    return updatedSessions;
   }
 
   toggleAvailability(): void {

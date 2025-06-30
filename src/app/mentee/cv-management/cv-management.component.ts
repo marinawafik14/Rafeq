@@ -26,7 +26,6 @@ interface CV {
 export class CvManagementComponent implements OnInit {
   cvs: CV[] = [];
   loading = true;
-  uploading = false;
   error: string | null = null;
   menteeId: number | null = null;
   menteeName: string = '';
@@ -35,8 +34,6 @@ export class CvManagementComponent implements OnInit {
   selectedComments: any[] = [];
   showCommentsModal = false;
   selectedCV: CV | null = null;
-  showDeleteModal = false;
-  cvToDelete: CV | null = null;
 
   // Base URL for API calls
   private apiBaseUrl = 'https://localhost:7001/api';
@@ -48,11 +45,7 @@ export class CvManagementComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Get menteeId from route params
-    this.route.paramMap.subscribe(params => {
-      const routeId = params.get('menteeId');
-      this.menteeId = routeId ? +routeId : null;
-    });
+    // No need to get menteeId for API call, just load CVs for current user
     this.loadCVs();
   }
 
@@ -121,7 +114,7 @@ export class CvManagementComponent implements OnInit {
 
   onFileSelect(event: Event) {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
+    if (input.files && input.files.length > 0 && this.menteeId) {
       this.handleFileUpload(input.files[0]);
       input.value = ''; // Reset input to allow selecting the same file again
     }
@@ -133,54 +126,32 @@ export class CvManagementComponent implements OnInit {
     const formData = new FormData();
     formData.append('file', file);
     this.fileError = null;
-    this.uploading = true;
     
     this.http.post(`${this.apiBaseUrl}/MenteeCVs/mentee/${this.menteeId}`, formData, { 
       headers: this.getAuthHeaders() 
     }).subscribe({
       next: () => {
-        this.uploading = false;
         this.loadCVs(); // Refresh the list
       },
       error: err => {
-        this.uploading = false;
         this.fileError = 'Failed to upload CV. Please try again.';
         console.error('Error uploading CV:', err);
       }
     });
   }
 
-  // Modal-related methods for delete confirmation
-  confirmDelete(cv: CV) {
-    this.cvToDelete = cv;
-    this.showDeleteModal = true;
-  }
-
-  closeDeleteModal() {
-    this.showDeleteModal = false;
-    this.cvToDelete = null;
-  }
-
-  // Handle modal keyboard events
-  onKeyDown(event: KeyboardEvent) {
-    if (event.key === 'Escape') {
-      this.closeDeleteModal();
-    }
-  }
-
-  // Template calls deleteCV() without parameters, so we support both signatures
-  deleteCV(cv?: CV): void {
-    const cvToDelete = cv || this.cvToDelete;
-    if (!cvToDelete) return;
-
-    if (!cvToDelete.id || !this.menteeId) return;
+  deleteCV(cv: CV) {
+    if (!cv.id || !this.menteeId) return;
     
-    this.http.delete(`${this.apiBaseUrl}/MenteeCVs/mentee/${this.menteeId}/${cvToDelete.id}`, { 
+    if (!confirm('Are you sure you want to delete this CV?')) {
+      return;
+    }
+
+    this.http.delete(`${this.apiBaseUrl}/MenteeCVs/mentee/${this.menteeId}/${cv.id}`, { 
       headers: this.getAuthHeaders() 
     }).subscribe({
       next: () => {
-        this.cvs = this.cvs.filter(item => item.id !== cvToDelete.id);
-        this.closeDeleteModal();
+        this.cvs = this.cvs.filter(item => item.id !== cv.id);
       },
       error: err => {
         this.error = 'Failed to delete CV.';

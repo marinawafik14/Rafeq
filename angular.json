@@ -66,13 +66,15 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "proxyConfig": "proxy.conf.json"
+          },
           "configurations": {
             "production": {
               "buildTarget": "rafeq-app:build:production"
             },
             "development": {
-              "buildTarget": "rafeq-app:build:development",
-              "proxyConfig": "proxy.conf.json"
+              "buildTarget": "rafeq-app:build:development"
             }
           },
           "defaultConfiguration": "development"

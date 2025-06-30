@@ -61,9 +61,4 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.destroy.next();
     this.destroy.complete();
   }
-<<<<<<< HEAD
-
 }
-=======
-}
->>>>>>> 923bb6463914ae4ca3679312499815019e0c8279
