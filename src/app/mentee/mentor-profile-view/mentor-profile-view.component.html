@@ -1,0 +1,231 @@
+<div class="mentee-page d-flex">
+  <mentee-layout [menteeId]="menteeId"></mentee-layout>
+  <main class="main-content flex-grow-1">
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-container">
+      <div class="loading-spinner">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-3 text-muted">Loading mentor profile...</p>
+      </div>
+    </div>
+
+    <!-- Mentor Profile Content -->
+    <div class="mentor-profile-container" *ngIf="!loading && mentor">
+      <!-- Hero Section -->
+      <div class="hero-section">
+        <div class="hero-background"></div>
+        <div class="hero-content">
+          <div class="row align-items-center">
+            <div class="col-lg-3 col-md-4 text-center">
+              <div class="profile-image-wrapper">
+                <img [src]="mentor.profilePicture || '/images/default-avatar.png'" 
+                     alt="{{mentor.fullName}}" 
+                     class="profile-image"
+                     (error)="onImageError($event)">
+                <div class="online-status" title="Available for booking"></div>
+                <div class="rating-overlay" *ngIf="getAverageRating() > 0">
+                  <span class="rating-score">{{getAverageRating()}}</span>
+                  <i class="bi bi-star-fill"></i>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-6 col-md-8">
+              <div class="mentor-info">
+                <h1 class="mentor-name">{{mentor.fullName}}</h1>
+                <p class="mentor-title" *ngIf="mentor.title">{{mentor.title}}</p>
+                
+                <!-- Role Badges -->
+                <div class="role-badges">
+                  <span class="role-badge mentor-badge" *ngIf="mentor.isMentor">
+                    <i class="bi bi-person-check"></i>Mentor
+                  </span>
+                  <span class="role-badge interviewer-badge" *ngIf="mentor.isInterviewer">
+                    <i class="bi bi-clipboard-check"></i>Interviewer
+                  </span>
+                </div>
+
+                <!-- Stats -->
+                <div class="mentor-stats">
+                  <div class="stat-item">
+                    <div class="stat-value">${{mentor.hourlyRate}}</div>
+                    <div class="stat-label">per hour</div>
+                  </div>
+                  <div class="stat-divider"></div>
+                  <div class="stat-item">
+                    <div class="stat-value">{{reviews.length}}</div>
+                    <div class="stat-label">reviews</div>
+                  </div>
+                </div>
+
+                <!-- Skills Preview -->
+                <div class="skills-preview" *ngIf="getMentorSkills().length > 0">
+                  <span class="skill-tag" *ngFor="let skill of getMentorSkills().slice(0, 4)">
+                    {{skill}}
+                  </span>
+                  <span class="more-skills" *ngIf="getMentorSkills().length > 4">
+                    +{{getMentorSkills().length - 4}} more
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-3 col-md-12">
+              <div class="booking-card">
+                <button class="book-session-btn" 
+                        (click)="bookSession()"
+                        [disabled]="!hasAvailability()">
+                  <i class="bi bi-calendar-plus"></i>
+                  <span>{{hasAvailability() ? 'Book Session' : 'No Availability'}}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Sections -->
+      <div class="content-wrapper">
+        <div class="row g-4">
+          <!-- Left Column -->
+          <div class="col-lg-8">
+            <!-- About Section -->
+            <div class="content-card about-card" *ngIf="mentor.bio">
+              <div class="card-header">
+                <h3><i class="bi bi-person-lines-fill"></i>About</h3>
+              </div>
+              <div class="card-body">
+                <p class="about-text">{{mentor.bio}}</p>
+              </div>
+            </div>
+
+            <!-- Skills Section -->
+            <div class="content-card skills-card" *ngIf="getMentorSkills().length > 0">
+              <div class="card-header">
+                <h3><i class="bi bi-code-slash"></i>Skills & Expertise</h3>
+                <button class="toggle-btn" (click)="showAllSkills = !showAllSkills" *ngIf="getMentorSkills().length > 8">
+                  {{showAllSkills ? 'Show Less' : 'Show All'}}
+                </button>
+              </div>
+              <div class="card-body">
+                <div class="skills-grid">
+                  <div class="skill-item" 
+                       *ngFor="let skill of (showAllSkills ? getMentorSkills() : getMentorSkills().slice(0, 8))">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>{{skill}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div class="content-card reviews-card">
+              <div class="card-header">
+                <h3><i class="bi bi-chat-quote"></i>Reviews & Ratings</h3>
+                <div class="reviews-summary" *ngIf="reviews.length > 0">
+                  <div class="rating-display">
+                    <span class="rating-number">{{getAverageRating()}}</span>
+                    <div class="stars">
+                      <i class="bi bi-star-fill" *ngFor="let star of getStarArray(getAverageRating()); let i = index"
+                         [class.filled]="star"></i>
+                    </div>
+                  </div>
+                  <span class="review-count">{{reviews.length}} review{{reviews.length !== 1 ? 's' : ''}}</span>
+                </div>
+              </div>
+              <div class="card-body">
+                <!-- Reviews List -->
+                <div class="reviews-list" *ngIf="reviews.length > 0">
+                  <div class="review-item" 
+                       *ngFor="let review of getDisplayedReviews(); trackBy: trackByReview">
+                    <div class="review-header">
+                      <div class="reviewer-avatar">
+                        <i class="bi bi-person-circle"></i>
+                      </div>
+                      <div class="reviewer-info">
+                        <h6 class="reviewer-name">{{review.menteeName || 'Anonymous'}}</h6>
+                        <div class="review-meta">
+                          <div class="review-rating">
+                            <i class="bi bi-star-fill" *ngFor="let star of getStarArray(review.rating); let i = index"
+                               [class.filled]="star"></i>
+                          </div>
+                          <span class="review-date">{{formatReviewDate(review.reviewDate)}}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="review-content">
+                      <p>{{review.comment}}</p>
+                    </div>
+                  </div>
+                  
+                  <!-- Show More Reviews Button -->
+                  <div class="text-center mt-4" *ngIf="reviews.length > reviewsPerPage">
+                    <button class="show-more-btn" (click)="showAllReviews = !showAllReviews">
+                      {{showAllReviews ? 'Show Less Reviews' : 'Show All Reviews (' + reviews.length + ')'}}
+                    </button>
+                  </div>
+                </div>
+
+                <!-- No Reviews State -->
+                <div class="no-reviews" *ngIf="reviews.length === 0">
+                  <div class="no-reviews-icon">
+                    <i class="bi bi-chat-quote"></i>
+                  </div>
+                  <h5>No reviews yet</h5>
+                  <p>Be the first to book a session and leave a review!</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column -->
+          <div class="col-lg-4">
+            <!-- Availability Card -->
+            <div class="content-card availability-card sticky-top">
+              <div class="card-header">
+                <h3><i class="bi bi-calendar3"></i>Availability</h3>
+              </div>
+              <div class="card-body">
+                <div class="availability-list" *ngIf="hasAvailability()">
+                  <div class="availability-day" *ngFor="let availability of getGroupedAvailabilities()">
+                    <div class="day-header">
+                      <i class="bi bi-calendar-day"></i>
+                      <span class="day-name">{{availability.dayName}}</span>
+                    </div>
+                    <div class="time-slots">
+                      <div class="time-slot" *ngFor="let timeSlot of availability.timeSlots">
+                        <i class="bi bi-clock"></i>
+                        <span>{{timeSlot}}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- No Availability State -->
+                <div class="no-availability" *ngIf="!hasAvailability()">
+                  <div class="no-availability-icon">
+                    <i class="bi bi-calendar-x"></i>
+                  </div>
+                  <h6>No availability set</h6>
+                  <p>This mentor hasn't configured their availability yet.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="!loading && !mentor" class="error-container">
+      <div class="error-content">
+        <i class="bi bi-exclamation-triangle"></i>
+        <h4>Mentor not found</h4>
+        <p>The mentor profile you're looking for doesn't exist or has been removed.</p>
+        <button class="btn btn-primary" (click)="router.navigate(['/mentee', menteeId, 'search-mentors'])">
+          <i class="bi bi-arrow-left"></i>Back to Search
+        </button>
+      </div>
+    </div>
+  </main>
+</div>

@@ -88,9 +88,12 @@ export class BookingsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.currentUserId = this.authService.currentUserValue?.userId || 0;
-    this.loadBookings();
-    this.setupFormSubscriptions();
+    this.authService.currentUser.subscribe(user => {
+      if (user) {
+        this.currentUserId = user.userId;
+        this.loadBookings();
+      }
+    });
   }
 
   setupFormSubscriptions(): void {
@@ -105,32 +108,69 @@ export class BookingsComponent implements OnInit {
     
     this.mentorBookingService.getMentorBookings(this.currentUserId).subscribe({
       next: (bookings) => {
-        this.allBookings = bookings.map(booking => ({
+        // Check and auto-update booking statuses before processing
+        this.allBookings = this.processBookingStatuses(bookings.map(booking => ({
           ...booking,
           startDateTime: new Date(booking.startDateTime),
           endDateTime: new Date(booking.endDateTime),
           createdAt: new Date(booking.createdAt)
-        }));
+        })));
         
+        this.filteredBookings = [...this.allBookings];
         this.bookingStats = this.mentorBookingService.getBookingStats(this.allBookings);
         this.updateTabCounts();
         this.applyFilters();
         this.isLoading = false;
       },
       error: (error) => {
-        this.error = 'Failed to load bookings data';
-        this.isLoading = false;
         console.error('Error loading bookings:', error);
+        this.error = 'Failed to load bookings. Please try again.';
+        this.isLoading = false;
       }
     });
   }
 
+  // Process booking statuses and auto-update completed sessions
+  processBookingStatuses(bookings: MentorBookingDetails[]): MentorBookingDetails[] {
+    const now = new Date();
+    const updatedBookings: MentorBookingDetails[] = [];
+    
+    bookings.forEach(booking => {
+      const sessionEnd = new Date(booking.endDateTime);
+      
+      // Auto-complete sessions that have ended but are still marked as InProgress or Confirmed
+      if ((booking.status === 'InProgress' || booking.status === 'Confirmed') && now > sessionEnd) {
+        console.log(`Auto-completing booking ${booking.bookingId} that ended at ${sessionEnd}`);
+        
+        // Update the local booking status
+        const updatedBooking = { ...booking, status: 'Completed' as const };
+        updatedBookings.push(updatedBooking);
+        
+        // Optionally, update the backend status (fire and forget)
+        this.mentorBookingService.updateBookingStatus(booking.bookingId, { status: 'Completed' }).subscribe({
+          next: () => console.log(`Successfully auto-completed booking ${booking.bookingId}`),
+          error: (error) => console.error(`Failed to auto-complete booking ${booking.bookingId}:`, error)
+        });
+      } else {
+        updatedBookings.push(booking);
+      }
+    });
+    
+    return updatedBookings;
+  }
+
   updateTabCounts(): void {
+    const now = new Date();
+    
     this.tabs[0].count = this.allBookings.length; // All
-    this.tabs[1].count = this.allBookings.filter(b => 
-      new Date(b.startDateTime) > new Date() && 
-      (b.status === 'Confirmed' || b.status === 'Pending')
-    ).length; // Upcoming
+    this.tabs[1].count = this.allBookings.filter(b => {
+      // A booking is "upcoming" if:
+      // 1. It hasn't been cancelled or completed
+      // 2. The session hasn't ended yet (based on endDateTime)
+      const sessionEnd = new Date(b.endDateTime);
+      return (b.status === 'Confirmed' || b.status === 'Pending' || b.status === 'InProgress') && 
+             now < sessionEnd;
+    }).length; // Upcoming
     this.tabs[2].count = this.allBookings.filter(b => b.status === 'Pending').length; // Pending
     this.tabs[3].count = this.allBookings.filter(b => b.status === 'Completed').length; // Completed
     this.tabs[4].count = this.allBookings.filter(b => b.status === 'Cancelled').length; // Cancelled
@@ -145,14 +185,19 @@ export class BookingsComponent implements OnInit {
   applyFilters(): void {
     let filtered = [...this.allBookings];
     const formValues = this.searchForm.value;
+    const now = new Date();
     
     // Apply tab filter first
     switch (this.activeTab) {
       case 'upcoming':
-        filtered = filtered.filter(b => 
-          new Date(b.startDateTime) > new Date() && 
-          (b.status === 'Confirmed' || b.status === 'Pending')
-        );
+        filtered = filtered.filter(b => {
+          // A booking is "upcoming" if:
+          // 1. It hasn't been cancelled or completed
+          // 2. The session hasn't ended yet (based on endDateTime)
+          const sessionEnd = new Date(b.endDateTime);
+          return (b.status === 'Confirmed' || b.status === 'Pending' || b.status === 'InProgress') && 
+                 now < sessionEnd;
+        });
         break;
       case 'pending':
         filtered = filtered.filter(b => b.status === 'Pending');

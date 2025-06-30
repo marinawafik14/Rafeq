@@ -1,0 +1,167 @@
+<div class="container-fluid py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-1 d-flex align-items-center">
+        <i class="fas fa-bell me-3"></i>
+        Notifications
+        <span *ngIf="unreadCount > 0" class="badge bg-danger ms-2">
+          {{ unreadCount }}
+        </span>
+      </h2>
+      <p class="text-muted mb-0">Stay updated with your latest activities</p>
+    </div>
+    
+    <div class="d-flex gap-2">
+      <button 
+        class="btn btn-outline-primary"
+        (click)="refreshNotifications()"
+        [disabled]="isLoading">
+        <i class="fas fa-sync-alt me-1" [class.fa-spin]="isLoading"></i>
+        Refresh
+      </button>
+      
+      <button 
+        class="btn btn-primary"
+        (click)="markAllAsRead()"
+        [disabled]="unreadCount === 0 || isLoading">
+        <i class="fas fa-check-double me-1"></i>
+        Mark All Read
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters and Search -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <div class="row g-3">
+        <!-- Search -->
+        <div class="col-md-6">
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="fas fa-search"></i>
+            </span>
+            <input 
+              type="text" 
+              class="form-control" 
+              placeholder="Search notifications..." 
+              [(ngModel)]="searchQuery"
+              (ngModelChange)="onSearchChange()">
+          </div>
+        </div>
+        
+        <!-- Filter -->
+        <div class="col-md-6">
+          <select 
+            class="form-select" 
+            [(ngModel)]="selectedFilter"
+            (ngModelChange)="onFilterChange()">
+            <option value="all">All Notifications</option>
+            <option value="unread">Unread Only</option>
+            <option value="read">Read Only</option>
+            <optgroup label="By Type">
+              <option value="SessionReminder">Session Reminders</option>
+              <option value="NewBooking">New Bookings</option>
+              <option value="NewReview">New Reviews</option>
+              <option value="PaymentConfirmed">Payment Confirmations</option>
+              <option value="BookingCancelled">Booking Cancellations</option>
+              <option value="SystemNotification">System Notifications</option>
+            </optgroup>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3 text-muted">Loading notifications...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="hasError && !isLoading" class="alert alert-danger">
+    <div class="d-flex align-items-center">
+      <i class="fas fa-exclamation-triangle me-2"></i>
+      <div class="flex-grow-1">
+        <strong>Error Loading Notifications</strong>
+        <p class="mb-0">{{ errorMessage }}</p>
+      </div>
+      <button class="btn btn-outline-danger btn-sm" (click)="loadNotifications()">
+        <i class="fas fa-redo me-1"></i>
+        Retry
+      </button>
+    </div>
+  </div>
+
+  <!-- Notifications List -->
+  <div *ngIf="!isLoading && !hasError">
+    <!-- Empty State -->
+    <div *ngIf="filteredNotifications.length === 0" class="text-center py-5">
+      <i class="fas fa-bell-slash fa-4x text-muted mb-3"></i>
+      <h4 class="text-muted">
+        {{ searchQuery || selectedFilter !== 'all' ? 'No matching notifications' : 'No notifications yet' }}
+      </h4>
+      <p class="text-muted">
+        {{ searchQuery || selectedFilter !== 'all' ? 'Try adjusting your filters or search terms' : 'We\'ll notify you when something important happens' }}
+      </p>
+      <button *ngIf="searchQuery || selectedFilter !== 'all'" 
+              class="btn btn-outline-primary"
+              (click)="selectedFilter = 'all'; searchQuery = ''; onFilterChange()">
+        <i class="fas fa-times me-1"></i>
+        Clear Filters
+      </button>
+    </div>
+
+    <!-- Notification Items -->
+    <div class="notifications-list">
+      <div *ngFor="let notification of filteredNotifications; trackBy: trackByNotificationId" 
+           class="notification-item card mb-3"
+           [class.unread]="!notification.isRead"
+           (click)="onNotificationClick(notification)">
+        
+        <div class="card-body">
+          <div class="d-flex align-items-start">
+            <!-- Icon -->
+            <div class="notification-icon me-3" 
+                 [attr.data-type]="notification.type">
+              <i [class]="'fas fa-' + getNotificationIcon(notification.type)"></i>
+            </div>
+
+            <!-- Content -->
+            <div class="notification-content flex-grow-1">
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <h6 class="notification-message mb-0" 
+                    [class.fw-bold]="!notification.isRead">
+                  {{ notification.message }}
+                </h6>
+                
+                <!-- Unread Indicator -->
+                <div *ngIf="!notification.isRead" class="unread-indicator ms-2"></div>
+              </div>
+              
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="notification-meta">
+                  <span class="badge me-2"
+                        [class]="'bg-' + getNotificationColor(notification.type)">
+                    {{ getNotificationTypeLabel(notification.type) }}
+                  </span>
+                  <small class="text-muted">
+                    <i class="fas fa-clock me-1"></i>
+                    {{ getTimeAgo(notification.createdAt) }}
+                  </small>
+                </div>
+                
+                <div *ngIf="notification.relatedEntityId" class="text-muted">
+                  <i class="fas fa-external-link-alt"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

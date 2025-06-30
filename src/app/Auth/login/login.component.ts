@@ -94,6 +94,15 @@ export class LoginComponent implements OnInit {
       rememberMe: false,
     });
     this.showPassword = false;
+
+    // Reset Google Sign-In if available
+    if (
+      typeof google !== 'undefined' &&
+      google.accounts &&
+      google.accounts.id
+    ) {
+      google.accounts.id.cancel();
+    }
   }
 
   onSubmit(): void {
@@ -130,7 +139,16 @@ export class LoginComponent implements OnInit {
           response.tokenData.role.toLowerCase() === 'admin'
         ) {
           this.router.navigate(['/admin']);
-        } else {
+        }else if (response.tokenData.role && response.tokenData.role.toLowerCase() === 'mentee') {
+          const menteeId = response.tokenData.userId;
+          if (menteeId) {
+            this.router.navigate([`/mentee/${menteeId}/dashboard`]);
+          } else {
+            this.toastr.error('Mentee ID not found in token.', 'Navigation Error');
+            this.router.navigate([this.returnUrl]);
+          }
+        } 
+        else {
           this.router.navigate([this.returnUrl]);
         }
       },

@@ -1,3 +1,4 @@
+
 import { Routes } from '@angular/router';
 import { AboutComponent } from './features/about/about.component';
 import { ContactComponent } from './features/contact/contact.component';
@@ -85,5 +86,4 @@ export const routes: Routes = [
   { path: 'chat', component: ChatComponent },
   { path: 'chat/:bookingId', component: ChatComponent }
 ];
-
 

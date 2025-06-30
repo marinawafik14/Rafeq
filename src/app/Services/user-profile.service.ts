@@ -90,7 +90,9 @@ export class UserProfileService {
 
   changePassword(passwordData: ChangePassword): Observable<any> {
     return this.http
-      .put(`${this.apiUrl}/change-password`, passwordData)
+      .put(`${this.apiUrl}/change-password`, passwordData, {
+        responseType: 'text',
+      })
       .pipe(catchError(this.handleError));
   }
 
@@ -117,29 +119,6 @@ export class UserProfileService {
       .pipe(catchError(this.handleError));
   }
 
-  // getAllMentors(
-  //   skill?: string,
-  //   minRate?: number,
-  //   maxRate?: number,
-  //   rating?: number
-  // ): Observable<Mentor[]> {
-  //   let params = new HttpParams();
-  //   if (skill) {
-  //     params = params.set('skill', skill);
-  //   }
-  //   if (minRate) {
-  //     params = params.set('minRate', minRate.toString());
-  //   }
-  //   if (maxRate) {
-  //     params = params.set('maxRate', maxRate.toString());
-  //   }
-  //   if (rating) {
-  //     params = params.set('rating', rating.toString());
-  //   }
-  //   return this.http.get<Mentor[]>(`${this.apiUrl}/mentors`, { params }).pipe(
-  //     catchError(this.handleError)
-  //   );
-  // }
 
   getSkills(): Observable<Skill[]> {
     return this.http

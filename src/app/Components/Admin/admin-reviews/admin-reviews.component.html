@@ -34,7 +34,7 @@
                             </div>
                             <div class="review-meta text-sm text-gray-500">
                                 <span class="reviewer-name font-medium">{{ review.reviewedUserName || 'N/A' }}</span>
-                                <span class="review-date ms-2 italic">{{ formatDate(review.createdAt.toString())
+                                <span class="review-date ms-2 italic">{{ formatDate(review.createdAt?.toString())
                                     }}</span>
                             </div>
                         </div>

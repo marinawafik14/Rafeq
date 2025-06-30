@@ -1,3 +1,4 @@
+
 import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { loadStripe } from '@stripe/stripe-js';
@@ -8,10 +9,13 @@ import { AuthService } from '../Services/auth.service';
 
 @Component({
   selector: 'app-payment',
-  imports: [CommonModule],
-  templateUrl: './payment.component.html',
-  styleUrls: ['./payment.component.css']
-})
+
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+
+
+
 export class PaymentComponent implements AfterViewInit, OnDestroy {
   @ViewChild('cardInfo') cardInfo!: ElementRef;
 
@@ -160,5 +164,4 @@ export class PaymentComponent implements AfterViewInit, OnDestroy {
     this.errorVisible = true;
   }
 
-}
 }

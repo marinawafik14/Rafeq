@@ -716,3 +716,29 @@ CREATE TABLE MessageReactions (
     ReactionType NVARCHAR(50),
     CreatedAt DATETIME
 );
+
+-- Articles Table for Knowledge Base
+CREATE TABLE Articles (
+    ArticleId INT PRIMARY KEY IDENTITY(1,1),
+    Title NVARCHAR(300) NOT NULL,
+    Content NVARCHAR(MAX) NOT NULL,
+    Summary NVARCHAR(500),
+    Category NVARCHAR(100), -- 'Mentoring', 'Career', 'Interview', 'CV'
+    AuthorId INT FOREIGN KEY REFERENCES Users(UserId),
+    IsPublished BIT DEFAULT 1,
+    ViewCount INT DEFAULT 0,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    UpdatedAt DATETIME NULL
+);
+
+-- FAQ Table for Help Center
+CREATE TABLE FAQ (
+    FAQId INT PRIMARY KEY IDENTITY(1,1),
+    Question NVARCHAR(500) NOT NULL,
+    Answer NVARCHAR(MAX) NOT NULL,
+    Category NVARCHAR(100), -- 'Getting Started', 'Payments', 'Technical', 'Booking'
+    SortOrder INT DEFAULT 0,
+    IsActive BIT DEFAULT 1,
+    ViewCount INT DEFAULT 0,
+    CreatedAt DATETIME DEFAULT GETDATE()
+);
