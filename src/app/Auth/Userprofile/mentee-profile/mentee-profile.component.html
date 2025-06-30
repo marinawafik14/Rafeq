@@ -302,3 +302,45 @@
     </div>
   </div>
 </div>
+<!-- Reviews About the Mentee -->
+<div class="reviews-section mt-5">
+  <h4 class="mb-4">
+    <i class="fas fa-comments me-2"></i>
+    What Mentors Say About You
+  </h4>
+
+  <div *ngIf="reviewsList?.length > 0; else noReviews">
+    <div *ngFor="let review of reviewsList" class="review-card mb-4 p-4">
+      <div class="review-header d-flex justify-content-between align-items-start mb-3">
+        <div class="user-info d-flex align-items-center flex-grow-1">
+          <div class="profile-pic-placeholder me-3">
+            <i class="fas fa-user text-muted"></i>
+          </div>
+          <div>
+            <div class="names mb-1">
+              <span class="mentor-name font-semibold">Mentor: {{ review.reviewerName || 'N/A' }}</span>
+            </div>
+            <div class="review-meta text-sm text-gray-500">
+              <span class="review-date ms-2 italic">{{ formatDate(review.createdAt.toString()) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="review-body ps-5">
+        <div class="rating mb-2">
+          <span *ngFor="let i of getStarArray(review.rating)" class="star filled text-warning">&#9733;</span>
+          <span *ngFor="let i of getStarArray(5 - (review.rating || 0))" class="star text-gray-300">&#9733;</span>
+        </div>
+        <p class="comment text-gray-700 leading-relaxed">{{ review.comment || 'No comment provided.' }}</p>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #noReviews>
+    <div class="alert alert-info text-center">
+      <i class="fas fa-info-circle me-2"></i>
+      No reviews yet.
+    </div>
+  </ng-template>
+</div>
+

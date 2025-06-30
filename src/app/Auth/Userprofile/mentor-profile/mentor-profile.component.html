@@ -39,10 +39,19 @@
               </div>
             </div>
             <h3 class="profile-name">{{ userProfile.fullName || 'Your Name' }}</h3>
+       
+
             <p class="profile-role">
               <i class="fas fa-graduation-cap me-2"></i>
               Mentor
             </p>
+                 <!-- Go to Dashboard Button -->
+<div class="text-center mt-4">
+  <button class="btn btn-outline-success w-100" (click)="goToMentorDashboard()">
+    <i class="fas fa-tachometer-alt me-2"></i>
+    Go to Your Mentor Dashboard
+  </button>
+</div>
           </div>
 
           <div class="profile-stats">
@@ -105,6 +114,7 @@
                 Change Password
               </button>
             </li>
+            
           </ul>
 
           <div class="tab-content">

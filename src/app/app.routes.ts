@@ -44,13 +44,13 @@ export const routes: Routes = [
   { path: 'reset-password', component: ResetPasswordComponent },
  { path: 'verify-email/:token', component: VerifyEmailComponent },
   { path: 'resend-verification', component: ResendVerificationEmailComponent },
-    // Unified User Profile Route for both Mentor and Mentee
+    // Unified User Profile Route for both Mentor and Mentee 
     { path: 'user-profile', component: ProfileRedirectComponent },
   { path: 'mentor-profile', component: MentorProfileComponent },
   { path: 'mentee-profile', component: MenteeProfileComponent },
 
-  { path: 'payment', component: PaymentComponent },
-  { path: 'payment-complete', component: PaymentConfirmationComponent },
+  { path: 'payment/:id', component: PaymentComponent },
+  { path: 'payment-complete/:id', component: PaymentConfirmationComponent },
   { path: 'home', component: HomeComponent},
   { path: 'about', component: AboutComponent},
   { path: 'contact', component: ContactComponent},

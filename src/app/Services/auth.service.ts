@@ -8,6 +8,7 @@ import {
   throwError,
 } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { JwtHelperService } from '@auth0/angular-jwt';
 
 import { TokenResponseDto } from '../Models/Auth/TokenResponseDto';
 import { RegisterDto } from '../Models/Auth/RegisterDto ';
@@ -27,7 +28,7 @@ export class AuthService {
   private currentUserSubject: BehaviorSubject<TokenResponseDto | null>;
   public currentUser: Observable<TokenResponseDto | null>;
 
-  constructor(private http: HttpClient, private ngZone: NgZone) {
+  constructor(private http: HttpClient, private ngZone: NgZone,private jwtHelper: JwtHelperService) {
     const storedToken = localStorage.getItem('currentUser');
     this.currentUserSubject = new BehaviorSubject<TokenResponseDto | null>(
       storedToken ? JSON.parse(storedToken) : null
@@ -191,6 +192,46 @@ export class AuthService {
       !!this.currentUserSubject.value.accessToken
     );
   }
+getCurrentUserId(): number | null {
+  const currentUser = this.currentUserValue;
+  if (!currentUser || !currentUser.accessToken) return null;
+
+  try {
+    const decodedToken = this.jwtHelper.decodeToken(currentUser.accessToken);
+    
+    // Try common claim names
+    const userIdClaim = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier';
+    const userId = decodedToken[userIdClaim];
+
+    return userId ? +userId : null;
+  } catch (e) {
+    console.error('Error decoding token:', e);
+    return null;
+  }
+}
+
+getCurrentUserRole(): string | null {
+  const currentUser = this.currentUserValue;
+  if (!currentUser || !currentUser.accessToken) return null;
+
+  const decodedToken = this.jwtHelper.decodeToken(currentUser.accessToken);
+  return decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || null;
+}
+isTokenExpired(): boolean {
+  const token = this.getToken();
+  if (!token) return true;
+
+  try {
+    const decoded = this.jwtHelper.decodeToken(token);
+    const exp = decoded['exp'];
+    const expirationDate = new Date(0);
+    expirationDate.setUTCSeconds(exp);
+    return expirationDate.valueOf() < new Date().valueOf();
+  } catch {
+    return true;
+  }
+}
+
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'An unknown error occurred!';
 
