@@ -1,6 +1,6 @@
 /* Enhanced styling for articles-list.component */
 .articles-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0a2e65 0%, #1b74e4 100%);
   color: white;
   padding: 3rem 0;
   margin-bottom: 2rem;
@@ -35,8 +35,8 @@
 }
 
 .btn-outline-primary {
-  border: 2px solid #007bff;
-  color: #007bff;
+  border: 2px solid #1b74e4;
+  color: #1b74e4;
   font-weight: 500;
   border-radius: 25px;
   padding: 0.5rem 1.5rem;
@@ -46,18 +46,18 @@
 }
 
 .btn-outline-primary:hover {
-  background-color: #007bff;
+  background-color: #1b74e4;
   color: white;
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 4px 15px rgba(27, 116, 228, 0.3);
 }
 
 .btn-outline-primary.active {
-  background: linear-gradient(45deg, #007bff, #0056b3);
+  background: linear-gradient(45deg, #1b74e4, #0a2e65);
   color: white;
-  border-color: #0056b3;
+  border-color: #0a2e65;
   transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+  box-shadow: 0 4px 15px rgba(27, 116, 228, 0.4);
 }
 
 /* Search box */
@@ -85,7 +85,7 @@
 
 .search-container .btn {
   border: none;
-  background: linear-gradient(45deg, #28a745, #20c997);
+  background: linear-gradient(45deg, #0a2e65, #1b74e4);
   color: white;
   padding: 1rem 1.5rem;
   font-weight: 500;
@@ -93,7 +93,7 @@
 }
 
 .search-container .btn:hover {
-  background: linear-gradient(45deg, #218838, #1ea780);
+  background: linear-gradient(45deg, #083161, #1659c7);
   transform: scale(1.05);
 }
 
@@ -174,7 +174,7 @@
 }
 
 .btn-read-more {
-  background: linear-gradient(45deg, #007bff, #0056b3);
+  background: linear-gradient(45deg, #1b74e4, #0a2e65);
   border: none;
   color: white;
   font-weight: 500;
@@ -185,7 +185,7 @@
 }
 
 .btn-read-more:hover {
-  background: linear-gradient(45deg, #0056b3, #004085);
+  background: linear-gradient(45deg, #0a2e65, #083161);
   transform: scale(1.01);
   color: white;
 }
@@ -216,7 +216,7 @@
 
 .page-item .page-link {
   border: none;
-  color: #007bff;
+  color: #1b74e4;
   font-weight: 500;
   margin: 0 0.2rem;
   border-radius: 8px;
@@ -225,16 +225,16 @@
 }
 
 .page-item .page-link:hover {
-  background-color: #007bff;
+  background-color: #1b74e4;
   color: white;
   transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 4px 10px rgba(27, 116, 228, 0.3);
 }
 
 .page-item.active .page-link {
-  background: linear-gradient(45deg, #007bff, #0056b3);
-  border-color: #0056b3;
-  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+  background: linear-gradient(45deg, #1b74e4, #0a2e65);
+  border-color: #0a2e65;
+  box-shadow: 0 4px 15px rgba(27, 116, 228, 0.4);
 }
 
 .page-item.disabled .page-link {
