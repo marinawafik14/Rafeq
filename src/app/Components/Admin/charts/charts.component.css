@@ -1,7 +1,9 @@
-
+.container{
+  margin-bottom: 50px;
+}
 .page {
   padding: 2rem;
-  margin-bottom: 20px
+  margin-bottom: 50px
 }
 .metrics {
   display: flex;
@@ -10,15 +12,24 @@
   flex-wrap: wrap;
 }
 .card {
-  background: #f0f4f8;
+  background: #fff;
   padding: 1rem;
   border-radius: 10px;
   flex: 1;
   text-align: center;
 }
+  .box{
+  background: linear-gradient(135deg, #0a2e65, #1b74e4);
+  color: white;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  }
+ 
+
+
+
 .card p{
   font-weight: bold;
-  color: red;
   text-align: center;
   font-size: 1.2rem;
 }
