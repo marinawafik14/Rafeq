@@ -283,7 +283,7 @@ export class BookingFormComponent {
     console.log('Using menteeId:', menteeId); // Add this debug log
 
     const booking: Bookings = {
-      BookingId: 0,
+      bookingId: 0,
       MentorId: this.mentorId!,
       MenteeId: menteeId, // Use the validated menteeId, not this.menteeId
       sessionType: this.sessionType!,
@@ -298,11 +298,24 @@ export class BookingFormComponent {
     // Use the validated menteeId here too
     this.menteeBookingservice.createBookingForMentee(menteeId, booking).subscribe({
       next: (response) => {
-        const bookingId = response.BookingId;
-        console.log('Booking created!', response);
-        this.router.navigate(['/mentee', menteeId, 'payment'], { // Use menteeId here too
-          state: { bookingId },
-          queryParams: { bookingId }
+        console.log('Full API response:', response);
+        
+        // Use the correct property name from API documentation
+        const bookingId = response.bookingId; // lowercase 'b'
+        
+        console.log('Extracted bookingId:', bookingId);
+        
+        if (!bookingId) {
+          console.error('No booking ID found in response:', response);
+          this.bookingError = 'Booking created but missing ID. Please contact support.';
+          return;
+        }
+        
+        console.log('About to navigate with bookingId:', bookingId);
+        
+        this.router.navigate(['/mentee', menteeId, 'payment'], {
+          state: { bookingId: bookingId },
+          queryParams: { bookingId: bookingId }
         });
       },
       error: (err) => {
