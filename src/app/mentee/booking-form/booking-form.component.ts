@@ -246,121 +246,73 @@ export class BookingFormComponent {
       this.router.navigate(['/login']);
       return;
     }
-      if (!this.sessionType) {
-    this.bookingError = 'Session type is required.';
-    console.error('Session type is missing!');
-    return;
-  }
+    
+    if (!this.sessionType) {
+      this.bookingError = 'Session type is required.';
+      console.error('Session type is missing!');
+      return;
+    }
+    
     if (!this.mentorId || !this.sessionType || !this.selectedDate || !this.selectedSlot) {
       this.bookingError = 'Please complete all steps.';
       return;
     }
+    
     if (!this.mentor) {
       this.bookingError = 'Mentor info missing. Please try again.';
       return;
     }
 
-   const [startTime, endTime] = this.selectedSlot.split('-');
-const [startHour, startMin] = startTime.split(':');
-const [endHour, endMin] = endTime.split(':');
+    const [startTime, endTime] = this.selectedSlot.split('-');
+    const [startHour, startMin] = startTime.split(':');
+    const [endHour, endMin] = endTime.split(':');
 
-const convertToUtc = (date: string, hour: string, minute: string): string => {
-  const [y, m, d] = date.split('-').map(Number);
-  const h = Number(hour);
-  const min = Number(minute);
-  const localDate = new Date(y, m - 1, d, h, min); // Local time
-  return new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000).toISOString(); // ✅ Dynamic UTC conversion
-};
-
-const startDateTime = convertToUtc(this.selectedDate!, startHour, startMin);
-const endDateTime = convertToUtc(this.selectedDate!, endHour, endMin);
-
-console.log('Sending startDateTime:', startDateTime);
-console.log('Sending endDateTime:', endDateTime);
-    // Create booking session data object
-    const bookingData = {
-      menteeId: menteeId,
-      mentorId: this.mentorId,
-      mentorName: this.mentor.firstName + ' ' + this.mentor.lastName,
-      sessionType: this.sessionType,
-      selectedDate: this.selectedDate,
-      selectedSlot: this.selectedSlot,
-      startDateTime,
-      endDateTime,
-      price: this.calculatedPrice,
-      mentorHourlyRate: this.mentor.hourlyRate || 0,
-      termsAccepted: this.termsAccepted,
-      timestamp: new Date().toISOString(),
-      status: "Pending",
-    paymentStatus: "Unpaid"
+    const convertToUtc = (date: string, hour: string, minute: string): string => {
+      const [y, m, d] = date.split('-').map(Number);
+      const h = Number(hour);
+      const min = Number(minute);
+      const localDate = new Date(y, m - 1, d, h, min);
+      return new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000).toISOString();
     };
-  console.log('Will send:', {
-    mentorId: this.mentorId,
-    sessionType: this.sessionType,
-    startDateTime,
-    endDateTime
-  });
 
-  const booking: Bookings = {
-  BookingId: 0, // أو ممكن تسيبيه مش موجود
-  MentorId: this.mentorId!,
-  MenteeId: this.menteeId!,
-  sessionType: this.sessionType!,
-  startDateTime: new Date(startDateTime),
-  endDateTime: new Date(endDateTime),
-  status: "Pending",
-  paymentStatus: "Unpaid",
-  totalAmount: this.calculatedPrice,
-  IsDeleted: false
-};
+    const startDateTime = convertToUtc(this.selectedDate!, startHour, startMin);
+    const endDateTime = convertToUtc(this.selectedDate!, endHour, endMin);
 
-this.menteeBookingservice.createBookingForMentee(this.menteeId!, booking).subscribe({
-  next: (response) => {
-    const bookingId = response.BookingId;
-    console.log('Booking created!', response);
-    this.router.navigate(['/mentee', this.menteeId, 'payment'], {
-  state: { bookingId },
-  queryParams: { bookingId } // send as query param too
-});
+    console.log('Sending startDateTime:', startDateTime);
+    console.log('Sending endDateTime:', endDateTime);
+    console.log('Using menteeId:', menteeId); // Add this debug log
 
-  },
-  error: (err) => {
-    if (err.status === 409 && err.error?.alternatives) {
-      this.bookingError = `Time slot not available. Here are some alternativessss: ${err.error.alternatives.join(', ')}`;
-    } else {
-      this.bookingError = 'Booking creation failed.';
-    }
-    console.error('Booking creation error:', err);
+    const booking: Bookings = {
+      BookingId: 0,
+      MentorId: this.mentorId!,
+      MenteeId: menteeId, // Use the validated menteeId, not this.menteeId
+      sessionType: this.sessionType!,
+      startDateTime: new Date(startDateTime),
+      endDateTime: new Date(endDateTime),
+      status: "Pending",
+      paymentStatus: "Unpaid",
+      totalAmount: this.calculatedPrice,
+      IsDeleted: false
+    };
+
+    // Use the validated menteeId here too
+    this.menteeBookingservice.createBookingForMentee(menteeId, booking).subscribe({
+      next: (response) => {
+        const bookingId = response.BookingId;
+        console.log('Booking created!', response);
+        this.router.navigate(['/mentee', menteeId, 'payment'], { // Use menteeId here too
+          state: { bookingId },
+          queryParams: { bookingId }
+        });
+      },
+      error: (err) => {
+        if (err.status === 409 && err.error?.alternatives) {
+          this.bookingError = `Time slot not available. Here are some alternatives: ${err.error.alternatives.join(', ')}`;
+        } else {
+          this.bookingError = 'Booking creation failed.';
+        }
+        console.error('Booking creation error:', err);
+      }
+    });
   }
-});
-// Call API to create booking
-// this.menteeBookingservice.createBookingForMentee(
-//   this.menteeId!,
-//   this.mentorId!,
-//   {
-//     sessionType: this.sessionType!,
-//     startDateTime,
-//     endDateTime,
-//     totalAmount: this.calculatedPrice // Pass total amount
-//   }
-// ).subscribe({
-//   next: (response) => {
-//     const bookingId = response.BookingId;
-//     console.log('Booking created!', response);
-//     this.router.navigate(['/mentee', this.menteeId, 'payment'], {
-//       state: { bookingId }
-//     });
-//   },
-//   error: (err) => {
-//   if (err.status === 409 && err.error?.alternatives) {
-//     this.bookingError = `Time slot not available. Here are some alternativessss: ${err.error.alternatives.join(', ')}`;
-//   } else {
-//     this.bookingError = 'Booking creation failed.';
-//   }
-//   console.error('Booking creation error:', err);
-// }
-
-// });
-
-}
 }
