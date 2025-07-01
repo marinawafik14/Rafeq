@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { menteeBookingservice } from '../../Services/menteeBooking.service';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../Services/auth.service';
+import { Bookings } from '../../Models/Bookings';
 
 
 @Component({
@@ -299,34 +300,67 @@ console.log('Sending endDateTime:', endDateTime);
     startDateTime,
     endDateTime
   });
-// Call API to create booking
-this.menteeBookingservice.createBookingForMentee(
-  this.menteeId!,
-  this.mentorId!,
-  {
-    sessionType: this.sessionType!,
-    startDateTime,
-    endDateTime,
-    totalAmount: this.calculatedPrice // Pass total amount
-  }
-).subscribe({
+
+  const booking: Bookings = {
+  BookingId: 0, // أو ممكن تسيبيه مش موجود
+  MentorId: this.mentorId!,
+  MenteeId: this.menteeId!,
+  sessionType: this.sessionType!,
+  startDateTime: new Date(startDateTime),
+  endDateTime: new Date(endDateTime),
+  status: "Pending",
+  paymentStatus: "Unpaid",
+  totalAmount: this.calculatedPrice,
+  IsDeleted: false
+};
+
+this.menteeBookingservice.createBookingForMentee(this.menteeId!, booking).subscribe({
   next: (response) => {
     const bookingId = response.BookingId;
     console.log('Booking created!', response);
     this.router.navigate(['/mentee', this.menteeId, 'payment'], {
-      state: { bookingId }
-    });
+  state: { bookingId },
+  queryParams: { bookingId } // send as query param too
+});
+
   },
   error: (err) => {
-  if (err.status === 409 && err.error?.alternatives) {
-    this.bookingError = `Time slot not available. Here are some alternativessss: ${err.error.alternatives.join(', ')}`;
-  } else {
-    this.bookingError = 'Booking creation failed.';
+    if (err.status === 409 && err.error?.alternatives) {
+      this.bookingError = `Time slot not available. Here are some alternativessss: ${err.error.alternatives.join(', ')}`;
+    } else {
+      this.bookingError = 'Booking creation failed.';
+    }
+    console.error('Booking creation error:', err);
   }
-  console.error('Booking creation error:', err);
-}
-
 });
+// Call API to create booking
+// this.menteeBookingservice.createBookingForMentee(
+//   this.menteeId!,
+//   this.mentorId!,
+//   {
+//     sessionType: this.sessionType!,
+//     startDateTime,
+//     endDateTime,
+//     totalAmount: this.calculatedPrice // Pass total amount
+//   }
+// ).subscribe({
+//   next: (response) => {
+//     const bookingId = response.BookingId;
+//     console.log('Booking created!', response);
+//     this.router.navigate(['/mentee', this.menteeId, 'payment'], {
+//       state: { bookingId }
+//     });
+//   },
+//   error: (err) => {
+//   if (err.status === 409 && err.error?.alternatives) {
+//     this.bookingError = `Time slot not available. Here are some alternativessss: ${err.error.alternatives.join(', ')}`;
+//   } else {
+//     this.bookingError = 'Booking creation failed.';
+//   }
+//   console.error('Booking creation error:', err);
+// }
+
+// });
 
 }
 }
