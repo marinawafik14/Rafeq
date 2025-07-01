@@ -4,7 +4,9 @@
   <div *ngIf="isUserMessage" class="user-message-bubble">
     <div class="message-header">
       <div class="message-avatar">
-        <img [src]="messageAvatar" alt="User" class="avatar-image">
+        <div class="user-avatar-icon">
+          <i class="fas fa-user"></i>
+        </div>
       </div>
       <div class="message-info">
         <span class="message-sender">You</span>
@@ -41,7 +43,9 @@
   <div *ngIf="isAiMessage" class="ai-message-bubble">
     <div class="message-header">
       <div class="message-avatar">
-        <img [src]="messageAvatar" alt="AI Assistant" class="avatar-image">
+        <div class="ai-avatar-icon">
+          <i class="fas fa-robot"></i>
+        </div>
       </div>
       <div class="message-info">
         <span class="message-sender">AI Assistant</span>
@@ -69,13 +73,12 @@
       <div *ngIf="!isProcessing" class="message-text ai-response" [innerHTML]="formattedContent"></div>
       
       <!-- AI Analysis Results (for CV analysis) -->
-      <div *ngIf="!isProcessing && message.content.includes('Score:') || message.content.includes('Analysis:')" 
+      <div *ngIf="!isProcessing && (message.content.includes('Score:') || message.content.includes('Analysis:'))" 
            class="analysis-summary">
         <div class="analysis-header">
           <i class="fas fa-chart-line me-2"></i>
           <span>Analysis Summary</span>
         </div>
-        <!-- This could be enhanced to parse structured analysis results -->
       </div>
       
       <!-- Message Metadata (for debugging/info) -->
@@ -103,5 +106,4 @@
       <span [innerHTML]="formattedContent"></span>
     </div>
   </div>
-
 </div>

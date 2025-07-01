@@ -1,3 +1,5 @@
+import { AiMessage } from './ai-message';
+
 export interface AiConversation {
   id: string;
   title: string;

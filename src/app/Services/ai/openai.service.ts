@@ -1,15 +1,17 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpContext } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { OpenaiRequest, OpenaiResponse, EmbeddingRequest, EmbeddingResponse } from '../../Models/ai/openai-request';
+import { OpenaiRequest, EmbeddingRequest } from '../../Models/ai/openai-request';
+import { OpenaiResponse, EmbeddingResponse } from '../../Models/ai/openai-response';
 
 @Injectable({
   providedIn: 'root'
 })
 export class OpenaiService {
-  private headers = new HttpHeaders({
+  // Create headers specifically for OpenAI API (no auth token)
+  private openaiHeaders = new HttpHeaders({
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${environment.openai.apiKey}`
   });
@@ -28,10 +30,16 @@ export class OpenaiService {
       temperature: 0.7
     };
 
+    // Create proper HttpContext
+    const context = new HttpContext().set('skipAuth' as any, true);
+
     return this.http.post<OpenaiResponse>(
       environment.openai.chatApiUrl,
       requestBody,
-      { headers: this.headers }
+      { 
+        headers: this.openaiHeaders,
+        context: context
+      }
     ).pipe(
       map(response => response.choices[0]?.message?.content || 'No response received'),
       catchError(this.handleError)
@@ -73,10 +81,15 @@ export class OpenaiService {
       max_tokens: 1000
     };
 
+    const context = new HttpContext().set('skipAuth' as any, true);
+
     return this.http.post<OpenaiResponse>(
       environment.openai.chatApiUrl,
       requestBody,
-      { headers: this.headers }
+      { 
+        headers: this.openaiHeaders,
+        context: context
+      }
     ).pipe(
       map(response => response.choices[0]?.message?.content || 'No response received'),
       catchError(this.handleError)
@@ -90,10 +103,15 @@ export class OpenaiService {
       input: text
     };
 
+    const context = new HttpContext().set('skipAuth' as any, true);
+
     return this.http.post<EmbeddingResponse>(
       environment.openai.embeddingApiUrl,
       requestBody,
-      { headers: this.headers }
+      { 
+        headers: this.openaiHeaders,
+        context: context
+      }
     ).pipe(
       map(response => response.data[0]?.embedding || []),
       catchError(this.handleError)

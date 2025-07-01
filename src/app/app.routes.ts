@@ -47,6 +47,8 @@ import { MenteeProfileComponent } from './Auth/Userprofile/mentee-profile/mentee
 import { ArticlesListComponent } from './Auth/articles-list/articles-list.component';
 import { NotFoundComponent } from './Auth/not-found/not-found.component';
 import { MenteeContactChatComponent } from './Components/mentee-contact-chat/mentee-contact-chat.component';
+// Add AI Chatbot import
+import { AiChatbotComponent } from './features/ai-chatbot/ai-chatbot.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -73,6 +75,9 @@ export const routes: Routes = [
   { path: 'list', component: ReviewListComponent },
   { path: 'summary', component: ReviewSummaryComponent },
   { path: 'form', component: WriteReviewFormComponent },
+
+  // AI Chatbot route - accessible to authenticated users
+  { path: 'ai-chatbot', component: AiChatbotComponent },
 
   //USerPorfile
 
@@ -178,6 +183,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./payment-confirmation/payment-confirmation.component').then(
         (m) => m.PaymentConfirmationComponent
+      ),
+  },
+  // Add AI Chatbot for mentees
+  {
+    path: 'mentee/:menteeId/ai-chatbot',
+    loadComponent: () =>
+      import('./features/ai-chatbot/ai-chatbot.component').then(
+        (m) => m.AiChatbotComponent
       ),
   },
 

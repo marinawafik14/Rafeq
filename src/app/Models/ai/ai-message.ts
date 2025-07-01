@@ -1,3 +1,5 @@
+import { FileAttachment } from './file-attachment';
+
 export interface AiMessage {
   id: string;
   content: string;

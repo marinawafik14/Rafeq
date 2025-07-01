@@ -14,6 +14,9 @@ export class AiMessageComponent implements OnInit {
   @Input() message!: AiMessage;
   @Input() isProcessing = false;
 
+ 
+  showMetadata = false;
+
   ngOnInit(): void {
     if (!this.message) {
       console.error('AiMessageComponent: message input is required');

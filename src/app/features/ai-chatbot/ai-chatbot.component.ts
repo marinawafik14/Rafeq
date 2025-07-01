@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
+import Swal from 'sweetalert2';
 
 import { AuthService } from '../../Services/auth.service';
 import { OpenaiService } from '../../Services/ai/openai.service';
@@ -37,6 +38,7 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   // Component state
   currentUser: any = null;
+  currentUserId: number | null = null;
   conversations: AiConversation[] = [];
   selectedConversation: AiConversation | null = null;
   isLoading = false;
@@ -73,15 +75,36 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   private initializeComponent(): void {
-    // Check authentication
+    // Simple authentication check using existing AuthService methods
     this.currentUser = this.authService.currentUserValue;
-    if (!this.currentUser) {
+    
+    console.log('🔑 AI Chatbot Auth Check:', {
+      currentUser: this.currentUser,
+      hasAccessToken: !!(this.currentUser?.accessToken),
+      isLoggedIn: this.authService.isLoggedIn()
+    });
+
+    // Simple check - if no current user or not logged in, redirect
+    if (!this.currentUser || !this.authService.isLoggedIn()) {
+      console.warn('❌ User not authenticated, redirecting to login');
       this.router.navigate(['/login']);
       return;
     }
 
+    // Get user ID for storage
+    this.currentUserId = this.authService.getCurrentUserId();
+
     // Load conversations
     this.loadConversations();
+
+    // Subscribe to auth changes - if user logs out, redirect
+    const authSub = this.authService.currentUser.subscribe(user => {
+      if (!user) {
+        console.warn('❌ User logged out, redirecting to login');
+        this.router.navigate(['/login']);
+      }
+    });
+    this.subscriptions.push(authSub);
 
     // Subscribe to conversation updates
     const convSub = this.storageService.conversations$.subscribe(conversations => {
@@ -101,37 +124,121 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.conversations = this.storageService.getConversations();
   }
 
+  // Simplified authentication check
+  private checkAuthentication(): boolean {
+    if (!this.authService.isLoggedIn()) {
+      console.warn('❌ Authentication check failed, redirecting to login');
+      this.router.navigate(['/login']);
+      return false;
+    }
+    return true;
+  }
+
   // Conversation Management
   createNewConversation(mode: 'general' | 'cv-analysis' | 'career-advice' = 'general'): void {
-    const title = this.generateConversationTitle(mode);
-    const conversation = this.storageService.createConversation(title, mode);
-    this.selectedConversation = conversation;
-    this.activeMode = mode;
-    this.showCvAnalysis = mode === 'cv-analysis';
-    
-    // Add welcome message
-    this.addWelcomeMessage(mode);
+    if (!this.checkAuthentication()) return;
+
+    try {
+      const title = this.generateConversationTitle(mode);
+      const conversation = this.storageService.createConversation(title, mode);
+      this.selectedConversation = conversation;
+      this.activeMode = mode;
+      this.showCvAnalysis = mode === 'cv-analysis';
+      
+      // Add welcome message
+      this.addWelcomeMessage(mode);
+    } catch (error) {
+      console.error('Error creating conversation:', error);
+      this.error = 'Failed to create new conversation.';
+    }
   }
 
   selectConversation(conversation: AiConversation): void {
+    if (!this.checkAuthentication()) return;
+
     this.selectedConversation = conversation;
     this.activeMode = conversation.mode;
     this.showCvAnalysis = conversation.mode === 'cv-analysis';
   }
 
   deleteConversation(conversationId: string): void {
-    if (confirm('Are you sure you want to delete this conversation?')) {
-      this.storageService.deleteConversation(conversationId);
-      if (this.selectedConversation?.id === conversationId) {
-        this.selectedConversation = this.conversations[0] || null;
-        if (!this.selectedConversation) {
-          this.createNewConversation();
+    if (!this.checkAuthentication()) return;
+
+    Swal.fire({
+      title: 'Delete Conversation?',
+      text: 'This conversation and all its messages will be permanently deleted.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#0a2e65', // Your site's blue color
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: '<i class="fas fa-trash me-2"></i>Yes, Delete',
+      cancelButtonText: '<i class="fas fa-times me-2"></i>Cancel',
+      reverseButtons: true,
+      customClass: {
+        popup: 'rounded-4',
+        confirmButton: 'rounded-pill px-4',
+        cancelButton: 'rounded-pill px-4'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Show loading
+        Swal.fire({
+          title: 'Deleting...',
+          text: 'Please wait while we delete your conversation.',
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          showConfirmButton: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+
+        try {
+          // Delete the conversation
+          this.storageService.deleteConversation(conversationId);
+          
+          // Update selected conversation
+          if (this.selectedConversation?.id === conversationId) {
+            this.selectedConversation = this.conversations[0] || null;
+            if (!this.selectedConversation) {
+              this.createNewConversation();
+            }
+          }
+
+          // Show success message
+          Swal.fire({
+            icon: 'success',
+            title: 'Deleted!',
+            text: 'Conversation has been deleted successfully.',
+            timer: 2000,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end',
+            customClass: {
+              popup: 'rounded-3'
+            }
+          });
+
+        } catch (error) {
+          console.error('Error deleting conversation:', error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Delete Failed',
+            text: 'Failed to delete conversation. Please try again.',
+            confirmButtonColor: '#0a2e65',
+            customClass: {
+              popup: 'rounded-4',
+              confirmButton: 'rounded-pill px-4'
+            }
+          });
         }
       }
-    }
+    });
   }
 
   clearAllConversations(): void {
+    if (!this.checkAuthentication()) return;
+
     if (confirm('Are you sure you want to clear all conversations? This action cannot be undone.')) {
       this.storageService.clearUserConversations();
       this.ragService.clearUserDocuments();
@@ -142,11 +249,16 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   // Message handling
   async onMessageSent(content: string): Promise<void> {
     if (!this.selectedConversation || this.isProcessing) return;
+    
+    // Check authentication before processing message
+    if (!this.checkAuthentication()) return;
 
     this.isProcessing = true;
     this.error = null;
 
     try {
+      console.log('💬 Processing message:', content);
+
       // Add user message
       const userMessage = this.storageService.addMessage(this.selectedConversation.id, {
         content,
@@ -176,8 +288,10 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
         }
       });
 
+      console.log('✅ Message processed successfully');
+
     } catch (error) {
-      console.error('Error processing message:', error);
+      console.error('❌ Error processing message:', error);
       this.error = 'Failed to process your message. Please try again.';
       
       // Add error message
@@ -193,8 +307,13 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   // File handling
   async onFileUploaded(file: FileAttachment): Promise<void> {
     if (!this.selectedConversation) return;
+    
+    // Check authentication before processing file
+    if (!this.checkAuthentication()) return;
 
     try {
+      console.log('📁 Processing file:', file.fileName);
+
       // Add file message
       const fileMessage = this.storageService.addMessage(this.selectedConversation.id, {
         content: `Uploaded file: ${file.fileName}`,
@@ -209,10 +328,26 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
         await this.processImageFile(file);
       }
 
+      console.log('✅ File processed successfully');
+
     } catch (error) {
-      console.error('Error processing file:', error);
+      console.error('❌ Error processing file:', error);
       this.error = 'Failed to process the uploaded file.';
     }
+  }
+
+  // Mode switching
+  switchMode(mode: 'general' | 'cv-analysis' | 'career-advice'): void {
+    if (!this.checkAuthentication()) return;
+
+    this.activeMode = mode;
+    this.showCvAnalysis = mode === 'cv-analysis';
+    this.createNewConversation(mode);
+  }
+
+  // UI helpers
+  toggleConversationList(): void {
+    this.showConversationList = !this.showConversationList;
   }
 
   private async processCvFile(file: FileAttachment): Promise<void> {
@@ -299,29 +434,34 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   // Message type handlers
   private async handleGeneralMessage(content: string): Promise<string> {
-    return await this.openaiService.sendChatMessage([
-      { role: 'user', content }
-    ], 'You are a helpful AI assistant specializing in career guidance and professional development.').toPromise() || 'Unable to process your request.';
+    try {
+      const response = await this.openaiService.sendChatMessage([
+        { role: 'user', content }
+      ], 'You are a helpful AI assistant specializing in career guidance and professional development.').toPromise();
+      return response || 'Unable to process your request.';
+    } catch (error) {
+      console.error('Error in general message handling:', error);
+      throw error;
+    }
   }
 
   private async handleCareerAdviceMessage(content: string): Promise<string> {
-    return await this.ragService.getContextualCareerAdvice(content);
+    try {
+      return await this.ragService.getContextualCareerAdvice(content);
+    } catch (error) {
+      console.error('Error in career advice handling:', error);
+      throw error;
+    }
   }
 
   private async handleCvAnalysisMessage(content: string): Promise<string> {
-    return await this.openaiService.analyzeCVContent(content).toPromise() || 'Unable to analyze the CV content.';
-  }
-
-  // Mode switching
-  switchMode(mode: 'general' | 'cv-analysis' | 'career-advice'): void {
-    this.activeMode = mode;
-    this.showCvAnalysis = mode === 'cv-analysis';
-    this.createNewConversation(mode);
-  }
-
-  // UI helpers
-  toggleConversationList(): void {
-    this.showConversationList = !this.showConversationList;
+    try {
+      const response = await this.openaiService.analyzeCVContent(content).toPromise();
+      return response || 'Unable to analyze the CV content.';
+    } catch (error) {
+      console.error('Error in CV analysis handling:', error);
+      throw error;
+    }
   }
 
   private scrollToBottom(): void {

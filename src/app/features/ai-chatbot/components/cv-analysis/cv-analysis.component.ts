@@ -15,6 +15,9 @@ export class CvAnalysisComponent implements OnInit, OnChanges {
   @Input() conversationId = '';
   @Input() analysisData: CvAnalysis | null = null;
 
+  // Add Math property for template access
+  Math = Math;
+
   // Component state
   analyses: CvAnalysis[] = [];
   selectedAnalysis: CvAnalysis | null = null;
@@ -202,7 +205,7 @@ export class CvAnalysisComponent implements OnInit, OnChanges {
       label: this.formatDate(analysis.createdAt),
       score: analysis.analysis.overallScore,
       date: analysis.createdAt,
-      improvements: analysis.analysis.overallScore - this.selectedAnalysis.analysis.overallScore
+      improvements: analysis.analysis.overallScore - (this.selectedAnalysis?.analysis.overallScore || 0)
     }));
   }
 

@@ -174,7 +174,13 @@ export class RagService {
       userContext += `- Recent CV feedback: ${JSON.stringify(analysis.analysis)}\n`;
     });
 
-    return this.queryRAG(question, userContext).toPromise().then(result => result.answer);
+    try {
+      const result = await this.queryRAG(question, userContext).toPromise();
+      return result?.answer || 'Unable to provide advice at this time.';
+    } catch (error) {
+      console.error('Error getting career advice:', error);
+      return 'Unable to provide advice at this time.';
+    }
   }
 
   // Clear user's RAG documents
