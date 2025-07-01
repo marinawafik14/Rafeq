@@ -184,5 +184,7 @@ export const routes: Routes = [
   // Chat routes
   { path: 'chat', component: ChatComponent },
   { path: 'chat/:bookingId', component: ChatComponent },
-  {path: 'messages', component : MenteeContactChatComponent}
+  {path: 'messages', component : MenteeContactChatComponent},
+
+  { path: '**', component: NotFoundComponent }
 ];
