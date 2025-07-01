@@ -38,20 +38,33 @@ export class PaymentComponent implements AfterViewInit, OnDestroy,OnInit {
   ) {}
 
 ngOnInit(): void {
+  // First, try to get bookingId from router state (navigation state)
   const state = history.state;
+  console.log('Router state:', state); // Debug log
+  
+  // Then try query parameters
   const queryBookingId = this.route.snapshot.queryParamMap.get('bookingId');
+  console.log('Query param bookingId:', queryBookingId); // Debug log
 
-  if (state.bookingId) {
+  if (state && state.bookingId) {
     this.bookingId = state.bookingId;
+    console.log('Got bookingId from state:', this.bookingId);
   } else if (queryBookingId) {
     this.bookingId = +queryBookingId;
+    console.log('Got bookingId from query params:', this.bookingId);
   } else {
-    this.errorMessage = 'Missing booking ID.';
+    // If no bookingId found, show error
+    console.error('No bookingId found in state or query params');
+    this.errorMessage = 'Missing booking ID. Please try booking again.';
     this.errorVisible = true;
+    this.loadingVisible = false;
     return;
   }
 
-  console.log('Loaded bookingId:', this.bookingId); // Debugging
+  console.log('Final bookingId to use:', this.bookingId);
+  
+  // Set loading to false once we have the bookingId
+  this.loadingVisible = false;
 }
 
 

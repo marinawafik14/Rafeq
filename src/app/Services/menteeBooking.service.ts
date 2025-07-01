@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Bookings } from '../Models/Bookings';
 
 @Injectable({ providedIn: 'root' })
 export class menteeBookingservice {
@@ -35,22 +36,27 @@ export class menteeBookingservice {
   getBookingDetails(bookingId: number): Observable<any> {
     return this.http.get<any>(`https://localhost:7001/api/MenteeBookings/${bookingId}`);
   }
-
-  createBookingForMentee(
-  menteeId: number,
-  mentorId: number,
-  body: {
-    sessionType: string;
-    startDateTime: string;
-    endDateTime: string;
-    totalAmount: number; // ✅ ADDED!
-  }
-) {
-  return this.http.post<any>(
-    `https://localhost:7001/api/MenteeBookings/mentee/${menteeId}`,
-    body
+createBookingForMentee(menteeId: number, booking: Bookings): Observable<Bookings> {
+  return this.http.post<Bookings>(
+   `https://localhost:7001/api/MenteeBookings/mentee/${menteeId}`,
+    booking
   );
 }
+//   createBookingForMentee(
+//   menteeId: number,
+//   mentorId: number,
+//   body: {
+//     sessionType: string;
+//     startDateTime: string;
+//     endDateTime: string;
+//     totalAmount: number; // ✅ ADDED!
+//   }
+// ) {
+//   return this.http.post<Bookings>(
+//     `https://localhost:7001/api/MenteeBookings/mentee/${menteeId}`,
+//     body
+//   );
+// }
 
 
 }
