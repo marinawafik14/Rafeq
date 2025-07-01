@@ -45,6 +45,7 @@ import { ProfileRedirectComponent } from './Auth/Userprofile/profile-redirect/pr
 import { MentorProfileComponent } from './Auth/Userprofile/mentor-profile/mentor-profile.component';
 import { MenteeProfileComponent } from './Auth/Userprofile/mentee-profile/mentee-profile.component';
 import { ArticlesListComponent } from './Auth/articles-list/articles-list.component';
+import { NotFoundComponent } from './Auth/not-found/not-found.component';
 import { MenteeContactChatComponent } from './mentee/mentee-contact-chat/mentee-contact-chat.component';
 import { MenteeLayoutComponent } from './mentee/mentee-layout.component';
 
@@ -200,5 +201,8 @@ export const routes: Routes = [
   // Chat routes
   { path: 'chat', component: ChatComponent },
   { path: 'chat/:bookingId', component: ChatComponent },
+  {path: 'messages', component : MenteeContactChatComponent},
+
+  { path: '**', component: NotFoundComponent }
 
 ];

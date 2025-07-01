@@ -194,7 +194,7 @@
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.4s ease;
   position: relative;
   overflow: hidden;
   text-transform: uppercase;
@@ -202,7 +202,7 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0a2e65 0%, #1b74e4 100%);
   color: white;
   box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
 }
@@ -363,7 +363,7 @@
 }
 
 .checkbox-label:hover {
-  color: #667eea;
+  color: #0a2e65;
 }
 
 .checkbox-input {

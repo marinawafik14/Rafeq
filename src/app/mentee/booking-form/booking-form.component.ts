@@ -235,6 +235,11 @@ export class BookingFormComponent {
       this.router.navigate(['/login']);
       return;
     }
+      if (!this.sessionType) {
+    this.bookingError = 'Session type is required.';
+    console.error('Session type is missing!');
+    return;
+  }
     if (!this.mentorId || !this.sessionType || !this.selectedDate || !this.selectedSlot) {
       this.bookingError = 'Please complete all steps.';
       return;
@@ -245,9 +250,18 @@ export class BookingFormComponent {
     }
 
     // Extract start and end time from selected slot (e.g., "9:00-10:00")
-    const [startTime, endTime] = this.selectedSlot.split('-');
-    const startDateTime = `${this.selectedDate}T${startTime}:00`;
-    const endDateTime = `${this.selectedDate}T${endTime}:00`;
+  const [startTime, endTime] = this.selectedSlot.split('-');
+
+// For "9:00", split at ":"
+const pad = (n: string) => n.length === 1 ? `0${n}` : n;
+
+  // ✅ Split and pad parts
+  const [startHour, startMin] = startTime.split(':');
+  const [endHour, endMin] = endTime.split(':');
+
+  const startDateTime = `${this.selectedDate}T${pad(startHour)}:${startMin}:00`;
+  const endDateTime = `${this.selectedDate}T${pad(endHour)}:${endMin}:00`;
+
 
     // Create booking session data object
     const bookingData = {
@@ -262,23 +276,44 @@ export class BookingFormComponent {
       price: this.calculatedPrice,
       mentorHourlyRate: this.mentor.hourlyRate || 0,
       termsAccepted: this.termsAccepted,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      status: "Pending",
+    paymentStatus: "Unpaid"
     };
-
-    // Log booking session data to console
-    console.log('=== BOOKING SESSION DATA ===');
-    console.log('Booking Details:', bookingData);
-    console.log('===========================');
-
-    // Navigate to payment component with booking data
-    if (this.menteeId) {
-      this.router.navigate(['/mentee', this.menteeId, 'payment'], {
-        state: { bookingData: bookingData }
-      });
-    } else {
-      this.router.navigate(['/payment'], {
-        state: { bookingData: bookingData }
-      });
-    }
+  console.log('Will send:', {
+    mentorId: this.mentorId,
+    sessionType: this.sessionType,
+    startDateTime,
+    endDateTime
+  });
+// Call API to create booking
+this.menteeBookingservice.createBookingForMentee(
+  this.menteeId!,
+  this.mentorId!,
+  {
+    sessionType: this.sessionType!,
+    startDateTime,
+    endDateTime,
+    totalAmount: this.calculatedPrice // Pass total amount
   }
+).subscribe({
+  next: (response) => {
+    const bookingId = response.bookingId;
+    console.log('Booking created!', response);
+    this.router.navigate(['/mentee', this.menteeId, 'payment'], {
+      state: { bookingId }
+    });
+  },
+  error: (err) => {
+  if (err.status === 409 && err.error?.alternatives) {
+    this.bookingError = `Time slot not available. Here are some alternatives: ${err.error.alternatives.join(', ')}`;
+  } else {
+    this.bookingError = 'Booking creation failed.';
+  }
+  console.error('Booking creation error:', err);
+}
+
+});
+
+}
 }

@@ -26,7 +26,7 @@
 .register-image-section {
   flex: 1;
   position: relative;
-  background: linear-gradient(135deg, #e91e63 0%, #f06292 100%);
+  background: linear-gradient(135deg, #0a2e65 0%, #1b74e4 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -173,9 +173,9 @@
 
 .form-control:focus {
   outline: none;
-  border-color: #e91e63;
+  border-color: #1b74e4;
   background: white;
-  box-shadow: 0 0 0 3px rgba(233, 30, 99, 0.1);
+  box-shadow: 0 0 0 3px rgba(27, 116, 228, 0.1);
   transform: translateY(-1px);
 }
 
@@ -294,19 +294,19 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #e91e63 0%, #f06292 100%);
+  background: linear-gradient(135deg, #0a2e65 0%, #1b74e4 100%);
   color: white;
-  box-shadow: 0 10px 25px rgba(233, 30, 99, 0.3);
+  box-shadow: 0 10px 25px rgba(27, 116, 228, 0.3);
 }
 
 .btn-primary:hover:enabled {
   transform: translateY(-2px);
-  box-shadow: 0 15px 35px rgba(233, 30, 99, 0.4);
+  box-shadow: 0 15px 35px rgba(27, 116, 228, 0.4);
 }
 
 .btn-primary:active:enabled {
   transform: translateY(0);
-  box-shadow: 0 5px 15px rgba(233, 30, 99, 0.3);
+  box-shadow: 0 5px 15px rgba(27, 116, 228, 0.3);
 }
 
 .btn-primary:disabled {
@@ -331,7 +331,7 @@
 }
 
 .login-link {
-  color: #e91e63;
+  color: #1b74e4;
   text-decoration: none;
   font-weight: 600;
   margin-left: 0.25rem;
@@ -340,7 +340,7 @@
 }
 
 .login-link:hover {
-  color: #ad1457;
+  color: #0a2e65;
   text-decoration: none;
 }
 
@@ -351,7 +351,7 @@
   left: 0;
   width: 0;
   height: 2px;
-  background: linear-gradient(135deg, #e91e63 0%, #f06292 100%);
+  background: linear-gradient(135deg, #1b74e4 0%, #0a2e65 100%);
   transition: width 0.3s ease;
 }
 
