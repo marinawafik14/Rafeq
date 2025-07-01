@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Bookings } from '../Models/Bookings';
 
 @Injectable({ providedIn: 'root' })
 export class menteeBookingservice {
@@ -46,7 +47,7 @@ export class menteeBookingservice {
     totalAmount: number; // ✅ ADDED!
   }
 ) {
-  return this.http.post<any>(
+  return this.http.post<Bookings>(
     `https://localhost:7001/api/MenteeBookings/mentee/${menteeId}`,
     body
   );

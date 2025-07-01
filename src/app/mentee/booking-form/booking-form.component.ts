@@ -7,6 +7,7 @@ import { menteeBookingservice } from '../../Services/menteeBooking.service';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../Services/auth.service';
 
+
 @Component({
   selector: 'app-booking-form',
   standalone: true,
@@ -15,6 +16,7 @@ import { AuthService } from '../../Services/auth.service';
   styleUrls: ['./booking-form.component.css']
 })
 export class BookingFormComponent {
+  
   step = 1;
   sessionType: 'mentorship' | 'interview' | null = null;
   selectedDate: string | null = null;
@@ -32,6 +34,14 @@ export class BookingFormComponent {
   showInterview = false;
   bookingError: string|null = null;
 
+
+   getUtcSlot(date: string, hour: number, min: number): string {
+  // Egypt is UTC+2 (no DST in 2025)
+  const d = new Date(`${date}T${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}:00+02:00`);
+  return d.toISOString().slice(0, 19) + 'Z';
+}
+
+  
   constructor(
     private route: ActivatedRoute,
     private menteeBookingservice: menteeBookingservice,
@@ -249,20 +259,23 @@ export class BookingFormComponent {
       return;
     }
 
-    // Extract start and end time from selected slot (e.g., "9:00-10:00")
-  const [startTime, endTime] = this.selectedSlot.split('-');
+   const [startTime, endTime] = this.selectedSlot.split('-');
+const [startHour, startMin] = startTime.split(':');
+const [endHour, endMin] = endTime.split(':');
 
-// For "9:00", split at ":"
-const pad = (n: string) => n.length === 1 ? `0${n}` : n;
+const convertToUtc = (date: string, hour: string, minute: string): string => {
+  const [y, m, d] = date.split('-').map(Number);
+  const h = Number(hour);
+  const min = Number(minute);
+  const localDate = new Date(y, m - 1, d, h, min); // Local time
+  return new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000).toISOString(); // ✅ Dynamic UTC conversion
+};
 
-  // ✅ Split and pad parts
-  const [startHour, startMin] = startTime.split(':');
-  const [endHour, endMin] = endTime.split(':');
+const startDateTime = convertToUtc(this.selectedDate!, startHour, startMin);
+const endDateTime = convertToUtc(this.selectedDate!, endHour, endMin);
 
-  const startDateTime = `${this.selectedDate}T${pad(startHour)}:${startMin}:00`;
-  const endDateTime = `${this.selectedDate}T${pad(endHour)}:${endMin}:00`;
-
-
+console.log('Sending startDateTime:', startDateTime);
+console.log('Sending endDateTime:', endDateTime);
     // Create booking session data object
     const bookingData = {
       menteeId: menteeId,
@@ -298,7 +311,7 @@ this.menteeBookingservice.createBookingForMentee(
   }
 ).subscribe({
   next: (response) => {
-    const bookingId = response.bookingId;
+    const bookingId = response.BookingId;
     console.log('Booking created!', response);
     this.router.navigate(['/mentee', this.menteeId, 'payment'], {
       state: { bookingId }
@@ -306,7 +319,7 @@ this.menteeBookingservice.createBookingForMentee(
   },
   error: (err) => {
   if (err.status === 409 && err.error?.alternatives) {
-    this.bookingError = `Time slot not available. Here are some alternatives: ${err.error.alternatives.join(', ')}`;
+    this.bookingError = `Time slot not available. Here are some alternativessss: ${err.error.alternatives.join(', ')}`;
   } else {
     this.bookingError = 'Booking creation failed.';
   }
