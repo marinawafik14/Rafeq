@@ -1,6 +1,7 @@
 
 .page {
   padding: 2rem;
+  margin-bottom: 20px
 }
 .metrics {
   display: flex;
@@ -32,3 +33,6 @@ th, td {
   border-bottom: 1px solid #ddd;
 }
 
+.card.shadow{
+  margin-bottom:20px;
+}

@@ -217,7 +217,7 @@
 .stat-trend.neutral {
   color: #f59e0b;
 }
-}
+
 
 .stat-card::before {
   content: '';

@@ -138,7 +138,7 @@ export class LoginComponent implements OnInit {
           response.tokenData.role &&
           response.tokenData.role.toLowerCase() === 'admin'
         ) {
-          this.router.navigate(['/admin']);
+          this.router.navigate(['/admin/charts']);
         }else if (response.tokenData.role && response.tokenData.role.toLowerCase() === 'mentee') {
           const menteeId = response.tokenData.userId;
           if (menteeId) {

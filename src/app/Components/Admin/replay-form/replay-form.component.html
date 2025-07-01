@@ -1,0 +1,8 @@
+<div class="card p-3 border border-primary rounded">
+  <h5>Reply to {{ selectedMessage.name }}</h5>
+  <textarea [(ngModel)]="replyText" rows="4" class="form-control my-2" placeholder="Write your reply..."></textarea>
+  <div class="d-flex justify-content-end gap-2 mb-2">
+    <button class="btn btn-secondary" (click)="cancel()">Cancel</button>
+    <button class="btn btn-primary" (click)="send()">Send Reply</button>
+  </div>
+</div>

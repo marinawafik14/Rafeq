@@ -30,7 +30,7 @@ export class AdminReviewsComponent implements OnInit {
 
     this._reviewService.getReviews().subscribe({
       next: (data) => {
-        this.reviewsList = data; 
+        this.reviewsList = data.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         this.loading = false;
         console.log("Reviews loaded:", data);
         
@@ -88,7 +88,7 @@ export class AdminReviewsComponent implements OnInit {
     try {
       const date = new Date(dateString);
      
-      return date.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+      return date.toLocaleDateString('en-US', { year:'numeric', day:'2-digit', month:'2-digit'});
     } catch (e) {
       console.error('Invalid date string:', dateString, e);
       return 'Invalid Date';

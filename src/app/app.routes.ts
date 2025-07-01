@@ -1,3 +1,4 @@
+import { AdminContactComponent } from './Components/Admin/admin-contact/admin-contact.component';
 import { Routes } from '@angular/router';
 import { AboutComponent } from './features/about/about.component';
 import { ContactComponent } from './features/contact/contact.component';
@@ -45,6 +46,7 @@ import { MentorProfileComponent } from './Auth/Userprofile/mentor-profile/mentor
 import { MenteeProfileComponent } from './Auth/Userprofile/mentee-profile/mentee-profile.component';
 import { ArticlesListComponent } from './Auth/articles-list/articles-list.component';
 import { NotFoundComponent } from './Auth/not-found/not-found.component';
+import { MenteeContactChatComponent } from './Components/mentee-contact-chat/mentee-contact-chat.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -100,6 +102,7 @@ export const routes: Routes = [
       { path: 'charts', component: ChartsComponent },
       { path: 'reviews', component: AdminReviewsComponent },
       { path: 'home', component: HomeComponent },
+      {path: 'contact', component :AdminContactComponent}
     ],
   },
 
@@ -181,6 +184,5 @@ export const routes: Routes = [
   // Chat routes
   { path: 'chat', component: ChatComponent },
   { path: 'chat/:bookingId', component: ChatComponent },
-
-  { path: '**', component: NotFoundComponent } 
+  {path: 'messages', component : MenteeContactChatComponent}
 ];
