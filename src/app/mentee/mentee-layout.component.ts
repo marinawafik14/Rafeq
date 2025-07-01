@@ -17,6 +17,7 @@ export class MenteeLayoutComponent implements OnInit, AfterViewInit {
     { label: 'Bookings', route: 'bookings', icon: 'bx-calendar' },
     { label: 'Search Mentors', route: 'search-mentors', icon: 'bx-search' },
     { label: 'CV Management', route: 'cv-management', icon: 'bx-file' },
+    { label: 'AI Assistant', route: 'ai-chatbot', icon: 'bx-bot' }, // Add this line
     { label: 'Messages', route: 'messages', icon: 'bx-chat' },
     { label: 'Profile', route: 'profile', icon: 'bx-user' }
   ];
@@ -26,16 +27,27 @@ export class MenteeLayoutComponent implements OnInit, AfterViewInit {
   constructor(private router: Router, private route: ActivatedRoute) {}
 
   ngOnInit() {
-    if (!this.menteeId) {
-      // Try to get menteeId from route params if not provided as input
-      this.route.paramMap.subscribe(params => {
-        const id = params.get('menteeId');
-        if (id) {
-          this.menteeId = +id;
-        }
-      });
+  if (this.menteeId) return;
+
+  const routeId = this.route.snapshot.paramMap.get('menteeId');
+  if (routeId) {
+    this.menteeId = +routeId;
+    return;
+  }
+
+  const storedUser = localStorage.getItem('currentUser');
+  if (storedUser) {
+    try {
+      const user = JSON.parse(storedUser);
+      if (user?.userId && user?.role === 'Mentee') {
+        this.menteeId = +user.userId;
+      }
+    } catch (e) {
+      console.error('Invalid user data in localStorage');
     }
   }
+}
+
 
   ngAfterViewInit(): void {
     // Initialize sidebar toggle functionality

@@ -5,14 +5,13 @@ import { Users } from '../../Models/Users';
 import { SkillService } from '../../Services/skill.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MenteeLayoutComponent } from '../mentee-layout.component';
 import { MentorCard, MenteeService } from '../../Services/Mentee.service';
 import { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-mentee-search-mentors',
   standalone: true,
-  imports: [CommonModule, FormsModule, MenteeLayoutComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './mentee-search-mentors.component.html',
   styleUrls: ['./mentee-search-mentors.component.css']
 })
