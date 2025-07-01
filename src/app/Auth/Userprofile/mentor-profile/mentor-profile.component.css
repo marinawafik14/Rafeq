@@ -13,7 +13,7 @@
   margin-bottom: 2rem;
   text-align: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  border-left: 4px solid #4a90e2;
+  border-left: 4px solid #1b74e4;
 }
 
 .hero-title {
@@ -77,15 +77,15 @@
   height: 100px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #4a90e2;
-  box-shadow: 0 2px 8px rgba(74, 144, 226, 0.2);
+  border: 3px solid #1b74e4;
+  box-shadow: 0 2px 8px rgba(27, 116, 228, 0.2);
 }
 
 .avatar-overlay {
   position: absolute;
   bottom: 0;
   right: 0;
-  background: #4a90e2;
+  background: #1b74e4;
   color: white;
   border-radius: 50%;
   width: 28px;
@@ -98,7 +98,7 @@
 }
 
 .avatar-overlay:hover {
-  background: #357abd;
+  background: #0a2e65;
 }
 
 .profile-name {

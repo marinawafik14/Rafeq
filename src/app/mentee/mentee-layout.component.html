@@ -36,6 +36,18 @@
             <li><a class="link_name" [routerLink]="['/mentee', menteeId, 'cv-management']">CV Management</a></li>
           </ul>
         </li>
+
+       <li>
+  <a [routerLink]="['/mentee', menteeId, 'messages']">
+    <i class="fa-brands fa-rocketchat fa-xl"></i>
+    <span class="link_name">Messages</span>
+  </a>
+  <ul class="sub-menu blank">
+    <li><a class="link_name" [routerLink]="['/mentee', menteeId, 'messages']">Messages</a></li>
+  </ul>
+</li>
+
+
         <li>
           <a [routerLink]="['/mentee', menteeId, 'ai-chatbot']" 
              (click)="navigateTo({route: 'ai-chatbot'})"

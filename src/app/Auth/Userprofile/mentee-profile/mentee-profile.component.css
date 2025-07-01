@@ -15,7 +15,7 @@
   margin-bottom: 2rem;
   text-align: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  border-left: 4px solid #28a745;
+  border-left: 4px solid #1b74e4;
 }
 
 .hero-title {
@@ -77,15 +77,15 @@
   height: 100px;
   border-radius: 50%;
   object-fit: cover;
-  border: 3px solid #28a745;
-  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2);
+  border: 3px solid #1b74e4;
+  box-shadow: 0 2px 8px rgba(27, 116, 228, 0.2);
 }
 
 .avatar-overlay {
   position: absolute;
   bottom: 0;
   right: 0;
-  background: #28a745;
+  background: #1b74e4;
   color: white;
   border-radius: 50%;
   width: 28px;
@@ -98,7 +98,7 @@
 }
 
 .avatar-overlay:hover {
-  background: #1e7e34;
+  background: #0a2e65;
 }
 
 .profile-name {
@@ -109,7 +109,7 @@
 }
 
 .profile-role {
-  color: #28a745;
+  color: #1b74e4;
   font-size: 0.9rem;
   margin-bottom: 0;
 }
@@ -131,7 +131,7 @@
 .stat-value {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #28a745;
+  color: #1b74e4;
   margin-bottom: 0.25rem;
 }
 
@@ -162,7 +162,7 @@
 }
 
 .file-input:hover {
-  border-color: #28a745;
+  border-color: #1b74e4;
   background-color: #f8f9fa;
 }
 
@@ -197,8 +197,8 @@
 
 .custom-tabs .nav-link.active {
   background-color: white;
-  color: #28a745;
-  border-bottom: 2px solid #28a745;
+  color: #1b74e4;
+  border-bottom: 2px solid #1b74e4;
 }
 
 /* Form Card */
@@ -227,8 +227,8 @@
 }
 
 .form-control:focus {
-  border-color: #28a745;
-  box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.2);
+  border-color: #1b74e4;
+  box-shadow: 0 0 0 2px rgba(27, 116, 228, 0.2);
   outline: none;
 }
 
@@ -269,7 +269,7 @@
 
 .skill-item:hover {
   background: #e9ecef;
-  border-color: #28a745;
+  border-color: #1b74e4;
 }
 
 /* Password Requirements Section */
