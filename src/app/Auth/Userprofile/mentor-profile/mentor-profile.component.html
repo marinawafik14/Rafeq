@@ -39,19 +39,19 @@
               </div>
             </div>
             <h3 class="profile-name">{{ userProfile.fullName || 'Your Name' }}</h3>
-       
+
 
             <p class="profile-role">
               <i class="fas fa-graduation-cap me-2"></i>
               Mentor
             </p>
-                 <!-- Go to Dashboard Button -->
-<div class="text-center mt-4">
-  <button class="btn btn-outline-success w-100" (click)="goToMentorDashboard()">
-    <i class="fas fa-tachometer-alt me-2"></i>
-    Go to Your Mentor Dashboard
-  </button>
-</div>
+            <!-- Go to Dashboard Button -->
+            <div class="text-center mt-4">
+              <button class="btn btn-outline-success w-100" (click)="goToMentorDashboard()">
+                <i class="fas fa-tachometer-alt me-2"></i>
+                Go to Your Mentor Dashboard
+              </button>
+            </div>
           </div>
 
           <div class="profile-stats">
@@ -114,7 +114,7 @@
                 Change Password
               </button>
             </li>
-            
+
           </ul>
 
           <div class="tab-content">
@@ -163,8 +163,7 @@
                           Professional Bio
                         </label>
                         <textarea id="bio" formControlName="bio" rows="4" class="form-control"
-                          [ngClass]="{'is-invalid': getControlError('bio', profileForm)}"
-                          placeholder="Tell us about your professional background and expertise..."></textarea>
+                          [ngClass]="{'is-invalid': getControlError('bio', profileForm)}" placeholder="..."></textarea>
                         <div *ngIf="getControlError('bio', profileForm)" class="invalid-feedback">{{
                           getControlError('bio', profileForm) }}</div>
                       </div>
@@ -309,7 +308,7 @@
                           <input [type]="showConfirmPassword ? 'text' : 'password'" id="confirmNewPassword"
                             formControlName="confirmNewPassword" class="form-control"
                             [ngClass]="{'is-invalid': getControlError('confirmNewPassword', passwordForm)}"
-                            placeholder="Confirm new password">
+                            placeholder="Confirm password">
                           <button type="button" class="btn btn-outline-secondary password-toggle"
                             (click)="togglePasswordVisibility('confirm')"
                             [attr.aria-label]="showConfirmPassword ? 'Hide password' : 'Show password'">
