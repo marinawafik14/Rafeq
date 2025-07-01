@@ -4,7 +4,7 @@ import { MenteeLayoutComponent } from '../mentee-layout.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { ReviewService, MentorReview } from '../../Services/review.service';
-
+import { AuthService } from '../../Services/auth.service'; 
 @Component({
   selector: 'app-mentor-profile-view',
   standalone: true,
@@ -29,7 +29,8 @@ export class MentorProfileViewComponent implements OnInit {
     private route: ActivatedRoute, 
     private http: HttpClient, 
     public router: Router,
-    private reviewService: ReviewService
+    private reviewService: ReviewService,
+    private authService: AuthService // Add this injection
   ) {}
 
   ngOnInit() {
@@ -38,16 +39,11 @@ export class MentorProfileViewComponent implements OnInit {
       const menteeId = params.get('menteeId');
       this.menteeId = menteeId ? +menteeId : null;
       
-      // If no menteeId in route, try to get it from auth token
+      // If no menteeId in route, get it from AuthService
       if (!this.menteeId) {
-        const token = document.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1];
-        if (token) {
-          try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            this.menteeId = payload.menteeId || payload.userId || null;
-          } catch (e) {
-            console.error('Failed to parse token:', e);
-          }
+        const currentUser = this.authService.currentUserValue;
+        if (currentUser) {
+          this.menteeId = currentUser.userId;
         }
       }
       
@@ -217,31 +213,43 @@ export class MentorProfileViewComponent implements OnInit {
   }
 
   bookSession() {
-    if (this.mentorId && this.hasAvailability()) {
-      if (this.menteeId) {
-        // Navigate directly to the booking-form with menteeId
-        const navigationPath = ['/mentee', this.menteeId, 'booking-form'];
-        console.log('Navigating to booking form:', navigationPath); // Debug log
-        
-        this.router.navigate(navigationPath, { 
-          queryParams: { 
-            mentorId: this.mentorId,
-            mentorName: this.mentor?.fullName,
-            hourlyRate: this.mentor?.hourlyRate
-          } 
-        });
-      } else {
-        console.error('No menteeId available for navigation');
-        // Show an error message to the user instead of redirecting to login
-        alert('Unable to book session. Please log in again.');
-        this.router.navigate(['/login']);
-      }
+    // First check if user is authenticated using AuthService
+    if (!this.authService.isLoggedIn()) {
+      alert('Unable to book session. Please log in again.');
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    // Get current user from AuthService
+    const currentUser = this.authService.currentUserValue;
+    if (!currentUser) {
+      alert('Unable to book session. Please log in again.');
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    // Use the userId from the current user
+    const menteeId = currentUser.userId || this.menteeId;
+
+    if (this.mentorId && this.hasAvailability() && menteeId) {
+      // Navigate to booking form
+      const navigationPath = ['/mentee', menteeId, 'booking-form'];
+      console.log('Navigating to booking form:', navigationPath);
+      
+      this.router.navigate(navigationPath, { 
+        queryParams: { 
+          mentorId: this.mentorId,
+          mentorName: this.mentor?.fullName,
+          hourlyRate: this.mentor?.hourlyRate
+        } 
+      });
     } else {
-      console.log('Cannot book session:', {
+      console.error('Missing required data for booking:', {
         mentorId: this.mentorId,
         hasAvailability: this.hasAvailability(),
-        mentor: this.mentor
+        menteeId: menteeId
       });
+      alert('Unable to book session. Missing required information.');
     }
   }
 }
