@@ -185,14 +185,7 @@ export const routes: Routes = [
         (m) => m.PaymentConfirmationComponent
       ),
   },
-  // Add AI Chatbot for mentees
-  {
-    path: 'mentee/:menteeId/ai-chatbot',
-    loadComponent: () =>
-      import('./features/ai-chatbot/ai-chatbot.component').then(
-        (m) => m.AiChatbotComponent
-      ),
-  },
+  
 
   // Chat routes
   { path: 'chat', component: ChatComponent },
