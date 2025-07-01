@@ -319,10 +319,8 @@ this.menteeBookingservice.createBookingForMentee(this.menteeId!, booking).subscr
     const bookingId = response.BookingId;
     console.log('Booking created!', response);
     this.router.navigate(['/mentee', this.menteeId, 'payment'], {
-  state: { bookingId },
-  queryParams: { bookingId } // send as query param too
+  queryParams: { bookingId }
 });
-
   },
   error: (err) => {
     if (err.status === 409 && err.error?.alternatives) {
