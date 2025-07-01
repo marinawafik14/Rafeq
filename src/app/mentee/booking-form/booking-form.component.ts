@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MenteeLayoutComponent } from '../mentee-layout.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { menteeBookingservice } from '../../Services/menteeBooking.service';
 import { HttpClient } from '@angular/common/http';
@@ -10,7 +9,7 @@ import { AuthService } from '../../Services/auth.service';
 @Component({
   selector: 'app-booking-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, MenteeLayoutComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './booking-form.component.html',
   styleUrls: ['./booking-form.component.css']
 })
@@ -255,7 +254,7 @@ export class BookingFormComponent {
 // For "9:00", split at ":"
 const pad = (n: string) => n.length === 1 ? `0${n}` : n;
 
-  // ✅ Split and pad parts
+  //  Split and pad parts
   const [startHour, startMin] = startTime.split(':');
   const [endHour, endMin] = endTime.split(':');
 
