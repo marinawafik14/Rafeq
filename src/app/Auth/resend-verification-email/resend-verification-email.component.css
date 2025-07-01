@@ -26,7 +26,7 @@
 .resend-verification-image-section {
   flex: 1;
   position: relative;
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  background: linear-gradient(135deg, #0a2e65 0%, #1b74e4 100%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -158,9 +158,9 @@
 
 .form-control:focus {
   outline: none;
-  border-color: #28a745;
+  border-color: #1b74e4;
   background: white;
-  box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
+  box-shadow: 0 0 0 3px rgba(27, 116, 228, 0.1);
   transform: translateY(-1px);
 }
 
@@ -198,19 +198,19 @@
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  background: linear-gradient(135deg, #0a2e65 0%, #1b74e4 100%);
   color: white;
-  box-shadow: 0 10px 25px rgba(40, 167, 69, 0.3);
+  box-shadow: 0 10px 25px rgba(27, 116, 228, 0.3);
 }
 
 .btn-primary:hover:enabled {
   transform: translateY(-2px);
-  box-shadow: 0 15px 35px rgba(40, 167, 69, 0.4);
+  box-shadow: 0 15px 35px rgba(27, 116, 228, 0.4);
 }
 
 .btn-primary:active:enabled {
   transform: translateY(0);
-  box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+  box-shadow: 0 5px 15px rgba(27, 116, 228, 0.3);
 }
 
 .btn-primary:disabled {
@@ -235,7 +235,7 @@
 }
 
 .login-link {
-  color: #28a745;
+  color: #1b74e4;
   text-decoration: none;
   font-weight: 600;
   margin-left: 0.25rem;
@@ -244,7 +244,7 @@
 }
 
 .login-link:hover {
-  color: #1e7e34;
+  color: #0a2e65;
   text-decoration: none;
 }
 
@@ -255,7 +255,7 @@
   left: 0;
   width: 0;
   height: 2px;
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  background: linear-gradient(135deg, #1b74e4 0%, #0a2e65 100%);
   transition: width 0.3s ease;
 }
 
@@ -295,11 +295,11 @@
 
 /* Info Message Styles */
 .info-message {
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
   border-radius: 12px;
   padding: 16px 20px;
-  color: #15803d;
+  color: #0a2e65;
   font-size: 0.95rem;
   font-weight: 500;
   margin-bottom: 20px;
@@ -313,7 +313,7 @@
   display: inline-block;
   width: 20px;
   height: 20px;
-  background: #15803d;
+  background: #1b74e4;
   color: white;
   border-radius: 50%;
   text-align: center;
@@ -355,7 +355,7 @@
 /* Email Icon Enhancement */
 .email-sent-icon {
   font-size: 3rem;
-  color: #28a745;
+  color: #1b74e4;
   margin-bottom: 1rem;
   opacity: 0.8;
 }

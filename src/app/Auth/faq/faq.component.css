@@ -2,7 +2,7 @@
 
 /* FAQ Header */
 .faq-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0a2e65 0%, #1b74e4 100%);
   color: white;
   padding: 3rem 0;
   margin-bottom: 2rem;
@@ -45,7 +45,7 @@
 
 .search-container .btn {
   border: none;
-  background: linear-gradient(45deg, #28a745, #20c997);
+  background: linear-gradient(45deg, #0a2e65, #1b74e4);
   color: white;
   padding: 1rem 1.5rem;
   font-weight: 500;
@@ -53,7 +53,7 @@
 }
 
 .search-container .btn:hover {
-  background: linear-gradient(45deg, #218838, #1ea780);
+  background: linear-gradient(45deg, #083161, #1659c7);
   transform: scale(1.01);
 }
 
@@ -77,12 +77,12 @@
 
 .filter-title i {
   margin-right: 0.5rem;
-  color: #007bff;
+  color: #1b74e4;
 }
 
 .btn-outline-info {
-  border: 2px solid #17a2b8;
-  color: #17a2b8;
+  border: 2px solid #1b74e4;
+  color: #1b74e4;
   font-weight: 500;
   border-radius: 25px;
   padding: 0.5rem 1.2rem;
@@ -93,18 +93,18 @@
 }
 
 .btn-outline-info:hover {
-  background-color: #17a2b8;
+  background-color: #1b74e4;
   color: white;
   transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
+  box-shadow: 0 4px 15px rgba(27, 116, 228, 0.3);
 }
 
 .btn-outline-info.active {
-  background: linear-gradient(45deg, #17a2b8, #138496);
+  background: linear-gradient(45deg, #1b74e4, #0a2e65);
   color: white;
-  border-color: #138496;
+  border-color: #0a2e65;
   transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(23, 162, 184, 0.4);
+  box-shadow: 0 4px 15px rgba(27, 116, 228, 0.4);
 }
 
 /* Loading State */
@@ -144,7 +144,7 @@
 }
 
 .no-faqs .btn {
-  background: linear-gradient(45deg, #17a2b8, #138496);
+  background: linear-gradient(45deg, #1b74e4, #0a2e65);
   border: none;
   color: white;
   font-weight: 500;
@@ -154,9 +154,9 @@
 }
 
 .no-faqs .btn:hover {
-  background: linear-gradient(45deg, #138496, #117a8b);
+  background: linear-gradient(45deg, #0a2e65, #083161);
   transform: translateY(-1px);
-  box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
+  box-shadow: 0 4px 15px rgba(27, 116, 228, 0.3);
 }
 
 /* Accordion Styling */
@@ -195,25 +195,25 @@
 }
 
 .accordion-button:not(.collapsed) {
-  background: linear-gradient(135deg, #e7f1ff 0%, #c3dafe 100%);
-  color: #004085;
+  background: linear-gradient(135deg, #e6f1ff 0%, #cce7ff 100%);
+  color: #0a2e65;
   box-shadow: none;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
 }
 
 .accordion-button:focus {
-  box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25);
+  box-shadow: 0 0 0 0.25rem rgba(27, 116, 228, 0.25);
   border-color: transparent;
 }
 
 .accordion-button::after {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23007bff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%231b74e4'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
   transition: transform 0.3s ease;
 }
 
 .accordion-button:not(.collapsed)::after {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23004085'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%230a2e65'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
   transform: rotate(-180deg);
 }
 
@@ -252,7 +252,7 @@
 
 /* Question numbering */
 .question-number {
-  background: linear-gradient(45deg, #007bff, #0056b3);
+  background: linear-gradient(45deg, #1b74e4, #0a2e65);
   color: white;
   width: 2rem;
   height: 2rem;

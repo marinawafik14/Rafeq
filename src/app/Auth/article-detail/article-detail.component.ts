@@ -18,6 +18,7 @@ export class ArticleDetailComponent implements OnInit {
   article: ArticleDto | null = null;
   loading: boolean = true;
   articleId: number | null = null;
+  isCopied: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -75,16 +76,11 @@ export class ArticleDetailComponent implements OnInit {
         /\*\*(\d+)\.\s+([^:]+):\*\*/g,
         '<h3 class="content-section-title"><span class="section-number">$1</span> $2</h3>'
       )
-      // Format subsection titles (e.g., **This is important**)
       .replace(/\*\*([^*]+)\*\*/g, '<strong class="highlight">$1</strong>')
-      // Format italic text
       .replace(/\*([^*]+)\*/g, '<em class="emphasis">$1</em>')
-      // Convert paragraphs (double newlines)
       .replace(/\n\n/g, '</p><p>')
-      // Convert single newlines to line breaks
       .replace(/\n/g, '<br>');
 
-    // Wrap the entire content in a paragraph if not already
     if (!formatted.startsWith('<p>')) {
       formatted = '<p>' + formatted;
     }
@@ -93,5 +89,19 @@ export class ArticleDetailComponent implements OnInit {
     }
 
     return this.sanitizer.bypassSecurityTrustHtml(formatted);
+  }
+
+    copyLinkToClipboard(): void {
+    const currentUrl = window.location.href;
+    navigator.clipboard.writeText(currentUrl).then(() => {
+      this.toastr.success('Article link copied to clipboard!', 'Copied!');
+      this.isCopied = true;
+      setTimeout(() => {
+        this.isCopied = false;
+      }, 2000);
+    }).catch(err => {
+      console.error('Failed to copy link:', err);
+      this.toastr.error('Could not copy link. Please try manually.', 'Error');
+    });
   }
 }

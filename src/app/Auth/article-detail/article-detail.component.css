@@ -54,7 +54,7 @@
 
 /* Article header */
 .article-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0a2e65 0%, #1b74e4 100%);
   color: white;
   padding: 3rem 2rem 2rem 2rem;
   position: relative;
@@ -110,7 +110,7 @@
 }
 
 .category-badge {
-  background: linear-gradient(45deg, #28a745, #20c997);
+  background: linear-gradient(45deg, #0a2e65, #1b74e4);
   color: white;
   padding: 0.6rem 1.2rem;
   border-radius: 25px;
