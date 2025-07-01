@@ -1,0 +1,232 @@
+<div class="cv-analysis-container">
+  <!-- Header -->
+  <div class="analysis-header">
+    <div class="header-title">
+      <i class="fas fa-chart-line me-2"></i>
+      <h6 class="mb-0">CV Analysis</h6>
+    </div>
+    <div class="header-actions">
+      <button class="btn-header-action" 
+              (click)="toggleComparison()"
+              [title]="showComparison ? 'Hide Comparison' : 'Show Comparison'"
+              [disabled]="analyses.length < 2">
+        <i class="fas" [class.fa-chart-bar]="!showComparison" [class.fa-times]="showComparison"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- No Analysis Available -->
+  <div *ngIf="!selectedAnalysis" class="no-analysis">
+    <div class="no-analysis-content">
+      <i class="fas fa-file-upload fa-3x text-muted mb-3"></i>
+      <h6 class="text-muted mb-2">No CV Analysis Yet</h6>
+      <p class="text-muted small mb-0">Upload your CV to get detailed analysis and feedback</p>
+    </div>
+  </div>
+
+  <!-- Analysis Content -->
+  <div *ngIf="selectedAnalysis" class="analysis-content">
+    
+    <!-- Overall Score Card -->
+    <div class="score-card">
+      <div class="score-circle">
+        <div class="score-progress" 
+             [style.--progress]="getAnalysisProgress() + '%'"
+             [style.--color]="getScoreColor(selectedAnalysis.analysis.overallScore)">
+          <div class="score-value">
+            {{ selectedAnalysis.analysis.overallScore }}
+          </div>
+        </div>
+      </div>
+      <div class="score-details">
+        <div class="score-label">{{ getScoreLabel(selectedAnalysis.analysis.overallScore) }}</div>
+        <div class="score-subtitle">Overall CV Score</div>
+        <div class="score-date">
+          <i class="fas fa-clock me-1"></i>
+          {{ formatDate(selectedAnalysis.createdAt) }}
+          <span *ngIf="isRecentAnalysis(selectedAnalysis.createdAt)" class="recent-badge">New</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section Scores -->
+    <div class="sections-analysis">
+      <h6 class="section-title">
+        <i class="fas fa-list-check me-2"></i>
+        Section Analysis
+      </h6>
+      
+      <div class="sections-grid">
+        <div *ngFor="let category of analysisCategories" class="section-item">
+          <div class="section-header">
+            <div class="section-icon">
+              <i [class]="category.icon"></i>
+            </div>
+            <div class="section-info">
+              <div class="section-name">{{ category.label }}</div>
+              <div class="section-score" [style.color]="getScoreColor(getSectionScore(category.key))">
+                {{ getSectionScore(category.key) }}/100
+              </div>
+            </div>
+          </div>
+          
+          <div class="section-progress-bar">
+            <div class="progress-fill" 
+                 [style.width.%]="getSectionScore(category.key)"
+                 [style.background-color]="getScoreColor(getSectionScore(category.key))">
+            </div>
+          </div>
+          
+          <div class="section-feedback">
+            {{ getSectionFeedback(category.key) }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Strengths & Improvements -->
+    <div class="insights-section">
+      <div class="insights-grid">
+        <!-- Strengths -->
+        <div class="insight-card strengths-card">
+          <div class="insight-header">
+            <i class="fas fa-thumbs-up text-success me-2"></i>
+            <h6 class="mb-0">Strengths</h6>
+          </div>
+          <div class="insight-list">
+            <div *ngFor="let strength of strengths" class="insight-item positive">
+              <i class="fas fa-check-circle me-2"></i>
+              <span>{{ strength }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Improvements -->
+        <div class="insight-card improvements-card">
+          <div class="insight-header">
+            <i class="fas fa-lightbulb text-warning me-2"></i>
+            <h6 class="mb-0">Improvements</h6>
+          </div>
+          <div class="insight-list">
+            <div *ngFor="let suggestion of improvementSuggestions.slice(0, 5)" class="insight-item suggestion">
+              <i class="fas fa-arrow-up me-2"></i>
+              <span>{{ suggestion }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Priority Actions -->
+    <div class="priority-actions">
+      <h6 class="section-title">
+        <i class="fas fa-exclamation-triangle me-2"></i>
+        Priority Actions
+      </h6>
+      
+      <div class="actions-list">
+        <div *ngFor="let action of priorityActions" 
+             class="action-item"
+             [class]="'priority-' + action.priority">
+          <div class="action-priority">
+            <span class="priority-badge" [class]="'priority-' + action.priority">
+              {{ action.priority | titlecase }}
+            </span>
+          </div>
+          <div class="action-text">{{ action.text }}</div>
+          <div class="action-indicator">
+            <i class="fas fa-chevron-right"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analysis History -->
+    <div *ngIf="analyses.length > 1" class="analysis-history">
+      <h6 class="section-title">
+        <i class="fas fa-history me-2"></i>
+        Analysis History
+      </h6>
+      
+      <div class="history-list">
+        <div *ngFor="let analysis of analyses.slice().reverse(); let i = index" 
+             class="history-item"
+             [class.active]="analysis.id === selectedAnalysis.id"
+             (click)="selectAnalysis(analysis)">
+          <div class="history-info">
+            <div class="history-date">{{ formatDate(analysis.createdAt) }}</div>
+            <div class="history-score" [style.color]="getScoreColor(analysis.analysis.overallScore)">
+              {{ analysis.analysis.overallScore }}/100
+            </div>
+          </div>
+          <div class="history-indicator" *ngIf="i > 0">
+            <span class="score-change" 
+                  [class.positive]="analysis.analysis.overallScore > analyses[analyses.length - i - 2].analysis.overallScore"
+                  [class.negative]="analysis.analysis.overallScore < analyses[analyses.length - i - 2].analysis.overallScore">
+              <i class="fas" 
+                 [class.fa-arrow-up]="analysis.analysis.overallScore > analyses[analyses.length - i - 2].analysis.overallScore"
+                 [class.fa-arrow-down]="analysis.analysis.overallScore < analyses[analyses.length - i - 2].analysis.overallScore"
+                 [class.fa-minus]="analysis.analysis.overallScore === analyses[analyses.length - i - 2].analysis.overallScore"></i>
+              {{ Math.abs(analysis.analysis.overallScore - analyses[analyses.length - i - 2].analysis.overallScore) }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparison View -->
+    <div *ngIf="showComparison && analyses.length > 1" class="comparison-view">
+      <h6 class="section-title">
+        <i class="fas fa-chart-line me-2"></i>
+        Progress Comparison
+      </h6>
+      
+      <div class="comparison-chart">
+        <div *ngFor="let data of getComparisonData()" class="comparison-item">
+          <div class="comparison-label">{{ data.label }}</div>
+          <div class="comparison-bar">
+            <div class="bar-fill" 
+                 [style.width.%]="data.score"
+                 [style.background-color]="getScoreColor(data.score)">
+            </div>
+            <div class="bar-score">{{ data.score }}</div>
+          </div>
+          <div class="comparison-date">{{ formatDate(data.date) }}</div>
+          <div *ngIf="data.improvements !== 0" class="comparison-improvement"
+               [class.positive]="data.improvements > 0"
+               [class.negative]="data.improvements < 0">
+            <i class="fas" 
+               [class.fa-arrow-up]="data.improvements > 0"
+               [class.fa-arrow-down]="data.improvements < 0"></i>
+            {{ Math.abs(data.improvements) }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Analysis Actions -->
+    <div class="analysis-actions">
+      <button class="action-btn primary" (click)="downloadReport()">
+        <i class="fas fa-download me-2"></i>
+        Download Report
+      </button>
+      <button class="action-btn secondary" (click)="shareAnalysis()">
+        <i class="fas fa-share-alt me-2"></i>
+        Share Results
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Document Statistics Footer -->
+  <div *ngIf="documentStats" class="stats-footer">
+    <div class="stats-item">
+      <i class="fas fa-file-alt me-2"></i>
+      <span>{{ documentStats.total }} Documents</span>
+    </div>
+    <div class="stats-item">
+      <i class="fas fa-chart-bar me-2"></i>
+      <span>{{ analyses.length }} Analyses</span>
+    </div>
+  </div>
+</div>

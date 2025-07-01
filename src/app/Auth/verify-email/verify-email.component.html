@@ -1,7 +1,27 @@
    <div class="container d-flex justify-content-center align-items-center min-vh-100">
-      <div class="card p-4 shadow-sm text-center">
-        <h2 class="card-title mb-4">Email Verification</h2>
-        <p class="card-text mb-4">Your email verification status will be shown in a toast notification.</p>
-        <button class="btn btn-primary" (click)="goToLogin()">Back to Login</button>
+  <div class="verify-email-container">
+    <h2>Email Verification</h2>
+
+    <!-- Loading State -->
+    <div *ngIf="isVerifying" class="text-center">
+      <div class="spinner-border text-primary mb-3" role="status">
+        <span class="visually-hidden">Loading...</span>
       </div>
+      <p>{{ verificationMessage }}</p>
     </div>
+
+    <!-- Success/Error State -->
+    <div *ngIf="!isVerifying && verificationMessage" class="text-center">
+      <i class="fas fa-check-circle text-success mb-3" style="font-size: 3rem;" *ngIf="verificationMessage.includes('successfully')"></i>
+      <i class="fas fa-times-circle text-danger mb-3" style="font-size: 3rem;" *ngIf="verificationMessage.includes('failed')"></i>
+      <p>{{ verificationMessage }}</p>
+      <p class="text-muted">Redirecting to login page...</p>
+    </div>
+
+    <!-- Default State -->
+    <div *ngIf="!isVerifying && !verificationMessage" class="text-center">
+      <p>Processing email verification...</p>
+      <button class="btn btn-primary" (click)="goToLogin()">Back to Login</button>
+    </div>
+  </div>
+</div>
