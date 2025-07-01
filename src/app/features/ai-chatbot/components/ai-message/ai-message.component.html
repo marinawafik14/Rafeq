@@ -1,0 +1,107 @@
+<div class="message-container" [class.user-message]="isUserMessage" [class.ai-message]="isAiMessage" [class.system-message]="isSystemMessage">
+  
+  <!-- User Message -->
+  <div *ngIf="isUserMessage" class="user-message-bubble">
+    <div class="message-header">
+      <div class="message-avatar">
+        <img [src]="messageAvatar" alt="User" class="avatar-image">
+      </div>
+      <div class="message-info">
+        <span class="message-sender">You</span>
+        <span class="message-time">{{ messageTime }}</span>
+      </div>
+    </div>
+    
+    <div class="message-content">
+      <div class="message-text" [innerHTML]="formattedContent"></div>
+      
+      <!-- User Attachments -->
+      <div *ngIf="hasAttachments" class="message-attachments">
+        <div *ngFor="let attachment of message.attachments" 
+             class="attachment-item user-attachment"
+             (click)="onAttachmentClick(attachment)">
+          <div class="attachment-icon" [style.color]="getFileColor(attachment.fileType)">
+            <i [class]="getFileIcon(attachment.fileType)"></i>
+          </div>
+          <div class="attachment-info">
+            <div class="attachment-name">{{ attachment.fileName }}</div>
+            <div class="attachment-meta">{{ formatFileSize(attachment.fileSize) }}</div>
+          </div>
+          <div class="attachment-actions">
+            <button class="btn-attachment-action" title="View file">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Message -->
+  <div *ngIf="isAiMessage" class="ai-message-bubble">
+    <div class="message-header">
+      <div class="message-avatar">
+        <img [src]="messageAvatar" alt="AI Assistant" class="avatar-image">
+      </div>
+      <div class="message-info">
+        <span class="message-sender">AI Assistant</span>
+        <span class="message-time">{{ messageTime }}</span>
+      </div>
+      <div class="message-actions">
+        <button class="btn-message-action" (click)="copyToClipboard()" title="Copy message">
+          <i class="fas fa-copy"></i>
+        </button>
+      </div>
+    </div>
+    
+    <div class="message-content">
+      <!-- Processing Indicator -->
+      <div *ngIf="isProcessing" class="processing-indicator">
+        <div class="processing-dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <span class="processing-text">{{ processingText }}</span>
+      </div>
+      
+      <!-- AI Response Content -->
+      <div *ngIf="!isProcessing" class="message-text ai-response" [innerHTML]="formattedContent"></div>
+      
+      <!-- AI Analysis Results (for CV analysis) -->
+      <div *ngIf="!isProcessing && message.content.includes('Score:') || message.content.includes('Analysis:')" 
+           class="analysis-summary">
+        <div class="analysis-header">
+          <i class="fas fa-chart-line me-2"></i>
+          <span>Analysis Summary</span>
+        </div>
+        <!-- This could be enhanced to parse structured analysis results -->
+      </div>
+      
+      <!-- Message Metadata (for debugging/info) -->
+      <div *ngIf="!isProcessing && metadataInfo.length > 0" class="message-metadata">
+        <div class="metadata-toggle" (click)="showMetadata = !showMetadata">
+          <i class="fas fa-info-circle me-1"></i>
+          <span>Details</span>
+          <i class="fas fa-chevron-down ms-1" [class.rotated]="showMetadata"></i>
+        </div>
+        <div *ngIf="showMetadata" class="metadata-content">
+          <div *ngFor="let info of metadataInfo" class="metadata-item">
+            {{ info }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- System Message -->
+  <div *ngIf="isSystemMessage" class="system-message-bubble">
+    <div class="system-icon">
+      <i class="fas fa-info-circle"></i>
+    </div>
+    <div class="system-content">
+      <span [innerHTML]="formattedContent"></span>
+    </div>
+  </div>
+
+</div>

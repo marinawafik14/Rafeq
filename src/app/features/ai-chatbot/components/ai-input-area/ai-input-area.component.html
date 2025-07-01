@@ -1,0 +1,151 @@
+<div class="input-area-container" 
+     [class.drag-active]="dragActive"
+     (dragover)="onDragOver($event)"
+     (dragleave)="onDragLeave($event)"
+     (drop)="onDrop($event)">
+
+  <!-- Upload Progress Overlay -->
+  <div *ngIf="isUploading" class="upload-overlay">
+    <div class="upload-progress">
+      <div class="upload-icon">
+        <i class="fas fa-cloud-upload-alt"></i>
+      </div>
+      <div class="upload-text">Uploading files...</div>
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="uploadProgress"></div>
+      </div>
+      <div class="upload-percentage">{{ uploadProgress }}%</div>
+    </div>
+  </div>
+
+  <!-- Suggestions (when input is empty) -->
+  <div *ngIf="suggestions.length > 0 && messageText.length === 0" class="suggestions-container">
+    <div class="suggestions-header">
+      <i class="fas fa-magic me-2"></i>
+      <span>Try asking:</span>
+    </div>
+    <div class="suggestions-list">
+      <button *ngFor="let suggestion of suggestions.slice(0, 3)" 
+              class="suggestion-chip"
+              (click)="onSuggestionClick(suggestion)"
+              [disabled]="disabled">
+        {{ suggestion }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions-container">
+    <div class="quick-actions-list">
+      <button *ngFor="let action of quickActions" 
+              class="quick-action-btn"
+              (click)="onQuickActionClick(action.action)"
+              [disabled]="disabled"
+              [title]="action.text">
+        <i [class]="action.icon"></i>
+        <span class="quick-action-text">{{ action.text }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Input Area -->
+  <div class="main-input-container">
+    <!-- File Upload Area -->
+    <div class="file-upload-section">
+      <input #fileInput
+             type="file"
+             [multiple]="true"
+             [accept]="acceptedFileTypes"
+             (change)="onFileInputChange($event)"
+             style="display: none;">
+      
+      <button class="file-upload-btn"
+              (click)="onFileButtonClick()"
+              [disabled]="disabled || isUploading"
+              [title]="fileUploadText">
+        <i class="fas" [class.fa-paperclip]="!isUploading" [class.fa-spinner]="isUploading" [class.fa-spin]="isUploading"></i>
+      </button>
+    </div>
+
+    <!-- Text Input Area -->
+    <div class="text-input-section">
+      <div class="input-wrapper">
+        <textarea #messageInput
+                  [(ngModel)]="messageText"
+                  [placeholder]="placeholderText"
+                  [disabled]="disabled"
+                  (keydown)="onKeyPress($event)"
+                  (input)="autoResizeTextarea()"
+                  class="message-textarea"
+                  rows="1"
+                  maxlength="5000"></textarea>
+        
+        <!-- Character Counter -->
+        <div class="character-counter" 
+             [class.warning]="isApproachingLimit"
+             *ngIf="messageText.length > 0">
+          <span>{{ characterCount }}/5000</span>
+        </div>
+      </div>
+      
+      <!-- Input Actions -->
+      <div class="input-actions">
+        <!-- Clear Button -->
+        <button *ngIf="messageText.length > 0"
+                class="input-action-btn clear-btn"
+                (click)="clearMessage()"
+                title="Clear message">
+          <i class="fas fa-times"></i>
+        </button>
+        
+        <!-- Send Button -->
+        <button class="send-btn"
+                [disabled]="!canSendMessage()"
+                (click)="onSendMessage()"
+                title="Send message">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input Hints -->
+  <div class="input-hints">
+    <div class="hint-item">
+      <i class="fas fa-keyboard me-1"></i>
+      <span>Press Enter to send, Shift+Enter for new line</span>
+    </div>
+    <div class="hint-item" *ngIf="mode === 'cv-analysis'">
+      <i class="fas fa-file-upload me-1"></i>
+      <span>Upload your CV (PDF, DOC, or image) for analysis</span>
+    </div>
+    <div class="hint-item" *ngIf="dragActive">
+      <i class="fas fa-hand-paper me-1"></i>
+      <span>Drop files here to upload</span>
+    </div>
+  </div>
+
+  <!-- Mode Indicator -->
+  <div class="mode-indicator">
+    <div class="mode-badge" [class]="'mode-' + mode">
+      <i class="fas" 
+         [class.fa-comments]="mode === 'general'"
+         [class.fa-file-alt]="mode === 'cv-analysis'"
+         [class.fa-lightbulb]="mode === 'career-advice'"></i>
+      <span>{{ mode.replace('-', ' ') | titlecase }} Mode</span>
+    </div>
+  </div>
+
+  <!-- Drag and Drop Overlay -->
+  <div *ngIf="dragActive" class="drag-drop-overlay">
+    <div class="drag-drop-content">
+      <div class="drag-icon">
+        <i class="fas fa-cloud-upload-alt fa-3x"></i>
+      </div>
+      <div class="drag-text">
+        <h6>Drop files here</h6>
+        <p>Release to upload your files</p>
+      </div>
+    </div>
+  </div>
+</div>
