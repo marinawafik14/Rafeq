@@ -36,11 +36,21 @@ export class menteeBookingservice {
     return this.http.get<any>(`https://localhost:7001/api/MenteeBookings/${bookingId}`);
   }
 
-  createBookingForMentee(menteeId: number, mentorId: number, booking: {
+  createBookingForMentee(
+  menteeId: number,
+  mentorId: number,
+  body: {
     sessionType: string;
     startDateTime: string;
     endDateTime: string;
-  }): Observable<any> {
-    return this.http.post(`/api/MenteeBookings/mentee/${menteeId}/bookings?mentorId=${mentorId}`, booking);
+    totalAmount: number; // ✅ ADDED!
   }
+) {
+  return this.http.post<any>(
+    `https://localhost:7001/api/MenteeBookings/mentee/${menteeId}`,
+    body
+  );
+}
+
+
 }
