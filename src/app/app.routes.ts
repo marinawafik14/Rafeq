@@ -48,6 +48,8 @@ import { ArticlesListComponent } from './Auth/articles-list/articles-list.compon
 import { NotFoundComponent } from './Auth/not-found/not-found.component';
 import { MenteeContactChatComponent } from './mentee/mentee-contact-chat/mentee-contact-chat.component';
 import { MenteeLayoutComponent } from './mentee/mentee-layout.component';
+// ✅ AI Chatbot import 
+import { AiChatbotComponent } from './features/ai-chatbot/ai-chatbot.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -75,15 +77,15 @@ export const routes: Routes = [
   { path: 'summary', component: ReviewSummaryComponent },
   { path: 'form', component: WriteReviewFormComponent },
 
+  // ✅ AI Chatbot route
+  { path: 'ai-chatbot', component: AiChatbotComponent },
+
   //USerPorfile
-
   { path: 'user-profile', component: ProfileRedirectComponent },
-
   { path: 'mentor-profile', component: MentorProfileComponent },
   { path: 'mentee-profile', component: MenteeProfileComponent },
 
   //article routes
-
   { path: 'articles', component: ArticlesListComponent },
   { path: 'articles/:id', component: ArticleDetailComponent },
   { path: 'faq', component: FaqComponent },
@@ -195,14 +197,21 @@ export const routes: Routes = [
             (m) => m.MenteeProfileComponent
           ),
       },
+     
+      {
+        path: 'ai-chatbot',
+        loadComponent: () =>
+          import('./features/ai-chatbot/ai-chatbot.component').then(
+            (m) => m.AiChatbotComponent
+          ),
+      },
     ]
   },
-
+  
   // Chat routes
   { path: 'chat', component: ChatComponent },
   { path: 'chat/:bookingId', component: ChatComponent },
   {path: 'messages', component : MenteeContactChatComponent},
 
   { path: '**', component: NotFoundComponent }
-
 ];

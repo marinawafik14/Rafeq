@@ -1,0 +1,243 @@
+<div class="ai-chatbot-container">
+  <!-- Header -->
+  <div class="chatbot-header">
+    <div class="header-content">
+      <div class="header-left">
+        <button class="btn btn-outline-primary btn-sm me-2" 
+                (click)="toggleConversationList()"
+                [title]="showConversationList ? 'Hide Conversations' : 'Show Conversations'">
+          <i class="fas" [class.fa-bars]="!showConversationList" [class.fa-times]="showConversationList"></i>
+        </button>
+        <h4 class="header-title mb-0">
+          <i class="fas fa-robot me-2 text-primary"></i>
+          AI Career Assistant
+        </h4>
+      </div>
+      
+      <div class="header-right d-flex gap-2">
+        <!-- Mode Selector -->
+        <div class="mode-selector">
+          <div class="btn-group" role="group">
+            <button type="button" 
+                    class="btn btn-sm"
+                    [class.btn-primary]="activeMode === 'general'"
+                    [class.btn-outline-primary]="activeMode !== 'general'"
+                    (click)="switchMode('general')">
+              <i class="fas fa-comments me-1"></i>Chat
+            </button>
+            <button type="button" 
+                    class="btn btn-sm"
+                    [class.btn-primary]="activeMode === 'cv-analysis'"
+                    [class.btn-outline-primary]="activeMode !== 'cv-analysis'"
+                    (click)="switchMode('cv-analysis')">
+              <i class="fas fa-file-alt me-1"></i>CV Analysis
+            </button>
+            <button type="button" 
+                    class="btn btn-sm"
+                    [class.btn-primary]="activeMode === 'career-advice'"
+                    [class.btn-outline-primary]="activeMode !== 'career-advice'"
+                    (click)="switchMode('career-advice')">
+              <i class="fas fa-lightbulb me-1"></i>Career Advice
+            </button>
+          </div>
+        </div>
+
+        <!-- New Conversation Button -->
+        <button class="btn btn-success btn-sm" (click)="createNewConversation(activeMode)">
+          <i class="fas fa-plus me-1"></i>New Chat
+        </button>
+
+        <!-- Clear All Button -->
+        <button class="btn btn-outline-danger btn-sm" 
+                (click)="clearAllConversations()"
+                [disabled]="conversations.length === 0">
+          <i class="fas fa-trash me-1"></i>Clear All
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="chatbot-main">
+    <!-- Conversation Sidebar -->
+    <div class="conversation-sidebar" [class.show]="showConversationList">
+      <div class="sidebar-header">
+        <h6 class="mb-0">
+          <i class="fas fa-history me-2"></i>
+          Chat History
+        </h6>
+        <span class="badge bg-primary">{{ conversations.length }}</span>
+      </div>
+
+      <div class="conversation-list">
+        <div *ngIf="conversations.length === 0" class="empty-conversations">
+          <div class="text-center py-4">
+            <i class="fas fa-comment-slash fa-2x text-muted mb-2"></i>
+            <p class="text-muted small mb-0">No conversations yet</p>
+          </div>
+        </div>
+
+        <div *ngFor="let conversation of conversations; trackBy: trackByConversationId" 
+             class="conversation-item"
+             [class.active]="selectedConversation?.id === conversation.id"
+             (click)="selectConversation(conversation)">
+          <div class="conversation-content">
+            <div class="conversation-header">
+              <span class="conversation-title">{{ conversation.title }}</span>
+              <div class="conversation-actions">
+                <button class="btn btn-sm btn-outline-danger" 
+                        (click)="deleteConversation(conversation.id); $event.stopPropagation()"
+                        title="Delete conversation">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+            <div class="conversation-meta">
+              <span class="mode-badge" [class]="'mode-' + conversation.mode">
+                <i class="fas" 
+                   [class.fa-comments]="conversation.mode === 'general'"
+                   [class.fa-file-alt]="conversation.mode === 'cv-analysis'"
+                   [class.fa-lightbulb]="conversation.mode === 'career-advice'"></i>
+                {{ conversation.mode.replace('-', ' ') | titlecase }}
+              </span>
+              <span class="conversation-time">
+                {{ conversation.updatedAt | date:'short' }}
+              </span>
+            </div>
+            <div class="conversation-preview" *ngIf="conversation.messages.length > 0">
+              {{ getLastMessagePreview(conversation) }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Conversation Stats -->
+      <div class="sidebar-footer">
+        <div class="stats-summary">
+          <div class="stat-item">
+            <span class="stat-label">Total Chats:</span>
+            <span class="stat-value">{{ conversationStats.total }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Documents:</span>
+            <span class="stat-value">{{ documentStats.total }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Area -->
+    <div class="chat-area">
+      <!-- No Conversation Selected -->
+      <div *ngIf="!selectedConversation" class="no-conversation-selected">
+        <div class="text-center py-5">
+          <i class="fas fa-robot fa-4x text-muted mb-3"></i>
+          <h5 class="text-muted mb-3">Welcome to AI Career Assistant</h5>
+          <p class="text-muted mb-4">Select a conversation or start a new chat to begin</p>
+          <button class="btn btn-primary" (click)="createNewConversation(activeMode)">
+            <i class="fas fa-plus me-2"></i>Start New Conversation
+          </button>
+        </div>
+      </div>
+
+      <!-- Active Conversation -->
+      <div *ngIf="selectedConversation" class="active-conversation">
+        <!-- Conversation Header -->
+        <div class="conversation-header-bar">
+          <div class="conversation-info">
+            <h6 class="mb-0">{{ selectedConversation.title }}</h6>
+            <span class="mode-indicator" [class]="'mode-' + selectedConversation.mode">
+              <i class="fas" 
+                 [class.fa-comments]="selectedConversation.mode === 'general'"
+                 [class.fa-file-alt]="selectedConversation.mode === 'cv-analysis'"
+                 [class.fa-lightbulb]="selectedConversation.mode === 'career-advice'"></i>
+              {{ selectedConversation.mode.replace('-', ' ') | titlecase }}
+            </span>
+          </div>
+          <div class="conversation-stats">
+            <span class="message-count">
+              <i class="fas fa-comment me-1"></i>
+              {{ selectedConversation.messages.length }} messages
+            </span>
+          </div>
+        </div>
+
+        <!-- Messages Container -->
+        <div class="messages-container" #messagesContainer>
+          <div class="messages-content">
+            <!-- Welcome Message for Empty Conversations -->
+            <div *ngIf="selectedConversation.messages.length === 0" class="welcome-message">
+              <div class="text-center py-4">
+                <div class="welcome-icon mb-3">
+                  <i class="fas fa-robot fa-3x text-primary"></i>
+                </div>
+                <h6 class="text-primary mb-2">Ready to Help!</h6>
+                <p class="text-muted mb-0">
+                  <span *ngIf="activeMode === 'general'">Ask me anything about your career!</span>
+                  <span *ngIf="activeMode === 'cv-analysis'">Upload your CV for detailed analysis and feedback.</span>
+                  <span *ngIf="activeMode === 'career-advice'">Get personalized career guidance and advice.</span>
+                </p>
+              </div>
+            </div>
+
+            <!-- Messages List -->
+            <div *ngFor="let message of currentMessages; trackBy: trackByMessageId" 
+                 class="message-wrapper">
+              <app-ai-message 
+                [message]="message"
+                [isProcessing]="isProcessing && message === currentMessages[currentMessages.length - 1]">
+              </app-ai-message>
+            </div>
+
+            <!-- Typing Indicator -->
+            <div *ngIf="isProcessing" class="typing-indicator">
+              <div class="typing-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <span class="typing-text">AI is thinking...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+          <app-ai-input-area 
+            [disabled]="isProcessing"
+            [mode]="activeMode"
+            (messageSent)="onMessageSent($event)"
+            (fileUploaded)="onFileUploaded($event)">
+          </app-ai-input-area>
+        </div>
+
+        <!-- Error Display -->
+        <div *ngIf="error" class="error-banner">
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            {{ error }}
+            <button type="button" class="btn-close" (click)="error = null"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CV Analysis Panel (if active) -->
+    <div *ngIf="showCvAnalysis" class="cv-analysis-panel">
+      <app-cv-analysis 
+        [conversationId]="selectedConversation?.id || ''"
+        [analysisData]="getCvAnalysisData()">
+      </app-cv-analysis>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div *ngIf="isLoading" class="loading-overlay">
+    <div class="loading-content">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-2 text-muted">Initializing AI Assistant...</p>
+    </div>
+  </div>
+</div>

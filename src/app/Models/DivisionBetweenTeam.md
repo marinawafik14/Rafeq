@@ -742,3 +742,113 @@ CREATE TABLE FAQ (
     ViewCount INT DEFAULT 0,
     CreatedAt DATETIME DEFAULT GETDATE()
 );
+# AI Integration Roadmap for Your Project
+
+## Understanding the Models
+
+### 1. **Embedding Model**
+- **Purpose**: Converts text to numerical vectors for similarity search
+- **Use Case**: Find similar CVs, match mentees with mentors, search chat history
+- **Storage**: Vectors stored in your existing database (new columns needed)
+- **Implementation**: Backend processes text → generates embeddings → stores in database
+
+### 2. **Whisper Model** 
+- **Purpose**: Speech-to-text conversion
+- **Use Case**: Voice messages in chat system (Member 3's responsibility)
+- **Implementation**: Frontend records audio → sends to backend → Whisper converts → stores as text
+
+### 3. **TTS (Text-to-Speech) Model**
+- **Purpose**: Converts text to spoken audio
+- **Use Case**: Read chat messages aloud, accessibility features
+- **Implementation**: Frontend requests → backend generates audio → plays in browser
+
+## Strategic Implementation Plan
+
+### **Phase 1: GPT-4 Mini Chatbot (Your Current Focus)**
+**Where**: New page under Mentee Experience (Member 2's area)
+**Implementation**: 
+- Frontend-only approach using direct OpenAI API calls
+- Local storage for chat history
+- CV upload and analysis functionality
+
+### **Phase 2: Embedding Model Integration**
+**Backend Changes Needed**: 
+- Add embedding columns to existing tables (Users, Skills, MenteeCVs)
+- Create similarity search endpoints
+- Process existing data to generate embeddings
+
+**Frontend Benefits**:
+- **Mentor Search Page** (Member 2): Better mentor matching based on mentee needs
+- **CV Management** (Member 2): Find similar CVs and feedback patterns
+- **Admin Dashboard** (Member 5): Analytics on user similarities and platform insights
+
+### **Phase 3: Voice Features (Whisper + TTS)**
+**Where**: Chat System (Member 3's responsibility)
+**Backend Changes**: 
+- File upload endpoints for audio
+- Whisper integration for voice-to-text
+- TTS endpoints for text-to-speech
+
+**Frontend Features**:
+- Voice message recording in chat
+- Audio playback of text messages
+- Accessibility options for visually impaired users
+
+## Detailed Roadmap
+
+### **Your Immediate Action Plan**
+
+1. **Start with GPT-4 Mini Chatbot**
+   - Implement in Member 2's mentee section
+   - Focus on CV analysis and career advice
+   - Use your existing API key
+
+2. **Coordinate with Backend Team** 
+   - Member 3 (reda) needs to add embedding columns to database
+   - Member 1 (hamdi) might need to extend user profile APIs
+   - Member 5 (Marina) could benefit from embedding-based analytics
+
+### **Backend Requirements (Coordinate with Team)**
+
+**For Embeddings**:
+- Add `EmbeddingVector` columns to Users, MenteeCVs, Skills tables
+- Create background job to process existing data
+- Add similarity search endpoints
+
+**For Voice Features**:
+- Audio file upload/download endpoints
+- Whisper API integration
+- TTS generation endpoints
+
+### **Frontend Integration Points**
+
+**Member 2 (Rawan) - Your Area**:
+- AI Chatbot page with CV analysis
+- Enhanced mentor search using embeddings
+- Smart CV recommendations
+
+**Member 3 (reda) - Voice Chat**:
+- Voice message recording/playback
+- Speech-to-text for accessibility
+- Audio notifications
+
+**Member 5 (Marina) - Admin Analytics**:
+- User similarity insights
+- Content recommendation analytics
+- Platform usage patterns based on embeddings
+
+## **Recommended Priority Order**
+
+1. **GPT-4 Mini Chatbot** (Start immediately - frontend only)
+2. **Embedding Model** (Requires backend coordination)
+3. **Whisper Model** (Enhances Member 3's chat system)
+4. **TTS Model** (Accessibility and user experience enhancement)
+
+## **Team Coordination Strategy**
+
+- **Week 1**: Implement GPT-4 Mini chatbot in your area
+- **Week 2**: Plan embedding integration with backend team
+- **Week 3**: Begin embedding implementation (requires Member 3 backend work)
+- **Week 4**: Add voice features to chat system (Member 3 focus)
+
+This approach gives you immediate AI value while building toward more sophisticated features that enhance the entire platform.
