@@ -118,45 +118,199 @@
       </div>
     </div>
 
-    <!-- Quick Actions - Match mentor dashboard -->
+    <!-- Quick Actions - Enhanced with All Admin Components -->
     <div class="actions-section">
+      <div class="section-header mb-4">
+        <h3>
+          <i class="fas fa-bolt me-2"></i>Quick Actions
+        </h3>
+        <p class="text-muted">Access all admin management tools</p>
+      </div>
+      
       <div class="row g-4">
-        <div class="col-md-4">
-          <div class="action-card">
+        <!-- Users Management -->
+        <div class="col-lg-4 col-md-6">
+          <div class="action-card" (click)="navigateToUsers()" style="cursor: pointer;">
             <div class="action-icon">
               <i class="fas fa-users"></i>
             </div>
             <h5>Manage Users</h5>
-            <p class="text-muted">View and manage all platform users</p>
-            <a routerLink="../users" class="btn btn-outline-primary">
+            <p class="text-muted">View, edit, and manage all platform users</p>
+            <button class="btn btn-outline-primary" (click)="navigateToUsers()">
               View Users <i class="fas fa-arrow-right ms-1"></i>
-            </a>
+            </button>
           </div>
         </div>
         
-        <div class="col-md-4">
-          <div class="action-card">
+        <!-- Bookings Management -->
+        <div class="col-lg-4 col-md-6">
+          <div class="action-card" (click)="navigateToBookings()" style="cursor: pointer;">
             <div class="action-icon">
-              <i class="fas fa-calendar-alt"></i>
+              <i class="fas fa-calendar-check"></i>
             </div>
             <h5>View Bookings</h5>
-            <p class="text-muted">Monitor all mentoring sessions</p>
-            <a routerLink="../bookings" class="btn btn-outline-primary">
+            <p class="text-muted">Monitor all mentoring sessions and appointments</p>
+            <button class="btn btn-outline-primary" (click)="navigateToBookings()">
               View Bookings <i class="fas fa-arrow-right ms-1"></i>
-            </a>
+            </button>
           </div>
         </div>
         
-        <div class="col-md-4">
-          <div class="action-card">
+        <!-- Payment Analytics -->
+        <div class="col-lg-4 col-md-6">
+          <div class="action-card" (click)="navigateToPayments()" style="cursor: pointer;">
             <div class="action-icon">
               <i class="fas fa-credit-card"></i>
             </div>
             <h5>Payment Analytics</h5>
-            <p class="text-muted">Track payments and revenue</p>
-            <a routerLink="../payments" class="btn btn-outline-primary">
+            <p class="text-muted">Track payments, revenue, and financial metrics</p>
+            <button class="btn btn-outline-primary" (click)="navigateToPayments()">
               View Payments <i class="fas fa-arrow-right ms-1"></i>
-            </a>
+            </button>
+          </div>
+        </div>
+
+        <!-- Skills Management -->
+        <div class="col-lg-4 col-md-6">
+          <div class="action-card" (click)="navigateToSkills()" style="cursor: pointer;">
+            <div class="action-icon">
+              <i class="fas fa-lightbulb"></i>
+            </div>
+            <h5>Manage Skills</h5>
+            <p class="text-muted">Add, edit, and organize platform skills</p>
+            <button class="btn btn-outline-primary" (click)="navigateToSkills()">
+              Manage Skills <i class="fas fa-arrow-right ms-1"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Reviews Management -->
+        <div class="col-lg-4 col-md-6">
+          <div class="action-card" (click)="navigateToReviews()" style="cursor: pointer;">
+            <div class="action-icon">
+              <i class="fas fa-star"></i>
+            </div>
+            <h5>Manage Reviews</h5>
+            <p class="text-muted">Monitor and moderate user reviews</p>
+            <button class="btn btn-outline-primary" (click)="navigateToReviews()">
+              View Reviews <i class="fas fa-arrow-right ms-1"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Contact Management -->
+        <div class="col-lg-4 col-md-6">
+          <div class="action-card" (click)="navigateToContact()" style="cursor: pointer;">
+            <div class="action-icon">
+              <i class="fas fa-envelope"></i>
+            </div>
+            <h5>Contact Center</h5>
+            <p class="text-muted">Handle customer inquiries and support</p>
+            <button class="btn btn-outline-primary" (click)="navigateToContact()">
+              View Messages <i class="fas fa-arrow-right ms-1"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Add User Quick Action -->
+        <div class="col-lg-4 col-md-6">
+          <div class="action-card" (click)="navigateToAddUser()" style="cursor: pointer;">
+            <div class="action-icon">
+              <i class="fas fa-user-plus"></i>
+            </div>
+            <h5>Add New User</h5>
+            <p class="text-muted">Quickly create new platform users</p>
+            <button class="btn btn-outline-success" (click)="navigateToAddUser()">
+              Add User <i class="fas fa-plus ms-1"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Site Preview -->
+        <div class="col-lg-4 col-md-6">
+          <div class="action-card" (click)="navigateToSite()" style="cursor: pointer;">
+            <div class="action-icon">
+              <i class="fas fa-external-link-alt"></i>
+            </div>
+            <h5>Visit Site</h5>
+            <p class="text-muted">Preview the public website</p>
+            <button class="btn btn-outline-info" (click)="navigateToSite()">
+              Open Site <i class="fas fa-external-link-alt ms-1"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- System Settings -->
+        <div class="col-lg-4 col-md-6">
+          <div class="action-card settings-card">
+            <div class="action-icon">
+              <i class="fas fa-cogs"></i>
+            </div>
+            <h5>System Settings</h5>
+            <p class="text-muted">Configure platform settings and preferences</p>
+            <button class="btn btn-outline-secondary" disabled>
+              Coming Soon <i class="fas fa-clock ms-1"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activity Section -->
+    <div class="activity-section mt-5">
+      <div class="section-header mb-4">
+        <h3>
+          <i class="fas fa-history me-2"></i>Quick Stats Overview
+        </h3>
+        <p class="text-muted">Platform performance at a glance</p>
+      </div>
+      
+      <div class="row g-4">
+        <div class="col-md-3 col-6">
+          <div class="mini-stat-card">
+            <div class="mini-stat-icon">
+              <i class="fas fa-user-check"></i>
+            </div>
+            <div class="mini-stat-content">
+              <h4>{{ dashboardData.totalMentors || 0 }}</h4>
+              <p>Active Mentors</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3 col-6">
+          <div class="mini-stat-card">
+            <div class="mini-stat-icon">
+              <i class="fas fa-graduation-cap"></i>
+            </div>
+            <div class="mini-stat-content">
+              <h4>{{ dashboardData.totalMentees || 0 }}</h4>
+              <p>Active Mentees</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3 col-6">
+          <div class="mini-stat-card">
+            <div class="mini-stat-icon">
+              <i class="fas fa-handshake"></i>
+            </div>
+            <div class="mini-stat-content">
+              <h4>{{ dashboardData.totalBookings || 0 }}</h4>
+              <p>Total Sessions</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-3 col-6">
+          <div class="mini-stat-card">
+            <div class="mini-stat-icon">
+              <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="mini-stat-content">
+              <h4>${{ dashboardData.revenue || 0 }}</h4>
+              <p>Total Revenue</p>
+            </div>
           </div>
         </div>
       </div>

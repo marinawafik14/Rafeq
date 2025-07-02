@@ -398,6 +398,7 @@ tbody tr:last-child td {
   position: relative;
   overflow: hidden;
   height: 100%;
+  border: 2px solid transparent;
 }
 
 .action-card::before {
@@ -411,13 +412,23 @@ tbody tr:last-child td {
 }
 
 .action-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 35px rgba(10, 46, 101, 0.15);
+  transform: translateY(-8px);
+  box-shadow: 0 15px 40px rgba(10, 46, 101, 0.2);
+  border-color: rgba(10, 46, 101, 0.1);
+}
+
+.action-card.settings-card {
+  opacity: 0.7;
+}
+
+.action-card.settings-card:hover {
+  transform: none;
+  opacity: 0.8;
 }
 
 .action-icon {
-  width: 60px;
-  height: 60px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
   background: linear-gradient(135deg, #0a2e65, #1b74e4);
   color: white;
@@ -425,82 +436,204 @@ tbody tr:last-child td {
   align-items: center;
   justify-content: center;
   margin: 0 auto 1.5rem;
-  font-size: 1.5rem;
+  font-size: 1.8rem;
+  box-shadow: 0 8px 25px rgba(10, 46, 101, 0.3);
+  transition: all 0.3s ease;
+}
+
+.action-card:hover .action-icon {
+  transform: scale(1.1);
+  box-shadow: 0 12px 35px rgba(10, 46, 101, 0.4);
 }
 
 .action-card h5 {
   color: #0a2e65;
-  font-weight: 600;
+  font-weight: 700;
   margin-bottom: 1rem;
+  font-size: 1.3rem;
 }
 
 .action-card p {
   color: #6c757d;
   margin-bottom: 1.5rem;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
 
 .action-card .btn {
   border-radius: 50px;
   padding: 0.75rem 1.5rem;
-  font-weight: 500;
+  font-weight: 600;
   transition: all 0.3s ease;
+  border-width: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.85rem;
 }
 
 .action-card .btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(10, 46, 101, 0.2);
+  box-shadow: 0 6px 20px rgba(10, 46, 101, 0.3);
 }
 
-/* Responsive Design */
+/* Mini Stats Cards */
+.activity-section {
+  margin-top: 4rem;
+}
+
+.mini-stat-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 15px rgba(10, 46, 101, 0.08);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(10, 46, 101, 0.05);
+}
+
+.mini-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(10, 46, 101, 0.15);
+}
+
+.mini-stat-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0a2e65, #1b74e4);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.mini-stat-content h4 {
+  color: #0a2e65;
+  font-weight: 700;
+  font-size: 1.8rem;
+  margin: 0;
+  line-height: 1;
+}
+
+.mini-stat-content p {
+  color: #6c757d;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 0.25rem 0 0 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Button Variations */
+.btn-outline-success {
+  border-color: #28a745;
+  color: #28a745;
+}
+
+.btn-outline-success:hover {
+  background: #28a745;
+  border-color: #28a745;
+  color: white;
+}
+
+.btn-outline-info {
+  border-color: #17a2b8;
+  color: #17a2b8;
+}
+
+.btn-outline-info:hover {
+  background: #17a2b8;
+  border-color: #17a2b8;
+  color: white;
+}
+
+.btn-outline-secondary {
+  border-color: #6c757d;
+  color: #6c757d;
+}
+
+.btn-outline-secondary:hover {
+  background: #6c757d;
+  border-color: #6c757d;
+  color: white;
+}
+
+/* Section Headers */
+.section-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.section-header h3 {
+  color: #0a2e65;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  font-size: 1.8rem;
+}
+
+.section-header p {
+  color: #6c757d;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Responsive Design for New Elements */
 @media (max-width: 768px) {
-  .dashboard-header {
-    padding: 2rem 0;
-  }
-  
-  .dashboard-header h1 {
-    font-size: 2rem;
-  }
-  
-  .main-content {
-    padding: 0 1rem 2rem;
-  }
-  
-  .metrics {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-  
-  .card {
-    padding: 1.5rem;
-  }
-  
-  .chart-container,
-  .table-container {
-    padding: 1.5rem;
-  }
-  
-  th, td {
-    padding: 1rem 0.5rem;
-    font-size: 0.9rem;
-  }
-  
-  /* Responsive Design for New Elements */
-  .summary-header {
-    flex-direction: column;
-    text-align: center;
-    gap: 0.5rem;
-  }
-  
-  .summary-stat {
-    flex-direction: column;
-    gap: 0.5rem;
-    text-align: center;
-  }
-  
   .action-card {
     padding: 1.5rem;
+    margin-bottom: 1rem;
   }
+  
+  .action-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 1.5rem;
+  }
+  
+  .action-card h5 {
+    font-size: 1.1rem;
+  }
+  
+  .mini-stat-card {
+    padding: 1rem;
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  
+  .mini-stat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+  
+  .mini-stat-content h4 {
+    font-size: 1.5rem;
+  }
+  
+  .section-header h3 {
+    font-size: 1.5rem;
+  }
+}
+
+/* Loading Animation for Action Cards */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.action-card.loading {
+  animation: pulse 1.5s infinite;
+}
+
+/* Click Effect */
+.action-card:active {
+  transform: translateY(-5px) scale(0.98);
+  transition: all 0.1s ease;
 }
 
 /* Loading States and Animations */
