@@ -277,32 +277,37 @@ export class BookingFormComponent {
     const startDateTime = convertToUtc(this.selectedDate!, startHour, startMin);
     const endDateTime = convertToUtc(this.selectedDate!, endHour, endMin);
 
-    console.log('Sending startDateTime:', startDateTime);
-    console.log('Sending endDateTime:', endDateTime);
-    console.log('Using menteeId:', menteeId); // Add this debug log
-
-    const booking: Bookings = {
-      bookingId: 0,
-      MentorId: this.mentorId!,
-      MenteeId: menteeId, // Use the validated menteeId, not this.menteeId
+    console.log('=== BOOKING CREATION DEBUG ===');
+    console.log('this.calculatedPrice value:', this.calculatedPrice);
+    console.log('typeof this.calculatedPrice:', typeof this.calculatedPrice);
+    console.log('this.sessionType:', this.sessionType);
+    
+    // Create booking data object that includes totalAmount
+    const bookingData = {
+      mentorId: this.mentorId!,
       sessionType: this.sessionType!,
-      startDateTime: new Date(startDateTime),
-      endDateTime: new Date(endDateTime),
-      status: "Pending",
-      paymentStatus: "Unpaid",
-      totalAmount: this.calculatedPrice,
-      IsDeleted: false
+      startDateTime: startDateTime,
+      endDateTime: endDateTime,
+      totalAmount: this.calculatedPrice // ✅ VERIFY THIS IS NOT UNDEFINED
     };
 
-    // Use the validated menteeId here too
-    this.menteeBookingservice.createBookingForMentee(menteeId, booking).subscribe({
+    console.log('Booking data object created:', bookingData);
+    console.log('bookingData.totalAmount after creation:', bookingData.totalAmount);
+    console.log('Is bookingData.totalAmount undefined?:', bookingData.totalAmount === undefined);
+    console.log('JSON.stringify(bookingData):', JSON.stringify(bookingData));
+    console.log('==============================');
+
+    this.menteeBookingservice.createBookingForMentee(menteeId, bookingData).subscribe({
       next: (response) => {
+        console.log('=== BOOKING CREATION RESPONSE ===');
         console.log('Full API response:', response);
+        console.log('Response type:', typeof response);
+        console.log('Response keys:', Object.keys(response));
         
-        // Use the correct property name from API documentation
-        const bookingId = response.bookingId; // lowercase 'b'
-        
+        const bookingId = response.bookingId;
         console.log('Extracted bookingId:', bookingId);
+        console.log('BookingId type:', typeof bookingId);
+        console.log('===============================');
         
         if (!bookingId) {
           console.error('No booking ID found in response:', response);
@@ -310,20 +315,25 @@ export class BookingFormComponent {
           return;
         }
         
-        console.log('About to navigate with bookingId:', bookingId);
-        
+        // Navigate to payment with the booking ID
         this.router.navigate(['/mentee', menteeId, 'payment'], {
-          state: { bookingId: bookingId },
-          queryParams: { bookingId: bookingId }
+          state: { 
+            bookingId: bookingId,
+            amount: this.calculatedPrice
+          },
+          queryParams: { 
+            bookingId: bookingId,
+            amount: this.calculatedPrice
+          }
         });
       },
       error: (err) => {
-        if (err.status === 409 && err.error?.alternatives) {
-          this.bookingError = `Time slot not available. Here are some alternatives: ${err.error.alternatives.join(', ')}`;
-        } else {
-          this.bookingError = 'Booking creation failed.';
-        }
-        console.error('Booking creation error:', err);
+        console.error('=== BOOKING CREATION ERROR ===');
+        console.error('Full error:', err);
+        console.error('Error status:', err.status);
+        console.error('Error message:', err.error?.message || err.message);
+        console.error('============================');
+        this.bookingError = 'Booking creation failed: ' + (err.error?.message || err.message);
       }
     });
   }
