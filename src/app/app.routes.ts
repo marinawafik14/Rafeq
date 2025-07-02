@@ -3,12 +3,6 @@ import { Routes } from '@angular/router';
 import { AboutComponent } from './features/about/about.component';
 import { ContactComponent } from './features/contact/contact.component';
 import { HomeComponent } from './home/home.component';
-import { EmptyStateComponent } from './shared/components/empty-state/empty-state.component';
-import { RatingStarsComponent } from './shared/components/rating-stars/rating-stars.component';
-import { ReviewCardComponent } from './shared/components/review-card/review-card.component';
-import { ReviewListComponent } from './shared/components/review-list/review-list.component';
-import { ReviewSummaryComponent } from './shared/components/review-summary/review-summary.component';
-import { WriteReviewFormComponent } from './shared/components/write-review-form/write-review-form.component';
 import { AdminSkillsComponent } from './Components/Admin/admin-skills/admin-skills.component';
 import { AdminUsersComponent } from './Components/Admin/admin-users/admin-users.component';
 import { EditUserComponent } from './Components/Admin/edit-user/edit-user.component';
@@ -25,9 +19,7 @@ import { ResendVerificationEmailComponent } from './Auth/resend-verification-ema
 import { AdminReviewsComponent } from './Components/Admin/admin-reviews/admin-reviews.component';
 import { DashboardComponent } from './features/mentor/dashboard/dashboard.component';
 import { ProfileManagementComponent } from './features/mentor/profile-management/profile-management.component';
-import { PaymentComponent } from './payment/payment.component';
 import { AvailabilityManagementComponent } from './features/mentor/availability-management/availability-management.component';
-import { PaymentConfirmationComponent } from './payment-confirmation/payment-confirmation.component';
 import { BookingsComponent } from './features/mentor/bookings/bookings.component';
 import { CVReviewComponent } from './features/mentor/cv-review/cv-review.component';
 import { ChatComponent } from './features/chat/chat.component';
@@ -60,7 +52,8 @@ export const routes: Routes = [
   { path: 'articles', component: ArticlesListComponent },
   { path: 'articles/:id', component: ArticleDetailComponent },
   { path: 'faq', component: FaqComponent },
-
+  { path: 'chat', component: ChatComponent },
+  { path: 'chat/:bookingId', component: ChatComponent },
   // general guard depends on user role
   {
     path: '',
@@ -83,6 +76,7 @@ export const routes: Routes = [
           { path: 'reviews', component: AdminReviewsComponent },
           { path: 'home', component: HomeComponent },
           { path: 'contact', component: AdminContactComponent },
+
         ],
       },
 
@@ -96,6 +90,7 @@ export const routes: Routes = [
           { path: 'availability', component: AvailabilityManagementComponent },
           { path: 'bookings', component: BookingsComponent },
           { path: 'cv-review', component: CVReviewComponent },
+
         ],
       },
 
@@ -173,6 +168,7 @@ export const routes: Routes = [
               import('./mentee/mentee-contact-chat/mentee-contact-chat.component').then(
                 (m) => m.MenteeContactChatComponent
               ),
+            data: { roles: ['Mentee'] },
           },
           {
             path: 'profile',
@@ -181,25 +177,35 @@ export const routes: Routes = [
                 (m) => m.MenteeProfileComponent
               ),
           },
-          {
-            path: 'ai-chatbot',
-            loadComponent: () =>
-              import('./features/ai-chatbot/ai-chatbot.component').then(
-                (m) => m.AiChatbotComponent
-              ),
-          },
+
+
         ],
       },
 
-      // Chat
-      { path: 'chat', component: ChatComponent },
-      { path: 'chat/:bookingId', component: ChatComponent },
+      {
+        path: 'ai-chatbot',
+        loadComponent: () =>
+          import('./features/ai-chatbot/ai-chatbot.component').then(
+            (m) => m.AiChatbotComponent
+          ),
+        data: { roles: ['Mentor', 'Mentee'] },
+      },
 
       // User Profiles
       { path: 'user-profile', component: ProfileRedirectComponent },
       { path: 'mentor-profile', component: MentorProfileComponent },
       { path: 'mentee-profile', component: MenteeProfileComponent },
+
     ],
+  },
+
+  {
+    path: 'messages',
+    loadComponent: () =>
+      import('./mentee/mentee-contact-chat/mentee-contact-chat.component').then(
+        (m) => m.MenteeContactChatComponent
+      ),
+    data: { roles: ['Mentee'] },
   },
 
   // Not found

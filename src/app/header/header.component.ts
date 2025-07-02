@@ -17,6 +17,7 @@ import { NotificationBadgeComponent } from '../shared/components/notification-ba
 export class HeaderComponent implements OnInit, OnDestroy {
   currentUser: TokenResponseDto | null = null;
   private destroy = new Subject<void>();
+  role: string = '';
   
   constructor(
     private authService: AuthService,
@@ -29,6 +30,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy))
       .subscribe(user => {
         this.currentUser = user;
+  
+     
       });
   }
 
@@ -56,9 +59,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
       }
     });
   }
-
+ isMentee(): boolean {
+  return this.currentUser !== null && this.role === 'Mentee';
+}
   ngOnDestroy(): void {
     this.destroy.next();
     this.destroy.complete();
   }
+ 
 }

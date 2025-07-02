@@ -16,8 +16,12 @@ export const authGuardGuard: CanActivateFn = (
       if (user && user.accessToken) {
         const requiredRoles = route.data['roles'] as Array<string>;
         if (requiredRoles && requiredRoles.length) {
+          console.log('User Role:', user.role);
+
           if (!requiredRoles.includes(user.role)) {
             router.navigate(['/NotFound']);
+          
+
             return false;
           }
         }
