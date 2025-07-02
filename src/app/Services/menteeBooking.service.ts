@@ -49,7 +49,12 @@ export class menteeBookingservice {
       `https://localhost:7001/api/MenteeBookings/mentee/${menteeId}`,
       requestBody
     );
+
+  // Cancel a booking
+  cancelBooking(bookingId: number): Observable<any> {
+    return this.http.post<any>(`https://localhost:7001/api/MenteeBookings/${bookingId}/cancel`, {});
   }
+  
   //   createBookingForMentee(
   //   menteeId: number,
   //   mentorId: number,
@@ -65,9 +70,4 @@ export class menteeBookingservice {
   //     body
   //   );
   // }
-
-  // Cancel a booking
-  cancelBooking(bookingId: number): Observable<any> {
-    return this.http.post<any>(`https://localhost:7001/api/MenteeBookings/${bookingId}/cancel`, {});
-  }
 }
