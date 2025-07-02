@@ -144,13 +144,10 @@ private loadPaymentDetails(): void {
   async onSubmit(event: Event): Promise<void> {
   event.preventDefault();
 
-
-
-
   if (!this.authService.isLoggedIn()) {
     this.errorMessage = 'Session expired. Please log in again.';
-  this.errorVisible = true;
-  return;
+    this.errorVisible = true;
+    return;
   }
   
   const userId = this.authService.getCurrentUserId();
@@ -163,13 +160,17 @@ private loadPaymentDetails(): void {
 
   try {
     // Step 1: Create PaymentIntent using BookingId + UserId
+    console.log('Creating payment intent for booking:', this.bookingId);
     const intentResponse = await this.paymentService.createPaymentIntent(this.bookingId).toPromise();
     
-    if (!intentResponse?.clientSecret) {
-      throw new Error('Could not create payment intent.');
+    console.log('Payment intent response:', intentResponse); // ✅ Add this debug log
+    
+    if (!intentResponse?.success || !intentResponse?.data?.clientSecret) {
+      console.error('Invalid payment intent response:', intentResponse); // ✅ Add this debug log
+      throw new Error(intentResponse?.message || 'Could not create payment intent.');
     }
 
-    const clientSecret = intentResponse.clientSecret;
+    const clientSecret = intentResponse.data.clientSecret;
 
     // Step 2: Confirm Card Payment via Stripe
     const result = await this.stripe.confirmCardPayment(clientSecret, {
@@ -190,22 +191,34 @@ private loadPaymentDetails(): void {
       bookingId: this.bookingId
     }).toPromise();
 
-   if (confirmResult?.success) {
-  this.successVisible = true;
-  setTimeout(() => {
-    this.router.navigate(['/booking/confirmation'], {
-      state: { paymentId: confirmResult.data.paymentId }
-    });
-  }, 1500);
-}
-
-
-  
+    if (confirmResult?.success) {
+      this.successVisible = true;
+      setTimeout(() => {
+        // ✅ Fix: Use the correct route path from your routes
+        this.router.navigate(['/payment-complete'], {
+          state: { 
+            paymentId: confirmResult.data.paymentId,
+            bookingDetails: confirmResult.data  // ✅ Pass the full booking details
+          }
+        });
+      }, 1500);
+    }
+    
   } catch (err: any) {
-    console.error('Payment error:', err);
-    this.errorMessage = err?.error?.message || 'An unexpected error occurred.';
+    console.error('Payment error details:', err); // ✅ Better error logging
+    
+    // ✅ Extract the actual backend error message
+    let errorMessage = 'An unexpected error occurred.';
+    
+    if (err?.error?.message) {
+      errorMessage = err.error.message; // Backend API error message
+    } else if (err?.message) {
+      errorMessage = err.message; // JavaScript error message
+    }
+    
+    console.log('Final error message:', errorMessage); // ✅ Debug the error message
+    this.errorMessage = errorMessage;
     this.errorVisible = true;
   }
-
 }
 }
