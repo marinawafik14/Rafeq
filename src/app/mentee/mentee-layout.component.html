@@ -1,39 +1,62 @@
 <div class="sidebar close">
       <ul class="nav-links">
         <li>
-          <a [routerLink]="['/mentee', menteeId, 'dashboard']" (click)="navigateTo({route: 'dashboard'})">
+          <a [routerLink]="['/mentee', 'dashboard']" (click)="navigateTo({route: 'dashboard'})">
             <i class="bx bx-home"></i>
             <span class="link_name">Dashboard</span>
           </a>
           <ul class="sub-menu blank">
-            <li><a class="link_name" [routerLink]="['/mentee', menteeId, 'dashboard']">Dashboard</a></li>
+            <li><a class="link_name" [routerLink]="['/mentee', 'dashboard']">Dashboard</a></li>
           </ul>
         </li>
         <li>
-          <a [routerLink]="['/mentee', menteeId, 'bookings']" (click)="navigateTo({route: 'bookings'})">
+          <a [routerLink]="['/mentee', 'bookings']" (click)="navigateTo({route: 'bookings'})">
             <i class="bx bx-calendar"></i>
             <span class="link_name">Bookings</span>
           </a>
           <ul class="sub-menu blank">
-            <li><a class="link_name" [routerLink]="['/mentee', menteeId, 'bookings']">Bookings</a></li>
+            <li><a class="link_name" [routerLink]="['/mentee', 'bookings']">Bookings</a></li>
           </ul>
         </li>
         <li>
-          <a [routerLink]="['/mentee', menteeId, 'search-mentors']" (click)="navigateTo({route: 'search-mentors'})">
+          <a [routerLink]="['/mentee', 'search-mentors']" (click)="navigateTo({route: 'search-mentors'})">
             <i class="bx bx-search"></i>
             <span class="link_name">Find Mentors</span>
           </a>
           <ul class="sub-menu blank">
-            <li><a class="link_name" [routerLink]="['/mentee', menteeId, 'search-mentors']">Search Mentors</a></li>
+            <li><a class="link_name" [routerLink]="['/mentee', 'search-mentors']">Search Mentors</a></li>
           </ul>
         </li>
         <li>
-          <a [routerLink]="['/mentee', menteeId, 'cv-management']" (click)="navigateTo({route: 'cv-management'})">
+          <a [routerLink]="['/mentee', 'cv-management']" (click)="navigateTo({route: 'cv-management'})">
             <i class="bx bx-file"></i>
             <span class="link_name">CV Management</span>
           </a>
           <ul class="sub-menu blank">
-            <li><a class="link_name" [routerLink]="['/mentee', menteeId, 'cv-management']">CV Management</a></li>
+            <li><a class="link_name" [routerLink]="['/mentee', 'cv-management']">CV Management</a></li>
+          </ul>
+        </li>
+
+       <li>
+  <a [routerLink]="['/mentee', 'messages']">
+    <i class="fa-brands fa-rocketchat fa-xl"></i>
+    <span class="link_name">Messages</span>
+  </a>
+  <ul class="sub-menu blank">
+    <li><a class="link_name" [routerLink]="['/mentee', 'messages']">Messages</a></li>
+  </ul>
+</li>
+
+
+        <li>
+          <a [routerLink]="['/mentee', 'ai-chatbot']" 
+             (click)="navigateTo({route: 'ai-chatbot'})"
+             class="ai-assistant-card">
+            <i class="bx bx-bot ai-assistant-icon"></i>
+            <span class="link_name ai-assistant-text">AI Assistant</span>
+          </a>
+          <ul class="sub-menu blank">
+            <li><a class="link_name" [routerLink]="['/mentee', 'ai-chatbot']">AI Career Assistant</a></li>
           </ul>
         </li>
         <li>

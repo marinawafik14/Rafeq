@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
+import { AuthService } from '../Services/auth.service';
 
 @Component({
   selector: 'mentee-layout',
@@ -17,25 +18,31 @@ export class MenteeLayoutComponent implements OnInit, AfterViewInit {
     { label: 'Bookings', route: 'bookings', icon: 'bx-calendar' },
     { label: 'Search Mentors', route: 'search-mentors', icon: 'bx-search' },
     { label: 'CV Management', route: 'cv-management', icon: 'bx-file' },
+    { label: 'AI Assistant', route: 'ai-chatbot', icon: 'bx-bot' }, // Add this line
     { label: 'Messages', route: 'messages', icon: 'bx-chat' },
     { label: 'Profile', route: 'profile', icon: 'bx-user' }
   ];
 
   sidebarOpen = true;
 
-  constructor(private router: Router, private route: ActivatedRoute) {}
+  constructor(
+    private router: Router, 
+    private route: ActivatedRoute,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
-    if (!this.menteeId) {
-      // Try to get menteeId from route params if not provided as input
-      this.route.paramMap.subscribe(params => {
-        const id = params.get('menteeId');
-        if (id) {
-          this.menteeId = +id;
-        }
-      });
+    if (this.menteeId) return;
+
+    // Use AuthService to get user info
+    const user = this.authService.currentUserValue;
+    
+    if (user && user.role === 'Mentee') {
+      this.menteeId = user.userId;
+      this.menteeName = user.fullName;
     }
   }
+
 
   ngAfterViewInit(): void {
     // Initialize sidebar toggle functionality
@@ -61,23 +68,14 @@ export class MenteeLayoutComponent implements OnInit, AfterViewInit {
   }
 
   navigateTo(link: any) {
-    if (!this.menteeId) {
-      const id = this.route.snapshot.paramMap.get('menteeId');
-      if (id) this.menteeId = +id;
-    }
-    
-    if (this.menteeId) {
-      const commands = ['/mentee', this.menteeId, link.route];
-      this.router.navigate(commands, {
-        queryParams: { t: Date.now() },
-        queryParamsHandling: 'merge',
-      }).then(() => {
-        if (window.innerWidth < 768) {
-          this.sidebarOpen = false;
-          document.querySelector('.sidebar')?.classList.add('close');
-        }
-      });
-    }
+    // Always navigate to the route without the menteeId in the URL
+    const commands = ['/mentee', link.route];
+    this.router.navigate(commands).then(() => {
+      if (window.innerWidth < 768) {
+        this.sidebarOpen = false;
+        document.querySelector('.sidebar')?.classList.add('close');
+      }
+    });
   }
 
   toggleSidebar() {
@@ -89,8 +87,15 @@ export class MenteeLayoutComponent implements OnInit, AfterViewInit {
   }
 
   logout() {
-    localStorage.clear();
-    sessionStorage.clear();
-    window.location.href = '/login';
+    this.authService.logout().subscribe({
+      next: () => {
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        console.error('Logout error:', error);
+        // Still navigate to login even if the server request fails
+        this.router.navigate(['/login']);
+      }
+    });
   }
 }

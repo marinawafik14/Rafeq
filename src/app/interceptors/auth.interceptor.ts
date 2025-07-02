@@ -12,7 +12,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../Services/auth.service';
 
 let isRefreshing = false;
-const refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null); // Holds the new Access Token
+const refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
 
 function addToken(request: HttpRequest<unknown>, token: string): HttpRequest<unknown> {
   return request.clone({
@@ -71,6 +71,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
+  // Skip auth for OpenAI API requests
+  if (req.context.has('skipAuth' as any) || 
+      req.url.includes('openai.com') || 
+      req.url.includes('api.openai.com')) {
+    return next(req);
+  }
+
   const accessToken = authService.getToken();
 
   if (accessToken) {
@@ -82,7 +89,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
       // If 401 and not an auth route, handle refresh
       if (
         error.status === 401 &&
-        (req.url.includes('login') ||
+        !(req.url.includes('login') ||
           req.url.includes('Register') ||
           req.url.includes('ExternalLogin') ||
           req.url.includes('RefreshToken') ||
@@ -92,14 +99,15 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           req.url.includes('verify-email') ||
           req.url.includes('ResendVerificationEmail'))
       ) {
-        return throwError(() => error);
-      }
-
-      if (error.status === 401) {
         return handle401Error(req, next, authService, router);
       }
 
-      // If 403 Forbidden, log out and redirect to login for both admin and mentee
+      // For auth routes with 401, just pass through
+      if (error.status === 401) {
+        return throwError(() => error);
+      }
+
+      // If 403 Forbidden, log out and redirect to login
       if (error.status === 403) {
         authService.clearToken();
         router.navigate(['/login']);

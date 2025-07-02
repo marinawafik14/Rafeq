@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CvService } from '../../Services/cv.service';
 import { ActivatedRoute } from '@angular/router';
-import { MenteeLayoutComponent } from '../mentee-layout.component';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { AuthService } from '../../Services/auth.service';
 
 interface CV {
   id: number;
@@ -19,7 +19,7 @@ interface CV {
 @Component({
   selector: 'app-cv-management',
   standalone: true,
-  imports: [CommonModule, MenteeLayoutComponent],
+  imports: [CommonModule],
   templateUrl: './cv-management.component.html',
   styleUrls: ['./cv-management.component.css']
 })
@@ -34,28 +34,41 @@ export class CvManagementComponent implements OnInit {
   selectedComments: any[] = [];
   showCommentsModal = false;
   selectedCV: CV | null = null;
+  uploadingFile = false;
 
   // Base URL for API calls
   private apiBaseUrl = 'https://localhost:7001/api';
+  private maxFileSize = 2 * 1024 * 1024; // 2MB in bytes
 
   constructor(
     private cvService: CvService, 
     private route: ActivatedRoute, 
-    private http: HttpClient
+    private http: HttpClient,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
-    // No need to get menteeId for API call, just load CVs for current user
+    // Get current user ID from AuthService
+    this.menteeId = this.authService.getCurrentUserId();
+    
+    if (this.authService.currentUserValue) {
+      this.menteeName = this.authService.currentUserValue.fullName;
+    }
+    
+    // Load CVs for current user
     this.loadCVs();
   }
 
   private loadCVs() {
+    this.loading = true;
+    this.error = null;
+    
     this.cvService.getCurrentUserCVs().subscribe({
       next: (data) => {
         this.cvs = (data || []).map(cv => ({
           id: cv.cvId,
           name: cv.fileName,
-          uploadedAt: cv.uploadDate,
+          uploadedAt: this.formatDate(cv.uploadDate),
           size: null, // Not provided in response
           type: cv.fileName?.split('.').pop() || '',
           active: cv.isActive,
@@ -67,10 +80,23 @@ export class CvManagementComponent implements OnInit {
         this.cvs.forEach(cv => this.loadCommentsForCV(cv));
       },
       error: (err) => {
-        this.error = 'Failed to load CVs.';
+        this.error = 'Failed to load CVs. Please refresh the page and try again.';
         this.loading = false;
         console.error('Error loading CVs:', err);
       }
+    });
+  }
+
+  private formatDate(dateString: string): string {
+    if (!dateString) return '';
+    
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   }
 
@@ -83,13 +109,13 @@ export class CvManagementComponent implements OnInit {
       },
       error: err => {
         cv.comments = [];
-        // Optionally log error
+        console.error(`Error loading comments for CV ${cv.id}:`, err);
       }
     });
   }
 
   private getAuthHeaders(): HttpHeaders {
-    const token = document.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1];
+    const token = this.authService.getToken();
     return token ? new HttpHeaders({ 'Authorization': `Bearer ${token}` }) : new HttpHeaders();
   }
 
@@ -120,20 +146,52 @@ export class CvManagementComponent implements OnInit {
     }
   }
 
+  private validateFile(file: File): boolean {
+    this.fileError = null;
+    
+    // Check file size
+    if (file.size > this.maxFileSize) {
+      this.fileError = `File is too large. Maximum size is 2MB.`;
+      return false;
+    }
+    
+    // Check file type
+    const validTypes = ['.pdf', '.doc', '.docx'];
+    const fileExtension = `.${file.name.split('.').pop()?.toLowerCase()}`;
+    
+    if (!validTypes.includes(fileExtension)) {
+      this.fileError = `Invalid file type. Accepted formats: PDF, DOC, DOCX.`;
+      return false;
+    }
+    
+    return true;
+  }
+
   private handleFileUpload(file: File) {
-    if (!this.menteeId) return;
+    if (!this.menteeId) {
+      this.fileError = 'Authentication error. Please log in again.';
+      return;
+    }
+    
+    if (!this.validateFile(file)) {
+      return;
+    }
     
     const formData = new FormData();
     formData.append('file', file);
+    
+    this.uploadingFile = true;
     this.fileError = null;
     
     this.http.post(`${this.apiBaseUrl}/MenteeCVs/mentee/${this.menteeId}`, formData, { 
       headers: this.getAuthHeaders() 
     }).subscribe({
       next: () => {
+        this.uploadingFile = false;
         this.loadCVs(); // Refresh the list
       },
       error: err => {
+        this.uploadingFile = false;
         this.fileError = 'Failed to upload CV. Please try again.';
         console.error('Error uploading CV:', err);
       }
@@ -170,5 +228,9 @@ export class CvManagementComponent implements OnInit {
     this.showCommentsModal = false;
     this.selectedCV = null;
     this.selectedComments = [];
+  }
+
+  retryLoadCVs() {
+    this.loadCVs();
   }
 }

@@ -19,22 +19,30 @@ apiUrl = 'https://localhost:7001/api/payments';
   }
 
 // payment.service.ts
+getPaymentDetailsByBookingId(bookingId: number): Observable<PaymentDetailsDto> {
+  return this.http.get<PaymentDetailsDto>(`${this.apiUrl}/by-booking/${bookingId}`);
+}
+createPaymentIntent(bookingId: number): Observable<any> {
+  const requestBody = { bookingId: bookingId };
+  
+  console.log('=== PAYMENT INTENT REQUEST ===');
+  console.log('URL:', 'https://localhost:7001/api/payments/create-intent');
+  console.log('Request body:', requestBody);
+  console.log('BookingId being sent:', bookingId);
+  console.log('==============================');
+  
+  return this.http.post<any>('https://localhost:7001/api/payments/create-intent', requestBody);
+}
 
-createPaymentIntent(bookingId: number, userId: number): Observable<CreatePaymentIntentDto> {
-  const body = { bookingId, userId };
-  return this.http.post<CreatePaymentIntentDto>(
-    `${this.apiUrl}/create-intent`,
-    body
+
+  // Confirm PaymentIntent after Stripe success
+  confirmPayment(dto: PaymentConfirmationDto): Observable<{ success: boolean; message: string; data: { paymentId: number } }> {
+  return this.http.post<{ success: boolean; message: string; data: { paymentId: number } }>(
+    `${this.apiUrl}/confirm`,
+    dto
   );
 }
 
-  // Confirm PaymentIntent after Stripe success
-   confirmPayment(dto: PaymentConfirmationDto): Observable<{ success: boolean; message: string }> {
-    return this.http.post<{ success: boolean; message: string }>(
-      `${this.apiUrl}/confirm`,
-      dto
-    );
-  }
 
 
   getPayments ():Observable<Payments[]> {
@@ -44,7 +52,6 @@ createPaymentIntent(bookingId: number, userId: number): Observable<CreatePayment
   // DTOs used in calls
 export interface PaymentConfirmationDto {
   paymentIntentId: string;
-  paymentId: number;
   bookingId: number;
 }
 

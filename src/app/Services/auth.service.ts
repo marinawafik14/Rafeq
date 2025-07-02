@@ -198,17 +198,15 @@ getCurrentUserId(): number | null {
 
   try {
     const decodedToken = this.jwtHelper.decodeToken(currentUser.accessToken);
-    
-    // Try common claim names
-    const userIdClaim = 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier';
-    const userId = decodedToken[userIdClaim];
 
+    const userId = decodedToken['nameid'];
     return userId ? +userId : null;
   } catch (e) {
     console.error('Error decoding token:', e);
     return null;
   }
 }
+
 
 getCurrentUserRole(): string | null {
   const currentUser = this.currentUserValue;

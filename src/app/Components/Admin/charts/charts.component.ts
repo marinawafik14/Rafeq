@@ -44,7 +44,7 @@ initCharts() {
   const now = new Date();
   const months: string[] = [];
 
-  // توليد آخر 12 شهر من الآن
+  //  آخر 12 شهر من الآن
   for (let i = 11; i >= 0; i--) {
     const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
     months.push(date.toLocaleString('default', { month: 'short' })); // "May", "Jun", ...
@@ -53,12 +53,12 @@ initCharts() {
   const userGrowth = Array.isArray(this.dashboardData.monthlyUserGrowth)
     ? [...this.dashboardData.monthlyUserGrowth]
     : [];
-  while (userGrowth.length < 12) userGrowth.unshift(0); // نضيف في البداية لو ناقص
+  while (userGrowth.length < 12) userGrowth.unshift(0); 
 
   const monthlyRevenue = Array.isArray(this.dashboardData.monthlyRevenue)
     ? [...this.dashboardData.monthlyRevenue]
     : [];
-  while (monthlyRevenue.length < 12) monthlyRevenue.unshift(0); // نضيف في البداية لو ناقص
+  while (monthlyRevenue.length < 12) monthlyRevenue.unshift(0);
 
   this.userGrowthChartOptions = {
     title: { text: 'User Growth (Monthly)', left: 'center' },
@@ -71,7 +71,8 @@ initCharts() {
         type: 'line',
         smooth: true,
         areaStyle: {},
-        name: 'Users'
+        name: 'Users',
+         itemStyle: { color: '#0a2e65' }
       }
     ]
   };
@@ -86,7 +87,7 @@ initCharts() {
         data: monthlyRevenue,
         type: 'bar',
         name: 'Revenue',
-        itemStyle: { color: '#61dafb' }
+        itemStyle: { color: '#0a2e65' }
       }
     ]
   };

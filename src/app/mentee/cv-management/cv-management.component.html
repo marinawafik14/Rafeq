@@ -1,90 +1,139 @@
-<mentee-layout [menteeName]="menteeName" [menteeId]="menteeId">
-  <div class="container py-4 cv-management">
-    <h3 class="mb-4 text-center">CV Management</h3>
-    <div class="row mb-4">
-      <div class="col-12">
-        <div class="dropzone card p-4 text-center mb-2" [class.drag-over]="dragOver"
-          (drop)="onFileDrop($event)" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)">
-          <i class="bi bi-cloud-arrow-up display-4 text-primary mb-2"></i>
-          <div class="mb-2">Drag & drop your CV here, or <label class="text-primary fw-bold"
-              style="cursor:pointer;">browse
-            <input type="file" accept=".pdf,.doc,.docx" (change)="onFileSelect($event)" hidden></label></div>
-          <div class="text-muted small">PDF or Word, max 2MB</div>
-          <div *ngIf="fileError" class="alert alert-danger mt-2 py-2">{{fileError}}</div>
+<div class="container py-5 cv-management">
+    <div class="card shadow-sm border-0 mb-5">
+        <div class="card-body">
+            <h3 class="mb-4 text-center text-primary">CV Management</h3>
+            
+            <!-- Upload Area -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="dropzone card p-5 text-center mb-3 bg-light border-dashed" [class.drag-over]="dragOver"
+                        (drop)="onFileDrop($event)" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)">
+                        <i *ngIf="!uploadingFile" class="bi bi-cloud-arrow-up display-3 text-primary mb-3"></i>
+                        <div *ngIf="uploadingFile" class="spinner-border text-primary mb-3" role="status">
+                            <span class="visually-hidden">Uploading...</span>
+                        </div>
+                        <h5 class="mb-2">{{uploadingFile ? 'Uploading...' : 'Upload Your CV'}}</h5>
+                        <div *ngIf="!uploadingFile" class="mb-3">Drag & drop your CV here, or 
+                            <label class="btn btn-sm btn-primary ms-2" style="cursor:pointer;">
+                                Browse Files
+                                <input type="file" accept=".pdf,.doc,.docx" (change)="onFileSelect($event)" hidden>
+                            </label>
+                        </div>
+                        <div *ngIf="!uploadingFile" class="text-muted small">Accepted formats: PDF or Word documents (max 2MB)</div>
+                        <div *ngIf="fileError" class="alert alert-danger mt-3 py-2 mx-auto" style="max-width: 400px;">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>{{fileError}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- CV List -->
+            <div class="row">
+                <div class="col-12">
+                    <div *ngIf="cvs.length; else emptyCVs">
+                        <h5 class="mb-3"><i class="bi bi-file-earmark-text me-2"></i>Your CVs</h5>
+                        <div class="table-responsive">
+                            <table class="table align-middle table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">File</th>
+                                        <th scope="col">Uploaded</th>
+                                        <th scope="col">Comments</th>
+                                        <th scope="col">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let cv of cvs">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="cv-icon bg-light rounded p-2 me-3">
+                                                    <i class="bi bi-file-earmark-text text-primary fs-5"></i>
+                                                </div>
+                                                <span class="fw-medium">{{cv.name}}</span>
+                                            </div>
+                                        </td>
+                                        <td>{{cv.uploadedAt}}</td>
+                                        <td>
+                                            <button class="btn btn-outline-secondary btn-sm" (click)="openCommentsModal(cv)">
+                                                <i class="bi bi-chat-dots me-1"></i> 
+                                                {{cv.comments.length}} comment{{cv.comments.length === 1 ? '' : 's'}}
+                                            </button>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-outline-danger btn-sm" (click)="deleteCV(cv)">
+                                                <i class="bi bi-trash me-1"></i> Delete
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Empty State -->
+                    <ng-template #emptyCVs>
+                        <div class="text-center py-5 my-4 bg-light rounded">
+                            <i class="bi bi-file-earmark-x display-3 text-muted mb-3"></i>
+                            <h5 class="text-muted mb-2">No CVs Available</h5>
+                            <p class="text-muted">You haven't uploaded any CVs yet. Upload a CV to get feedback from mentors.</p>
+                        </div>
+                    </ng-template>
+                </div>
+            </div>
+            
+            <!-- Loading and Error States -->
+            <div *ngIf="loading" class="d-flex justify-content-center my-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+            <div *ngIf="error" class="alert alert-danger mt-3">
+                <i class="bi bi-exclamation-circle-fill me-2"></i>{{error}}
+                <button class="btn btn-outline-danger btn-sm ms-3" (click)="retryLoadCVs()">
+                    <i class="bi bi-arrow-clockwise me-1"></i> Retry
+                </button>
+            </div>
         </div>
-      </div>
     </div>
-    <div class="row">
-      <div class="col-12">
-        <div *ngIf="cvs.length; else emptyCVs">
-          <div class="table-responsive">
-            <table class="table align-middle table-hover">
-              <thead>
-                <tr>
-                  <th>File</th>
-                  <th>Uploaded</th>
-                  <th>Comments</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let cv of cvs">
-                  <td><i class="bi bi-file-earmark-text me-2"></i>{{cv.name}}</td>
-                  <td>{{cv.uploadedAt}}</td>
+</div>
 
-                  <td>
-                    <button class="btn btn-link p-0" (click)="openCommentsModal(cv)">
-                      <i class="bi bi-chat-dots"></i> {{cv.comments.length}} comment{{cv.comments.length === 1 ? '' : 's'}}
-                    </button>
-                  </td>
-                  <td>
-                    <button class="btn btn-outline-danger btn-sm" (click)="deleteCV(cv)"><i class="bi bi-trash"></i>
-                      Delete</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <ng-template #emptyCVs>
-          <div class="text-center text-muted py-5">
-            <i class="bi bi-file-earmark-x display-4 mb-3"></i>
-            <div>No CVs uploaded yet.</div>
-          </div>
-        </ng-template>
-      </div>
-    </div>
-    <ng-container *ngIf="loading">Loading...</ng-container>
-    <ng-container *ngIf="error">{{error}}</ng-container>
-  </div>
-
-  <!-- Comments Modal -->
-  <ng-container *ngIf="showCommentsModal">
+<!-- Comments Modal -->
+<ng-container *ngIf="showCommentsModal">
     <div class="modal-backdrop fade show"></div>
     <div class="modal d-block" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Comments for {{selectedCV?.name}}</h5>
-            <button type="button" class="btn-close" (click)="closeCommentsModal()"></button>
-          </div>
-          <div class="modal-body">
-            <div *ngIf="selectedComments.length; else noComments">
-              <div *ngFor="let comment of selectedComments" class="mb-3">
-                <div class="fw-bold">{{comment.mentorName}} <span class="text-muted small">({{comment.createdAt | date:'short'}})</span>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-light">
+                    <h5 class="modal-title">
+                        <i class="bi bi-chat-dots me-2 text-primary"></i>
+                        Feedback for {{selectedCV?.name}}
+                    </h5>
+                    <button type="button" class="btn-close" (click)="closeCommentsModal()"></button>
                 </div>
-                <div>{{comment.comment}}</div>
-              </div>
+                <div class="modal-body p-4">
+                    <div *ngIf="selectedComments.length; else noComments">
+                        <div *ngFor="let comment of selectedComments" class="comment-item mb-4 pb-3 border-bottom">
+                            <div class="d-flex justify-content-between mb-2">
+                                <div class="fw-bold">
+                                    <i class="bi bi-person-circle me-2"></i>{{comment.mentorName}}
+                                </div>
+                                <span class="text-muted small">{{comment.createdAt | date:'medium'}}</span>
+                            </div>
+                            <div class="comment-text bg-light p-3 rounded">{{comment.comment}}</div>
+                        </div>
+                    </div>
+                    <ng-template #noComments>
+                        <div class="text-center py-4">
+                            <i class="bi bi-chat-square text-muted display-4 mb-3"></i>
+                            <p class="text-muted">No feedback received for this CV yet.</p>
+                        </div>
+                    </ng-template>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" (click)="closeCommentsModal()">Close</button>
+                </div>
             </div>
-            <ng-template #noComments>
-              <div class="text-muted">No comments for this CV.</div>
-            </ng-template>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" (click)="closeCommentsModal()">Close</button>
-          </div>
         </div>
-      </div>
     </div>
-  </ng-container>
-</mentee-layout>
+</ng-container>
+

@@ -5,14 +5,14 @@ import { Users } from '../../Models/Users';
 import { SkillService } from '../../Services/skill.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MenteeLayoutComponent } from '../mentee-layout.component';
 import { MentorCard, MenteeService } from '../../Services/Mentee.service';
 import { Router, ActivatedRoute } from '@angular/router';
+import { AuthService } from '../../Services/auth.service';
 
 @Component({
   selector: 'app-mentee-search-mentors',
   standalone: true,
-  imports: [CommonModule, FormsModule, MenteeLayoutComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './mentee-search-mentors.component.html',
   styleUrls: ['./mentee-search-mentors.component.css']
 })
@@ -29,7 +29,7 @@ export class MenteeSearchMentorsComponent implements OnInit {
   sortBy = 'rating';
   pageSize = 6;
   currentPage = 1;
-  
+
   filters: MentorSearchFilters = {
     skills: [],
     minPrice: undefined,
@@ -48,7 +48,7 @@ export class MenteeSearchMentorsComponent implements OnInit {
     { value: 'price', label: 'Price' },
     { value: 'name', label: 'Name' }
   ];
-  menteeId: number|null = null;
+  menteeId: number | null = null;
   allMentors: MentorCard[] = [];
 
   constructor(
@@ -56,8 +56,9 @@ export class MenteeSearchMentorsComponent implements OnInit {
     private skillService: SkillService,
     private menteeService: MenteeService,
     private router: Router,
-    private route: ActivatedRoute
-  ) {}
+    private route: ActivatedRoute,
+    private authService: AuthService
+  ) { }
 
   // Handle image error
   onImageError(event: any) {
@@ -65,38 +66,28 @@ export class MenteeSearchMentorsComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Try to get menteeId from route first
     this.route.paramMap.subscribe(params => {
-      const routeMenteeId = params.get('menteeId');
-      if (routeMenteeId) {
-        this.menteeId = +routeMenteeId;
-        console.log('MenteeId from route:', this.menteeId); // Debug log
-      } else {
-        // If no menteeId from route, get from token as fallback
-        const token = document.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1];
-        if (token) {
-          try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-            this.menteeId = payload.menteeId || payload.userId || null;
-            console.log('MenteeId from token:', this.menteeId); // Debug log
-          } catch (e) {
-            console.error('Failed to parse token:', e);
-          }
-        }
-      }
-
-      // Log final menteeId value
-      console.log('Final menteeId in search component:', this.menteeId);
+      this.menteeId = this.authService.getCurrentUserId();
       
-      // If still no menteeId, log warning
       if (!this.menteeId) {
-        console.warn('No menteeId available in search-mentors component');
+        console.warn('No menteeId available');
       }
 
-      // Load data after menteeId is determined
       this.loadSkills();
       this.fetchAllMentors();
     });
+  }
+
+  viewMentorProfile(mentorId: number) {
+    if (!this.menteeId) {
+      this.menteeId = this.authService.getCurrentUserId();
+    }
+
+    if (this.menteeId) {
+      this.router.navigate(['/mentee/mentor', mentorId]);
+    } else {
+      this.router.navigate(['/mentee/mentor', mentorId]);
+    }
   }
 
   loadSkills() {
@@ -121,7 +112,7 @@ export class MenteeSearchMentorsComponent implements OnInit {
     if (!this.skillSearchTerm.trim()) {
       this.filteredSkills = [...this.skills];
     } else {
-      this.filteredSkills = this.skills.filter(skill => 
+      this.filteredSkills = this.skills.filter(skill =>
         skill.Name.toLowerCase().includes(this.skillSearchTerm.toLowerCase())
       );
     }
@@ -288,7 +279,7 @@ export class MenteeSearchMentorsComponent implements OnInit {
   getPaginationRange(currentPage: number, totalPages: number): number[] {
     const range: number[] = [];
     const maxVisible = 5;
-    
+
     if (totalPages <= maxVisible) {
       for (let i = 1; i <= totalPages; i++) {
         range.push(i);
@@ -296,12 +287,12 @@ export class MenteeSearchMentorsComponent implements OnInit {
     } else {
       const start = Math.max(1, currentPage - 2);
       const end = Math.min(totalPages, start + maxVisible - 1);
-      
+
       for (let i = start; i <= end; i++) {
         range.push(i);
       }
     }
-    
+
     return range;
   }
 
@@ -353,14 +344,14 @@ export class MenteeSearchMentorsComponent implements OnInit {
 
   applyFilters() {
     let filtered = [...this.allMentors];
-    
+
     // Name search filter
     if (this.searchName && this.searchName.trim()) {
-      filtered = filtered.filter(m => 
+      filtered = filtered.filter(m =>
         m.fullName.toLowerCase().includes(this.searchName.toLowerCase())
       );
     }
-    
+
     // Skills filter
     if (this.filters.skills && this.filters.skills.length > 0) {
       // Get selected skill names from the Skills list
@@ -369,7 +360,7 @@ export class MenteeSearchMentorsComponent implements OnInit {
         .map(skill => skill.Name);
       filtered = filtered.filter(m => m.skills.some(s => selectedSkillNames.includes(s.Name)));
     }
-    
+
     // Price filter
     if (this.minPrice !== null && this.minPrice !== undefined) {
       filtered = filtered.filter(m => m.hourlyRate >= this.minPrice!);
@@ -377,12 +368,12 @@ export class MenteeSearchMentorsComponent implements OnInit {
     if (this.maxPrice !== null && this.maxPrice !== undefined) {
       filtered = filtered.filter(m => m.hourlyRate <= this.maxPrice!);
     }
-    
+
     // Rating filter
     if (this.minRating !== null && this.minRating !== undefined) {
       filtered = filtered.filter(m => (m.rating ?? 0) >= this.minRating!);
     }
-    
+
     // Sort
     if (this.sortBy === 'price') {
       filtered = filtered.sort((a, b) => (this.filters.sortOrder === 'asc' ? a.hourlyRate - b.hourlyRate : b.hourlyRate - a.hourlyRate));
@@ -391,15 +382,15 @@ export class MenteeSearchMentorsComponent implements OnInit {
     } else if (this.sortBy === 'name') {
       filtered = filtered.sort((a, b) => a.fullName.localeCompare(b.fullName));
     }
-    
+
     // Update total before pagination
     this.total = filtered.length;
-    
+
     // Pagination
     const start = (this.currentPage - 1) * this.pageSize;
     const end = start + this.pageSize;
     this.mentors = filtered.slice(start, end);
-    
+
     this.emptyState = filtered.length === 0;
   }
 
@@ -462,33 +453,8 @@ export class MenteeSearchMentorsComponent implements OnInit {
     this.viewMode = mode;
   }
 
-  viewMentorProfile(mentorId: number) {
-    console.log('Viewing mentor profile:', { mentorId, menteeId: this.menteeId }); // Debug log
-    
-    // Try to get menteeId if not available
-    if (!this.menteeId) {
-      const token = document.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1];
-      if (token) {
-        try {
-          const payload = JSON.parse(atob(token.split('.')[1]));
-          this.menteeId = payload.menteeId || payload.userId || null;
-          console.log('Retrieved menteeId from token in viewMentorProfile:', this.menteeId);
-        } catch (e) {
-          console.error('Failed to parse token in viewMentorProfile:', e);
-        }
-      }
-    }
-    
-    if (this.menteeId) {
-      // Always prefer the route with menteeId
-      console.log('Navigating to:', ['/mentee', this.menteeId, 'mentor', mentorId]);
-      this.router.navigate(['/mentee', this.menteeId, 'mentor', mentorId]);
-    } else {
-      console.warn('No menteeId available, using fallback route');
-      // Fallback to route without menteeId
-      this.router.navigate(['/mentee/mentor', mentorId]);
-    }
-  }
+ 
+
 
   // TrackBy functions for better performance
   trackBySkillId(index: number, skill: Skills): number {

@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { loadStripe } from '@stripe/stripe-js';
 import { PaymentService } from '../Services/payment.service';
@@ -15,7 +15,7 @@ import { AuthService } from '../Services/auth.service';
 })
 
 
-export class PaymentComponent implements AfterViewInit, OnDestroy {
+export class PaymentComponent implements AfterViewInit, OnDestroy,OnInit {
   @ViewChild('cardInfo') cardInfo!: ElementRef;
 
   stripe: any;
@@ -37,31 +37,82 @@ export class PaymentComponent implements AfterViewInit, OnDestroy {
     private authService: AuthService
   ) {}
 
- ngOnInit(): void {
-  const idParam = this.route.snapshot.paramMap.get('id');
-  if (!idParam) {
-    this.errorMessage = 'No payment ID provided.';
+ngOnInit(): void {
+  const state = history.state;
+  const queryBookingId = this.route.snapshot.queryParamMap.get('bookingId');
+  const queryAmount = this.route.snapshot.queryParamMap.get('amount');
+
+  if (state && state.bookingId) {
+    this.bookingId = state.bookingId;
+  } else if (queryBookingId) {
+    this.bookingId = +queryBookingId;
+  } else {
+    this.errorMessage = 'Missing booking ID. Please try booking again.';
     this.errorVisible = true;
     this.loadingVisible = false;
     return;
   }
 
-  this.paymentId = +idParam;
+  // Get the amount from navigation state or query params
+  const amount = state?.amount || queryAmount || 60;
 
-  // STEP: Load full payment details from backend
-  this.paymentService.getPaymentById(this.paymentId).subscribe({
+  // Set payment details so UI works immediately
+  this.paymentDetails = {
+    paymentId: 0,
+    bookingId: this.bookingId,
+    amountPaid: +amount,
+    paymentMethod: 'card',
+    transactionId: '',
+    paymentDate: new Date().toISOString(),
+    mentorName: 'Mentor',
+    menteeName: 'You',
+    sessionType: amount >= 100 ? 'Interview' : 'Mentorship',
+    sessionDateTime: new Date().toISOString(),
+    commission: Math.round(+amount * 0.2 * 100) / 100,
+    mentorAmount: Math.round(+amount * 0.8 * 100) / 100
+  };
+  
+  this.loadingVisible = false;
+}
+
+private loadPaymentDetails(): void {
+  this.loadingVisible = true;
+  this.errorVisible = false;
+  
+  // Use the API endpoint that gets payment details by booking ID
+  this.paymentService.getPaymentDetailsByBookingId(this.bookingId).subscribe({
     next: (response) => {
-      this.paymentDetails = response.data; // contains bookingId
-      this.bookingId = this.paymentDetails.bookingId;
+      console.log('Payment details loaded:', response);
+      this.paymentDetails = response.data;
       this.loadingVisible = false;
     },
-    error: () => {
-      this.errorMessage = 'Failed to load payment details.';
-      this.errorVisible = true;
+    error: (err) => {
+      console.error('Error loading payment details:', err);
+      // If payment details don't exist yet, that's normal for a new booking
+      // The payment will be created when the user clicks "Pay"
+      this.errorMessage = 'Unable to load payment details. You can still proceed with payment.';
       this.loadingVisible = false;
+      
+      // Set some default values so the UI doesn't break
+      this.paymentDetails = {
+        paymentId: 0,
+        bookingId: this.bookingId,
+        amountPaid: 60, // Default amount - you might want to get this from the booking
+        paymentMethod: 'card',
+        transactionId: '',
+        paymentDate: new Date().toISOString(),
+        mentorName: 'Mentor',
+        menteeName: 'You',
+        sessionType: 'Mentorship',
+        sessionDateTime: new Date().toISOString(),
+        commission: 0,
+        mentorAmount: 60
+      };
     }
   });
 }
+
+
 
   async ngAfterViewInit(): Promise<void> {
     this.stripe = await loadStripe('pk_test_51RY3tP4Ku1yMQ0pw1dN91yYC5hXgeCpQy8n5VUhIdg9tPXjK0TXxKYWqFcF64dskcOAtihPRk1EZtq2K8gjettjQ00NDh0wgsp');
@@ -94,12 +145,7 @@ export class PaymentComponent implements AfterViewInit, OnDestroy {
   event.preventDefault();
 
 
-  if (!this.paymentDetails || !this.paymentDetails.bookingId) {
-    console.log('Missing payment details or bookingId');
-    this.errorMessage = 'Miss booking ID.';
-    this.errorVisible = true;
-    return;
-  }
+
 
   if (!this.authService.isLoggedIn()) {
     this.errorMessage = 'Session expired. Please log in again.';
@@ -117,7 +163,7 @@ export class PaymentComponent implements AfterViewInit, OnDestroy {
 
   try {
     // Step 1: Create PaymentIntent using BookingId + UserId
-    const intentResponse = await this.paymentService.createPaymentIntent(this.paymentDetails.bookingId, userId).toPromise();
+    const intentResponse = await this.paymentService.createPaymentIntent(this.bookingId).toPromise();
     
     if (!intentResponse?.clientSecret) {
       throw new Error('Could not create payment intent.');
@@ -141,22 +187,20 @@ export class PaymentComponent implements AfterViewInit, OnDestroy {
     // Step 3: Confirm with backend
     const confirmResult = await this.paymentService.confirmPayment({
       paymentIntentId: result.paymentIntent.id,
-      paymentId: this.paymentId,
       bookingId: this.bookingId
     }).toPromise();
 
-    if (!confirmResult?.success) {
-      this.errorMessage = confirmResult?.message ?? 'Something went wrong.';
-      this.errorVisible = true;
-      return;
-    }
+   if (confirmResult?.success) {
+  this.successVisible = true;
+  setTimeout(() => {
+    this.router.navigate(['/booking/confirmation'], {
+      state: { paymentId: confirmResult.data.paymentId }
+    });
+  }, 1500);
+}
 
-    // Show success and redirect
-    this.successVisible = true;
-    setTimeout(() => {
-      this.router.navigate(['/booking/confirmation', this.bookingId]);
-    }, 1500);
 
+  
   } catch (err: any) {
     console.error('Payment error:', err);
     this.errorMessage = err?.error?.message || 'An unexpected error occurred.';

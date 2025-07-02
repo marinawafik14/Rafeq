@@ -1,87 +1,241 @@
 <div class="mentee-page d-flex">
-  <mentee-layout></mentee-layout>
+  <mentee-layout [menteeId]="menteeId"></mentee-layout>
   <main class="main-content flex-grow-1">
-    <div class="container py-4 booking-form">
+    <div class="container py-4 booking-form-modern">
       <div class="row justify-content-center">
-        <div class="col-12 col-md-8 col-lg-6">
-          <div class="card shadow-sm">
-            <div class="card-body">
-              <h3 class="mb-4 text-center">Book a Session</h3>
-              <div class="progress mb-4" style="height: 6px;">
-                <div class="progress-bar bg-primary" role="progressbar" [style.width]="(step * 25) + '%'" aria-valuenow="step" aria-valuemin="1" aria-valuemax="4"></div>
+        <div class="col-12 col-lg-10 col-xl-8">
+          <div class="booking-card shadow-lg">
+            <div class="booking-header">
+              <h2 class="booking-title">
+                <i class="bi bi-calendar-plus me-2"></i>
+                Book a Session
+                <span class="mentor-name" *ngIf="mentor">with {{mentor.fullName}}</span>
+              </h2>
+              <div class="progress-wrapper">
+                <div class="progress">
+                  <div class="progress-bar" 
+                       role="progressbar" 
+                       [style.width]="(step * 33.33) + '%'" 
+                       [attr.aria-valuenow]="step" 
+                       aria-valuemin="1" 
+                       aria-valuemax="3">
+                  </div>
+                </div>
+                <div class="step-indicators">
+                  <div class="step-indicator" [class.active]="step >= 1" [class.completed]="step > 1">
+                    <span class="step-number">1</span>
+                    <span class="step-label">Type</span>
+                  </div>
+                  <div class="step-indicator" [class.active]="step >= 2" [class.completed]="step > 2">
+                    <span class="step-number">2</span>
+                    <span class="step-label">Date & Time</span>
+                  </div>
+                  <div class="step-indicator" [class.active]="step >= 3">
+                    <span class="step-number">3</span>
+                    <span class="step-label">Payment</span>
+                  </div>
+                </div>
               </div>
+            </div>
 
+            <div class="booking-body">
               <!-- Step 1: Session Type -->
-              <div *ngIf="step === 1">
-                <h5>Select Session Type</h5>
-                <div class="d-flex gap-3 my-3 flex-wrap">
-                  <button *ngIf="showMentorship" class="btn btn-outline-primary flex-fill" [class.active]="sessionType==='mentorship'" (click)="selectSessionType('mentorship')">
-                    <i class="bi bi-person-video2 me-2"></i> Mentorship
-                  </button>
-                  <button *ngIf="showInterview" class="btn btn-outline-primary flex-fill" [class.active]="sessionType==='interview'" (click)="selectSessionType('interview')">
-                    <i class="bi bi-briefcase me-2"></i> Interview
+              <div class="step-content" *ngIf="step === 1">
+                <div class="step-header">
+                  <h3><i class="bi bi-person-video2 me-2"></i>Select Session Type</h3>
+                  <p class="step-description">Choose the type of session you'd like to book</p>
+                </div>
+                
+                <div class="session-type-grid">
+                  <div class="session-type-card" 
+                       *ngIf="showMentorship"
+                       [class.selected]="sessionType==='mentorship'" 
+                       (click)="selectSessionType('mentorship')">
+                    <div class="session-icon">
+                      <i class="bi bi-person-video2"></i>
+                    </div>
+                    <h4>Mentorship Session</h4>
+                    <p>Get personalized guidance and career advice</p>
+                    <div class="session-price">${{mentor?.hourlyRate || 60}}/hour</div>
+                  </div>
+                  
+                  <div class="session-type-card" 
+                       *ngIf="showInterview"
+                       [class.selected]="sessionType==='interview'" 
+                       (click)="selectSessionType('interview')">
+                    <div class="session-icon">
+                      <i class="bi bi-briefcase"></i>
+                    </div>
+                    <h4>Mock Interview</h4>
+                    <p>Practice interviews with professional feedback</p>
+                    <div class="session-price">${{mentor?.hourlyRate || 100}}/hour</div>
+                  </div>
+                </div>
+
+                <div class="step-actions">
+                  <button class="btn btn-primary btn-lg" 
+                          [disabled]="!sessionType" 
+                          (click)="nextStep()">
+                    Continue <i class="bi bi-arrow-right ms-2"></i>
                   </button>
                 </div>
               </div>
 
-              <!-- Step 2: Date Picker -->
-              <div *ngIf="step === 2">
-                <h5>Select Date</h5>
-                <div class="d-flex flex-wrap gap-2 my-3">
-                  <button *ngFor="let date of availableDates" class="btn btn-outline-secondary" [class.active]="selectedDate===date" (click)="selectDate(date)">
-                    <i class="bi bi-calendar-event me-1"></i> {{date}}
+              <!-- Step 2: Enhanced Date & Time Selection -->
+              <div class="step-content" *ngIf="step === 2">
+                <div class="step-header">
+                  <h3><i class="bi bi-calendar-event me-2"></i>Select Date & Time</h3>
+                  <p class="step-description">Choose your preferred date and time slot</p>
+                </div>
+
+                <!-- Loading State -->
+                <div class="text-center my-4" *ngIf="loadingSlots">
+                  <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading available dates...</span>
+                  </div>
+                  <p class="mt-2 text-muted">Loading available dates...</p>
+                </div>
+
+                <!-- Available Days with Time Slots -->
+                <div class="availability-section" *ngIf="!loadingSlots && availableDates.length > 0">
+                  <h5 class="mb-3">Select Date</h5>
+                  <div class="available-days-horizontal d-flex flex-wrap gap-3 justify-content-start">
+                    <div class="day-availability-card flex-shrink-0" 
+                         *ngFor="let date of availableDates"
+                         [class.selected]="selectedDate === date"
+                         [class.disabled]="!hasSlots(date)"
+                         (click)="hasSlots(date) && selectDate(date)">
+                      
+                      <!-- Day Header -->
+                      <div class="day-header">
+                        <div class="day-info">
+                          <div class="day-main">
+                            <span class="day-name">{{date | date:'EEE'}}</span>
+                            <span class="day-date">{{date | date:'MMM d'}}</span>
+                          </div>
+                        </div>
+                        <div class="slots-count">
+                          <span class="badge rounded-pill" 
+                                [ngClass]="{'bg-primary': hasSlots(date), 'bg-secondary': !hasSlots(date)}">
+                            {{ getSlotsForDate(date).length }} Slots
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Time Slots Grid (shown after date selection) -->
+                <div class="time-slots-section mt-4" *ngIf="selectedDate && availableSlots.length > 0">
+                  <h5 class="mb-3">Select Time Slot for {{selectedDate | date:'EEEE, MMMM d'}}</h5>
+                  <div class="time-slots-grid">
+                    <button class="time-slot-btn" 
+                            *ngFor="let slot of availableSlots"
+                            [class.selected]="selectedSlot === slot"
+                            (click)="selectSlot(slot)">
+                      <i class="bi bi-clock"></i>
+                      <span class="time-text">{{slot}}</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- No Availability State -->
+                <div class="no-availability-state" *ngIf="!loadingSlots && availableDates.length === 0">
+                  <div class="no-availability-content">
+                    <i class="bi bi-calendar-x"></i>
+                    <h4>No Available Slots</h4>
+                    <p>This mentor doesn't have any available time slots at the moment.</p>
+                  </div>
+                </div>
+
+                <div class="step-actions">
+                  <button class="btn btn-outline-secondary me-2" (click)="prevStep()">
+                    <i class="bi bi-arrow-left me-2"></i>Back
+                  </button>
+                  <button class="btn btn-primary btn-lg" 
+                          [disabled]="!selectedDate || !selectedSlot" 
+                          (click)="nextStep()">
+                    Continue <i class="bi bi-arrow-right ms-2"></i>
                   </button>
                 </div>
-                <button class="btn btn-link mt-2" (click)="prevStep()">&laquo; Back</button>
               </div>
 
-              <!-- Step 3: Time Slot Selection -->
-              <div *ngIf="step === 3">
-                <h5>Select Time Slot</h5>
-                <div class="d-flex flex-wrap gap-2 my-3">
-                  <button *ngFor="let slot of availableSlots" class="btn btn-outline-success" [class.active]="selectedSlot===slot" (click)="selectSlot(slot)">
-                    <i class="bi bi-clock me-1"></i> {{slot}}
-                  </button>
+              <!-- Step 3: Payment Summary & Booking -->
+              <div class="step-content" *ngIf="step === 3">
+                <div class="step-header">
+                  <h3><i class="bi bi-clipboard-check me-2"></i>Booking Summary</h3>
+                  <p class="step-description">Review your booking details and proceed to payment</p>
                 </div>
-                <button class="btn btn-link mt-2" (click)="prevStep()">&laquo; Back</button>
-              </div>
 
-              <!-- Step 4: Pricing, Terms, Payment -->
-              <div *ngIf="step === 4">
-                <h5>Review & Payment</h5>
-                <div class="mb-3">
-                  <div class="d-flex justify-content-between">
-                    <span>Session Type:</span>
-                    <span class="fw-bold text-primary text-capitalize">{{sessionType}}</span>
-                  </div>
-                  <div class="d-flex justify-content-between">
-                    <span>Date:</span>
-                    <span class="fw-bold">{{selectedDate}}</span>
-                  </div>
-                  <div class="d-flex justify-content-between">
-                    <span>Time:</span>
-                    <span class="fw-bold">{{selectedSlot}}</span>
-                  </div>
-                  <div class="d-flex justify-content-between mt-2">
-                    <span>Price:</span>
-                    <span class="fw-bold text-success">${{calculatedPrice}}</span>
+                <div class="booking-summary">
+                  <div class="summary-card">
+                    <div class="summary-item">
+                      <div class="summary-label">
+                        <i class="bi bi-person-video2"></i>
+                        Session Type
+                      </div>
+                      <div class="summary-value">
+                        <span class="text-capitalize">{{sessionType}}</span>
+                        <span class="session-badge">{{sessionType === 'interview' ? 'Mock Interview' : 'Mentorship'}}</span>
+                      </div>
+                    </div>
+
+                    <div class="summary-item">
+                      <div class="summary-label">
+                        <i class="bi bi-calendar-event"></i>
+                        Date & Time
+                      </div>
+                      <div class="summary-value">
+                        <span class="date-display">{{selectedDate | date:'EEEE, MMMM d, y'}}</span>
+                        <span class="time-display">{{selectedSlot}}</span>
+                      </div>
+                    </div>
+
+                    <div class="summary-item">
+                      <div class="summary-label">
+                        <i class="bi bi-person"></i>
+                        Mentor
+                      </div>
+                      <div class="summary-value">
+                        <span class="mentor-display">{{mentor?.fullName}}</span>
+                        <span class="mentor-rate">${{mentor?.hourlyRate}}/hour</span>
+                      </div>
+                    </div>
+
+                    <div class="summary-item total-price">
+                      <div class="summary-label">
+                        <i class="bi bi-currency-dollar"></i>
+                        Total Price
+                      </div>
+                      <div class="summary-value">
+                        <span class="price-amount">${{calculatedPrice}}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div class="form-check mb-3">
+
+                <div class="form-check mb-3 mt-4">
                   <input class="form-check-input" type="checkbox" id="terms" [(ngModel)]="termsAccepted">
                   <label class="form-check-label" for="terms">
                     I accept the <a href="#" target="_blank">terms and conditions</a>.
                   </label>
                 </div>
-                <button class="btn btn-primary w-100 mb-2" [disabled]="!termsAccepted" (click)="completePayment()">
-                  <i class="bi bi-credit-card me-2"></i> Pay & Book
-                </button>
-                <button class="btn btn-link w-100" (click)="prevStep()">&laquo; Back</button>
+
+                <div class="step-actions">
+                  <button class="btn btn-outline-secondary me-2" (click)="prevStep()">
+                    <i class="bi bi-arrow-left me-2"></i>Back
+                  </button>
+                  <button class="btn btn-success btn-lg" 
+                          [disabled]="!termsAccepted"
+                          (click)="completePayment()">
+                    Pay & Book <i class="bi bi-credit-card ms-2"></i>
+                  </button>
+                </div>
               </div>
 
-              <!-- Step 5: Confirmation -->
-              <div *ngIf="step === 5">
-                <div class="text-center py-5">
+              <!-- Step 4: Confirmation -->
+              <div class="step-content" *ngIf="step === 5">
+                <div class="confirmation-content text-center py-5">
                   <i class="bi bi-check-circle-fill text-success display-3 mb-3"></i>
                   <h4 class="mb-2">Booking Confirmed!</h4>
                   <p>Your session has been booked successfully.</p>
@@ -89,8 +243,11 @@
                 </div>
               </div>
 
-              <div *ngIf="bookingError" class="alert alert-danger">{{bookingError}}</div>
-
+              <!-- Error Display -->
+              <div *ngIf="bookingError" class="alert alert-danger booking-error mt-4">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                {{bookingError}}
+              </div>
             </div>
           </div>
         </div>

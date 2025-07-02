@@ -15,17 +15,22 @@
       <ng-container *ngIf="!loading && booking">
         <!-- Status Banner -->
         <div class="status-banner-container">
-          <div *ngIf="booking.status==='upcoming' || booking.status==='Upcoming' || booking.status==='Scheduled'" 
+          <div *ngIf="booking.status?.toLowerCase() === 'pending' || booking.status?.toLowerCase() === 'upcoming' || booking.status?.toLowerCase() === 'scheduled'" 
                class="alert alert-primary text-center fw-bold">
             <i class="bi bi-clock-history me-2"></i>
             Upcoming Session
           </div>
-          <div *ngIf="booking.status==='completed' || booking.status==='Completed'" 
+          <div *ngIf="booking.status?.toLowerCase() === 'confirmed'" 
+               class="alert alert-info text-center fw-bold">
+            <i class="bi bi-calendar-check me-2"></i>
+            Confirmed Session
+          </div>
+          <div *ngIf="booking.status?.toLowerCase() === 'completed'" 
                class="alert alert-success text-center fw-bold">
             <i class="bi bi-check-circle me-2"></i>
             Completed Session
           </div>
-          <div *ngIf="booking.status==='cancelled' || booking.status==='Cancelled'" 
+          <div *ngIf="booking.status?.toLowerCase() === 'cancelled' || booking.status?.toLowerCase() === 'canceled'" 
                class="alert alert-danger text-center fw-bold">
             <i class="bi bi-x-circle me-2"></i>
             Cancelled Session
@@ -39,7 +44,6 @@
             <div class="details-section">
               <div class="card mb-4">
               <div class="card-body d-flex align-items-center">
-                <img [src]="booking.mentor.photo" alt="Mentor Photo" class="rounded-circle shadow me-3" style="width:70px;height:70px;object-fit:cover;">
                 <div>
                   <div class="fw-bold fs-5">{{booking.mentor.name}}</div>
                   <div class="text-muted">{{booking.mentor.title}}</div>
@@ -53,22 +57,57 @@
             </div>
             <div class="card mb-4">
               <div class="card-body d-flex flex-wrap align-items-center justify-content-between">
-                <div>
+                <div class="w-100">
                   <div class="fw-bold mb-1">Google Meet</div>
                   <div class="text-muted small mb-2">Join your session at the scheduled time.</div>
-                  <a *ngIf="booking.status==='upcoming' || booking.status==='Upcoming' || booking.status==='Scheduled'" [href]="booking.meetUrl" target="_blank" class="btn btn-success btn-sm">
-                    <i class="bi bi-camera-video"></i> Join Google Meet
-                  </a>
-                  <span *ngIf="booking.status!=='upcoming' && booking.status!=='Upcoming' && booking.status!=='Scheduled'" class="badge bg-secondary">Not available</span>
+                  
+                  <!-- Join Session Button (shown for all confirmed sessions) -->
+                  <button 
+                    *ngIf="booking.status?.toLowerCase() === 'confirmed' || booking.status?.toLowerCase() === 'upcoming' || booking.status?.toLowerCase() === 'scheduled'"
+                    [disabled]="!canJoinSession(booking)"
+                    [class.btn-secondary]="!canJoinSession(booking)"
+                    [class.btn-join-session]="canJoinSession(booking)"
+                    class="btn"
+                    (click)="joinSession()">
+                    <i class="bi bi-camera-video me-1"></i> 
+                    {{canJoinSession(booking) ? 'Join Google Meet' : 'Join Session'}}
+                  </button>
+                    <button 
+                        *ngIf="canCancelBooking()"
+                        class="btn btn-danger btn-sm" 
+                        (click)="openCancelModal()">
+                        <i class="bi bi-x-circle me-1"></i>
+                        Cancel Booking
+                      </button>
+                  <!-- Meeting link display -->
+                  <div *ngIf="booking.status?.toLowerCase() === 'confirmed' || booking.status?.toLowerCase() === 'upcoming' || booking.status?.toLowerCase() === 'scheduled'" 
+                       class="mt-2 small">
+                    <div *ngIf="booking.meetUrl && booking.meetUrl.trim()" class="google-meet-info">
+                      <span class="d-block">Meeting link: <span class="meet-url">{{booking.meetUrl}}</span></span>
+                      <span *ngIf="!canJoinSession(booking)" class="badge bg-warning mt-1 text-dark">
+                        <i class="bi bi-clock-history me-1"></i>
+                        Join available {{getJoinTimeMessage(booking)}}
+                      </span>
+                    </div>
+                    <div *ngIf="!booking.meetUrl || !booking.meetUrl.trim()" class="mt-2">
+                      <span class="badge bg-secondary">
+                        <i class="bi bi-exclamation-circle me-1"></i>
+                        Meeting link not available
+                      </span>
+                    </div>
+
+                  </div>
+                  
+                  <!-- Past/completed/cancelled session message -->
+                  <span *ngIf="booking.status?.toLowerCase() === 'completed' || booking.status?.toLowerCase() === 'cancelled'" 
+                        class="badge bg-secondary">
+                    <i class="bi bi-check-circle me-1"></i>
+                    Session has ended
+                  </span>
                 </div>
-                <!-- <div>
-                  <div class="fw-bold mb-1">Chat</div>
-                  <a [href]="booking.chatUrl" class="btn btn-outline-primary btn-sm">
-                    <i class="bi bi-chat-dots"></i> Go to Chat
-                  </a>
-                </div> -->
               </div>
             </div>
+            
             <div class="card mb-4">
               <div class="card-header bg-white fw-bold">Payment Information</div>
               <div class="card-body">
@@ -112,4 +151,74 @@
       </ng-container>
     </div>
   </main>
+</div>
+
+<!-- Cancel Confirmation Modal -->
+<div class="modal" [class.show]="showCancelModal" [style.display]="showCancelModal ? 'block' : 'none'" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          Cancel Booking
+        </h5>
+        <button type="button" class="btn-close btn-close-white" (click)="closeCancelModal()"></button>
+      </div>
+      <div class="modal-body">
+        <div class="booking-summary mb-4" *ngIf="booking">
+          <div class="d-flex align-items-center mb-3">
+            <div class="me-3">
+              <i class="bi bi-person-circle text-primary" style="font-size: 2rem;"></i>
+            </div>
+            <div>
+              <h6 class="mb-1">{{booking.mentor.name || 'Unknown Mentor'}}</h6>
+              <small class="text-muted">Booking #{{booking.rawData?.bookingId}}</small>
+            </div>
+          </div>
+          
+          <div class="booking-details-list">
+            <div class="detail-row">
+              <div class="detail-label"><i class="bi bi-calendar3 me-2"></i>Date:</div>
+              <div class="detail-value">{{booking.date}}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label"><i class="bi bi-clock me-2"></i>Time:</div>
+              <div class="detail-value">{{booking.time}}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label"><i class="bi bi-tag me-2"></i>Session:</div>
+              <div class="detail-value">{{booking.mentor.title || 'N/A'}}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label"><i class="bi bi-currency-dollar me-2"></i>Amount:</div>
+              <div class="detail-value">${{booking.payment.amount || 0}}</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="alert alert-warning">
+          <i class="bi bi-exclamation-circle me-2"></i>
+          <strong>Warning:</strong> This action cannot be undone. The mentor will be notified of your cancellation.
+        </div>
+        
+        <p>Are you sure you want to cancel this booking?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="closeCancelModal()">
+          <i class="bi bi-x me-1"></i>
+          Keep Booking
+        </button>
+        <button type="button" class="btn btn-danger" (click)="cancelBooking()">
+          <i class="bi bi-trash me-1"></i>
+          Yes, Cancel This Booking
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal backdrop -->
+<div class="modal-backdrop" 
+     [class.show]="showCancelModal"
+     [style.display]="showCancelModal ? 'block' : 'none'">
 </div>

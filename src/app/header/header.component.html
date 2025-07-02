@@ -46,6 +46,24 @@
           </li>
 
 
+         
+             <li class="nav-item mx-2">
+            <a class="nav-link rounded-pill px-3" routerLink="/messages" routerLinkActive="active">
+        
+          <i class="fa-brands fa-rocketchat fa-xl" ></i>
+            </a>
+        
+          </li>
+
+          <!-- AI Assistant Link - Shown only for logged-in users -->
+          <li class="nav-item mx-2" *ngIf="currentUser">
+  <a class="nav-link rounded-pill px-3 ai-assistant-card" 
+     routerLink="/ai-chatbot" 
+     routerLinkActive="active">
+    <i class="fas fa-robot ai-assistant-icon"></i>
+    <span class="ai-assistant-text">AI Assistant</span>
+  </a>
+</li>
         </ul>
         <div class="d-flex align-items-center gap-3">
   <!-- Notification Badge - Show only for logged-in users -->
@@ -69,3 +87,4 @@
     </div>
   </nav>
 </header>
+

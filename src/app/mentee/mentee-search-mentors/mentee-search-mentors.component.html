@@ -1,5 +1,5 @@
 <div class="mentee-page d-flex">
-  <mentee-layout [menteeId]="menteeId">
+  
     <div class="search-mentors-wrapper">
       <div class="container-fluid py-4">
         <!-- Page Header -->
@@ -95,7 +95,7 @@
                     <div class="input-group mb-3">
                       <span class="input-group-text bg-light border-0">Min $</span>
                       <input type="number" class="form-control border-0 shadow-none" 
-                             placeholder="0" [(ngModel)]="minPrice" (change)="onMinPriceChange($event)">
+                             placeholder="0" min="0" [(ngModel)]="minPrice" (change)="onMinPriceChange($event)">
                     </div>
                     <div class="input-group">
                       <span class="input-group-text bg-light border-0">Max $</span>
@@ -106,22 +106,7 @@
                 </div>
               </div>
 
-              <!-- Rating Filter Card -->
-              <div class="filter-card mb-4">
-                <div class="filter-card-header">
-                  <h5 class="filter-title">
-                    <i class="bi bi-star-fill me-2"></i>Minimum Rating
-                  </h5>
-                </div>
-                <div class="filter-card-body">
-                  <select class="form-select border-0 shadow-none" [(ngModel)]="minRating" (change)="onRatingChange($event)">
-                    <option value="">Any Rating</option>
-                    <option *ngFor="let r of [5,4,3,2,1]" [value]="r">
-                      {{r}}+ <span class="rating-stars">★</span>
-                    </option>
-                  </select>
-                </div>
-              </div>
+             
 
               <!-- Sort Options Card -->
               <div class="filter-card mb-4">
@@ -371,5 +356,5 @@
         </div>
       </div>
     </div>
-  </mentee-layout>
+ 
 </div>

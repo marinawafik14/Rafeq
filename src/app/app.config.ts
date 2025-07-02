@@ -9,8 +9,7 @@ import { provideToastr } from 'ngx-toastr';
 import { ReactiveFormsModule } from '@angular/forms';
 
 // ⬇ Import JwtModule and JwtHelperService
-import { JwtModule } from '@auth0/angular-jwt';
-import { JwtHelperService } from '@auth0/angular-jwt';
+import { JwtModule, JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from './environments/environment';
 export const appConfig: ApplicationConfig = {
   providers: [provideZoneChangeDetection({ eventCoalescing: true }), provideRouter(routes),

@@ -1,0 +1,139 @@
+.not-found-wrapper {
+  min-height: 100vh;
+  height: 100vh;
+  /* background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%); */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.not-found-content {
+  text-align: center;
+  width: 70%;
+  max-width: 600px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 30px;
+  padding: 3rem 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  z-index: 10;
+  margin: auto;
+}
+
+.error-code {
+  font-size: 6rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #667eea 0%, #0a2e65 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 1rem;
+  text-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.not-found-image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 2rem 0;
+  position: relative;
+}
+
+.not-found-image img {
+  max-width: 100%;
+  height: auto;
+  max-height: 300px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+}
+
+.error-message {
+  margin: 2rem 0;
+}
+
+.error-message h2 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #2c3e50 0%, #667eea 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.error-message p {
+  font-size: 1.1rem;
+  color: #6c757d;
+  line-height: 1.6;
+  margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .not-found-wrapper {
+    padding: 1rem;
+  }
+
+  .not-found-content {
+    width: 90%;
+    padding: 2rem 1.5rem;
+    margin: 0 1rem;
+    border-radius: 20px;
+  }
+
+  .error-code {
+    font-size: 4rem;
+  }
+
+  .error-message h2 {
+    font-size: 1.8rem;
+  }
+
+  .error-message p {
+    font-size: 1rem;
+  }
+
+  .not-found-image img {
+    max-height: 300px;
+    border-radius: 15px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .action-buttons .btn {
+    width: 100%;
+    max-width: 280px;
+    margin-bottom: 0.5rem;
+  }
+
+  .floating-circle {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .error-code {
+    font-size: 3rem;
+  }
+
+  .error-message h2 {
+    font-size: 1.5rem;
+  }
+
+  .not-found-image img {
+    max-height: 200px;
+    border-radius: 10px;
+  }
+
+  .not-found-content {
+    width: 95%;
+    padding: 1.5rem 1rem;
+  }
+}
