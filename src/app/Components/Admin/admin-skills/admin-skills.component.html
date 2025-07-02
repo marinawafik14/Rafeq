@@ -11,11 +11,12 @@
     <!-- Stats Cards Section - Match mentor dashboard -->
     <div class="stats-section">
       <div class="stats-grid">
+        <!-- Update the first stats card -->
         <div class="stats-card">
           <div class="stats-icon">
             <i class="fas fa-code"></i>
           </div>
-          <div class="stats-number">{{ filterSkills()?.length || 0 }}</div>
+          <div class="stats-number">{{ getTotalActiveSkills() }}</div>
           <div class="stats-label">Total Skills</div>
         </div>
         
@@ -74,7 +75,7 @@
               [(ngModel)]="searchQuery" 
               (ngModelChange)="currentPage = 1"
               class="form-control" 
-              placeholder="Search by skill name or mentor...">
+              placeholder="Search by skill name...">
           </div>
         </div>
         
@@ -159,9 +160,6 @@
                 <i class="fas fa-code me-2"></i>Skill Name
               </th>
               <th>
-                <i class="fas fa-chalkboard-teacher me-2"></i>Mentor
-              </th>
-              <th>
                 <i class="fas fa-users me-2"></i>Usage Count
               </th>
               <th>
@@ -185,18 +183,6 @@
                       class="form-control form-control-sm"
                       placeholder="Enter skill name">
                   </ng-container>
-                </div>
-              </td>
-              
-              <td>
-                <div class="mentor-info">
-                  <div class="mentor-avatar">
-                    <i class="fas fa-chalkboard-teacher"></i>
-                  </div>
-                  <div class="mentor-details">
-                    <div class="mentor-name">{{ skill.MentorName || 'Not Assigned' }}</div>
-                    <div class="mentor-id" *ngIf="skill.MentorId">ID: {{ skill.MentorId }}</div>
-                  </div>
                 </div>
               </td>
               
@@ -245,7 +231,7 @@
             
             <!-- Empty State -->
             <tr *ngIf="!getpaginatedSkills() || getpaginatedSkills().length === 0">
-              <td colspan="4">
+              <td colspan="3">
                 <div class="empty-state">
                   <div class="empty-icon">
                     <i class="fas fa-code"></i>

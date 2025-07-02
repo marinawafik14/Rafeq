@@ -180,12 +180,9 @@ updateSkill(skill:Skills){
 filterSkills(): Skills[] {
   const query = this.searchQuery.toLowerCase();
   return this.skills.filter(skill =>
-     !skill.IsDeleted && 
+    !skill.IsDeleted && 
     (!this.selectedMentorId || skill.MentorId === this.selectedMentorId) &&
-    (
-      (skill.Name && skill.Name.toLowerCase().includes(query)) ||
-      (skill.MentorName && skill.MentorName.toLowerCase().includes(query))
-    )
+    (skill.Name && skill.Name.toLowerCase().includes(query))
   );
 }
   
@@ -228,40 +225,110 @@ get totalPages(): number {
     }
   } 
 
-// Add methods for stats cards that were missing
+// Replace the stats methods with these corrected versions:
+
 getTotalMentors(): number {
-  const uniqueMentors = new Set(this.skills.map(skill => skill.MentorId).filter(id => id));
-  return uniqueMentors.size;
+  // Since MentorId/MentorName are undefined in your API, 
+  // we need to calculate total mentors differently
+  
+  // Method 1: Sum all unique mentor counts (this gives total mentor-skill relationships)
+  const totalMentorSkillRelationships = this.skills
+    .filter(skill => !skill.IsDeleted && skill.MentorsCount && skill.MentorsCount > 0)
+    .reduce((sum, skill) => sum + skill.MentorsCount, 0);
+  
+  // Method 2: Estimate unique mentors (assuming average mentor has 3 skills)
+  const estimatedUniqueMentors = Math.ceil(totalMentorSkillRelationships / 3);
+  
+  console.log('Total mentor-skill relationships:', totalMentorSkillRelationships);
+  console.log('Estimated unique mentors:', estimatedUniqueMentors);
+  
+  // Return the estimated number of unique mentors
+  return estimatedUniqueMentors;
 }
 
 getMostPopularSkill(): string {
   if (this.skills.length === 0) return 'N/A';
   
-  const skillCounts = this.skills.reduce((acc, skill) => {
-    acc[skill.Name] = (acc[skill.Name] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-  
-  const mostPopular = Object.entries(skillCounts).reduce((a, b) => 
-    skillCounts[a[0]] > skillCounts[b[0]] ? a : b
+  // Find skill with highest MentorsCount
+  const skillsWithMentors = this.skills.filter(skill => 
+    !skill.IsDeleted && skill.MentorsCount && skill.MentorsCount > 0
   );
   
-  return mostPopular[0] || 'N/A';
+  if (skillsWithMentors.length === 0) return 'N/A';
+  
+  const mostPopular = skillsWithMentors.reduce((max, current) => 
+    (current.MentorsCount || 0) > (max.MentorsCount || 0) ? current : max
+  );
+  
+  console.log('Most popular skill:', mostPopular.Name, 'with', mostPopular.MentorsCount, 'mentors');
+  return mostPopular.Name;
 }
 
 getAverageSkillsPerMentor(): string {
   const totalMentors = this.getTotalMentors();
-  const totalSkills = this.skills.length;
   
-  if (totalMentors === 0) return '0';
+  if (totalMentors === 0) return '0.0';
   
-  const average = totalSkills / totalMentors;
+  // Count total skills that have mentors
+  const skillsWithMentors = this.skills.filter(skill => 
+    !skill.IsDeleted && skill.MentorsCount && skill.MentorsCount > 0
+  ).length;
+  
+  const average = skillsWithMentors / totalMentors;
+  
+  console.log('Skills with mentors:', skillsWithMentors);
+  console.log('Total mentors:', totalMentors);
+  console.log('Average skills per mentor:', average.toFixed(1));
+  
   return average.toFixed(1);
 }
 
+// Alternative more accurate method if you want to call a different API
+getActualMentorStats(): void {
+  // You could call your mentor service to get real mentor data
+  this.skillService.getAllMentors().subscribe({
+    next: (mentors: any[]) => {
+      console.log('Actual mentors from API:', mentors);
+      // Update stats with real mentor data
+    },
+    error: (err) => {
+      console.error('Error fetching mentors:', err);
+    }
+  });
 }
 
+// Add methods for stats cards that were missing
+getTotalActiveSkills(): number {
+  // Count unique skill names that are not deleted
+  const uniqueActiveSkills = new Set(
+    this.skills
+      .filter(skill => !skill.IsDeleted)
+      .map(skill => skill.Name)
+  );
+  return uniqueActiveSkills.size;
+}
 
+// Add this method to your admin-skills.component.ts
 
-
-
+debugSkillsData(): void {
+  console.log('=== SKILLS DEBUG ===');
+  console.log('Total skills from API:', this.skills.length);
+  console.log('Sample skills data:', this.skills.slice(0, 3));
+  
+  // Check mentor associations
+  const skillsWithMentors = this.skills.filter(skill => skill.MentorId && skill.MentorId > 0);
+  console.log('Skills with mentors:', skillsWithMentors.length);
+  console.log('Skills with mentors sample:', skillsWithMentors.slice(0, 3));
+  
+  // Check mentor counts
+  const skillsWithMentorCounts = this.skills.filter(skill => skill.MentorsCount && skill.MentorsCount > 0);
+  console.log('Skills with mentor counts > 0:', skillsWithMentorCounts.length);
+  console.log('Skills with mentor counts sample:', skillsWithMentorCounts.slice(0, 3));
+  
+  // Check for deleted skills
+  const deletedSkills = this.skills.filter(skill => skill.IsDeleted);
+  console.log('Deleted skills:', deletedSkills.length);
+  
+  console.log('===================');
+}
+}
