@@ -1,115 +1,300 @@
-<div class="container my-4">
-  <!-- Header -->
-  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
-    <div>
-      <h2 class="fw-bold mb-1 text-gradient">Skills</h2>
+<div class="page">
+  <!-- Header Section - Match mentor dashboard header -->
+  <div class="admin-header">
+    <div class="container">
+      <h1>Skills Management</h1>
+      <p>Manage platform skills and track mentor expertise across technologies</p>
     </div>
-    <button class="btn btn-primary px-4 py-2 rounded-pill shadow-sm" (click)="showAddSkillForm = true">
-      <i class="bi bi-plus-circle me-2"></i> New Skill
-    </button>
   </div>
 
-  <!-- Search Bar -->
-  <div class="row g-2 mb-3 align-items-center">
-    <div class="col-12 col-md-6 col-lg-4">
-      <div class="input-group shadow-sm rounded-pill">
-        <span class="input-group-text bg-white border-0"><i class="bi bi-search text-primary"></i></span>
-        <input [(ngModel)]="searchQuery" (ngModelChange)="currentPage =1"
-          class="form-control border-0 rounded-end-pill py-2"
-          placeholder="Search Skill">
+  <div class="main-content">
+    <!-- Stats Cards Section - Match mentor dashboard -->
+    <div class="stats-section">
+      <div class="stats-grid">
+        <div class="stats-card">
+          <div class="stats-icon">
+            <i class="fas fa-code"></i>
+          </div>
+          <div class="stats-number">{{ filterSkills()?.length || 0 }}</div>
+          <div class="stats-label">Total Skills</div>
+        </div>
+        
+        <div class="stats-card">
+          <div class="stats-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="stats-number">{{ getTotalMentors() }}</div>
+          <div class="stats-label">Active Mentors</div>
+        </div>
+        
+        <div class="stats-card">
+          <div class="stats-icon">
+            <i class="fas fa-star"></i>
+          </div>
+          <div class="stats-number">{{ getMostPopularSkill() }}</div>
+          <div class="stats-label">Most Popular</div>
+        </div>
+        
+        <div class="stats-card">
+          <div class="stats-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <div class="stats-number">{{ getAverageSkillsPerMentor() }}</div>
+          <div class="stats-label">Avg Skills/Mentor</div>
+        </div>
       </div>
     </div>
-    <!-- Uncomment if you want mentor filter
-    <div class="col-12 col-md-6 col-lg-4">
-      <select class="form-select rounded-pill shadow-sm" [(ngModel)]="selectedMentorId" (ngModelChange)="currentPage = 1">
-        <option value="">Choose Mentor</option>
-        <option *ngFor="let mentor of mentors" [value]="mentor.MentorId">{{mentor.MentorName}}</option>
-      </select>
-    </div>
-    -->
-  </div>
 
-  <!-- Add Skill Form -->
-  <div *ngIf="showAddSkillForm" class="mb-3">
-    <div class="card shadow-sm border-0 rounded-3 p-3">
-      <div class="row g-2 align-items-center">
-        <div class="col">
-          <input [(ngModel)]="newSkillName" class="form-control rounded-pill" placeholder="Skill name">
+    <!-- Search and Add Section - Match mentor dashboard cards -->
+    <div class="filters-section">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+        <div>
+          <h5 class="mb-1">Skills & Technologies</h5>
+          <p class="text-muted mb-0">Manage skills available on the platform</p>
         </div>
-        <div class="col-auto">
-          <button class="btn btn-success rounded-pill me-2 px-4" (click)="addSkill()">Save</button>
-          <button class="btn btn-secondary rounded-pill px-4" (click)="showAddSkillForm = false">Cancel</button>
+        <div class="action-buttons">
+          <button class="btn btn-outline-primary me-2" (click)="getAllSkills()">
+            <i class="fas fa-sync-alt me-2"></i>Refresh
+          </button>
+          <button class="btn btn-primary" (click)="showAddSkillForm = true" *ngIf="!showAddSkillForm">
+            <i class="fas fa-plus me-2"></i>Add New Skill
+          </button>
+        </div>
+      </div>
+      
+      <!-- Search Bar -->
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Search Skills</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="fas fa-search"></i>
+            </span>
+            <input 
+              [(ngModel)]="searchQuery" 
+              (ngModelChange)="currentPage = 1"
+              class="form-control" 
+              placeholder="Search by skill name or mentor...">
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Items per page</label>
+          <select class="form-select" [(ngModel)]="itemsPerPage" (ngModelChange)="currentPage = 1">
+            <option value="10">10 per page</option>
+            <option value="20">20 per page</option>
+            <option value="50">50 per page</option>
+          </select>
+        </div>
+        
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Sort by</label>
+          <select class="form-select">
+            <option value="name">Skill Name</option>
+            <option value="mentors">Mentor Count</option>
+            <option value="recent">Recently Added</option>
+          </select>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Skills Table -->
-  <div class="card shadow-sm border-0 rounded-4">
-    <div class="card-body p-0">
+    <!-- Add Skill Form - Match mentor dashboard cards -->
+    <div *ngIf="showAddSkillForm" class="add-skill-section">
+      <div class="add-skill-card">
+        <div class="card-header">
+          <h5>
+            <i class="fas fa-plus-circle me-2"></i>Add New Skill
+          </h5>
+          <button class="btn btn-sm btn-outline-secondary" (click)="showAddSkillForm = false">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="card-body">
+          <div class="row g-3 align-items-end">
+            <div class="col-md-8">
+              <label class="form-label fw-semibold">Skill Name</label>
+              <input 
+                [(ngModel)]="newSkillName" 
+                class="form-control" 
+                placeholder="Enter skill name (e.g., JavaScript, Python, React...)">
+            </div>
+            <div class="col-md-4">
+              <div class="d-flex gap-2">
+                <button 
+                  class="btn btn-success flex-fill" 
+                  (click)="addSkill()"
+                  [disabled]="!newSkillName.trim()">
+                  <i class="fas fa-check me-2"></i>Add Skill
+                </button>
+                <button 
+                  class="btn btn-outline-secondary" 
+                  (click)="showAddSkillForm = false; newSkillName = ''">
+                  <i class="fas fa-times me-2"></i>Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Skills Table Container - Match mentor tables -->
+    <div class="table-container">
+      <div class="table-header">
+        <h5>
+          All Skills ({{ getpaginatedSkills()?.length || 0 }} of {{ filterSkills()?.length || 0 }})
+        </h5>
+        <div class="table-actions">
+          <button class="btn btn-sm btn-outline-primary" title="Export Skills">
+            <i class="fas fa-download me-1"></i>Export
+          </button>
+        </div>
+      </div>
+      
       <div class="table-responsive">
-        <table class="table align-middle table-hover mb-0">
-          <thead class="table-primary">
+        <table class="table align-middle mb-0">
+          <thead>
             <tr>
-              <th>Skill</th>
-              <th>Usage</th>
-              <th>Actions</th>
+              <th>
+                <i class="fas fa-code me-2"></i>Skill Name
+              </th>
+              <th>
+                <i class="fas fa-chalkboard-teacher me-2"></i>Mentor
+              </th>
+              <th>
+                <i class="fas fa-users me-2"></i>Usage Count
+              </th>
+              <th>
+                <i class="fas fa-cogs me-2"></i>Actions
+              </th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let skill of getpaginatedSkills(); let i = index">
+            <tr *ngFor="let skill of getpaginatedSkills()">
               <td>
-                <ng-container *ngIf="editSkillId !== skill.SkillId; else editBlock">
-                  {{skill.Name}}
-                </ng-container>
-                <ng-template #editBlock>
-                  <input [(ngModel)]="editSkillName" class="form-control rounded-pill d-inline-block w-auto">
-                </ng-template>
+                <div class="skill-name-cell">
+                  <ng-container *ngIf="editSkillId !== skill.SkillId">
+                    <div class="skill-info">
+                      <div class="skill-name">{{ skill.Name }}</div>
+                      <div class="skill-meta">ID: {{ skill.SkillId }}</div>
+                    </div>
+                  </ng-container>
+                  <ng-container *ngIf="editSkillId === skill.SkillId">
+                    <input 
+                      [(ngModel)]="editSkillName" 
+                      class="form-control form-control-sm"
+                      placeholder="Enter skill name">
+                  </ng-container>
+                </div>
               </td>
-              <td><span class="text-primary fw-semibold">{{skill.MentorsCount}}</span></td>
+              
               <td>
-                <ng-container *ngIf="editSkillId !== skill.SkillId">
-                  <button class="btn btn-outline-secondary btn-sm action-btn me-2 rounded-pill"
-                          (click)="startEditSkill(skill)">
-                    <i class="bi bi-pencil"></i> Edit
+                <div class="mentor-info">
+                  <div class="mentor-avatar">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                  </div>
+                  <div class="mentor-details">
+                    <div class="mentor-name">{{ skill.MentorName || 'Not Assigned' }}</div>
+                    <div class="mentor-id" *ngIf="skill.MentorId">ID: {{ skill.MentorId }}</div>
+                  </div>
+                </div>
+              </td>
+              
+              <td>
+                <div class="usage-info">
+                  <span class="usage-count">{{ skill.MentorsCount || 0 }}</span>
+                  <span class="usage-label">mentors</span>
+                </div>
+              </td>
+              
+              <td>
+                <div class="action-buttons">
+                  <ng-container *ngIf="editSkillId !== skill.SkillId">
+                    <button 
+                      class="btn btn-sm btn-primary action-btn"
+                      (click)="startEditSkill(skill)"
+                      title="Edit Skill">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button 
+                      class="btn btn-sm btn-danger action-btn"
+                      (click)="softDeleteSkill(skill)"
+                      title="Delete Skill">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </ng-container>
+                  
+                  <ng-container *ngIf="editSkillId === skill.SkillId">
+                    <button 
+                      class="btn btn-sm btn-success action-btn"
+                      (click)="saveEditSkill(skill)"
+                      [disabled]="!editSkillName.trim()"
+                      title="Save Changes">
+                      <i class="fas fa-check"></i>
+                    </button>
+                    <button 
+                      class="btn btn-sm btn-outline-secondary action-btn"
+                      (click)="cancelEditSkill()"
+                      title="Cancel Edit">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </ng-container>
+                </div>
+              </td>
+            </tr>
+            
+            <!-- Empty State -->
+            <tr *ngIf="!getpaginatedSkills() || getpaginatedSkills().length === 0">
+              <td colspan="4">
+                <div class="empty-state">
+                  <div class="empty-icon">
+                    <i class="fas fa-code"></i>
+                  </div>
+                  <h4>No Skills Found</h4>
+                  <p>No skills match your current search criteria. Try adjusting your filters or add a new skill.</p>
+                  <button class="btn btn-primary" (click)="showAddSkillForm = true">
+                    <i class="fas fa-plus me-2"></i>Add First Skill
                   </button>
-                  <button class="btn btn-outline-danger btn-sm action-btn rounded-pill"
-                          (click)="softDeleteSkill(skill)">
-                    <i class="bi bi-trash"></i> Delete
-                  </button>
-                </ng-container>
-                <ng-container *ngIf="editSkillId === skill.SkillId">
-                  <button class="btn btn-success btn-sm action-btn me-2 rounded-pill"
-                          (click)="saveEditSkill(skill)">
-                    <i class="bi bi-check-circle"></i> Save
-                  </button>
-                  <button class="btn btn-secondary btn-sm action-btn rounded-pill"
-                          (click)="cancelEditSkill()">
-                    <i class="bi bi-x-circle"></i> Cancel
-                  </button>
-                </ng-container>
+                </div>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
-  </div>
 
-  <!-- Pagination -->
-  <nav class="mt-4" *ngIf="totalPages >= 1">
-    <ul class="pagination justify-content-center">
-      <li class="page-item" [class.disabled]="currentPage === 1">
-        <a class="page-link rounded-pill" (click)="changePage(currentPage - 1)">‹</a>
-      </li>
-      <li *ngFor="let page of [].constructor(totalPages); let i = index"
-          class="page-item" [class.active]="i + 1 === currentPage">
-        <a class="page-link rounded-pill" (click)="changePage(i + 1)">{{ i + 1 }}</a>
-      </li>
-      <li class="page-item" [class.disabled]="currentPage === totalPages">
-        <a class="page-link rounded-pill" (click)="changePage(currentPage + 1)">›</a>
-      </li>
-    </ul>
-  </nav>
+    <!-- Pagination Container - Match mentor pagination -->
+    <div class="pagination-container" *ngIf="totalPages > 1">
+      <div class="pagination-info mb-3">
+        <div class="pagination-summary">
+          Showing {{ ((currentPage - 1) * itemsPerPage) + 1 }} to 
+          {{ Math.min(currentPage * itemsPerPage, filterSkills()?.length || 0) }} of 
+          {{ filterSkills()?.length || 0 }} skills
+        </div>
+      </div>
+      
+      <nav>
+        <ul class="pagination justify-content-center">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" (click)="changePage(currentPage - 1)">
+              <i class="fas fa-chevron-left"></i>
+            </a>
+          </li>
+          
+          <li *ngFor="let page of [].constructor(totalPages); let i = index"
+              class="page-item" 
+              [class.active]="i + 1 === currentPage">
+            <a class="page-link" (click)="changePage(i + 1)">{{ i + 1 }}</a>
+          </li>
+          
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link" (click)="changePage(currentPage + 1)">
+              <i class="fas fa-chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
 </div>
 

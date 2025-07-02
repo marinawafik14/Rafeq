@@ -5,6 +5,7 @@ import { Skills } from '../../../Models/Skills';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import Swal from 'sweetalert2';
+
 @Component({
   selector: 'app-admin-skills',
   imports: [ CommonModule , FormsModule],
@@ -23,6 +24,10 @@ export class AdminSkillsComponent implements OnInit {
  searchQuery: string = '';
 currentPage : number = 1;
   itemsPerPage: number = 20;
+  
+  // Add Math property for template access
+  Math = Math;
+
 constructor (private skillService: SkillService) {}
   ngOnInit(): void {
     this.getAllSkills();
@@ -223,6 +228,36 @@ get totalPages(): number {
     }
   } 
 
+// Add methods for stats cards that were missing
+getTotalMentors(): number {
+  const uniqueMentors = new Set(this.skills.map(skill => skill.MentorId).filter(id => id));
+  return uniqueMentors.size;
+}
+
+getMostPopularSkill(): string {
+  if (this.skills.length === 0) return 'N/A';
+  
+  const skillCounts = this.skills.reduce((acc, skill) => {
+    acc[skill.Name] = (acc[skill.Name] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+  
+  const mostPopular = Object.entries(skillCounts).reduce((a, b) => 
+    skillCounts[a[0]] > skillCounts[b[0]] ? a : b
+  );
+  
+  return mostPopular[0] || 'N/A';
+}
+
+getAverageSkillsPerMentor(): string {
+  const totalMentors = this.getTotalMentors();
+  const totalSkills = this.skills.length;
+  
+  if (totalMentors === 0) return '0';
+  
+  const average = totalSkills / totalMentors;
+  return average.toFixed(1);
+}
 
 }
 

@@ -1,26 +1,637 @@
-.action-btn {
-  min-width: 110px;
-  border-radius: 2rem;
-  font-weight: 500;
+/* Match mentor dashboard design system */
+.page {
+  background-color: #f9fbff;
+  min-height: 100vh;
+  padding: 0;
+  margin: 0;
+}
+
+/* Header Section - Match mentor dashboard header */
+.admin-header {
+  background: linear-gradient(135deg, #0a2e65 0%, #1b74e4 100%);
+  position: relative;
+  overflow: hidden;
+  padding: 3rem 0;
+  margin-bottom: 2rem;
+}
+
+.admin-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+  opacity: 0.1;
+}
+
+.admin-header .container {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.admin-header h1 {
+  color: white;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.admin-header p {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.1rem;
+  margin: 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Main Content Container */
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem 2rem;
+}
+
+/* Stats Cards Section - Match mentor dashboard */
+.stats-section {
+  margin-bottom: 3rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.stats-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 8px 25px rgba(10, 46, 101, 0.1);
+  transition: all 0.3s ease;
+  border: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.stats-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(135deg, #0a2e65 0%, #1b74e4 100%);
+}
+
+.stats-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 35px rgba(10, 46, 101, 0.15);
+}
+
+.stats-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0a2e65, #1b74e4);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  font-size: 1.5rem;
+  box-shadow: 0 8px 25px rgba(10, 46, 101, 0.2);
+}
+
+.stats-number {
+  color: #0a2e65;
+  font-weight: 700;
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  line-height: 1;
+}
+
+.stats-label {
+  color: #6c757d;
+  font-weight: 600;
+  text-transform: uppercase;
   letter-spacing: 0.5px;
+  font-size: 0.85rem;
+  margin: 0;
 }
-.text-gradient {
-  background: linear-gradient(90deg, #007bff, #00c6ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+
+/* Filters Section - Match mentor dashboard cards */
+.filters-section {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 8px 25px rgba(10, 46, 101, 0.1);
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
 }
-.input-group .form-control:focus {
-  box-shadow: none;
+
+.filters-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(135deg, #0a2e65 0%, #1b74e4 100%);
 }
-.table th, .table td {
-  vertical-align: middle;
+
+.filters-section h5 {
+  color: #0a2e65;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+}
+
+/* Add Skill Section */
+.add-skill-section {
+  margin-bottom: 2rem;
+}
+
+.add-skill-card {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 8px 25px rgba(10, 46, 101, 0.1);
+  overflow: hidden;
+  position: relative;
+}
+
+.add-skill-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.add-skill-card .card-header {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.add-skill-card .card-header h5 {
+  color: #0a2e65;
+  font-weight: 600;
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.add-skill-card .card-body {
+  padding: 2rem;
+}
+
+/* Form Controls - Match mentor styling */
+.form-control, .form-select {
+  border: 2px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  background-color: #f8fafc;
+}
+
+.form-control:focus, .form-select:focus {
+  outline: none;
+  border-color: #0a2e65;
+  box-shadow: 0 0 0 3px rgba(10, 46, 101, 0.1);
+  background-color: white;
+}
+
+/* Input Group Styling */
+.input-group-text {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border: 2px solid #e2e8f0;
+  color: #0a2e65;
+  font-weight: 500;
+}
+
+/* Form Labels */
+.form-label {
+  color: #0a2e65;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* Buttons - Match mentor styling */
+.btn {
+  font-weight: 600;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.3s ease;
+  border-width: 2px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #0a2e65 0%, #1b74e4 100%);
+  border-color: #0a2e65;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #082347, #155bb5);
+  border-color: #082347;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(10, 46, 101, 0.3);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  border-color: #28a745;
+  color: white;
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, #218838, #1ea085);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #dc3545, #e83e8c);
+  border-color: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: linear-gradient(135deg, #c82333, #d91a72);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(220, 53, 69, 0.3);
+}
+
+.btn-outline-primary {
+  border-color: #0a2e65;
+  color: #0a2e65;
+  background: white;
+}
+
+.btn-outline-primary:hover {
+  background: #0a2e65;
+  border-color: #0a2e65;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(10, 46, 101, 0.2);
+}
+
+.btn-outline-secondary {
+  border-color: #6c757d;
+  color: #6c757d;
+  background: white;
+}
+
+.btn-outline-secondary:hover {
+  background: #6c757d;
+  border-color: #6c757d;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Table Container - Match mentor tables */
+.table-container {
+  background: white;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(10, 46, 101, 0.1);
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.table-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(135deg, #0a2e65 0%, #1b74e4 100%);
+}
+
+.table-header {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.table-header h5 {
+  color: #0a2e65;
+  font-weight: 600;
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.table-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  margin: 0;
+}
+
+thead {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+}
+
+th {
+  padding: 1.5rem 1rem;
+  text-align: left;
+  border: none;
+  font-weight: 600;
+  color: #0a2e65;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.85rem;
+}
+
+td {
+  padding: 1.25rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #f0f2f5;
+  color: #495057;
+  font-weight: 500;
+}
+
+tbody tr:hover {
+  background-color: #f8f9ff;
+  transition: background-color 0.2s ease;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Skill Name Cell */
+.skill-name-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.skill-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.skill-name {
+  font-weight: 600;
+  color: #0a2e65;
+  font-size: 1rem;
+  margin-bottom: 0.25rem;
+}
+
+.skill-meta {
+  font-size: 0.8rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+/* Mentor Info */
+.mentor-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.mentor-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0a2e65, #1b74e4);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.mentor-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.mentor-name {
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.25rem;
+}
+
+.mentor-id {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+/* Usage Info */
+.usage-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
 }
-.action-btn {
-  min-width: 110px;
-  font-weight: 500;
+
+.usage-count {
+  font-weight: 700;
+  font-size: 1.5rem;
+  color: #0a2e65;
+  margin-bottom: 0.25rem;
+}
+
+.usage-label {
+  font-size: 0.8rem;
+  color: #6c757d;
+  text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-.card {
-  border-radius: 1.5rem;
+
+/* Action Buttons - Match mentor action buttons */
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  width: 35px;
+  height: 35px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+/* Pagination - Match mentor pagination */
+.pagination-container {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 8px 25px rgba(10, 46, 101, 0.1);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.pagination-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(135deg, #0a2e65 0%, #1b74e4 100%);
+}
+
+.pagination-info {
+  text-align: center;
+}
+
+.pagination-summary {
+  color: #6c757d;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.pagination {
+  margin: 0;
+  gap: 0.5rem;
+}
+
+.pagination .page-item .page-link {
+  border: 2px solid #e2e8f0;
+  color: #64748b;
+  background: white;
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  margin: 0 0.25rem;
+}
+
+.pagination .page-item.active .page-link {
+  background: linear-gradient(135deg, #0a2e65 0%, #1b74e4 100%);
+  border-color: #0a2e65;
+  color: white;
+  box-shadow: 0 4px 15px rgba(10, 46, 101, 0.3);
+}
+
+.pagination .page-item:hover .page-link {
+  background: #f8f9ff;
+  border-color: #0a2e65;
+  color: #0a2e65;
+  transform: translateY(-2px);
+}
+
+.pagination .page-item.disabled .page-link {
+  background: #f8f9fa;
+  border-color: #e9ecef;
+  color: #adb5bd;
+}
+
+/* Empty State - Match mentor empty states */
+.empty-state {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: 1rem;
+  padding: 4rem 2rem;
+  text-align: center;
+  margin: 2rem 0;
+  border: 2px dashed #dee2e6;
+}
+
+.empty-state .empty-icon {
+  font-size: 4rem;
+  color: #adb5bd;
+  margin-bottom: 1.5rem;
+}
+
+.empty-state h4 {
+  color: #495057;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.empty-state p {
+  color: #6c757d;
+  margin-bottom: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .admin-header {
+    padding: 2rem 0;
+  }
+  
+  .admin-header h1 {
+    font-size: 2rem;
+  }
+  
+  .main-content {
+    padding: 0 1rem 2rem;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .stats-card, .filters-section, .table-container, .add-skill-card {
+    padding: 1.5rem;
+  }
+  
+  th, td {
+    padding: 1rem 0.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .action-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 0.8rem;
+  }
+  
+  .mentor-info {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  
+  .skill-name-cell, .usage-info {
+    font-size: 0.85rem;
+  }
 }
