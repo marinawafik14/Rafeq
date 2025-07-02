@@ -111,7 +111,7 @@
 .login-header h2 {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #0a2e65;
   margin-bottom: 0.5rem;
   letter-spacing: -0.02em;
 }
@@ -136,7 +136,7 @@
   display: block;
   margin-bottom: 8px;
   font-weight: 600;
-  color: #374151;
+  color: #0a2e65;
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -208,11 +208,13 @@
 }
 
 .btn-primary:hover:enabled {
+  background: linear-gradient(135deg, #1b74e4 0%, #0a2e65 100%);
   transform: translateY(-2px);
   box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
 }
 
 .btn-primary:active:enabled {
+  background: linear-gradient(135deg, #0a2e65 0%, #1b74e4 100%);
   transform: translateY(0);
   box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
 }
@@ -237,7 +239,7 @@
 
 .forgot-password-link,
 .resend-link {
-  color: #667eea;
+  color: #0a2e65;
   text-decoration: none;
   font-weight: 500;
   font-size: 0.9rem;
@@ -247,7 +249,7 @@
 
 .forgot-password-link:hover,
 .resend-link:hover {
-  color: #4f46e5;
+  color: #0a2e65;
   text-decoration: none;
 }
 
@@ -259,7 +261,7 @@
   left: 0;
   width: 0;
   height: 2px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #0a2e65;
   transition: width 0.3s ease;
 }
 
@@ -337,13 +339,13 @@
 }
 
 .password-toggle-btn:hover {
-  color: #667eea;
+  color: #0a2e65;
   background: rgba(102, 126, 234, 0.1);
 }
 
 .password-toggle-btn:focus {
   outline: none;
-  color: #667eea;
+  color:#0a2e65;
   background: rgba(102, 126, 234, 0.1);
 }
 
@@ -357,7 +359,7 @@
   align-items: center;
   cursor: pointer;
   font-size: 0.95rem;
-  color: #374151;
+  color: #0a2e65;
   font-weight: 500;
   transition: color 0.3s ease;
 }
@@ -398,8 +400,8 @@
 }
 
 .checkbox-input:checked + .checkbox-custom {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-color: #667eea;
+  background: #0a2e65;
+  border-color: #0a2e65;
 }
 
 .checkbox-input:checked + .checkbox-custom::after {

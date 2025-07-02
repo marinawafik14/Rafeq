@@ -22,10 +22,10 @@
               Home
             </a>
           </li>
-          <li class="nav-item mx-2">
-            <a class="nav-link rounded-pill px-3" routerLink="/find-mentors" routerLinkActive="active">
-              Find Mentors
-            </a>
+          <li class="nav-item mx-2" *ngIf="currentUser?.role === 'Mentee'">
+           <ul class="sub-menu blank">
+            <a class="nav-link rounded-pill px-3" [routerLink]="['/mentee', menteeId, 'search-mentors']">Find Mentors</a>
+          </ul>
           </li>
           <li class="nav-item mx-2">
             <a class="nav-link rounded-pill px-3" routerLink="/about" routerLinkActive="active">

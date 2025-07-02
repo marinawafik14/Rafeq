@@ -10,7 +10,21 @@
   padding: 4rem 0;
   text-align: center;
 }
+.btn-outline-primary{
+  border: 2px solid #0a2e65;
+  background-color: #0a2e65;
+  color: #ffffff;
+  font-weight: 500;
+  border-radius: 25px;
+  padding: 0.5rem 1.5rem;
 
+  &:hover {
+    background-color: #ffffff;
+    color: #0a2e65;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(27, 116, 228, 0.3);
+  }
+}
 .spinner-border {
   width: 3rem;
   height: 3rem;
@@ -18,7 +32,7 @@
 
 /* Back button */
 .back-button {
-  background: linear-gradient(45deg, #6c757d, #495057);
+  background: linear-gradient(135deg, #0a2e65 0%, #1b74e4 100%);
   border: none;
   color: white;
   font-weight: 500;
@@ -32,7 +46,7 @@
 }
 
 .back-button:hover {
-  background: linear-gradient(45deg, #495057, #343a40);
+  background: linear-gradient(135deg, #1b74e4 0%, #0a2e65 100%);
   transform: translateY(-1px);
   box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
   color: white;
