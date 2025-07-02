@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators'; // ✅ Add these imports
 import { Payments } from '../Models/Payments/Payments';
 import { PaymentDetailsDto } from '../Models/Payments/payment-details.model';
 import { CreatePaymentIntentDto } from '../Models/Payments/CreatePaymentIntentDto';
@@ -22,10 +23,28 @@ apiUrl = 'https://localhost:7001/api/payments';
 getPaymentDetailsByBookingId(bookingId: number): Observable<PaymentDetailsDto> {
   return this.http.get<PaymentDetailsDto>(`${this.apiUrl}/by-booking/${bookingId}`);
 }
-createPaymentIntent(bookingId: number): Observable<CreatePaymentIntentDto> {
-  return this.http.post<CreatePaymentIntentDto>(
-    `${this.apiUrl}/create-intent`,
-    { bookingId }
+createPaymentIntent(bookingId: number): Observable<any> {
+  const requestBody = { bookingId: bookingId };
+  
+  console.log('=== PAYMENT INTENT REQUEST ===');
+  console.log('URL:', 'https://localhost:7001/api/payments/create-intent');
+  console.log('Request body:', requestBody);
+  console.log('BookingId being sent:', bookingId);
+  console.log('==============================');
+  
+  return this.http.post<any>('https://localhost:7001/api/payments/create-intent', requestBody).pipe(
+    tap(response => {
+      console.log('=== PAYMENT INTENT RESPONSE ===');
+      console.log('Response:', response);
+      console.log('===============================');
+    }),
+    catchError(error => {
+      console.error('=== PAYMENT INTENT ERROR ===');
+      console.error('Error status:', error.status);
+      console.error('Error body:', error.error);
+      console.error('============================');
+      throw error; // Re-throw the error so component can handle it
+    })
   );
 }
 

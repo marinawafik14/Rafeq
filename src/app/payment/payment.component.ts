@@ -38,33 +38,78 @@ export class PaymentComponent implements AfterViewInit, OnDestroy,OnInit {
   ) {}
 
 ngOnInit(): void {
-  // First, try to get bookingId from router state (navigation state)
   const state = history.state;
-  console.log('Router state:', state); // Debug log
-  
-  // Then try query parameters
   const queryBookingId = this.route.snapshot.queryParamMap.get('bookingId');
-  console.log('Query param bookingId:', queryBookingId); // Debug log
+  const queryAmount = this.route.snapshot.queryParamMap.get('amount');
 
   if (state && state.bookingId) {
     this.bookingId = state.bookingId;
-    console.log('Got bookingId from state:', this.bookingId);
   } else if (queryBookingId) {
     this.bookingId = +queryBookingId;
-    console.log('Got bookingId from query params:', this.bookingId);
   } else {
-    // If no bookingId found, show error
-    console.error('No bookingId found in state or query params');
     this.errorMessage = 'Missing booking ID. Please try booking again.';
     this.errorVisible = true;
     this.loadingVisible = false;
     return;
   }
 
-  console.log('Final bookingId to use:', this.bookingId);
+  // Get the amount from navigation state or query params
+  const amount = state?.amount || queryAmount || 60;
+
+  // Set payment details so UI works immediately
+  this.paymentDetails = {
+    paymentId: 0,
+    bookingId: this.bookingId,
+    amountPaid: +amount,
+    paymentMethod: 'card',
+    transactionId: '',
+    paymentDate: new Date().toISOString(),
+    mentorName: 'Mentor',
+    menteeName: 'You',
+    sessionType: amount >= 100 ? 'Interview' : 'Mentorship',
+    sessionDateTime: new Date().toISOString(),
+    commission: Math.round(+amount * 0.2 * 100) / 100,
+    mentorAmount: Math.round(+amount * 0.8 * 100) / 100
+  };
   
-  // Set loading to false once we have the bookingId
   this.loadingVisible = false;
+}
+
+private loadPaymentDetails(): void {
+  this.loadingVisible = true;
+  this.errorVisible = false;
+  
+  // Use the API endpoint that gets payment details by booking ID
+  this.paymentService.getPaymentDetailsByBookingId(this.bookingId).subscribe({
+    next: (response) => {
+      console.log('Payment details loaded:', response);
+      this.paymentDetails = response.data;
+      this.loadingVisible = false;
+    },
+    error: (err) => {
+      console.error('Error loading payment details:', err);
+      // If payment details don't exist yet, that's normal for a new booking
+      // The payment will be created when the user clicks "Pay"
+      this.errorMessage = 'Unable to load payment details. You can still proceed with payment.';
+      this.loadingVisible = false;
+      
+      // Set some default values so the UI doesn't break
+      this.paymentDetails = {
+        paymentId: 0,
+        bookingId: this.bookingId,
+        amountPaid: 60, // Default amount - you might want to get this from the booking
+        paymentMethod: 'card',
+        transactionId: '',
+        paymentDate: new Date().toISOString(),
+        mentorName: 'Mentor',
+        menteeName: 'You',
+        sessionType: 'Mentorship',
+        sessionDateTime: new Date().toISOString(),
+        commission: 0,
+        mentorAmount: 60
+      };
+    }
+  });
 }
 
 
@@ -99,13 +144,10 @@ ngOnInit(): void {
   async onSubmit(event: Event): Promise<void> {
   event.preventDefault();
 
-
-
-
   if (!this.authService.isLoggedIn()) {
     this.errorMessage = 'Session expired. Please log in again.';
-  this.errorVisible = true;
-  return;
+    this.errorVisible = true;
+    return;
   }
   
   const userId = this.authService.getCurrentUserId();
@@ -118,13 +160,17 @@ ngOnInit(): void {
 
   try {
     // Step 1: Create PaymentIntent using BookingId + UserId
+    console.log('Creating payment intent for booking:', this.bookingId);
     const intentResponse = await this.paymentService.createPaymentIntent(this.bookingId).toPromise();
     
-    if (!intentResponse?.clientSecret) {
-      throw new Error('Could not create payment intent.');
+    console.log('Payment intent response:', intentResponse); // ✅ Add this debug log
+    
+    if (!intentResponse?.success || !intentResponse?.data?.clientSecret) {
+      console.error('Invalid payment intent response:', intentResponse); // ✅ Add this debug log
+      throw new Error(intentResponse?.message || 'Could not create payment intent.');
     }
 
-    const clientSecret = intentResponse.clientSecret;
+    const clientSecret = intentResponse.data.clientSecret;
 
     // Step 2: Confirm Card Payment via Stripe
     const result = await this.stripe.confirmCardPayment(clientSecret, {
@@ -145,22 +191,34 @@ ngOnInit(): void {
       bookingId: this.bookingId
     }).toPromise();
 
-   if (confirmResult?.success) {
-  this.successVisible = true;
-  setTimeout(() => {
-    this.router.navigate(['/booking/confirmation'], {
-      state: { paymentId: confirmResult.data.paymentId }
-    });
-  }, 1500);
-}
-
-
-  
+    if (confirmResult?.success) {
+      this.successVisible = true;
+      setTimeout(() => {
+        // ✅ Fix: Use the correct route path from your routes
+        this.router.navigate(['/payment-complete'], {
+          state: { 
+            paymentId: confirmResult.data.paymentId,
+            bookingDetails: confirmResult.data  // ✅ Pass the full booking details
+          }
+        });
+      }, 1500);
+    }
+    
   } catch (err: any) {
-    console.error('Payment error:', err);
-    this.errorMessage = err?.error?.message || 'An unexpected error occurred.';
+    console.error('Payment error details:', err); // ✅ Better error logging
+    
+    // ✅ Extract the actual backend error message
+    let errorMessage = 'An unexpected error occurred.';
+    
+    if (err?.error?.message) {
+      errorMessage = err.error.message; // Backend API error message
+    } else if (err?.message) {
+      errorMessage = err.message; // JavaScript error message
+    }
+    
+    console.log('Final error message:', errorMessage); // ✅ Debug the error message
+    this.errorMessage = errorMessage;
     this.errorVisible = true;
   }
-
 }
 }
