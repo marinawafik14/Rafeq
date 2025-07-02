@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { DashboardService } from '../../../Services/dashboard.service';
 import { DashboardStatus } from '../../../Models/dashboard-status';
 import { NGX_ECHARTS_CONFIG, NgxEchartsModule } from 'ngx-echarts';
@@ -22,7 +23,10 @@ export class ChartsComponent implements OnInit {
   userGrowthChartOptions: any;
   dashboardData: any = {}; // Initialize as object
 
-  constructor(private _dashboardService: DashboardService) {}
+  constructor(
+    private _dashboardService: DashboardService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadDashboardData();
@@ -40,58 +44,91 @@ export class ChartsComponent implements OnInit {
       }
     });
   }
-initCharts() {
-  const now = new Date();
-  const months: string[] = [];
 
-  //  آخر 12 شهر من الآن
-  for (let i = 11; i >= 0; i--) {
-    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    months.push(date.toLocaleString('default', { month: 'short' })); // "May", "Jun", ...
+  // Navigation Methods
+  navigateToUsers(): void {
+    this.router.navigate(['/admin/users']);
   }
 
-  const userGrowth = Array.isArray(this.dashboardData.monthlyUserGrowth)
-    ? [...this.dashboardData.monthlyUserGrowth]
-    : [];
-  while (userGrowth.length < 12) userGrowth.unshift(0); 
+  navigateToBookings(): void {
+    this.router.navigate(['/admin/bookings']);
+  }
 
-  const monthlyRevenue = Array.isArray(this.dashboardData.monthlyRevenue)
-    ? [...this.dashboardData.monthlyRevenue]
-    : [];
-  while (monthlyRevenue.length < 12) monthlyRevenue.unshift(0);
+  navigateToPayments(): void {
+    this.router.navigate(['/admin/payments']);
+  }
 
-  this.userGrowthChartOptions = {
-    title: { text: 'User Growth (Monthly)', left: 'center' },
-    xAxis: { type: 'category', data: months },
-    yAxis: { type: 'value' },
-    tooltip: { trigger: 'axis' },
-    series: [
-      {
-        data: userGrowth,
-        type: 'line',
-        smooth: true,
-        areaStyle: {},
-        name: 'Users',
-         itemStyle: { color: '#0a2e65' }
-      }
-    ]
-  };
+  navigateToSkills(): void {
+    this.router.navigate(['/admin/skills']);
+  }
 
-  this.revenueChartOptions = {
-    title: { text: 'Revenue Trends (Monthly)', left: 'center' },
-    xAxis: { type: 'category', data: months },
-    yAxis: { type: 'value' },
-    tooltip: { trigger: 'axis' },
-    series: [
-      {
-        data: monthlyRevenue,
-        type: 'bar',
-        name: 'Revenue',
-        itemStyle: { color: '#0a2e65' }
-      }
-    ]
-  };
-}
+  navigateToReviews(): void {
+    this.router.navigate(['/admin/reviews']);
+  }
 
- 
+  navigateToContact(): void {
+    this.router.navigate(['/admin/contact']);
+  }
+
+  navigateToAddUser(): void {
+    this.router.navigate(['/admin/add-user']);
+  }
+
+  navigateToSite(): void {
+    // Open in new tab
+    window.open('/home', '_blank');
+  }
+
+  initCharts() {
+    const now = new Date();
+    const months: string[] = [];
+
+    //  آخر 12 شهر من الآن
+    for (let i = 11; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      months.push(date.toLocaleString('default', { month: 'short' })); // "May", "Jun", ...
+    }
+
+    const userGrowth = Array.isArray(this.dashboardData.monthlyUserGrowth)
+      ? [...this.dashboardData.monthlyUserGrowth]
+      : [];
+    while (userGrowth.length < 12) userGrowth.unshift(0); 
+
+    const monthlyRevenue = Array.isArray(this.dashboardData.monthlyRevenue)
+      ? [...this.dashboardData.monthlyRevenue]
+      : [];
+    while (monthlyRevenue.length < 12) monthlyRevenue.unshift(0);
+
+    this.userGrowthChartOptions = {
+      title: { text: 'User Growth (Monthly)', left: 'center' },
+      xAxis: { type: 'category', data: months },
+      yAxis: { type: 'value' },
+      tooltip: { trigger: 'axis' },
+      series: [
+        {
+          data: userGrowth,
+          type: 'line',
+          smooth: true,
+          areaStyle: {},
+          name: 'Users',
+           itemStyle: { color: '#0a2e65' }
+        }
+      ]
+    };
+
+    this.revenueChartOptions = {
+      title: { text: 'Revenue Trends (Monthly)', left: 'center' },
+      xAxis: { type: 'category', data: months },
+      yAxis: { type: 'value' },
+      tooltip: { trigger: 'axis' },
+      series: [
+        {
+          data: monthlyRevenue,
+          type: 'bar',
+          name: 'Revenue',
+          itemStyle: { color: '#0a2e65' }
+        }
+      ]
+    };
+  }
 }

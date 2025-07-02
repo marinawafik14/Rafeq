@@ -1,59 +1,136 @@
-<div class="admin-contact-container">
-  <div class="messages-list">
-    <div class="messages-list-header">
-      <h3 class="messages-title">Messages</h3>
-      <div class="search-box">
-        <input type="text" [(ngModel)]="searchText" (input)="applySearch()" placeholder="Search by name..."
-          class="search-input" />
-      </div>
+<div class="page">
+  <!-- Header Section - Match mentor dashboard header -->
+  <div class="admin-header">
+    <div class="container">
+      <h1>Contact Management</h1>
+      <p>Manage customer inquiries and provide support across the platform</p>
     </div>
-
-    <ul>
-      <li *ngFor="let msg of filteredMessages" (click)="selectMessage(msg)"
-        [class.active]="selectedMessage?.email === msg.email">
-        <div class="avatar">
-          <img src="/images/userimage.jpg" alt="User Avatar">
-        </div>
-        <div class="message-info">
-          <strong>{{ msg.name || msg.email }}</strong>
-          <p class="last-message-snippet">{{ msg.subject }}</p>
-        </div>
-        <div class="message-time-and-status">
-          <span class="timestamp" *ngIf="msg.createdAt">
-            {{ msg.createdAt | date:'short' }}
-          </span>
-
-
-          <span class="unread-badge" *ngIf="msg.status !== 'Read'">1</span>
-
-        </div>
-      </li>
-    </ul>
   </div>
 
-  <div class="chat-window" *ngIf="selectedMessage">
-    <div class="chat-header">
-      <h4>{{ selectedMessage.name || selectedMessage.email }}</h4>
-    </div>
-
-    <div class="chat-box">
-      <div *ngFor="let item of chatItems"
-        [ngClass]="{'chat-bubble': true, 'admin': item.sender === 'admin', 'user': item.sender === 'mentee'}">
-        <p>{{ item.text }}</p>
-        <div class="bubble-footer">
-          <span class="timestamp">{{ item.createdAt | date:'short' }}</span>
-          <span class="read-receipt" *ngIf="item.sender === 'admin' && item.read">
-            <i class="fas fa-check"></i> read
-          </span>
+  <div class="main-content">
+    <!-- Stats Cards Section - Match mentor dashboard -->
+    <div class="stats-section">
+      <div class="stats-grid">
+        <div class="stats-card">
+          <div class="stats-icon">
+            <i class="fas fa-envelope"></i>
+          </div>
+          <div class="stats-number">{{ messages.length }}</div>
+          <div class="stats-label">Total Messages</div>
+        </div>
+        
+        <div class="stats-card">
+          <div class="stats-icon">
+            <i class="fas fa-envelope-open"></i>
+          </div>
+          <div class="stats-number">{{ getReadMessages() }}</div>
+          <div class="stats-label">Read Messages</div>
+        </div>
+        
+        <div class="stats-card">
+          <div class="stats-icon">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div class="stats-number">{{ getUnreadMessages() }}</div>
+          <div class="stats-label">Pending Messages</div>
+        </div>
+        
+        <div class="stats-card">
+          <div class="stats-icon">
+            <i class="fas fa-calendar-day"></i>
+          </div>
+          <div class="stats-number">{{ getTodayMessages() }}</div>
+          <div class="stats-label">Today's Messages</div>
         </div>
       </div>
     </div>
 
-    <form [formGroup]="replyForm" (ngSubmit)="sendReply()" class="reply-form">
-      <input formControlName="replyText" type="text" placeholder="Type a message..." />
-      <button type="submit" [disabled]="replyForm.invalid">
-        <i class="fas fa-paper-plane"></i>
-      </button>
-    </form>
+    <!-- Enhanced Original Chat Design -->
+    <div class="admin-contact-container">
+      <div class="messages-list">
+        <div class="messages-list-header">
+          <h3 class="messages-title">Messages</h3>
+          <div class="search-box">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" [(ngModel)]="searchText" (input)="applySearch()" 
+                   placeholder="Search by name..." class="search-input" />
+          </div>
+        </div>
+
+        <ul>
+          <li *ngFor="let msg of filteredMessages" (click)="selectMessage(msg)"
+              [class.active]="selectedMessage?.email === msg.email">
+            <div class="avatar">
+              <img src="/images/userimage.jpg" alt="User Avatar">
+            </div>
+            <div class="message-info">
+              <strong>{{ msg.name || msg.email }}</strong>
+              <p class="last-message-snippet">{{ msg.subject }}</p>
+            </div>
+            <div class="message-time-and-status">
+              <span class="timestamp" *ngIf="msg.createdAt">
+                {{ msg.createdAt | date:'short' }}
+              </span>
+              <span class="unread-badge" *ngIf="msg.status !== 'Read'">1</span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="chat-window" *ngIf="selectedMessage">
+        <div class="chat-header">
+          <div class="chat-header-user-info">
+            <h4>{{ selectedMessage.name || selectedMessage.email }}</h4>
+            <div class="chat-session-info">
+              <i class="fas fa-envelope me-1"></i>{{ selectedMessage.email }}
+            </div>
+          </div>
+          <div class="chat-actions">
+            <button class="btn btn-sm btn-outline-primary" 
+                    (click)="markAsRead(selectedMessage.messageId)"
+                    *ngIf="selectedMessage.status !== 'Read'"
+                    title="Mark as Read">
+              <i class="fas fa-envelope-open"></i>
+            </button>
+            <button class="btn btn-sm btn-outline-secondary" 
+                    (click)="refreshMessages()"
+                    title="Refresh">
+              <i class="fas fa-sync-alt"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="chat-box">
+          <div *ngFor="let item of chatItems"
+               [ngClass]="{'chat-bubble': true, 'admin': item.sender === 'admin', 'user': item.sender === 'mentee'}">
+            <p>{{ item.text }}</p>
+            <div class="bubble-footer">
+              <span class="timestamp">{{ item.createdAt | date:'short' }}</span>
+              <span class="read-receipt" *ngIf="item.sender === 'admin' && item.read">
+                <i class="fas fa-check-double"></i> read
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <form [formGroup]="replyForm" (ngSubmit)="sendReply()" class="reply-form">
+          <input formControlName="replyText" type="text" placeholder="Type a message..." />
+          <button type="submit" [disabled]="replyForm.invalid" class="send-button">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </form>
+      </div>
+
+      <!-- No Selection State -->
+      <div class="no-selection" *ngIf="!selectedMessage">
+        <div class="no-selection-content">
+          <div class="no-selection-icon">
+            <i class="fas fa-comments"></i>
+          </div>
+          <h3>Select a Message</h3>
+          <p>Choose a message from the left panel to start the conversation.</p>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

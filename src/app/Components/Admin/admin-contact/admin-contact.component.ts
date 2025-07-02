@@ -144,4 +144,39 @@ selectMessage(message: Contact) {
       }
     });
   }
+
+  getReadMessages(): number {
+    return this.messages.filter(msg => msg.status === 'Read').length;
+  }
+
+  getUnreadMessages(): number {
+    return this.messages.filter(msg => msg.status !== 'Read').length;
+  }
+
+  getTodayMessages(): number {
+    const today = new Date();
+    return this.messages.filter(msg => {
+      if (!msg.createdAt) return false;
+      const msgDate = new Date(msg.createdAt);
+      return msgDate.toDateString() === today.toDateString();
+    }).length;
+  }
+
+  refreshMessages(): void {
+    this.loadMessages();
+  }
+
+  markAsRead(messageId: number): void {
+    this.contactService.markAsRead(messageId).subscribe({
+      next: () => {
+        this.loadMessages();
+        if (this.selectedMessage) {
+          this.selectedMessage.status = 'Read';
+        }
+      },
+      error: (err) => {
+        console.error('Error marking as read:', err);
+      }
+    });
+  }
 }

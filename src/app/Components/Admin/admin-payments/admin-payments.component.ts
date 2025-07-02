@@ -97,7 +97,35 @@ get totalPages(): number {
     }
   } 
 
+  // Add Math property for template access
+  Math = Math;
 
+  getAveragePayment(): string {
+    if (this.payments.length === 0) return '0';
+    const total = this.getTotalRevenue();
+    const average = total / this.payments.length;
+    return average.toFixed(0);
+  }
 
-
+  getTodayRevenue(): string {
+  const today = new Date();
+  const todayPayments = this.payments.filter(payment => {
+    // Handle undefined paymentDate
+    if (!payment.paymentDate) {
+      return false; // Skip payments without dates
+    }
+    
+    const paymentDate = new Date(payment.paymentDate);
+    
+    // Check if the date is valid
+    if (isNaN(paymentDate.getTime())) {
+      return false; // Skip invalid dates
+    }
+    
+    return paymentDate.toDateString() === today.toDateString();
+  });
+  
+  const todayTotal = todayPayments.reduce((sum, payment) => sum + payment.amountPaid, 0);
+  return todayTotal.toFixed(0);
+}
 }
