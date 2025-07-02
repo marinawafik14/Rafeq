@@ -8,12 +8,15 @@ import {
 } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+
 import { AuthService } from '../../Services/auth.service';
+import { GoogleScriptService } from '../../Services/google-script.service';
 import { LoginDto } from '../../Models/Auth/LoginDto';
 import { TokenResponseDto } from '../../Models/Auth/TokenResponseDto';
 import { ExternalLoginDto } from '../../Models/Auth/ExternalLoginDto';
 
-// Declare 'google' global object for TypeScript
+import { take } from 'rxjs/operators';
+
 declare const google: any;
 
 @Component({
@@ -36,10 +39,12 @@ export class LoginComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private toastr: ToastrService,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private googleScriptService: GoogleScriptService
   ) {
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
   }
+
   ngOnInit(): void {
     this.loginForm = new FormGroup({
       email: new FormControl('', [Validators.required, Validators.email]),
@@ -47,32 +52,59 @@ export class LoginComponent implements OnInit {
       rememberMe: new FormControl(false),
     });
 
-    if (typeof google !== 'undefined') {
-      google.accounts.id.initialize({
-        client_id: this.GOOGLE_CLIENT_ID,
-        callback: (response: any) => this.handleGoogleLogin(response),
-        ux_mode: 'popup',
+    this.googleScriptService
+      .isScriptLoaded()
+      .pipe(take(1))
+      .subscribe({
+        next: (loaded) => {
+          if (loaded) {
+            this.initializeGoogleSignIn();
+          } else {
+            console.warn(
+              'Google Identity Services script not loaded. External login may not function.'
+            );
+            this.toastr.warning(
+              'Google Sign-In is unavailable. Please try again later or use email/password.',
+              'Warning'
+            );
+          }
+        },
+        error: (err) => {
+          console.error('Error loading Google Identity Services:', err);
+          this.toastr.error(
+            'Failed to load Google Sign-In. Please check your internet connection.',
+            'Error'
+          );
+        },
       });
+  }
 
-      // Render the Google Sign-In button
-      google.accounts.id.renderButton(
-        document.getElementById('google-btn-container'),
-        {
-          type: 'standard',
-          size: 'large',
-          theme: 'outline',
-          text: 'signin_with',
-          shape: 'rectangular',
-          locale: 'en-US',
-          logo_alignment: 'left',
-        }
-      );
-    } else {
-      console.warn(
-        'Google Identity Services script not loaded. External login may not function.'
-      );
+  private initializeGoogleSignIn(): void {
+    if (typeof google !== 'undefined') {
+      this.ngZone.runOutsideAngular(() => {
+        google.accounts.id.initialize({
+          client_id: this.GOOGLE_CLIENT_ID,
+          callback: (response: any) =>
+            this.ngZone.run(() => this.handleGoogleLogin(response)),
+          ux_mode: 'popup',
+        });
+
+        google.accounts.id.renderButton(
+          document.getElementById('google-btn-container'),
+          {
+            type: 'standard',
+            size: 'large',
+            theme: 'outline',
+            text: 'signin_with',
+            shape: 'rectangular',
+            locale: 'en-US',
+            logo_alignment: 'left',
+          }
+        );
+      });
     }
   }
+
   get email() {
     return this.loginForm.get('email');
   }
@@ -95,7 +127,6 @@ export class LoginComponent implements OnInit {
     });
     this.showPassword = false;
 
-    // Reset Google Sign-In if available
     if (
       typeof google !== 'undefined' &&
       google.accounts &&
@@ -117,38 +148,39 @@ export class LoginComponent implements OnInit {
       password: this.loginForm.value.password,
       rememberMe: this.loginForm.value.rememberMe,
     };
+
     this.authService.login(loginDto).subscribe({
       next: (response: { message: string; tokenData: TokenResponseDto }) => {
         this.toastr.success(response.message || 'Login successful!', 'Success');
 
-        // Handle remember me functionality
         if (loginDto.rememberMe) {
-          // Store login state in localStorage for persistence
           localStorage.setItem('rememberMe', 'true');
         } else {
-          // Remove remember me from localStorage
           localStorage.removeItem('rememberMe');
         }
 
-        // Reset form data after successful login
         this.resetFormData();
 
-        // Redirect based on role
         if (
           response.tokenData.role &&
           response.tokenData.role.toLowerCase() === 'admin'
         ) {
           this.router.navigate(['/admin/charts']);
-        }else if (response.tokenData.role && response.tokenData.role.toLowerCase() === 'mentee') {
+        } else if (
+          response.tokenData.role &&
+          response.tokenData.role.toLowerCase() === 'mentee'
+        ) {
           const menteeId = response.tokenData.userId;
           if (menteeId) {
             this.router.navigate([`/mentee/${menteeId}/dashboard`]);
           } else {
-            this.toastr.error('Mentee ID not found in token.', 'Navigation Error');
+            this.toastr.error(
+              'Mentee ID not found in token.',
+              'Navigation Error'
+            );
             this.router.navigate([this.returnUrl]);
           }
-        } 
-        else {
+        } else {
           this.router.navigate([this.returnUrl]);
         }
       },
@@ -182,6 +214,7 @@ export class LoginComponent implements OnInit {
             profilePicture: decodedToken.picture || null,
             role: 'Mentee',
           };
+
           this.authService.externalLogin(externalLoginDto).subscribe({
             next: (apiResponse: {
               message: string;
@@ -192,15 +225,27 @@ export class LoginComponent implements OnInit {
                 'Success'
               );
 
-              // Reset form data after successful Google login
               this.resetFormData();
 
-              // Redirect based on role
               if (
                 apiResponse.tokenData.role &&
                 apiResponse.tokenData.role.toLowerCase() === 'admin'
               ) {
-                this.router.navigate(['/admin']);
+                this.router.navigate(['/admin/charts']);
+              } else if (
+                apiResponse.tokenData.role &&
+                apiResponse.tokenData.role.toLowerCase() === 'mentee'
+              ) {
+                const menteeId = apiResponse.tokenData.userId;
+                if (menteeId) {
+                  this.router.navigate([`/mentee/${menteeId}/dashboard`]);
+                } else {
+                  this.toastr.error(
+                    'Mentee ID not found in token.',
+                    'Navigation Error'
+                  );
+                  this.router.navigate([this.returnUrl]);
+                }
               } else {
                 this.router.navigate([this.returnUrl]);
               }
@@ -215,7 +260,10 @@ export class LoginComponent implements OnInit {
             },
           });
         } catch (error) {
-          console.error('Failed to decode Google ID token:', error);
+          console.error(
+            'Failed to decode Google ID token or invalid token:',
+            error
+          );
           this.toastr.error(
             'Google login failed due to token processing error.',
             'Error'
