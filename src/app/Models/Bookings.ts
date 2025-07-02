@@ -17,7 +17,7 @@
 //   menteeName?: string;
 // }
 export class Bookings {
-  BookingId!: number;
+  bookingId!: number;
   MentorId!: number;
   MenteeId!: number;
   sessionType!: string; // 'Mentorship' or 'Interview'
