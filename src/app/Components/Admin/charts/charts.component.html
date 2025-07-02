@@ -1,41 +1,163 @@
-<div class="container my-4">
-  <div class="row g-3">
-    <div class="col-12 col-sm-6 col-md-4 col-lg-3" *ngFor="let metric of [
-      {title: 'Total Revenue', value: dashboardData.revenue + '$'},
-      {title: 'Total Revenue Growth', value: dashboardData.revenueGrowthPrecentage + '%'},
-     
-     
-      {title: 'Users Growth', value: dashboardData.usersGrowthPrecentage + '%'},
-      {title: 'Active users', value: dashboardData.activeUsers},
-      {title: 'Total Bookings', value: dashboardData.totalBookings},
-      {title: 'Total Mentors', value: dashboardData.totalMentors},
-      {title: 'Total Mentees', value: dashboardData.totalMentees},
-      {title: 'Total Users', value: dashboardData.totalUsers},
-      {title: 'Total Skills', value: dashboardData.totalSkills}
-    ]">
-      <div class="card box shadow-sm h-100 text-center border-0 bg-light">
-        <div class="card-body d-flex flex-column justify-content-center align-items-center">
-          <h6 class="card-title text-primary fw-bold">{{metric.title}}</h6>
-          <p class="card-text display-6 fw-semibold mb-0">{{metric.value}}</p>
-        </div>
-      </div>
+<div class="page">
+  <!-- Header Section - Match mentor dashboard header -->
+  <div class="dashboard-header">
+    <div class="container">
+      <h1>Analytics Dashboard</h1>
+      <p>Monitor your platform's performance and growth metrics</p>
     </div>
   </div>
-</div>
 
-<div class="container">
-  <div class="row g-4">
-    <div class="col-12 col-lg-6">
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <div echarts [options]="userGrowthChartOptions" class="chart" style="height: 300px;"></div>
+  <div class="main-content">
+    <!-- Stats Cards Section - Match mentor dashboard -->
+    <div class="stats-section">
+      <div class="metrics">
+        <div class="card" *ngFor="let metric of [
+          {title: 'Total Revenue', value: dashboardData.revenue + '$', icon: 'fas fa-dollar-sign'},
+          {title: 'Revenue Growth', value: dashboardData.revenueGrowthPrecentage + '%', icon: 'fas fa-chart-line'},
+          {title: 'Users Growth', value: dashboardData.usersGrowthPrecentage + '%', icon: 'fas fa-user-plus'},
+          {title: 'Active Users', value: dashboardData.activeUsers, icon: 'fas fa-users'},
+          {title: 'Total Bookings', value: dashboardData.totalBookings, icon: 'fas fa-calendar-check'},
+          {title: 'Total Mentors', value: dashboardData.totalMentors, icon: 'fas fa-chalkboard-teacher'},
+          {title: 'Total Mentees', value: dashboardData.totalMentees, icon: 'fas fa-user-graduate'},
+          {title: 'Total Users', value: dashboardData.totalUsers, icon: 'fas fa-users-cog'},
+          {title: 'Total Skills', value: dashboardData.totalSkills, icon: 'fas fa-tags'}
+        ]">
+          <div class="card-icon">
+            <i [class]="metric.icon"></i>
+          </div>
+          <h3>{{ metric.title }}</h3>
+          <p>{{ metric.value }}</p>
+          <div class="card-subtitle">Platform Metric</div>
         </div>
       </div>
     </div>
-    <div class="col-12 col-lg-6">
-      <div class="card shadow-sm">
-        <div class="card-body">
-          <div echarts [options]="revenueChartOptions" class="chart" style="height: 300px;"></div>
+
+    <!-- Charts Section - Match mentor dashboard cards -->
+    <div class="charts-section">
+      <div class="row g-4">
+        <!-- User Growth Chart -->
+        <div class="col-12 col-lg-6">
+          <div class="chart-container">
+            <h4>
+              <i class="fas fa-chart-area me-2"></i>
+              User Growth Trends
+            </h4>
+            <div class="chart-wrapper">
+              <div echarts [options]="userGrowthChartOptions" class="chart" style="height: 350px;"></div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Revenue Chart -->
+        <div class="col-12 col-lg-6">
+          <div class="chart-container">
+            <h4>
+              <i class="fas fa-chart-bar me-2"></i>
+              Revenue Analytics
+            </h4>
+            <div class="chart-wrapper">
+              <div echarts [options]="revenueChartOptions" class="chart" style="height: 350px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Additional Stats Summary -->
+    <div class="summary-section">
+      <div class="row g-4">
+        <!-- Growth Summary -->
+        <div class="col-md-6">
+          <div class="summary-card growth-card">
+            <div class="summary-header">
+              <div class="summary-icon">
+                <i class="fas fa-trending-up"></i>
+              </div>
+              <div class="summary-text">
+                <h5>Growth Overview</h5>
+                <p class="text-muted">Platform expansion metrics</p>
+              </div>
+            </div>
+            <div class="summary-stats">
+              <div class="summary-stat">
+                <span class="stat-label">User Growth</span>
+                <span class="stat-value growth">+{{ dashboardData.usersGrowthPrecentage || 0 }}%</span>
+              </div>
+              <div class="summary-stat">
+                <span class="stat-label">Revenue Growth</span>
+                <span class="stat-value growth">+{{ dashboardData.revenueGrowthPrecentage || 0 }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Platform Health -->
+        <div class="col-md-6">
+          <div class="summary-card health-card">
+            <div class="summary-header">
+              <div class="summary-icon">
+                <i class="fas fa-heartbeat"></i>
+              </div>
+              <div class="summary-text">
+                <h5>Platform Health</h5>
+                <p class="text-muted">System performance indicators</p>
+              </div>
+            </div>
+            <div class="summary-stats">
+              <div class="summary-stat">
+                <span class="stat-label">Active Users</span>
+                <span class="stat-value">{{ dashboardData.activeUsers || 0 }}</span>
+              </div>
+              <div class="summary-stat">
+                <span class="stat-label">Total Skills</span>
+                <span class="stat-value">{{ dashboardData.totalSkills || 0 }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions - Match mentor dashboard -->
+    <div class="actions-section">
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="action-card">
+            <div class="action-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <h5>Manage Users</h5>
+            <p class="text-muted">View and manage all platform users</p>
+            <a routerLink="../users" class="btn btn-outline-primary">
+              View Users <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div class="col-md-4">
+          <div class="action-card">
+            <div class="action-icon">
+              <i class="fas fa-calendar-alt"></i>
+            </div>
+            <h5>View Bookings</h5>
+            <p class="text-muted">Monitor all mentoring sessions</p>
+            <a routerLink="../bookings" class="btn btn-outline-primary">
+              View Bookings <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+          </div>
+        </div>
+        
+        <div class="col-md-4">
+          <div class="action-card">
+            <div class="action-icon">
+              <i class="fas fa-credit-card"></i>
+            </div>
+            <h5>Payment Analytics</h5>
+            <p class="text-muted">Track payments and revenue</p>
+            <a routerLink="../payments" class="btn btn-outline-primary">
+              View Payments <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+          </div>
         </div>
       </div>
     </div>

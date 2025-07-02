@@ -154,11 +154,22 @@ get totalPages(): number {
     }
   } 
 
+  // Add these methods to admin-users.component.ts
+getMentorCount(): number {
+  return this.filteredUsers?.filter(user => user.role === 'Mentor').length || 0;
+}
+
+getMenteeCount(): number {
+  return this.filteredUsers?.filter(user => user.role === 'Mentee').length || 0;
+}
+
+getAdminCount(): number {
+  return this.filteredUsers?.filter(user => user.role === 'Admin').length || 0;
 }
 
 
 
-
+}
 
 
 
