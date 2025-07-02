@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MenteeLayoutComponent } from '../mentee-layout.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { menteeBookingservice } from '../../Services/menteeBooking.service';
 import { HttpClient } from '@angular/common/http';
@@ -12,7 +11,7 @@ import { Bookings } from '../../Models/Bookings';
 @Component({
   selector: 'app-booking-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, MenteeLayoutComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './booking-form.component.html',
   styleUrls: ['./booking-form.component.css']
 })
