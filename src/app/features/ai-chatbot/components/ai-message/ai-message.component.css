@@ -31,13 +31,13 @@
   color: white;
   padding: 1rem 1.25rem;
   border-radius: 20px 20px 5px 20px;
-  box-shadow: 0 2px 10px rgba(10, 46, 101, 0.3);
+  box-shadow: 0 4px 15px rgba(10, 46, 101, 0.25); /* Slightly stronger shadow */
 }
 
 /* AI Messages */
 .ai-message-bubble {
   align-self: flex-start;
-  max-width: 85%;
+  max-width: 95%; /* Allow AI messages to be wider */
   margin-right: auto;
 }
 
@@ -53,13 +53,13 @@
 }
 
 .ai-message .message-content {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  color: #2d3748;
+  background: #f1f5f9; /* Use a very light gray for contrast */
+  backdrop-filter: none; /* Remove blur for cleaner look */
+  color: #1e293b; /* Darker text for better readability */
   padding: 1rem 1.25rem;
   border-radius: 5px 20px 20px 20px;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04); /* Softer shadow */
+  border: 1px solid #e2e8f0; /* Subtle border */
 }
 
 /* Message Header Elements */
