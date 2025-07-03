@@ -175,8 +175,7 @@
   display: flex;
   align-items: flex-end;
   gap: 1rem;
-  padding: 1.5rem;
-  min-height: 80px;
+  padding: 1rem 1.5rem; /* Adjust padding */
 }
 
 /* File Upload Section */
@@ -226,23 +225,23 @@
 
 .message-textarea {
   width: 100%;
-  min-height: 44px;
-  max-height: 120px;
-  padding: 0.875rem 1rem;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 12px;
-  font-size: 0.95rem;
+  min-height: 48px; /* Taller default height */
+  max-height: 150px;
+  padding: 0.875rem 1.25rem;
+  border: 1px solid #e2e8f0; /* Softer border */
+  border-radius: 24px; /* Fully rounded */
+  font-size: 1rem;
   line-height: 1.5;
-  background: rgba(255, 255, 255, 0.9);
+  background: #f8fafc; /* Off-white background */
   resize: none;
   outline: none;
   transition: all 0.3s ease;
-  font-family: inherit;
 }
 
 .message-textarea:focus {
   border-color: #0a2e65;
-  box-shadow: 0 0 0 3px rgba(10, 46, 101, 0.1);
+  background: white;
+  box-shadow: 0 0 0 4px rgba(10, 46, 101, 0.1);
 }
 
 .message-textarea:disabled {
@@ -301,20 +300,20 @@
   background: linear-gradient(135deg, #0a2e65 0%, #1b74e4 100%);
   color: white;
   border: none;
-  width: 44px;
-  height: 44px;
+  width: 48px; /* Larger button */
+  height: 48px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 10px rgba(10, 46, 101, 0.3);
+  box-shadow: 0 4px 12px rgba(10, 46, 101, 0.3);
 }
 
 .send-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(10, 46, 101, 0.4);
+  transform: scale(1.1) translateY(-2px);
+  box-shadow: 0 6px 20px rgba(10, 46, 101, 0.4);
 }
 
 .send-btn:disabled {
