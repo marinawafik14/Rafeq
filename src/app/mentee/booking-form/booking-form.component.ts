@@ -20,10 +20,11 @@ export class BookingFormComponent {
   step = 1;
   sessionType: 'mentorship' | 'interview' | null = null;
   selectedDate: string | null = null;
-  availableDates: string[] = []; 
-  availableDays: string[] = []; 
-  availableSlots: string[] = [];
   selectedSlot: string | null = null;
+  selectedFreeSlot: any = null;
+  availableDates: string[] = []; // Example, replace with API
+  availableDays: string[] = []; // Available day names
+  availableSlots: string[] = [];
   price = 0;
   termsAccepted = false;
   paymentComplete = false;
@@ -33,9 +34,6 @@ export class BookingFormComponent {
   showMentorship = false;
   showInterview = false;
   bookingError: string|null = null;
-  freeSlots: any[] = [];
-  loadingSlots = false;
-
 
 
    getUtcSlot(date: string, hour: number, min: number): string {
@@ -52,20 +50,30 @@ export class BookingFormComponent {
     private http: HttpClient,
     private authService: AuthService
   ) {
-    // Get menteeId from AuthService (currentUserValue)
-    const user = this.authService.currentUserValue;
-    this.menteeId = user && user.userId ? user.userId : null;
-    
-    // If no menteeId found, log an error
-    if (!this.menteeId) {
-      console.error('No valid menteeId found. Please log in again.');
-    }
+    // Get menteeId from route parameters
+    this.route.paramMap.subscribe(params => {
+      const menteeId = params.get('menteeId');
+      this.menteeId = menteeId ? +menteeId : null;
+      
+      // If no menteeId in route, try to get it from auth token
+      if (!this.menteeId) {
+        const token = document.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1];
+        if (token) {
+          try {
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            this.menteeId = payload.menteeId || payload.userId || null;
+          } catch (e) {
+            console.error('Failed to parse token:', e);
+          }
+        }
+      }
+    });
 
     this.route.queryParams.subscribe(params => {
       if (params['mentorId']) {
         this.mentorId = +params['mentorId'];
         console.log('Loading mentor information for ID:', this.mentorId); // Debug log
-        // Fetch mentor details for session type
+        // Fetch mentor details for session type and availability
         this.http.get(`https://localhost:7001/api/mentors/${this.mentorId}`).subscribe({
           next: (mentor: any) => {
             console.log('Mentor loaded successfully:', mentor); // Debug log
@@ -74,7 +82,7 @@ export class BookingFormComponent {
             this.showMentorship = mentor.isMentor === true || mentor.isMentor === 'true';
             this.showInterview = mentor.isInterviewer === true || mentor.isInterviewer === 'true';
             
-            // Load free slots instead of using old availability
+            // Load free slots from the API instead of using availabilities
             this.loadFreeSlots();
           },
           error: (error) => {
@@ -90,45 +98,27 @@ export class BookingFormComponent {
     });
   }
 
-  private loadFreeSlots() {
-    if (!this.mentorId) return;
-
-    this.loadingSlots = true;
-    this.http.get<any[]>(`https://localhost:7001/api/mentors/mentors/${this.mentorId}/free-slots`).subscribe({
-      next: (slots) => {
-        // Filter out past slots
-        const now = new Date();
-        this.freeSlots = slots.filter(slot => {
-          const slotStart = new Date(slot.start);
-          return slotStart > now;
-        });
-        console.log('Free slots loaded:', this.freeSlots);
-        
-        // Extract available dates from free slots
-        this.availableDates = this.getAvailableDatesFromFreeSlots();
-        
-        this.loadingSlots = false;
-      },
-      error: (err) => {
-        console.error('Error loading free slots:', err);
-        this.freeSlots = [];
-        this.availableDates = [];
-        this.loadingSlots = false;
+  getAvailableDatesFromAvailabilities(availabilities: any[]): string[] {
+    // Generate next 14 days, filter by mentor's available days
+    const today = new Date();
+    const result: string[] = [];
+    for (let i = 0; i < 14; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+      const dayOfWeek = d.getDay(); // 0=Sunday, 1=Monday, ...
+      if (availabilities && availabilities.some(a => a.dayOfWeek === dayOfWeek)) {
+        result.push(d.toISOString().slice(0, 10));
       }
-    });
+    }
+    return result;
   }
 
-  private getAvailableDatesFromFreeSlots(): string[] {
-    if (!this.freeSlots || this.freeSlots.length === 0) return [];
+  getAvailableDayNames(availabilities: any[]): string[] {
+    if (!availabilities || availabilities.length === 0) return [];
     
-    const dates = new Set<string>();
-    this.freeSlots.forEach(slot => {
-      const slotDate = new Date(slot.start);
-      const dateString = slotDate.toISOString().slice(0, 10);
-      dates.add(dateString);
-    });
-    
-    return Array.from(dates).sort();
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const uniqueDays = [...new Set(availabilities.map(a => a.dayOfWeek))];
+    return uniqueDays.map(dayOfWeek => dayNames[dayOfWeek]).filter(Boolean);
   }
 
   // Example pricing logic
@@ -145,45 +135,40 @@ export class BookingFormComponent {
 
   selectDate(date: string) {
     this.selectedDate = date;
-    console.log('Selected date:', date); // Debug log
+    console.log('Selected date:', date);
     
-    // Find slots for this date from mentor's availabilities
+    // Find slots for this date from free slots
     this.availableSlots = this.getSlotsForDate(date);
-    console.log('Available slots for', date, ':', this.availableSlots); // Debug log
+    console.log('Available slots for', date, ':', this.availableSlots);
     
     this.selectedSlot = null;
-    // Don't automatically advance to next step - let user select a time slot first
+    this.selectedFreeSlot = null;
+    
+    // Navigate to next step to show time slots
+    this.nextStep();
   }
 
   getSlotsForDate(date: string): string[] {
-    if (!this.freeSlots || this.freeSlots.length === 0) {
-      return [];
-    }
+    if (!date || !this.freeSlots?.length) return [];
     
-    // Filter slots for the selected date
+    console.log('Getting slots for date:', date);
+    console.log('Free slots:', this.freeSlots);
+    
     const selectedDateSlots = this.freeSlots.filter(slot => {
-      const slotDate = new Date(slot.start);
-      const slotDateString = slotDate.toISOString().slice(0, 10);
-      return slotDateString === date;
+      return new Date(slot.start).toISOString().slice(0, 10) === date;
     });
     
-    // Use the formatted property from the API response
-    const timeSlots = selectedDateSlots.map(slot => {
-      // Extract just the time part from the formatted string (e.g., "9:00 AM - 12:00 PM")
-      const timeRange = slot.formatted.split('•')[1]?.trim() || slot.formatted;
-      return timeRange;
-    });
+    console.log('Filtered slots for date:', selectedDateSlots);
     
-    // Remove duplicates by converting to Set and back to array
-    const uniqueTimeSlots = [...new Set(timeSlots)];
-    
-    console.log('Unique time slots:', uniqueTimeSlots); // Debug log
-    return uniqueTimeSlots;
-  }
-
-  // Helper method to check if slots exist for a date
-  hasSlots(date: string): boolean {
-    return this.getSlotsForDate(date).length > 0;
+    // Extract time range from formatted string (e.g., "10:00 AM - 1:00 PM")
+    return selectedDateSlots
+      .map(slot => {
+        // Extract time part from formatted string
+        const timePart = slot.formatted.split('•')[1]?.trim();
+        return timePart || slot.formatted;
+      })
+      .filter((value, index, self) => self.indexOf(value) === index) // Remove duplicates
+      .sort();
   }
 
   selectSessionType(type: 'mentorship' | 'interview') {
@@ -193,7 +178,61 @@ export class BookingFormComponent {
 
   selectSlot(slot: string) {
     this.selectedSlot = slot;
-    // Don't automatically advance to next step
+    console.log('Selected slot:', slot);
+    
+    // Find the corresponding free slot object
+    this.selectedFreeSlot = this.findSelectedFreeSlot();
+    console.log('Selected free slot object:', this.selectedFreeSlot);
+    
+    this.nextStep();
+  }
+
+  private findSelectedFreeSlot(): any {
+    if (!this.selectedDate || !this.selectedSlot) return null;
+    
+    return this.freeSlots.find(slot => {
+      const slotDate = new Date(slot.start).toISOString().slice(0, 10);
+      const timeRange = slot.formatted.split('•')[1]?.trim() || slot.formatted;
+      return slotDate === this.selectedDate && timeRange === this.selectedSlot;
+    });
+  }
+
+  // Free slots loading and management
+  freeSlots: any[] = [];
+  loadingSlots = false;
+
+  private loadFreeSlots(): void {
+    if (!this.mentorId) return;
+
+    this.loadingSlots = true;
+    this.http.get<any[]>(`https://localhost:7001/api/mentors/mentors/${this.mentorId}/free-slots`).subscribe({
+      next: (slots) => {
+        console.log('Free slots loaded:', slots);
+        this.freeSlots = this.filterFutureSlots(slots);
+        this.availableDates = this.getAvailableDatesFromFreeSlots();
+        this.loadingSlots = false;
+      },
+      error: (err) => {
+        console.error('Error loading free slots:', err);
+        this.loadingSlots = false;
+      }
+    });
+  }
+
+  private filterFutureSlots(slots: any[]): any[] {
+    const now = new Date();
+    return slots.filter(slot => new Date(slot.start) > now);
+  }
+
+  private getAvailableDatesFromFreeSlots(): string[] {
+    if (!this.freeSlots?.length) return [];
+    
+    const dates = new Set<string>();
+    this.freeSlots.forEach(slot => {
+      dates.add(new Date(slot.start).toISOString().slice(0, 10));
+    });
+    
+    return Array.from(dates).sort();
   }
 
   completePayment() {
@@ -212,8 +251,8 @@ export class BookingFormComponent {
       return;
     }
     
-    if (!this.mentorId || !this.sessionType || !this.selectedDate || !this.selectedSlot) {
-      this.bookingError = 'Please complete all steps.';
+    if (!this.mentorId || !this.sessionType || !this.selectedDate || !this.selectedSlot || !this.selectedFreeSlot) {
+      this.bookingError = 'Please complete all steps and select a time slot.';
       return;
     }
     
@@ -222,55 +261,14 @@ export class BookingFormComponent {
       return;
     }
 
-    // Find the corresponding free slot to get the exact start and end times
-    const selectedFreeSlot = this.freeSlots.find(slot => {
-      const slotDate = new Date(slot.start).toISOString().slice(0, 10);
-      // Extract the time part from the formatted string - handle potential undefined with optional chaining
-      const timeRange = slot.formatted.split('•')[1]?.trim() || slot.formatted;
-      
-      return slotDate === this.selectedDate && timeRange === this.selectedSlot;
-    });
-
-    if (!selectedFreeSlot) {
-      this.bookingError = 'Selected time slot not found. Please try again.';
-      return;
-    }
-
-    // Use the exact start and end times from the free slot
-    const startDateTime = selectedFreeSlot.start;
-    const endDateTime = selectedFreeSlot.end;
-    
-    // Create booking data object that includes totalAmount
-    const bookingData = {
-      mentorId: this.mentorId!,
-      sessionType: this.sessionType!,
-      startDateTime: startDateTime,
-      endDateTime: endDateTime,
-      totalAmount: this.calculatedPrice
-    };
-
-    this.menteeBookingservice.createBookingForMentee(menteeId, bookingData).subscribe({
-      next: (response) => {
-        const bookingId = response.bookingId;
-        
-        if (!bookingId) {
-
-    const [startTime, endTime] = this.selectedSlot.split('-');
-    const [startHour, startMin] = startTime.split(':');
-    const [endHour, endMin] = endTime.split(':');
-
-    const convertToUtc = (date: string, hour: string, minute: string): string => {
-      const [y, m, d] = date.split('-').map(Number);
-      const h = Number(hour);
-      const min = Number(minute);
-      const localDate = new Date(y, m - 1, d, h, min);
-      return new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000).toISOString();
-    };
-
-    const startDateTime = convertToUtc(this.selectedDate!, startHour, startMin);
-    const endDateTime = convertToUtc(this.selectedDate!, endHour, endMin);
+    // Use the exact start and end times from the selected free slot
+    const startDateTime = new Date(this.selectedFreeSlot.start).toISOString();
+    const endDateTime = new Date(this.selectedFreeSlot.end).toISOString();
 
     console.log('=== BOOKING CREATION DEBUG ===');
+    console.log('Selected free slot:', this.selectedFreeSlot);
+    console.log('Start time (ISO):', startDateTime);
+    console.log('End time (ISO):', endDateTime);
     console.log('this.calculatedPrice value:', this.calculatedPrice);
     console.log('typeof this.calculatedPrice:', typeof this.calculatedPrice);
     console.log('this.sessionType:', this.sessionType);
@@ -281,13 +279,10 @@ export class BookingFormComponent {
       sessionType: this.sessionType!,
       startDateTime: startDateTime,
       endDateTime: endDateTime,
-      totalAmount: this.calculatedPrice // VERIFY THIS IS NOT UNDEFINED
+      totalAmount: this.calculatedPrice
     };
 
     console.log('Booking data object created:', bookingData);
-    console.log('bookingData.totalAmount after creation:', bookingData.totalAmount);
-    console.log('Is bookingData.totalAmount undefined?:', bookingData.totalAmount === undefined);
-    console.log('JSON.stringify(bookingData):', JSON.stringify(bookingData));
     console.log('==============================');
 
     this.menteeBookingservice.createBookingForMentee(menteeId, bookingData).subscribe({
@@ -308,15 +303,11 @@ export class BookingFormComponent {
           return;
         }
         
+        // Store the calculated amount in session storage for verification
+        sessionStorage.setItem(`booking_${bookingId}_amount`, this.calculatedPrice.toString());
+        
         // Navigate to payment with the booking ID
-
-      --------- // this.router.navigate(['/mentee/payment'], {
-
-        this.router.navigate(['/mentee', menteeId, 'payment'], {
-          state: { 
-            bookingId: bookingId,
-            amount: this.calculatedPrice
-          },
+        this.router.navigate(['/mentee', 'payment'], {
           queryParams: { 
             bookingId: bookingId,
             amount: this.calculatedPrice
@@ -333,4 +324,15 @@ export class BookingFormComponent {
       }
     });
   }
+
+  // Helper method for formatting dates
+  getFormattedDate(dateString: string): string {
+    const date = new Date(dateString);
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    return `${days[date.getDay()]} ${date.getDate()}`;
+  }
 }
+
+

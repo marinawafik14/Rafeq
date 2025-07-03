@@ -23,13 +23,27 @@ apiUrl = 'https://localhost:7001/api/payments';
 getPaymentDetailsByBookingId(bookingId: number): Observable<PaymentDetailsDto> {
   return this.http.get<PaymentDetailsDto>(`${this.apiUrl}/by-booking/${bookingId}`);
 }
-createPaymentIntent(bookingId: number): Observable<any> {
-  const requestBody = { bookingId: bookingId };
+createPaymentIntent(bookingId: number, amount?: number): Observable<any> {
+  // Try to get amount from session storage if not provided
+  if (!amount) {
+    const storedAmount = sessionStorage.getItem(`booking_${bookingId}_amount`);
+    if (storedAmount) {
+      amount = parseFloat(storedAmount);
+    }
+  }
+  
+  const requestBody: any = { bookingId: bookingId };
+  
+  // Include amount if available
+  if (amount && amount > 0) {
+    requestBody.amount = amount;
+  }
   
   console.log('=== PAYMENT INTENT REQUEST ===');
   console.log('URL:', 'https://localhost:7001/api/payments/create-intent');
   console.log('Request body:', requestBody);
   console.log('BookingId being sent:', bookingId);
+  console.log('Amount being sent:', amount);
   console.log('==============================');
   
   return this.http.post<any>('https://localhost:7001/api/payments/create-intent', requestBody).pipe(
@@ -42,6 +56,7 @@ createPaymentIntent(bookingId: number): Observable<any> {
       console.error('=== PAYMENT INTENT ERROR ===');
       console.error('Error status:', error.status);
       console.error('Error body:', error.error);
+      console.error('Error details:', error.error?.details || 'No details');
       console.error('============================');
       throw error; // Re-throw the error so component can handle it
     })

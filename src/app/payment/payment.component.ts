@@ -144,12 +144,6 @@ private loadPaymentDetails(): void {
   async onSubmit(event: Event): Promise<void> {
   event.preventDefault();
 
-<<<<<<< HEAD
-
-
-
-=======
->>>>>>> a401658f0d3db4c524b1f4a7987dc5b8ef892752
   if (!this.authService.isLoggedIn()) {
     this.errorMessage = 'Session expired. Please log in again.';
     this.errorVisible = true;
@@ -166,10 +160,7 @@ private loadPaymentDetails(): void {
 
   try {
     // Step 1: Create PaymentIntent using BookingId + UserId
-<<<<<<< HEAD
-=======
     console.log('Creating payment intent for booking:', this.bookingId);
->>>>>>> a401658f0d3db4c524b1f4a7987dc5b8ef892752
     const intentResponse = await this.paymentService.createPaymentIntent(this.bookingId).toPromise();
     
     console.log('Payment intent response:', intentResponse); // ✅ Add this debug log
@@ -200,24 +191,11 @@ private loadPaymentDetails(): void {
       bookingId: this.bookingId
     }).toPromise();
 
-<<<<<<< HEAD
-   if (confirmResult?.success) {
-  this.successVisible = true;
-  setTimeout(() => {
-    this.router.navigate(['/booking/confirmation'], {
-      state: { paymentId: confirmResult.data.paymentId }
-    });
-  }, 1500);
-}
-
-
-  
-=======
     if (confirmResult?.success) {
       this.successVisible = true;
       setTimeout(() => {
         // ✅ Fix: Use the correct route path from your routes
-        this.router.navigate(['/payment-complete'], {
+        this.router.navigate(['/mentee/payment-complete'], {
           state: { 
             paymentId: confirmResult.data.paymentId,
             bookingDetails: confirmResult.data  // ✅ Pass the full booking details
@@ -226,7 +204,6 @@ private loadPaymentDetails(): void {
       }, 1500);
     }
     
->>>>>>> a401658f0d3db4c524b1f4a7987dc5b8ef892752
   } catch (err: any) {
     console.error('Payment error details:', err); // ✅ Better error logging
     

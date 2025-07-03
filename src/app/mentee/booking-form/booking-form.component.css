@@ -1,5 +1,8 @@
 .booking-form-modern {
   padding: 2rem 0;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .booking-card {
@@ -8,6 +11,7 @@
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   overflow: hidden;
   transition: all 0.3s ease;
+  width: 100%;
 }
 
 .booking-header {
