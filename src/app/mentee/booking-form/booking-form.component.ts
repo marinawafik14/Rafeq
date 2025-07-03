@@ -138,33 +138,18 @@ export class BookingFormComponent implements OnDestroy {
       const timeRange = slot.formatted.split('•')[1]?.trim() || slot.formatted;
       const startTime = new Date(slot.start);
       const endTime = new Date(slot.end);
-      
-      // Basic date match check
+
       if (slotDate !== date) return false;
-      
-      // Check for backend time validity
-      const isBackendTimeValid = endTime > startTime;
-      
-      // Check if formatted string indicates cross-midnight
+      const isBackendTimeValid = endTime > startTime;      
       const isCrossMidnightFromFormat = this.isCrossMidnightTimeRange(timeRange);
-      
-      // If backend times are invalid AND formatted shows cross-midnight, 
-      // this slot might actually be booked (backend bug)
       if (!isBackendTimeValid && isCrossMidnightFromFormat) {
-        // Try to validate using formatted string parsing
         const parsedTimes = this.parseTimeRange(timeRange, date);
         if (!parsedTimes || parsedTimes.end <= parsedTimes.start) {
-          // If we can't parse valid times, exclude this slot for safety
           return false;
         }
-        // If we can parse valid cross-midnight times, include it
         return true;
       }
-      
-      // For normal slots, backend times should be valid
       if (!isBackendTimeValid) return false;
-      
-      // Additional validation using formatted string
       const isValidAMPM = this.isValidAMPMTimeRange(timeRange);
       
       return isValidAMPM;
@@ -231,7 +216,6 @@ export class BookingFormComponent implements OnDestroy {
         }
       }
     }
-    
     return foundSlot;
   }
 
@@ -258,17 +242,11 @@ export class BookingFormComponent implements OnDestroy {
             }
             return false;
           }
-          
-          // Filter out slots that have backend time issues but are actually booked
-          // Check if this is a cross-midnight slot with invalid backend times
           const startTime = new Date(slot.start);
           const endTime = new Date(slot.end);
           const timeRange = slot.formatted.split('•')[1]?.trim() || slot.formatted;
           
-          // If backend shows same-day but formatted string shows cross-midnight, it might be booked
           if (endTime <= startTime && this.isCrossMidnightTimeRange(timeRange)) {
-            // This slot has inconsistent data - likely it's actually booked but API shows wrong times
-            // We should exclude it to be safe
             return false;
           }
           
@@ -312,7 +290,6 @@ export class BookingFormComponent implements OnDestroy {
   }
 
   completePayment() {
-    // Check if user has a pending booking (this is the most critical check)
     if (this.hasPendingBooking) {
       this.bookingError = 'You cannot create a new booking while you have a pending booking. Please complete or cancel your pending booking first.';
       return;
@@ -342,10 +319,8 @@ export class BookingFormComponent implements OnDestroy {
       return;
     }
 
-    const latestSlots = this.freeSlots;
-    
-    // Log every single slot for our target date
-    const slotsForTargetDate = latestSlots.filter(s => {
+      const latestSlots = this.freeSlots;
+      const slotsForTargetDate = latestSlots.filter(s => {
       const slotDate = new Date(s.start).toISOString().slice(0, 10);
       return slotDate === this.selectedDate;
     });
@@ -358,8 +333,7 @@ export class BookingFormComponent implements OnDestroy {
       const isCrossMidnightFromFormat = this.isCrossMidnightTimeRange(timeRange);
     });
     
-    // Check if our selected slot is still available
-    const isSlotStillAvailable = latestSlots.some(slot => {
+      const isSlotStillAvailable = latestSlots.some(slot => {
       const slotDate = new Date(slot.start).toISOString().slice(0, 10);
       const timeRange = slot.formatted.split('•')[1]?.trim() || slot.formatted;
       
@@ -367,18 +341,15 @@ export class BookingFormComponent implements OnDestroy {
       const timeMatches = timeRange === this.selectedSlot;
       
       if (dateMatches && timeMatches) {
-        // Additional validation for cross-midnight slots
         const startTime = new Date(slot.start);
         const endTime = new Date(slot.end);
         const isBackendTimeValid = endTime > startTime;
         const isCrossMidnightFromFormat = this.isCrossMidnightTimeRange(timeRange);
         
-        // If backend times are invalid and this is cross-midnight, it might be booked
         if (!isBackendTimeValid && isCrossMidnightFromFormat) {
-          return false; // Exclude for safety
+          return false; 
         }
         
-        // Found matching slot - now verify it's available
         const isNotBooked = !slot.status || slot.status !== 'booked';
         
         return isNotBooked;
@@ -389,11 +360,9 @@ export class BookingFormComponent implements OnDestroy {
     
     if (!isSlotStillAvailable) {
       this.bookingError = `The selected time slot "${this.selectedSlot}" is no longer available. Please select a different time slot.`;
-      
-      // Reset selection and go back to date & time selection step
       this.selectedSlot = null;
       this.selectedFreeSlot = null;
-      this.step = 2; // Go back to date & time selection step
+      this.step = 2; 
       return;
     }
     
@@ -453,14 +422,13 @@ export class BookingFormComponent implements OnDestroy {
       return;
     }
 
-    // Create booking data object that includes totalAmount and pending payment status
     const bookingData = {
       mentorId: this.mentorId!,
       sessionType: this.sessionType!,
       startDateTime: startDateTime,
       endDateTime: endDateTime,
       totalAmount: this.calculatedPrice,
-      status: 'pending_payment' // Add status to indicate pending payment
+      status: 'pending_payment' 
     };
 
     this.loadingSlots = true;
@@ -468,7 +436,6 @@ export class BookingFormComponent implements OnDestroy {
 
     this.menteeBookingservice.createBookingForMentee(menteeId, bookingData).subscribe({
       next: (response) => {
-        // Clear any existing pending booking info since we just created a new one
         sessionStorage.removeItem('pendingBooking');
         
         const bookingId = response.bookingId;
@@ -479,7 +446,6 @@ export class BookingFormComponent implements OnDestroy {
         
         sessionStorage.setItem(`booking_${bookingId}_amount`, this.calculatedPrice.toString());
         
-        // Store booking ID and timestamp for cleanup if needed
         const pendingBooking = {
           bookingId: bookingId,
           timestamp: new Date().getTime(),
@@ -490,29 +456,23 @@ export class BookingFormComponent implements OnDestroy {
         // Set up a cleanup timeout (15 minutes)
         this.setupBookingCleanupTimeout(bookingId);
         
-        // Navigate to payment page
         this.router.navigate(['/mentee', 'payment'], {
           queryParams: { 
             bookingId: bookingId,
             amount: this.calculatedPrice
           }
         });
-        
-        // Set loading back to false after navigation
         this.loadingSlots = false;
       },
       error: (error) => {
         this.loadingSlots = false;
         
         if (error.status === 409) {
-          // Conflict error - slot already booked
           this.bookingError = `The selected time slot "${this.selectedSlot}" is no longer available. It was just booked by another user. Please select a different time slot.`;
-          
-          // Refresh the available slots and reset selection
           this.refreshSlotsAfterConflict();
           this.selectedSlot = null;
           this.selectedFreeSlot = null;
-          this.step = 2; // Go back to date & time selection
+          this.step = 2; 
         } else if (error.status === 400 && error.error && error.error.message) {
           this.bookingError = error.error.message;
         } else if (error.status === 401 || error.status === 403) {
@@ -802,11 +762,9 @@ export class BookingFormComponent implements OnDestroy {
         return;
       }
 
-      // Get the stored amount for this booking
       const storedAmount = sessionStorage.getItem(`booking_${bookingId}_amount`);
       const amount = storedAmount ? parseFloat(storedAmount) : this.calculatedPrice;
 
-      // Redirect to payment page with the pending booking ID
       this.router.navigate(['/mentee/payment'], {
         queryParams: {
           bookingId: bookingId,

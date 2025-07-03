@@ -60,7 +60,6 @@ export class MenteeSearchMentorsComponent implements OnInit {
     private authService: AuthService
   ) { }
 
-  // Handle image error
   onImageError(event: any) {
     event.target.src = '/images/default-avatar.png';
   }
@@ -313,12 +312,10 @@ export class MenteeSearchMentorsComponent implements OnInit {
             profilePicture: m.profilePicture,
             bio: m.bio,
             hourlyRate: m.hourlyRate,
-            // Use mentorSkills from backend, transform to match expected format
             skills: (m.mentorSkills || []).map((skill: any) => ({
               Name: skill.name,
               id: skill.id
             })),
-            // Keep original mentorSkills and skills arrays for reference
             mentorSkills: m.mentorSkills || [],
             skillsArray: m.skills || [],
             availabilities: m.availabilities || [],
