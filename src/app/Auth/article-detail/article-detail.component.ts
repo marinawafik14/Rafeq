@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+import { Location } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 import { ArticlesService } from '../../Services/articles.service';
 import { ArticleDto } from '../../Models/articles/ArticleDto';
@@ -24,7 +25,8 @@ export class ArticleDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private articlesService: ArticlesService,
     private sanitizer: DomSanitizer,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private location: Location
   ) {}
 
   ngOnInit(): void {
@@ -91,17 +93,24 @@ export class ArticleDetailComponent implements OnInit {
     return this.sanitizer.bypassSecurityTrustHtml(formatted);
   }
 
-    copyLinkToClipboard(): void {
+  copyLinkToClipboard(): void {
     const currentUrl = window.location.href;
-    navigator.clipboard.writeText(currentUrl).then(() => {
-      this.toastr.success('Article link copied to clipboard!', 'Copied!');
-      this.isCopied = true;
-      setTimeout(() => {
-        this.isCopied = false;
-      }, 2000);
-    }).catch(err => {
-      console.error('Failed to copy link:', err);
-      this.toastr.error('Could not copy link. Please try manually.', 'Error');
-    });
+    navigator.clipboard
+      .writeText(currentUrl)
+      .then(() => {
+        this.toastr.success('Article link copied to clipboard!', 'Copied!');
+        this.isCopied = true;
+        setTimeout(() => {
+          this.isCopied = false;
+        }, 2000);
+      })
+      .catch((err) => {
+        console.error('Failed to copy link:', err);
+        this.toastr.error('Could not copy link. Please try manually.', 'Error');
+      });
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 }
