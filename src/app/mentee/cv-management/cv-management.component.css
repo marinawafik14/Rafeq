@@ -292,6 +292,76 @@
   animation: fadeIn 0.5s ease-out forwards;
 }
 
+/* Confirmation Modal Styles */
+.cv-management .modal {
+  z-index: 1055;
+  backdrop-filter: blur(5px);
+}
+
+.cv-management .modal-content {
+  border-radius: 20px;
+  border: none;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.cv-management .modal-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+}
+
+.cv-management .modal-header.bg-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+}
+
+.cv-management .modal-title {
+  font-weight: 600;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+}
+
+.cv-management .modal-body {
+  padding: 2rem 1.5rem;
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.cv-management .modal-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  gap: 1rem;
+}
+
+.cv-management .modal-footer .btn {
+  min-width: 120px;
+  font-weight: 500;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.cv-management .modal-footer .btn-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  border: none;
+}
+
+.cv-management .modal-footer .btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(239, 68, 68, 0.3);
+}
+
+.cv-management .modal-footer .btn-secondary {
+  background: rgba(108, 117, 125, 0.1);
+  border: 1px solid rgba(108, 117, 125, 0.3);
+  color: #6c757d;
+}
+
+.cv-management .modal-footer .btn-secondary:hover {
+  background: rgba(108, 117, 125, 0.2);
+  border-color: rgba(108, 117, 125, 0.5);
+  transform: translateY(-2px);
+}
+
 @media (max-width: 767px) {
   .cv-management {
     padding: 1rem 0;

@@ -29,19 +29,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Stats Grid - 5 cards in one row -->
-      <div class="stats-grid">
-        <div class="stat-card" *ngFor="let stat of stats; trackBy: trackByStat" [class.loading]="isLoading">
-          <div class="stat-icon-wrapper" [style.background]="stat.color">
-            <i class="bi {{stat.icon}} stat-icon"></i>
-          </div>
-          <div class="stat-content">
-            <div class="stat-value">{{isLoading ? '...' : stat.value}}</div>
-            <div class="stat-label">{{stat.label}}</div>
-          </div>
-        </div>
-      </div>
   <!-- Quick Actions -->
       <div class="quick-actions-section">
         <h3 class="section-title">Quick Actions</h3>
@@ -67,6 +54,19 @@
           </button>
         </div>
       </div>
+      <!-- Stats Grid - 3 cards in one row -->
+      <div class="stats-grid">
+        <div class="stat-card" *ngFor="let stat of stats; trackBy: trackByStat" [class.loading]="isLoading">
+          <div class="stat-icon-wrapper" [style.background]="stat.color">
+            <i class="bi {{stat.icon}} stat-icon"></i>
+          </div>
+          <div class="stat-content">
+            <div class="stat-value">{{isLoading ? '...' : stat.value}}</div>
+            <div class="stat-label">{{stat.label}}</div>
+          </div>
+        </div>
+      </div>
+
       <!-- Tabs for different booking categories -->
       <div class="tabs-section">
         <div class="tabs-header">
@@ -74,15 +74,8 @@
           <div class="tabs-nav">
             <button 
               class="tab-btn" 
-              [class.active]="activeTab === 'pending'"
-              (click)="setActiveTab('pending')">
-              <i class="bi bi-clock-history me-2"></i>
-              Pending ({{pendingBookings.length}})
-            </button>
-            <button 
-              class="tab-btn" 
-              [class.active]="activeTab === 'upcoming'"
-              (click)="setActiveTab('upcoming')">
+              [class.active]="activeTab === 'confirmed'"
+              (click)="setActiveTab('confirmed')">
               <i class="bi bi-calendar-check me-2"></i>
               Confirmed ({{upcomingBookings.length}})
             </button>

@@ -222,3 +222,31 @@
      [class.show]="showCancelModal"
      [style.display]="showCancelModal ? 'block' : 'none'">
 </div>
+
+<!-- Toaster Notification -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;">
+  <div class="toast align-items-center text-white border-0" 
+       [class.show]="showToast"
+       [class.bg-success]="toastType === 'success'"
+       [class.bg-danger]="toastType === 'error'"
+       [class.bg-warning]="toastType === 'warning'"
+       [class.bg-info]="toastType === 'info'"
+       role="alert" 
+       aria-live="assertive" 
+       aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">
+        <i class="bi" 
+           [class.bi-check-circle-fill]="toastType === 'success'"
+           [class.bi-x-circle-fill]="toastType === 'error'"
+           [class.bi-exclamation-triangle-fill]="toastType === 'warning'"
+           [class.bi-info-circle-fill]="toastType === 'info'"></i>
+        {{ toastMessage }}
+      </div>
+      <button type="button" 
+              class="btn-close btn-close-white me-2 m-auto" 
+              aria-label="Close"
+              (click)="hideToaster()"></button>
+    </div>
+  </div>
+</div>

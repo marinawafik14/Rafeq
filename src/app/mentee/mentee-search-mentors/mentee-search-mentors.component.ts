@@ -60,7 +60,6 @@ export class MenteeSearchMentorsComponent implements OnInit {
     private authService: AuthService
   ) { }
 
-  // Handle image error
   onImageError(event: any) {
     event.target.src = '/images/default-avatar.png';
   }
@@ -313,12 +312,10 @@ export class MenteeSearchMentorsComponent implements OnInit {
             profilePicture: m.profilePicture,
             bio: m.bio,
             hourlyRate: m.hourlyRate,
-            // Use mentorSkills from backend, transform to match expected format
             skills: (m.mentorSkills || []).map((skill: any) => ({
               Name: skill.name,
               id: skill.id
             })),
-            // Keep original mentorSkills and skills arrays for reference
             mentorSkills: m.mentorSkills || [],
             skillsArray: m.skills || [],
             availabilities: m.availabilities || [],
@@ -383,7 +380,6 @@ export class MenteeSearchMentorsComponent implements OnInit {
       filtered = filtered.sort((a, b) => a.fullName.localeCompare(b.fullName));
     }
 
-    // Update total before pagination
     this.total = filtered.length;
 
     // Pagination
@@ -394,7 +390,6 @@ export class MenteeSearchMentorsComponent implements OnInit {
     this.emptyState = filtered.length === 0;
   }
 
-  // Update all filter triggers to use applyFilters
   onSkillChange(skillId: number, event: Event) {
     const checked = (event.target as HTMLInputElement).checked;
     if (checked) {
@@ -453,10 +448,7 @@ export class MenteeSearchMentorsComponent implements OnInit {
     this.viewMode = mode;
   }
 
- 
-
-
-  // TrackBy functions for better performance
+  // TrackBy functions 
   trackBySkillId(index: number, skill: Skills): number {
     return skill.SkillId;
   }
