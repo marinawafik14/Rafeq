@@ -195,7 +195,7 @@ private loadPaymentDetails(): void {
       this.successVisible = true;
       setTimeout(() => {
         // ✅ Fix: Use the correct route path from your routes
-        this.router.navigate(['/payment-complete'], {
+        this.router.navigate(['/mentee/payment-complete'], {
           state: { 
             paymentId: confirmResult.data.paymentId,
             bookingDetails: confirmResult.data  // ✅ Pass the full booking details

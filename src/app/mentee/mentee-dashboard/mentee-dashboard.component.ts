@@ -4,47 +4,51 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MenteeLayoutComponent } from '../mentee-layout.component';
-import { MenteeService } from '../../Services/Mentee.service';
 import { AuthService } from '../../Services/auth.service';
 import { menteeBookingservice } from '../../Services/menteeBooking.service';
 
 @Component({
   selector: 'app-mentee-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule, MenteeLayoutComponent, FormsModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './mentee-dashboard.component.html',
   styleUrls: ['./mentee-dashboard.component.css']
 })
 export class MenteeDashboardComponent implements OnInit {
   menteeName: string = '';
   menteeId: number | null = null;
+  
+  // Statistics for the 5 cards
   stats = [
-    { label: 'Total Sessions', value: 0, icon: 'bi-calendar-check', trend: 'up', change: '+12%', color: '#4f46e5' },
-    { label: 'Upcoming', value: 0, icon: 'bi-clock-history', trend: 'neutral', change: '0%', color: '#f59e0b' },
-    { label: 'Completed', value: 0, icon: 'bi-check-circle', trend: 'up', change: '+8%', color: '#10b981' },
-    { label: 'Cancelled', value: 0, icon: 'bi-x-circle', trend: 'down', change: '-3%', color: '#ef4444' }
+    { label: 'Pending', value: 0, icon: 'bi-clock-history', color: '#f59e0b' },
+    { label: 'Completed', value: 0, icon: 'bi-check-circle', color: '#10b981' },
+    { label: 'Confirmed', value: 0, icon: 'bi-calendar-check', color: '#4f46e5' },
+    { label: 'Cancelled', value: 0, icon: 'bi-x-circle', color: '#ef4444' },
+    { label: 'Total', value: 0, icon: 'bi-calendar-week', color: '#6366f1' }
   ];
-  upcomingSessions: any[] | undefined = undefined;
-  completedSessions: any[] | undefined = undefined;
-  recentActivity: any[] = [];
+
+  // All bookings from API
+  allBookings: any[] = [];
+  
+  // Categorized bookings for cards
+  pendingBookings: any[] = [];
+  completedBookings: any[] = [];
+  upcomingBookings: any[] = [];
+  cancelledBookings: any[] = [];
 
   // Dashboard loading state
   isLoading = true;
   
-  // Pagination properties for upcoming sessions
-  upcomingCurrentPage = 1;
-  upcomingPageSize = 5;
-  upcomingTotalPages = 1;
-  upcomingTotalItems = 0;
-
-  // Pagination properties for completed sessions  
-  completedCurrentPage = 1;
-  completedPageSize = 5;
-  completedTotalPages = 1;
-  completedTotalItems = 0;
+  // Pagination properties
+  currentPage = 1;
+  pageSize = 6;
+  totalPages = 1;
+  totalItems = 0;
+  
+  // Active tab for displaying different booking categories
+  activeTab: string = 'pending';
 
   constructor(
-    private menteeService: MenteeService,
     private authService: AuthService,
     private route: ActivatedRoute,
     private router: Router,
@@ -57,144 +61,124 @@ export class MenteeDashboardComponent implements OnInit {
     this.menteeId = user && user.userId ? user.userId : null;
     if (!this.menteeId) {
       console.error('No valid menteeId found. Please log in again.');
-      // Optionally redirect to login
-      // this.router.navigate(['/login']);
       return;
     }
     this.loadDashboardData(this.menteeId);
   }
 
   loadDashboardData(menteeId: number) {
-    // Use the dashboard endpoint for stats and recent activity
-    this.menteeService.getDashboardData(menteeId).subscribe({
-      next: (data: any) => {
-        this.menteeName = data.menteeName;
-        this.stats[0].value = data.stats.totalSessions;
-        this.stats[1].value = data.stats.upcomingSessions;
-        this.stats[2].value = data.stats.completedSessions;
-        this.stats[3].value = data.stats.cancelledSessions;
-        this.recentActivity = (data.recentActivities || []).map((activity: any) => ({
-          type: activity.activityType,
-          text: activity.text,
-          date: new Date(activity.activityDate).toLocaleDateString()
-        }));
+    this.isLoading = true;
+    
+    // Fetch all bookings from the new endpoint
+    this.menteeBookingservice.getAllBookings(menteeId).subscribe({
+      next: (bookings: any[]) => {
+        this.allBookings = bookings || [];
+        this.categorizeBookings();
+        this.calculateStats();
+        this.isLoading = false;
       },
       error: (err: any) => {
         console.error('Failed to load dashboard data', err);
-        this.menteeName = '';
+        this.allBookings = [];
         this.stats.forEach(s => s.value = 0);
-        this.recentActivity = [];
-      }
-    });
-    // Fetch upcoming sessions from /api/MenteeBookings/mentee/{menteeId}/upcoming
-    this.menteeBookingservice.getUpcomingBookings(menteeId).subscribe({
-      next: (sessions: any[]) => {
-        this.upcomingSessions = (sessions || []).map(session => ({
-          id: session.bookingId,
-          mentor: session.mentorName,
-          date: session.startDateTime ? new Date(session.startDateTime).toLocaleDateString() : '',
-          time: session.startDateTime ? new Date(session.startDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
-          joinUrl: session.googleMeetLink,
-          status: session.status,
-          mentorAvatar: session.mentorAvatar || null
-        }));
-        this.upcomingTotalItems = this.upcomingSessions.length;
-        this.updateUpcomingPagination();
-        this.updateStats();
-      },
-      error: () => {
-        this.upcomingSessions = [];
-        this.upcomingTotalItems = 0;
-        this.updateUpcomingPagination();
-        this.updateStats();
-      }
-    });
-    // Fetch completed sessions from /api/MenteeBookings/mentee/{menteeId}/completed
-    this.menteeBookingservice.getCompletedBookings(menteeId).subscribe({
-      next: (sessions: any[]) => {
-        this.completedSessions = (sessions || []).map(session => ({
-          id: session.bookingId,
-          mentor: session.mentorName,
-          date: session.startDateTime ? new Date(session.startDateTime).toLocaleDateString() : '',
-          time: session.startDateTime ? new Date(session.startDateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '',
-          status: session.status,
-          rating: session.rating || null
-        }));
-        this.completedTotalItems = this.completedSessions.length;
-        this.updateCompletedPagination();
-        this.updateStats();
-      },
-      error: () => {
-        this.completedSessions = [];
-        this.completedTotalItems = 0;
-        this.updateCompletedPagination();
-        this.updateStats();
+        this.isLoading = false;
       }
     });
   }
 
-  updateTotalSessions() {
-    this.stats[0].value = this.stats[1].value + this.stats[2].value;
+  categorizeBookings() {
+    this.pendingBookings = this.allBookings.filter(booking => 
+      booking.status?.toLowerCase() === 'pending'
+    );
+    
+    this.completedBookings = this.allBookings.filter(booking => 
+      booking.status?.toLowerCase() === 'completed'
+    );
+    
+    this.upcomingBookings = this.allBookings.filter(booking => 
+      booking.status?.toLowerCase() === 'confirmed'
+    );
+    
+    this.cancelledBookings = this.allBookings.filter(booking => 
+      booking.status?.toLowerCase() === 'cancelled'
+    );
   }
 
-  // Upcoming sessions pagination methods
-  get upcomingStartItem() {
-    return (this.upcomingCurrentPage - 1) * this.upcomingPageSize + 1;
+  isUpcoming(startDateTime: string): boolean {
+    if (!startDateTime) return false;
+    const sessionDate = new Date(startDateTime);
+    const now = new Date();
+    return sessionDate > now;
   }
 
-  get upcomingEndItem() {
-    return Math.min(this.upcomingCurrentPage * this.upcomingPageSize, this.upcomingTotalItems);
+  calculateStats() {
+    this.stats[0].value = this.pendingBookings.length; // Pending
+    this.stats[1].value = this.completedBookings.length; // Completed
+    this.stats[2].value = this.upcomingBookings.length; // Confirmed
+    this.stats[3].value = this.cancelledBookings.length; // Cancelled
+    this.stats[4].value = this.allBookings.length; // Total
   }
 
-  updateUpcomingPagination() {
-    this.upcomingTotalPages = Math.ceil(this.upcomingTotalItems / this.upcomingPageSize);
+  // Get bookings for current tab and page
+  getCurrentBookings(): any[] {
+    let bookings: any[] = [];
+    
+    switch (this.activeTab) {
+      case 'pending':
+        bookings = this.pendingBookings;
+        break;
+      case 'completed':
+        bookings = this.completedBookings;
+        break;
+      case 'upcoming':
+        bookings = this.upcomingBookings;
+        break;
+      case 'cancelled':
+        bookings = this.cancelledBookings;
+        break;
+      default:
+        bookings = this.allBookings;
+    }
+    
+    this.totalItems = bookings.length;
+    this.totalPages = Math.ceil(this.totalItems / this.pageSize);
+    
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    
+    return bookings.slice(startIndex, endIndex);
   }
 
-  goToUpcomingPage(page: number) {
-    if (page >= 1 && page <= this.upcomingTotalPages) {
-      this.upcomingCurrentPage = page;
+  // Tab management
+  setActiveTab(tab: string) {
+    this.activeTab = tab;
+    this.currentPage = 1;
+  }
+
+  // Pagination methods
+  goToPage(page: number) {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
     }
   }
 
-  onUpcomingPageSizeChange() {
-    this.upcomingCurrentPage = 1;
-    this.updateUpcomingPagination();
+  get startItem() {
+    return Math.min((this.currentPage - 1) * this.pageSize + 1, this.totalItems);
   }
 
-  // Completed sessions pagination methods
-  get completedStartItem() {
-    return (this.completedCurrentPage - 1) * this.completedPageSize + 1;
+  get endItem() {
+    return Math.min(this.currentPage * this.pageSize, this.totalItems);
   }
 
-  get completedEndItem() {
-    return Math.min(this.completedCurrentPage * this.completedPageSize, this.completedTotalItems);
-  }
-
-  updateCompletedPagination() {
-    this.completedTotalPages = Math.ceil(this.completedTotalItems / this.completedPageSize);
-  }
-
-  goToCompletedPage(page: number) {
-    if (page >= 1 && page <= this.completedTotalPages) {
-      this.completedCurrentPage = page;
-    }
-  }
-
-  onCompletedPageSizeChange() {
-    this.completedCurrentPage = 1;
-    this.updateCompletedPagination();
-  }
-
-  // Common pagination helper
-  getPaginationRange(currentPage: number, totalPages: number): number[] {
+  getPaginationRange(): number[] {
     const range: number[] = [];
-    const showPages = 3; // Show 3 pages at most
-    let start = Math.max(1, currentPage - 1);
-    let end = Math.min(totalPages, currentPage + 1);
+    const showPages = 3;
+    let start = Math.max(1, this.currentPage - 1);
+    let end = Math.min(this.totalPages, this.currentPage + 1);
     
     if (end - start < showPages - 1) {
       if (start === 1) {
-        end = Math.min(totalPages, start + showPages - 1);
+        end = Math.min(this.totalPages, start + showPages - 1);
       } else {
         start = Math.max(1, end - showPages + 1);
       }
@@ -206,68 +190,68 @@ export class MenteeDashboardComponent implements OnInit {
     return range;
   }
 
-  // Update stats with real data from session arrays
-  private updateStats() {
-    // Only update the upcoming and completed counts from the actual session data
-    // Don't override total sessions and cancelled sessions from dashboard API
-    if (this.upcomingSessions !== undefined) {
-      this.stats[1].value = this.upcomingSessions.length;
-    }
-    if (this.completedSessions !== undefined) {
-      this.stats[2].value = this.completedSessions.length;
-    }
+  // Utility methods
+  formatDate(dateString: string): string {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString();
+  }
+
+  formatTime(dateString: string): string {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  getStatusBadgeClass(status: string): string {
+    if (!status) return 'status-unknown';
     
-    // Update total sessions based on current counts
-    this.stats[0].value = this.stats[1].value + this.stats[2].value + this.stats[3].value;
-    
-    // Set loading to false when both session arrays are loaded
-    if (this.upcomingSessions !== undefined && this.completedSessions !== undefined) {
-      this.isLoading = false;
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return 'status-pending';
+      case 'completed':
+        return 'status-completed';
+      case 'confirmed':
+        return 'status-confirmed';
+      case 'cancelled':
+        return 'status-cancelled';
+      default:
+        return 'status-unknown';
     }
   }
 
-  // Navigation methods for quick actions
+  // Navigation methods
   navigateToSearchMentors() {
     if (this.menteeId) {
-      this.router.navigate(['/mentee', this.menteeId, 'search-mentors']);
+      this.router.navigate(['/mentee/search-mentors']);
     }
   }
 
   navigateToBookings() {
     if (this.menteeId) {
-      this.router.navigate(['/mentee', this.menteeId, 'mentee-bookings']);
-    }
-  }
-
-  navigateToProfile() {
-    if (this.menteeId) {
-      this.router.navigate(['/mentee', this.menteeId, 'profile']);
-    }
-  }
-
-  navigateToCV() {
-    if (this.menteeId) {
-      this.router.navigate(['/mentee', this.menteeId, 'cv-management']);
+      this.router.navigate(['/mentee/bookings']);
     }
   }
 
   // Session actions
-  joinSession(session: any) {
-    if (session.joinUrl) {
-      window.open(session.joinUrl, '_blank');
+  joinSession(booking: any) {
+    if (booking.googleMeetLink) {
+      window.open(booking.googleMeetLink, '_blank');
     }
   }
 
-  isSessionStartingSoon(session: any): boolean {
-    if (!session.date || !session.time) return false;
+  canJoinSession(booking: any): boolean {
+    if (!booking.googleMeetLink || booking.status?.toLowerCase() !== 'confirmed') {
+      return false;
+    }
     
-    const sessionDateTime = new Date(`${session.date} ${session.time}`);
+    if (!booking.startDateTime) return false;
+    
+    const sessionDateTime = new Date(booking.startDateTime);
     const now = new Date();
     const timeDiff = sessionDateTime.getTime() - now.getTime();
     const minutesDiff = timeDiff / (1000 * 60);
     
-    // Allow joining 15 minutes before session starts
-    return minutesDiff <= 15 && minutesDiff >= -5;
+    // Allow joining 15 minutes before session starts and up to session end time
+    return minutesDiff <= 15 && minutesDiff >= -60; // Allow joining during the session
   }
 
   // Track by functions for performance
@@ -275,21 +259,8 @@ export class MenteeDashboardComponent implements OnInit {
     return stat.label;
   }
 
-  trackBySession(index: number, session: any): number {
-    return session.id;
-  }
-
-  trackByActivity(index: number, activity: any): string {
-    return activity.activityType + activity.activityDate;
-  }
-
-  // Get trend icon for stats
-  getTrendIcon(trend: string): string {
-    switch (trend) {
-      case 'up': return 'bi-trending-up';
-      case 'down': return 'bi-trending-down';
-      default: return 'bi-dash';
-    }
+  trackByBooking(index: number, booking: any): number {
+    return booking.bookingId;
   }
 
   loadMenteeData(menteeId: number) {

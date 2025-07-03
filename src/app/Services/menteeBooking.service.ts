@@ -49,20 +49,9 @@ export class menteeBookingservice {
       `https://localhost:7001/api/MenteeBookings/mentee/${menteeId}`,
       requestBody
     );
+}
+ // Cancel a booking
+  cancelBooking(bookingId: number): Observable<any> {
+    return this.http.post<any>(`https://localhost:7001/api/MenteeBookings/${bookingId}/cancel`, {});
   }
-  //   createBookingForMentee(
-  //   menteeId: number,
-  //   mentorId: number,
-  //   body: {
-  //     sessionType: string;
-  //     startDateTime: string;
-  //     endDateTime: string;
-  //     totalAmount: number; // ✅ ADDED!
-  //   }
-  // ) {
-  //   return this.http.post<Bookings>(
-  //     `https://localhost:7001/api/MenteeBookings/mentee/${menteeId}`,
-  //     body
-  //   );
-  // }
 }

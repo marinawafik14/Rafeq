@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MentorCard, MenteeService } from '../../Services/Mentee.service';
 import { Router, ActivatedRoute } from '@angular/router';
+import { AuthService } from '../../Services/auth.service';
 
 @Component({
   selector: 'app-mentee-search-mentors',
@@ -55,7 +56,8 @@ export class MenteeSearchMentorsComponent implements OnInit {
     private skillService: SkillService,
     private menteeService: MenteeService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private authService: AuthService
   ) { }
 
   // Handle image error
@@ -65,13 +67,8 @@ export class MenteeSearchMentorsComponent implements OnInit {
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
-      const routeMenteeId = params.get('menteeId');
-      if (routeMenteeId) {
-        this.menteeId = +routeMenteeId;
-      } else {
-        this.menteeId = this.extractMenteeIdFromToken();
-      }
-
+      this.menteeId = this.authService.getCurrentUserId();
+      
       if (!this.menteeId) {
         console.warn('No menteeId available');
       }
@@ -81,35 +78,13 @@ export class MenteeSearchMentorsComponent implements OnInit {
     });
   }
 
-extractMenteeIdFromToken(): number | null {
-  const storedUser = localStorage.getItem('currentUser');
-  if (!storedUser) return null;
-  try {
-    const userObj = JSON.parse(storedUser);
-    const userId = +userObj.userId;
-    const role = userObj.role || JSON.parse(atob(userObj.accessToken.split('.')[1])).role;
-
-    if (role === 'Mentee') {
-      return userId;
-    } else {
-      console.warn('User is not a mentee');
-      return null;
-    }
-  } catch (e) {
-    console.error('Failed to extract menteeId from localStorage:', e);
-    return null;
-  }
-}
-
-
-
   viewMentorProfile(mentorId: number) {
     if (!this.menteeId) {
-      this.menteeId = this.extractMenteeIdFromToken();
+      this.menteeId = this.authService.getCurrentUserId();
     }
 
     if (this.menteeId) {
-      this.router.navigate(['/mentee', this.menteeId, 'mentor', mentorId]);
+      this.router.navigate(['/mentee/mentor', mentorId]);
     } else {
       this.router.navigate(['/mentee/mentor', mentorId]);
     }
