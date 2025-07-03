@@ -13,6 +13,9 @@ import { FormsModule } from '@angular/forms';
 export class AdminBookingsComponent implements OnInit {
   bookings : Bookings[] = [];
   
+  // Add Math property for template access
+  Math = Math;
+  
 searchQuery: string = '';
 StatusFilter: string = '';
 paymentStatusFilter : string = '';
@@ -76,7 +79,78 @@ get totalPages(): number {
     }
   } 
 
+// Add the missing stats methods
+getPendingBookings(): number {
+  return this.filteredBookings.filter(booking => 
+    booking.status?.toLowerCase() === 'pending'
+  ).length;
+}
 
+getCompletedBookings(): number {
+  return this.filteredBookings.filter(booking => 
+    booking.status?.toLowerCase() === 'completed'
+  ).length;
+}
+
+getCancelledBookings(): number {
+  return this.filteredBookings.filter(booking => 
+    booking.status?.toLowerCase() === 'cancelled'
+  ).length;
+}
+
+// Add the missing action methods
+refreshBookings(): void {
+  this.getAllBookings();
+}
+
+exportBookings(): void {
+  // Simple CSV export functionality
+  const csvData = this.filteredBookings.map(booking => ({
+    'Session Type': booking.sessionType,
+    'Mentor': booking.mentorName,
+    'Mentee': booking.menteeName,
+    'Status': booking.status,
+    'Amount': booking.totalAmount,
+    'Commission': booking.commission,
+    'Payment Status': booking.paymentStatus
+  }));
+  
+  const csvContent = this.convertToCSV(csvData);
+  this.downloadCSV(csvContent, 'bookings-export.csv');
+}
+
+private convertToCSV(data: any[]): string {
+  if (data.length === 0) return '';
+  
+  const headers = Object.keys(data[0]);
+  const csvArray = [headers.join(',')];
+  
+  data.forEach(row => {
+    const values = headers.map(header => {
+      const value = row[header] || '';
+      return `"${value.toString().replace(/"/g, '""')}"`;
+    });
+    csvArray.push(values.join(','));
+  });
+  
+  return csvArray.join('\n');
+}
+
+private downloadCSV(content: string, filename: string): void {
+  const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+  link.style.visibility = 'hidden';
+  
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+// Keep all existing status check methods
 isCompleted(status: string): boolean {
   return status?.toLowerCase() === 'completed';
 }
@@ -95,6 +169,5 @@ isPaid(paymentStatus: string): boolean {
 isUnpaid(paymentStatus: string): boolean {
   return paymentStatus?.toLowerCase() === 'unpaid';
 }
-
 
 }

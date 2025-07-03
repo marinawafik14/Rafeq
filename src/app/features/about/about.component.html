@@ -177,13 +177,15 @@
 </section>
 
 <!-- Call to Action -->
+ <ng-container *ngIf="!currentUser">
 <section class="cta-section py-5 text-center">
   <div class="container">
     <h2 class="mb-4">Start Building Your Career Journey Today</h2>
     <p class="lead mb-4">
       Whether you're preparing for an interview, seeking mentorship, or looking to grow professionally, Rafeeq helps you take the next step forward.
     </p>
-    <a routerLink="/mentor-registration" class="btn btn-become">Become a Mentor</a> 
-    <a routerLink="/mentor-registration" class="btn btn-join">Join as Mentee</a>
+    <a routerLink="/register" class="btn btn-become">Become a Mentor</a> 
+    <a routerLink="/register" class="btn btn-join">Join as Mentee</a>
   </div>
 </section>
+</ng-container>

@@ -1,67 +1,234 @@
-<div class="mentor-reviews-container container-fluid">
-
-    <div class="main-content mx-auto mt-8 px-4">
-        <h1 class="text-center mb-4">Mentor Reviews</h1>
-
-        <div *ngIf="reviewsList" class="text-center text-muted py-4">
-            Loading reviews...
-        </div>
-
-        <div *ngIf="error" class="text-center text-danger py-4">
-            {{ error }}
-        </div>
-
-        <div *ngIf="!loading && !error && reviewsList.length === 0" class="text-center text-muted py-4">
-            No reviews found.
-        </div>
-
-        <div *ngIf="!loading && !error && reviewsList.length > 0" class="reviews-list">
-
-            <div *ngFor="let review of reviewsList" class="review-card mb-4 p-4">
-                <div class="review-header d-flex justify-content-between align-items-start mb-3">
-                    <div class="user-info d-flex align-items-center flex-grow-1">
-
-                        <div class="profile-pic-placeholder me-3">
-
-                            <i class="fas fa-user text-muted"></i>
-                        </div>
-                        <div>
-                            <div class="names mb-1">
-                                <span class="mentor-name font-semibold">Mentor: {{ review.reviewerName || 'N/A'
-                                    }}</span>,
-                                <span class="mentee-name font-semibold">Mentee: {{ review.reviewedUserName || 'N/A'
-                                    }}</span>
-                            </div>
-                            <div class="review-meta text-sm text-gray-500">
-                                <span class="reviewer-name font-medium">{{ review.reviewedUserName || 'N/A' }}</span>
-                                <span class="review-date ms-2 italic">{{ formatDate(review.createdAt.toString())
-                                    }}</span>
-                            </div>
-                        </div>
-                    </div>
-                    <button class="delete-button btn btn-danger btn-sm rounded-lg"
-                        (click)="deleteReview(review.reviewId)">Delete</button>
-                </div>
-                <div class="review-body ps-5">
-                    <div class="rating mb-2">
-                        <!-- Filled stars -->
-                        <span *ngFor="let i of getStarArray(review.rating)"
-                            class="star filled text-warning">&#9733;</span>
-                        <!-- Empty stars -->
-                        <span *ngFor="let i of getStarArray(5 - (review.rating || 0))"
-                            class="star text-gray-300">&#9733;</span>
-                    </div>
-                    <p class="comment text-gray-700 leading-relaxed">{{ review.comment || 'No comment provided.' }}</p>
-                </div>
-                <div class="review-actions d-flex gap-4 ps-5 text-gray-600 text-sm">
-                    <span class="action-item d-flex items-center">
-                        <i class="fas fa-thumbs-up me-1 text-gray-500"></i>
-                    </span>
-                    <span class="action-item d-flex items-center">
-                        <i class="fas fa-comment me-1 text-gray-500"></i>
-                    </span>
-                </div>
-            </div>
-        </div>
+<div class="page">
+  <!-- Header Section - Match mentor dashboard header -->
+  <div class="admin-header">
+    <div class="container">
+      <h1>Reviews Management</h1>
+      <p>Monitor and manage reviews and feedback across the platform</p>
     </div>
+  </div>
+
+  <div class="main-content">
+    <!-- Stats Cards Section - Match mentor dashboard -->
+    <div class="stats-section">
+      <div class="stats-grid">
+        <div class="stats-card">
+          <div class="stats-icon">
+            <i class="fas fa-star"></i>
+          </div>
+          <div class="stats-number">{{ reviewsList.length }}</div>
+          <div class="stats-label">Total Reviews</div>
+        </div>
+        
+        <div class="stats-card">
+          <div class="stats-icon">
+            <i class="fas fa-thumbs-up"></i>
+          </div>
+          <div class="stats-number">{{ getAverageRating() }}</div>
+          <div class="stats-label">Average Rating</div>
+        </div>
+        
+        <div class="stats-card">
+          <div class="stats-icon">
+            <i class="fas fa-calendar-day"></i>
+          </div>
+          <div class="stats-number">{{ getTodayReviews() }}</div>
+          <div class="stats-label">Today's Reviews</div>
+        </div>
+        
+        <div class="stats-card">
+          <div class="stats-icon">
+            <i class="fas fa-trophy"></i>
+          </div>
+          <div class="stats-number">{{ getTopRatedMentor() }}</div>
+          <div class="stats-label">Top Rated Mentor</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters Section - Match mentor dashboard cards -->
+    <div class="filters-section">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+        <div>
+          <h5 class="mb-1">Reviews & Feedback</h5>
+          <p class="text-muted mb-0">Manage reviews and ratings from mentees</p>
+        </div>
+        <div class="action-buttons">
+          <button class="btn btn-outline-primary me-2" (click)="loadReviews()">
+            <i class="fas fa-sync-alt me-2"></i>Refresh
+          </button>
+          <button class="btn btn-primary" (click)="exportReviews()">
+            <i class="fas fa-download me-2"></i>Export Reviews
+          </button>
+        </div>
+      </div>
+      
+      <!-- Search and Filter Bar -->
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label fw-semibold">Search Reviews</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="fas fa-search"></i>
+            </span>
+            <input 
+              [(ngModel)]="searchQuery" 
+              (ngModelChange)="currentPage = 1"
+              class="form-control" 
+              placeholder="Search by mentor or mentee name...">
+          </div>
+        </div>
+        
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Filter by Rating</label>
+          <select class="form-select" [(ngModel)]="ratingFilter" (ngModelChange)="currentPage = 1">
+            <option value="">All Ratings</option>
+            <option value="5">5 Stars</option>
+            <option value="4">4 Stars</option>
+            <option value="3">3 Stars</option>
+            <option value="2">2 Stars</option>
+            <option value="1">1 Star</option>
+          </select>
+        </div>
+        
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Items per page</label>
+          <select class="form-select" [(ngModel)]="itemsPerPage" (ngModelChange)="currentPage = 1">
+            <option value="10">10 per page</option>
+            <option value="20">20 per page</option>
+            <option value="50">50 per page</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reviews Container - Match mentor cards -->
+    <div class="reviews-container">
+      <div class="reviews-header">
+        <h5>
+          All Reviews ({{ getFilteredReviews()?.length || 0 }} of {{ reviewsList?.length || 0 }})
+        </h5>
+        <div class="reviews-actions">
+          <button class="btn btn-sm btn-outline-primary" title="Export Reviews">
+            <i class="fas fa-download me-1"></i>Export
+          </button>
+        </div>
+      </div>
+      
+      <!-- Loading State -->
+      <div *ngIf="loading" class="loading-state">
+        <div class="loading-content">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+          <p class="mt-3">Loading reviews...</p>
+        </div>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="error" class="error-state">
+        <div class="error-content">
+          <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
+          <h4>Error Loading Reviews</h4>
+          <p>{{ error }}</p>
+          <button class="btn btn-primary" (click)="loadReviews()">
+            <i class="fas fa-refresh me-2"></i>Try Again
+          </button>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="!loading && !error && reviewsList.length === 0" class="empty-state">
+        <div class="empty-content">
+          <i class="fas fa-star fa-3x text-muted mb-3"></i>
+          <h4>No Reviews Found</h4>
+          <p>No reviews are available at the moment. Reviews will appear here once mentees start rating their sessions.</p>
+        </div>
+      </div>
+
+      <!-- Reviews List -->
+      <div *ngIf="!loading && !error && reviewsList.length > 0" class="reviews-list">
+        <div *ngFor="let review of getPaginatedReviews()" class="review-card">
+          <div class="review-header">
+            <div class="user-info">
+              <div class="mentor-avatar">
+                <i class="fas fa-chalkboard-teacher"></i>
+              </div>
+              <div class="user-details">
+                <div class="mentor-mentee-info">
+                  <div class="mentor-info">
+                    <span class="label">Mentor:</span>
+                    <span class="mentor-name">{{ review.reviewerName || 'Unknown Mentor' }}</span>
+                  </div>
+                  <div class="mentee-info">
+                    <span class="label">Mentee:</span>
+                    <span class="mentee-name">{{ review.reviewedUserName || 'Unknown Mentee' }}</span>
+                  </div>
+                </div>
+                <div class="review-meta">
+                  <span class="review-date">{{ formatDate(review.createdAt?.toString()) }}</span>
+                </div>
+              </div>
+            </div>
+            <div class="review-actions">
+              <button 
+                class="btn btn-sm btn-danger action-btn"
+                (click)="deleteReview(review.reviewId)"
+                title="Delete Review">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+          
+          <div class="review-body">
+            <div class="rating-section">
+              <div class="stars">
+                <i *ngFor="let i of getStarArray(review.rating)" 
+                   class="fas fa-star filled-star"></i>
+                <i *ngFor="let i of getStarArray(5 - (review.rating || 0))" 
+                   class="fas fa-star empty-star"></i>
+              </div>
+              <span class="rating-text">{{ review.rating || 0 }}/5</span>
+            </div>
+            
+            <div class="comment-section">
+              <p class="comment">{{ review.comment || 'No comment provided.' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination Container - Match mentor pagination -->
+    <div class="pagination-container" *ngIf="totalPages > 1">
+      <div class="pagination-info mb-3">
+        <div class="pagination-summary">
+          Showing {{ ((currentPage - 1) * itemsPerPage) + 1 }} to 
+          {{ Math.min(currentPage * itemsPerPage, getFilteredReviews()?.length || 0) }} of 
+          {{ getFilteredReviews()?.length || 0 }} reviews
+        </div>
+      </div>
+      
+      <nav>
+        <ul class="pagination justify-content-center">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" (click)="changePage(currentPage - 1)">
+              <i class="fas fa-chevron-left"></i>
+            </a>
+          </li>
+          
+          <li *ngFor="let page of [].constructor(totalPages); let i = index"
+              class="page-item" 
+              [class.active]="i + 1 === currentPage">
+            <a class="page-link" (click)="changePage(i + 1)">{{ i + 1 }}</a>
+          </li>
+          
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link" (click)="changePage(currentPage + 1)">
+              <i class="fas fa-chevron-right"></i>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
 </div>
