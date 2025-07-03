@@ -1,43 +1,39 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { menteeBookingservice } from '../../Services/menteeBooking.service';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../Services/auth.service';
-import { Bookings } from '../../Models/Bookings';
+import { MenteeLayoutComponent } from '../mentee-layout.component';
 
 
 @Component({
   selector: 'app-booking-form',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MenteeLayoutComponent],
   templateUrl: './booking-form.component.html',
   styleUrls: ['./booking-form.component.css']
 })
-export class BookingFormComponent {
+export class BookingFormComponent implements OnDestroy {
   
   step = 1;
   sessionType: 'mentorship' | 'interview' | null = null;
   selectedDate: string | null = null;
   selectedSlot: string | null = null;
   selectedFreeSlot: any = null;
-  availableDates: string[] = []; // Example, replace with API
-  availableDays: string[] = []; // Available day names
+  availableDates: string[] = [];
   availableSlots: string[] = [];
-  price = 0;
-  termsAccepted = false;
-  paymentComplete = false;
   mentorId: number|null = null;
   menteeId: number|null = null;
   mentor: any = null;
   showMentorship = false;
   showInterview = false;
   bookingError: string|null = null;
+  private cleanupTimeoutId: any = null;
 
 
    getUtcSlot(date: string, hour: number, min: number): string {
-  // Egypt is UTC+2 (no DST in 2025)
   const d = new Date(`${date}T${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}:00+02:00`);
   return d.toISOString().slice(0, 19) + 'Z';
 }
@@ -50,12 +46,13 @@ export class BookingFormComponent {
     private http: HttpClient,
     private authService: AuthService
   ) {
-    // Get menteeId from route parameters
+    window.addEventListener('beforeunload', this.handleBeforeUnload.bind(this));
+    this.checkExistingPendingBooking();
+    
     this.route.paramMap.subscribe(params => {
       const menteeId = params.get('menteeId');
       this.menteeId = menteeId ? +menteeId : null;
       
-      // If no menteeId in route, try to get it from auth token
       if (!this.menteeId) {
         const token = document.cookie.split('; ').find(row => row.startsWith('authToken='))?.split('=')[1];
         if (token) {
@@ -72,148 +69,179 @@ export class BookingFormComponent {
     this.route.queryParams.subscribe(params => {
       if (params['mentorId']) {
         this.mentorId = +params['mentorId'];
-        console.log('Loading mentor information for ID:', this.mentorId); // Debug log
-        // Fetch mentor details for session type and availability
         this.http.get(`https://localhost:7001/api/mentors/${this.mentorId}`).subscribe({
           next: (mentor: any) => {
-            console.log('Mentor loaded successfully:', mentor); // Debug log
             this.mentor = mentor;
-            // Defensive: handle boolean values and string 'true'/'false'
             this.showMentorship = mentor.isMentor === true || mentor.isMentor === 'true';
             this.showInterview = mentor.isInterviewer === true || mentor.isInterviewer === 'true';
-            
-            // Load free slots from the API instead of using availabilities
             this.loadFreeSlots();
           },
           error: (error) => {
-            console.error('Failed to load mentor:', error); // Debug log
             this.mentor = null;
             this.showMentorship = false;
             this.showInterview = false;
           }
         });
-      } else {
-        console.warn('No mentorId found in query parameters'); // Debug log
       }
     });
   }
 
-  getAvailableDatesFromAvailabilities(availabilities: any[]): string[] {
-    // Generate next 14 days, filter by mentor's available days
-    const today = new Date();
-    const result: string[] = [];
-    for (let i = 0; i < 14; i++) {
-      const d = new Date(today);
-      d.setDate(today.getDate() + i);
-      const dayOfWeek = d.getDay(); // 0=Sunday, 1=Monday, ...
-      if (availabilities && availabilities.some(a => a.dayOfWeek === dayOfWeek)) {
-        result.push(d.toISOString().slice(0, 10));
-      }
-    }
-    return result;
-  }
-
-  getAvailableDayNames(availabilities: any[]): string[] {
-    if (!availabilities || availabilities.length === 0) return [];
-    
-    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const uniqueDays = [...new Set(availabilities.map(a => a.dayOfWeek))];
-    return uniqueDays.map(dayOfWeek => dayNames[dayOfWeek]).filter(Boolean);
-  }
-
-  // Example pricing logic
   get calculatedPrice() {
     return this.sessionType === 'interview' ? 100 : 60;
   }
 
   nextStep() {
+    if (this.hasPendingBooking && this.step > 1) {
+      this.bookingError = 'You cannot proceed while you have a pending booking. Please complete or cancel your pending booking first.';
+      return;
+    }
+    
     if (this.step < 4) this.step++;
   }
+  
   prevStep() {
-    if (this.step > 1) this.step--;
+    if (this.step > 1) {
+      this.step--;
+    }
   }
 
   selectDate(date: string) {
+    if (this.hasPendingBooking) {
+      this.bookingError = 'You cannot select a new date while you have a pending booking. Please complete or cancel your pending booking first.';
+      return;
+    }
+    
     this.selectedDate = date;
-    console.log('Selected date:', date);
     
-    // Find slots for this date from free slots
+    const hasSlots = this.availableDates.includes(date);
+    
+    if (!hasSlots) {
+      this.bookingError = `No available slots for ${date}. Please select a different date.`;
+      return;
+    }
+    
+    this.bookingError = null;
     this.availableSlots = this.getSlotsForDate(date);
-    console.log('Available slots for', date, ':', this.availableSlots);
-    
     this.selectedSlot = null;
     this.selectedFreeSlot = null;
     
-    // Navigate to next step to show time slots
-    this.nextStep();
+    if (this.availableSlots.length === 0) {
+      this.bookingError = `No time slots available for ${date}. Please select a different date.`;
+    }
   }
 
   getSlotsForDate(date: string): string[] {
     if (!date || !this.freeSlots?.length) return [];
     
-    console.log('Getting slots for date:', date);
-    console.log('Free slots:', this.freeSlots);
-    
     const selectedDateSlots = this.freeSlots.filter(slot => {
-      return new Date(slot.start).toISOString().slice(0, 10) === date;
+      const slotDate = new Date(slot.start).toISOString().slice(0, 10);
+      const timeRange = slot.formatted.split('•')[1]?.trim() || slot.formatted;
+      const startTime = new Date(slot.start);
+      const endTime = new Date(slot.end);
+      const isBackendTimeValid = endTime > startTime;
+      const isValidAMPM = this.isValidAMPMTimeRange(timeRange);
+      const isValidSlot = isBackendTimeValid || isValidAMPM;
+      
+      return slotDate === date && isValidSlot;
     });
     
-    console.log('Filtered slots for date:', selectedDateSlots);
-    
-    // Extract time range from formatted string (e.g., "10:00 AM - 1:00 PM")
     return selectedDateSlots
       .map(slot => {
-        // Extract time part from formatted string
         const timePart = slot.formatted.split('•')[1]?.trim();
         return timePart || slot.formatted;
       })
-      .filter((value, index, self) => self.indexOf(value) === index) // Remove duplicates
+      .filter((value, index, self) => self.indexOf(value) === index)
       .sort();
   }
 
   selectSessionType(type: 'mentorship' | 'interview') {
+    if (this.hasPendingBooking) {
+      this.bookingError = 'You cannot book a new session while you have a pending booking. Please complete or cancel your pending booking first.';
+      return;
+    }
+    
     this.sessionType = type;
     this.nextStep();
   }
 
   selectSlot(slot: string) {
+    if (this.hasPendingBooking) {
+      this.bookingError = 'You cannot select a time slot while you have a pending booking. Please complete or cancel your pending booking first.';
+      return;
+    }
+    
     this.selectedSlot = slot;
-    console.log('Selected slot:', slot);
-    
-    // Find the corresponding free slot object
     this.selectedFreeSlot = this.findSelectedFreeSlot();
-    console.log('Selected free slot object:', this.selectedFreeSlot);
-    
     this.nextStep();
   }
 
   private findSelectedFreeSlot(): any {
     if (!this.selectedDate || !this.selectedSlot) return null;
     
-    return this.freeSlots.find(slot => {
+    const foundSlot = this.freeSlots.find(slot => {
       const slotDate = new Date(slot.start).toISOString().slice(0, 10);
       const timeRange = slot.formatted.split('•')[1]?.trim() || slot.formatted;
+      
       return slotDate === this.selectedDate && timeRange === this.selectedSlot;
     });
+
+    if (foundSlot) {
+      const startTime = new Date(foundSlot.start);
+      const endTime = new Date(foundSlot.end);
+      
+      if (endTime <= startTime) {
+        const reparsedTimes = this.parseTimeRange(this.selectedSlot, this.selectedDate);
+        
+        if (reparsedTimes && reparsedTimes.end > reparsedTimes.start) {
+          return {
+            ...foundSlot,
+            start: reparsedTimes.start.toISOString(),
+            end: reparsedTimes.end.toISOString(),
+            corrected: true,
+            originalStart: foundSlot.start,
+            originalEnd: foundSlot.end
+          };
+        } else {
+          return foundSlot;
+        }
+      }
+    }
+    
+    return foundSlot;
   }
 
-  // Free slots loading and management
   freeSlots: any[] = [];
   loadingSlots = false;
+  private slotsLoaded = false;
 
-  private loadFreeSlots(): void {
+  private loadFreeSlots(forceRefresh: boolean = false): void {
     if (!this.mentorId) return;
+    
+    if (this.slotsLoaded && !forceRefresh) {
+      return;
+    }
 
     this.loadingSlots = true;
     this.http.get<any[]>(`https://localhost:7001/api/mentors/mentors/${this.mentorId}/free-slots`).subscribe({
       next: (slots) => {
-        console.log('Free slots loaded:', slots);
-        this.freeSlots = this.filterFutureSlots(slots);
+        const availableSlots = slots.filter(slot => {
+          if (slot.status === 'pending_payment') {
+            const pendingBooking = sessionStorage.getItem('pendingBooking');
+            if (pendingBooking) {
+              const booking = JSON.parse(pendingBooking);
+              return slot.bookingId === booking.bookingId;
+            }
+            return false;
+          }
+          return true;
+        });
+        
+        this.freeSlots = this.filterFutureSlots(availableSlots);
         this.availableDates = this.getAvailableDatesFromFreeSlots();
+        this.slotsLoaded = true;
         this.loadingSlots = false;
       },
       error: (err) => {
-        console.error('Error loading free slots:', err);
         this.loadingSlots = false;
       }
     });
@@ -221,7 +249,14 @@ export class BookingFormComponent {
 
   private filterFutureSlots(slots: any[]): any[] {
     const now = new Date();
-    return slots.filter(slot => new Date(slot.start) > now);
+    
+    const futureSlots = slots.filter(slot => {
+      const slotStart = new Date(slot.start);
+      const isFuture = slotStart > now;
+      return isFuture;
+    });
+    
+    return futureSlots;
   }
 
   private getAvailableDatesFromFreeSlots(): string[] {
@@ -229,13 +264,21 @@ export class BookingFormComponent {
     
     const dates = new Set<string>();
     this.freeSlots.forEach(slot => {
-      dates.add(new Date(slot.start).toISOString().slice(0, 10));
+      const slotDate = new Date(slot.start).toISOString().slice(0, 10);
+      dates.add(slotDate);
     });
     
-    return Array.from(dates).sort();
+    const sortedDates = Array.from(dates).sort();
+    return sortedDates;
   }
 
   completePayment() {
+    // Check if user has a pending booking (this is the most critical check)
+    if (this.hasPendingBooking) {
+      this.bookingError = 'You cannot create a new booking while you have a pending booking. Please complete or cancel your pending booking first.';
+      return;
+    }
+    
     // Check authentication
     const user = this.authService.currentUserValue;
     const menteeId = user && user.userId ? user.userId : this.menteeId;
@@ -261,71 +304,316 @@ export class BookingFormComponent {
       return;
     }
 
-    // Use the exact start and end times from the selected free slot
-    const startDateTime = new Date(this.selectedFreeSlot.start).toISOString();
-    const endDateTime = new Date(this.selectedFreeSlot.end).toISOString();
-
-    console.log('=== BOOKING CREATION DEBUG ===');
-    console.log('Selected free slot:', this.selectedFreeSlot);
-    console.log('Start time (ISO):', startDateTime);
-    console.log('End time (ISO):', endDateTime);
-    console.log('this.calculatedPrice value:', this.calculatedPrice);
-    console.log('typeof this.calculatedPrice:', typeof this.calculatedPrice);
-    console.log('this.sessionType:', this.sessionType);
     
-    // Create booking data object that includes totalAmount
+    const latestSlots = this.freeSlots;
+    
+    const slotsForTargetDate = latestSlots.filter(s => {
+      const slotDate = new Date(s.start).toISOString().slice(0, 10);
+      return slotDate === this.selectedDate;
+    });
+    
+    console.log(`All slots for ${this.selectedDate}:`, slotsForTargetDate);
+    
+    slotsForTargetDate.forEach((slot, index) => {
+      const timeRange = slot.formatted.split('•')[1]?.trim() || slot.formatted;
+      console.log(`  Slot ${index + 1}:`, {
+        timeRange,
+        exactMatch: timeRange === this.selectedSlot,
+        status: slot.status,
+        start: slot.start,
+        end: slot.end,
+        formatted: slot.formatted
+      });
+    });
+    
+    // Check if our selected slot is still available
+    const isSlotStillAvailable = latestSlots.some(slot => {
+      const slotDate = new Date(slot.start).toISOString().slice(0, 10);
+      const timeRange = slot.formatted.split('•')[1]?.trim() || slot.formatted;
+      
+      const dateMatches = slotDate === this.selectedDate;
+      const timeMatches = timeRange === this.selectedSlot;
+      
+      if (dateMatches && timeMatches) {
+        const isNotBooked = !slot.status || slot.status !== 'booked';
+        
+        console.log(' Found exact matching slot:', {
+          slotStatus: slot.status,
+          isNotBooked,
+          slotData: slot
+        });
+        
+        return isNotBooked;
+      }
+      
+      return false;
+    });
+  
+    
+    if (!isSlotStillAvailable) {
+      console.error(' Selected slot is no longer available!');
+      this.bookingError = `The selected time slot "${this.selectedSlot}" is no longer available. Please select a different time slot.`;
+      
+      // Reset selection and go back to date & time selection step
+      this.selectedSlot = null;
+      this.selectedFreeSlot = null;
+      this.step = 2; // Go back to date & time selection step
+      return;
+    }
+      this.proceedWithBooking(menteeId);
+  }
+
+  private proceedWithBooking(menteeId: number): void {
+    let startDateTime: string;
+    let endDateTime: string;
+    let startTime: Date;
+    let endTime: Date;
+
+    const backendStartTime = new Date(this.selectedFreeSlot.start);
+    const backendEndTime = new Date(this.selectedFreeSlot.end);
+    
+    const timeRange = this.selectedSlot;
+    const isCrossMidnightSlot = timeRange && this.isCrossMidnightTimeRange(timeRange);
+    
+    if (this.selectedFreeSlot.corrected && this.selectedFreeSlot.originalStart && this.selectedFreeSlot.originalEnd) {
+      startTime = new Date(this.selectedFreeSlot.originalStart);
+      endTime = new Date(this.selectedFreeSlot.originalEnd);
+      
+      if (isCrossMidnightSlot && endTime <= startTime) {
+        endTime = new Date(endTime.getTime() + (24 * 60 * 60 * 1000));
+      }
+      
+      startDateTime = startTime.toISOString();
+      endDateTime = endTime.toISOString();
+
+      console.log('Duration (hours):', (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60));
+    } else if (isCrossMidnightSlot && this.selectedSlot && this.selectedDate) {
+      
+      const parsedTimes = this.parseTimeRange(this.selectedSlot, this.selectedDate);
+      
+      if (parsedTimes && parsedTimes.end > parsedTimes.start) {
+        startTime = parsedTimes.start;
+        endTime = parsedTimes.end;
+        startDateTime = startTime.toISOString();
+        endDateTime = endTime.toISOString();
+
+        console.log('Duration (hours):', (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60));
+      } else {
+        this.bookingError = `Unable to parse cross-midnight time slot: "${this.selectedSlot}". Please try a different slot.`;
+        console.error(' Failed to parse cross-midnight time from formatted string:', this.selectedSlot);
+        return;
+      }
+    } else {
+      startTime = backendStartTime;
+      endTime = backendEndTime;
+      startDateTime = startTime.toISOString();
+      endDateTime = endTime.toISOString();
+
+      console.log('Duration (hours):', (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60));
+    }
+    
+    if (!isCrossMidnightSlot && endTime <= startTime) {
+      this.bookingError = `Invalid time slot: End time must be after start time. Please select a different slot.`;
+      console.error(' Final validation failed for same-day slot:', { 
+        startTime: startDateTime, 
+        endTime: endDateTime,
+        selectedSlot: this.selectedSlot 
+      });
+      return;
+    }
+    
+    const durationHours = (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
+    if (isCrossMidnightSlot && (durationHours <= 0 || durationHours > 24)) {
+      this.bookingError = `Invalid cross-midnight time slot duration. Please select a different slot.`;
+      console.error(' Cross-midnight slot validation failed:', { 
+        durationHours,
+        startTime: startDateTime, 
+        endTime: endDateTime,
+        selectedSlot: this.selectedSlot 
+      });
+      return;
+    }
+
+    console.log('Duration (final):', (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60), 'hours');
+    
+    // Create booking data object that includes totalAmount and pending payment status
     const bookingData = {
       mentorId: this.mentorId!,
       sessionType: this.sessionType!,
       startDateTime: startDateTime,
       endDateTime: endDateTime,
-      totalAmount: this.calculatedPrice
+      totalAmount: this.calculatedPrice,
+      status: 'pending_payment' // Add status to indicate pending payment
     };
 
     console.log('Booking data object created:', bookingData);
     console.log('==============================');
 
+    this.loadingSlots = true;
+    this.bookingError = null;
+
     this.menteeBookingservice.createBookingForMentee(menteeId, bookingData).subscribe({
       next: (response) => {
-        console.log('=== BOOKING CREATION RESPONSE ===');
-        console.log('Full API response:', response);
-        console.log('Response type:', typeof response);
-        console.log('Response keys:', Object.keys(response));
+        console.log(' Booking created successfully:', response);
+        
+        // Clear any existing pending booking info since we just created a new one
+        sessionStorage.removeItem('pendingBooking');
         
         const bookingId = response.bookingId;
-        console.log('Extracted bookingId:', bookingId);
-        console.log('BookingId type:', typeof bookingId);
-        console.log('===============================');
-        
         if (!bookingId) {
           console.error('No booking ID found in response:', response);
           this.bookingError = 'Booking created but missing ID. Please contact support.';
           return;
         }
         
-        // Store the calculated amount in session storage for verification
         sessionStorage.setItem(`booking_${bookingId}_amount`, this.calculatedPrice.toString());
         
-        // Navigate to payment with the booking ID
+        // Store booking ID and timestamp for cleanup if needed
+        const pendingBooking = {
+          bookingId: bookingId,
+          timestamp: new Date().getTime(),
+          amount: this.calculatedPrice
+        };
+        sessionStorage.setItem('pendingBooking', JSON.stringify(pendingBooking));
+        
+        // Set up a cleanup timeout (15 minutes)
+        this.setupBookingCleanupTimeout(bookingId);
+        
+        console.log('Navigating to payment with booking ID:', bookingId);
+        // Navigate to payment page
         this.router.navigate(['/mentee', 'payment'], {
           queryParams: { 
             bookingId: bookingId,
             amount: this.calculatedPrice
           }
         });
+        
+        // Set loading back to false after navigation
+        this.loadingSlots = false;
       },
-      error: (err) => {
-        console.error('=== BOOKING CREATION ERROR ===');
-        console.error('Full error:', err);
-        console.error('Error status:', err.status);
-        console.error('Error message:', err.error?.message || err.message);
-        console.error('============================');
-        this.bookingError = 'Booking creation failed: ' + (err.error?.message || err.message);
+      error: (error) => {
+        console.error(' Booking creation failed:', error);
+        this.loadingSlots = false;
+        
+        if (error.status === 409) {
+          // Conflict error - slot already booked
+          this.bookingError = `The selected time slot "${this.selectedSlot}" is no longer available. It was just booked by another user. Please select a different time slot.`;
+          
+          // Refresh the available slots and reset selection
+          this.refreshSlotsAfterConflict();
+          this.selectedSlot = null;
+          this.selectedFreeSlot = null;
+          this.step = 2; // Go back to date & time selection
+        } else if (error.status === 400 && error.error && error.error.message) {
+
+          this.bookingError = error.error.message;
+          console.error('Server validation error:', error.error.message);
+        } else if (error.status === 401 || error.status === 403) {
+
+          this.bookingError = 'Authentication failed. Please log in again.';
+          this.router.navigate(['/login']);
+        } else {
+
+          this.bookingError = 'Failed to create booking. Please try again.';
+          console.error('Unexpected booking error:', error);
+        }
       }
     });
   }
 
-  // Helper method for formatting dates
+  private setupBookingCleanupTimeout(bookingId: number): void {
+    if (this.cleanupTimeoutId) {
+      clearTimeout(this.cleanupTimeoutId);
+    }
+    
+    this.cleanupTimeoutId = setTimeout(() => {
+      const pendingBooking = sessionStorage.getItem('pendingBooking');
+      if (pendingBooking) {
+        const booking = JSON.parse(pendingBooking);
+        if (booking.bookingId === bookingId) {
+          this.cleanupUnpaidBooking(bookingId);
+        }
+      }
+    }, 15 * 60 * 1000);
+  }
+
+  private cleanupUnpaidBooking(bookingId: number): void {
+    this.http.delete(`https://localhost:7001/api/MenteeBookings/${bookingId}`).subscribe({
+      next: (response: any) => {
+        sessionStorage.removeItem('pendingBooking');
+        sessionStorage.removeItem(`booking_${bookingId}_amount`);
+        
+        if (this.cleanupTimeoutId) {
+          clearTimeout(this.cleanupTimeoutId);
+          this.cleanupTimeoutId = null;
+        }
+        
+        this.loadFreeSlots(true);
+      },
+      error: (err: any) => {
+        sessionStorage.removeItem('pendingBooking');
+        sessionStorage.removeItem(`booking_${bookingId}_amount`);
+      }
+    });
+  }
+
+  private checkExistingPendingBooking(): void {
+    const pendingBooking = sessionStorage.getItem('pendingBooking');
+    if (pendingBooking) {
+      const booking = JSON.parse(pendingBooking);
+      const now = new Date().getTime();
+      const timeDiff = now - booking.timestamp;
+      const timeoutDuration = 15 * 60 * 1000;
+      
+      if (timeDiff > timeoutDuration) {
+        this.cleanupUnpaidBooking(booking.bookingId);
+      } else {
+        const remainingTime = timeoutDuration - timeDiff;
+        const remainingMinutes = Math.ceil(remainingTime / (60 * 1000));
+        
+        this.bookingError = `You have a pending booking (ID: ${booking.bookingId}) that will be automatically cancelled in ${remainingMinutes} minute${remainingMinutes !== 1 ? 's' : ''}. Please complete the payment, wait for it to expire, or cancel it to create a new booking.`;
+        
+        this.setupCountdownTimer(booking.bookingId, remainingTime);
+      }
+    }
+  }
+
+  private setupCountdownTimer(bookingId: number, remainingTime: number): void {
+    const updateInterval = setInterval(() => {
+      const pendingBooking = sessionStorage.getItem('pendingBooking');
+      if (!pendingBooking) {
+        clearInterval(updateInterval);
+        return;
+      }
+      
+      const booking = JSON.parse(pendingBooking);
+      if (booking.bookingId !== bookingId) {
+        clearInterval(updateInterval);
+        return;
+      }
+      
+      const now = new Date().getTime();
+      const timeDiff = now - booking.timestamp;
+      const timeoutDuration = 15 * 60 * 1000;
+      const newRemainingTime = timeoutDuration - timeDiff;
+      
+      if (newRemainingTime <= 0) {
+        clearInterval(updateInterval);
+        this.cleanupUnpaidBooking(bookingId);
+        this.bookingError = 'Your pending booking has expired and been cancelled. You can create a new booking.';
+        
+        this.step = 1;
+        this.sessionType = null;
+        this.selectedDate = null;
+        this.selectedSlot = null;
+        this.selectedFreeSlot = null;
+      } else {
+        const remainingMinutes = Math.ceil(newRemainingTime / (60 * 1000));
+        this.bookingError = `You have a pending booking (ID: ${bookingId}) that will be automatically cancelled in ${remainingMinutes} minute${remainingMinutes !== 1 ? 's' : ''}. Please complete the payment or cancel it to create a new booking.`;
+      }
+    }, 60000);
+  }
+
   getFormattedDate(dateString: string): string {
     const date = new Date(dateString);
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -333,6 +621,166 @@ export class BookingFormComponent {
     
     return `${days[date.getDay()]} ${date.getDate()}`;
   }
+
+  private parseTimeRange(timeRange: string, baseDate: string): { start: Date, end: Date } | null {
+    try {
+      const [startStr, endStr] = timeRange.split(' - ');
+      if (!startStr || !endStr) return null;
+
+      const parseTime = (timeStr: string, date: string): Date => {
+        const [time, period] = timeStr.trim().split(' ');
+        const [hours, minutes] = time.split(':').map(Number);
+        
+        let hour24 = hours;
+        if (period?.toUpperCase() === 'PM' && hours !== 12) {
+          hour24 += 12;
+        } else if (period?.toUpperCase() === 'AM' && hours === 12) {
+          hour24 = 0;
+        }
+        
+        const dateTime = new Date(date);
+        dateTime.setHours(hour24, minutes, 0, 0);
+        return dateTime;
+      };
+
+      const startTime = parseTime(startStr, baseDate);
+      let endTime = parseTime(endStr, baseDate);
+      
+      const startPeriod = startStr.trim().split(' ')[1]?.toUpperCase();
+      const endPeriod = endStr.trim().split(' ')[1]?.toUpperCase();
+      
+      if (startPeriod === 'PM' && endPeriod === 'AM') {
+        endTime = new Date(endTime.getTime() + (24 * 60 * 60 * 1000));
+      } else if (endTime <= startTime) {
+        endTime = new Date(endTime.getTime() + (24 * 60 * 60 * 1000));
+      }
+      
+      return { start: startTime, end: endTime };
+    } catch (error) {
+      return null;
+    }
+  }
+
+  hasSlots(date: string): boolean {
+    const slots = this.getSlotsForDate(date);
+    return slots.length > 0;
+  }
+
+  cancelPendingBooking(): void {
+    const pendingBooking = sessionStorage.getItem('pendingBooking');
+    if (pendingBooking) {
+      const booking = JSON.parse(pendingBooking);
+      this.cleanupUnpaidBooking(booking.bookingId);
+      this.bookingError = null;
+      
+      this.step = 1;
+      this.sessionType = null;
+      this.selectedDate = null;
+      this.selectedSlot = null;
+      this.selectedFreeSlot = null;
+    }
+  }
+
+  get hasPendingBooking(): boolean {
+    const pendingBooking = sessionStorage.getItem('pendingBooking');
+    if (!pendingBooking) return false;
+    
+    const booking = JSON.parse(pendingBooking);
+    const now = new Date().getTime();
+    const timeDiff = now - booking.timestamp;
+    
+    return timeDiff < (15 * 60 * 1000);
+  }
+
+  ngOnDestroy(): void {
+    window.removeEventListener('beforeunload', this.handleBeforeUnload.bind(this));
+    
+    if (this.cleanupTimeoutId) {
+      clearTimeout(this.cleanupTimeoutId);
+    }
+    
+    const pendingBooking = sessionStorage.getItem('pendingBooking');
+    if (pendingBooking) {
+      const booking = JSON.parse(pendingBooking);
+      const now = new Date().getTime();
+      const timeDiff = now - booking.timestamp;
+      
+      if (timeDiff > 60000) {
+        this.cleanupUnpaidBooking(booking.bookingId);
+      }
+    }
+  }
+
+  private handleBeforeUnload(event: BeforeUnloadEvent): void {
+    const pendingBooking = sessionStorage.getItem('pendingBooking');
+    if (pendingBooking) {
+      const booking = JSON.parse(pendingBooking);
+      const cleanupData = JSON.stringify({ bookingId: booking.bookingId });
+      navigator.sendBeacon(`https://localhost:7001/api/MenteeBookings/${booking.bookingId}/cancel`, cleanupData);
+    }
+  }
+
+  private isValidAMPMTimeRange(timeRange: string): boolean {
+    try {
+      const [startStr, endStr] = timeRange.split(' - ');
+      if (!startStr || !endStr) return false;
+
+      const startPeriod = startStr.trim().split(' ')[1]?.toUpperCase();
+      const endPeriod = endStr.trim().split(' ')[1]?.toUpperCase();
+      
+      const startHour = parseInt(startStr.trim().split(':')[0]);
+      const endHour = parseInt(endStr.trim().split(':')[0]);
+      
+      if (startPeriod === 'PM' && endPeriod === 'AM') {
+        return true;
+      }
+      
+      if (startPeriod === endPeriod) {
+        if (startPeriod === 'AM') {
+          if (startHour === 12) return endHour !== 12 || endHour > startHour;
+          if (endHour === 12) return false;
+          return endHour > startHour;
+        } else {
+          if (startHour === 12) return endHour !== 12 || endHour > startHour;
+          if (endHour === 12) return false;
+          return endHour > startHour;
+        }
+      }
+      
+      if (startPeriod === 'AM' && endPeriod === 'PM') {
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  private isCrossMidnightTimeRange(timeRange: string): boolean {
+    try {
+      const [startStr, endStr] = timeRange.split(' - ');
+      if (!startStr || !endStr) return false;
+
+      const startPeriod = startStr.trim().split(' ')[1]?.toUpperCase();
+      const endPeriod = endStr.trim().split(' ')[1]?.toUpperCase();
+      
+      return startPeriod === 'PM' && endPeriod === 'AM';
+    } catch (error) {
+      return false;
+    }
+  }
+
+  private refreshSlotsAfterConflict(): void {
+    if (this.selectedDate) {
+      this.availableSlots = this.getSlotsForDate(this.selectedDate);
+      
+      if (this.availableSlots.length === 0) {
+        this.bookingError = `No more available slots for ${this.selectedDate}. Please select a different date.`;
+      }
+    }
+  }
+
 }
 
 
