@@ -180,6 +180,47 @@
               </div>
             </div>
 
+            <!-- Suggestions Section (Now Toggleable) -->
+            <!-- CHANGE THIS LINE: Show if there is only 1 message (the welcome message) -->
+            <div class="suggestions-container" *ngIf="selectedConversation && selectedConversation.messages.length === 1">
+              <div class="suggestions-header">
+                <div class="suggestions-title">
+                  <i class="fas fa-lightbulb me-2"></i>
+                  <span>Try asking:</span>
+                </div>
+                <button class="btn-suggestions-toggle" 
+                        (click)="toggleSuggestions()"
+                        [title]="showSuggestions ? 'Hide Suggestions' : 'Show Suggestions'">
+                  <i class="fas" [class.fa-chevron-up]="showSuggestions" [class.fa-chevron-down]="!showSuggestions"></i>
+                </button>
+              </div>
+
+              <div *ngIf="showSuggestions" class="suggestions-content">
+                <!-- Suggestion Chips -->
+                <div class="suggestion-chips mb-3">
+                  <button class="suggestion-chip" (click)="sendSuggestion('Help me prepare for an interview')">Help me prepare for an interview</button>
+                  <button class="suggestion-chip" (click)="sendSuggestion('What are the latest industry trends?')">What are the latest industry trends?</button>
+                  <button class="suggestion-chip" (click)="sendSuggestion('How do I build a professional network?')">How do I build a professional network?</button>
+                </div>
+
+                <!-- Suggestion Cards -->
+                <div class="suggestion-cards">
+                  <button class="suggestion-card" (click)="sendSuggestion('Suggest some interview preparation tips')">
+                    <i class="fas fa-briefcase"></i>
+                    <span>Interview Prep</span>
+                  </button>
+                  <button class="suggestion-card" (click)="sendSuggestion('What skills are in high demand?')">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Skills</span>
+                  </button>
+                  <button class="suggestion-card" (click)="sendSuggestion('Create a career growth plan for me')">
+                    <i class="fas fa-rocket"></i>
+                    <span>Growth</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
             <!-- Messages List -->
             <div *ngFor="let message of currentMessages; trackBy: trackByMessageId" 
                  class="message-wrapper">

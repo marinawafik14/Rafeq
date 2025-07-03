@@ -49,6 +49,7 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   showConversationList = true;
   activeMode: 'general' | 'cv-analysis' | 'career-advice' = 'general';
   showCvAnalysis = false;
+  public showSuggestions = true; 
 
   // Subscriptions
   private subscriptions: Subscription[] = [];
@@ -345,9 +346,24 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.createNewConversation(mode);
   }
 
-  // UI helpers
+  // UI
   toggleConversationList(): void {
     this.showConversationList = !this.showConversationList;
+  }
+
+  toggleSuggestions(): void {
+    this.showSuggestions = !this.showSuggestions;
+  }
+
+  /**
+   * Handles sending a suggestion message when a user clicks on a suggestion chip or card
+   * @param suggestion The text of the suggestion to send
+   */
+  sendSuggestion(suggestion: string): void {
+    if (!this.selectedConversation || this.isProcessing) return;
+    
+    // Process the suggestion as a regular message
+    this.onMessageSent(suggestion);
   }
 
   private async processCvFile(file: FileAttachment): Promise<void> {
