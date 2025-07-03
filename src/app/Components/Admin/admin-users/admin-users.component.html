@@ -1,50 +1,110 @@
-<div class="container my-4">
-  <!-- Header -->
-  <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
-    <div>
-      <h2 class="fw-bold mb-1 text-gradient">Users</h2>
-      <p class="text-muted mb-0">Manage users and their roles</p>
+<div class="page">
+  <!-- Header Section - Match mentor dashboard header -->
+  <div class="admin-header">
+    <div class="container">
+      <h1>User Management</h1>
+      <p>Manage and monitor all users across your platform</p>
     </div>
-    <button class="btn btn-primary new-user px-4 py-2 rounded-pill shadow-sm" (click)="showAddUserForm = true">
-      <i class="bi bi-person-plus me-2"></i> New user
-    </button>
   </div>
 
-  <!-- Add User Form -->
-  <app-add-user *ngIf="showAddUserForm" (save)="saveNewUser($event)" (cancel)="showAddUserForm = false"></app-add-user>
-
-  <!-- Filters -->
-  <div class="row g-2 mb-3 align-items-center">
-    <div class="col-12 col-md-4">
-      <div class="input-group shadow-sm rounded-pill">
-        <span class="input-group-text bg-white border-0"><i class="bi bi-search text-primary"></i></span>
-        <input [(ngModel)]="searchQuery" (ngModelChange)="currentPage =1"
-          class="form-control border-0 rounded-end-pill py-2"
-          placeholder="Search users by name, email">
+  <div class="main-content">
+    <!-- Stats Cards Section - Match mentor dashboard -->
+    <div class="stats-section">
+      <div class="stats-grid">
+        <div class="stats-card">
+          <div class="stats-icon">
+            <i class="bi bi-people"></i>
+          </div>
+          <div class="stats-number">{{ (filteredUsers?.length || 0) }}</div>
+          <div class="stats-label">Total Users</div>
+        </div>
+        
+        <div class="stats-card">
+          <div class="stats-icon">
+            <i class="bi bi-person-workspace"></i>
+          </div>
+          <div class="stats-number">{{ getMentorCount() }}</div>
+          <div class="stats-label">Mentors</div>
+        </div>
+        
+        <div class="stats-card">
+          <div class="stats-icon">
+            <i class="bi bi-person-graduation"></i>
+          </div>
+          <div class="stats-number">{{ getMenteeCount() }}</div>
+          <div class="stats-label">Mentees</div>
+        </div>
+        
+        <div class="stats-card">
+          <div class="stats-icon">
+            <i class="bi bi-shield-check"></i>
+          </div>
+          <div class="stats-number">{{ getAdminCount() }}</div>
+          <div class="stats-label">Admins</div>
+        </div>
       </div>
     </div>
-    <div class="col-12 col-md-4">
-      <select class="form-select rounded-pill shadow-sm" [(ngModel)]="roleFilter">
-        <option value="">Role</option>
-        <option value="Mentor">Mentor</option>
-        <option value="Mentee">Mentee</option>
-        <option value="Admin">Admin</option>
-      </select>
-    </div>
-    <div class="col-12 col-md-4">
-      <select class="form-select rounded-pill shadow-sm" [(ngModel)]="dateSort">
-        <option value="newest">Newest</option>
-        <option value="oldest">Oldest</option>
-      </select>
-    </div>
-  </div>
 
-  <!-- Users Table -->
-  <div class="card shadow-sm border-0 rounded-4">
-    <div class="card-body p-0">
+    <!-- Header with Add Button - Match mentor design -->
+    <div class="filters-section">
+      <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-3">
+        <div>
+          <h5 class="mb-1">User Management</h5>
+          <p class="text-muted mb-0">Manage users and their roles</p>
+        </div>
+        <button class="btn btn-primary" (click)="showAddUserForm = true">
+          <i class="bi bi-person-plus me-2"></i>New User
+        </button>
+      </div>
+
+      <!-- Add User Form - Keep your existing functionality -->
+      <div *ngIf="showAddUserForm" class="mb-4">
+        <app-add-user (save)="saveNewUser($event)" (cancel)="showAddUserForm = false"></app-add-user>
+      </div>
+
+      <!-- Filters - Keep your existing filters exactly as they were -->
+      <div class="row g-2 mb-3 align-items-center">
+        <div class="col-12 col-md-4">
+          <label class="form-label fw-semibold">Search Users</label>
+          <div class="input-group">
+            <span class="input-group-text">
+              <i class="bi bi-search"></i>
+            </span>
+            <input 
+              [(ngModel)]="searchQuery" 
+              (ngModelChange)="currentPage = 1"
+              class="form-control" 
+              placeholder="Search users by name, email">
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <label class="form-label fw-semibold">Filter by Role</label>
+          <select class="form-select" [(ngModel)]="roleFilter">
+            <option value="">All Roles</option>
+            <option value="Mentor">Mentor</option>
+            <option value="Mentee">Mentee</option>
+            <option value="Admin">Admin</option>
+          </select>
+        </div>
+        <div class="col-12 col-md-4">
+          <label class="form-label fw-semibold">Sort by Date</label>
+          <select class="form-select" [(ngModel)]="dateSort">
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Users Table - Keep your exact table structure -->
+    <div class="table-container">
+      <div class="table-header">
+        <h5>All Users ({{ getpaginatedUsers?.length || 0 }} users)</h5>
+      </div>
+      
       <div class="table-responsive">
         <table class="table align-middle table-hover mb-0">
-          <thead class="table-primary">
+          <thead>
             <tr>
               <th>Name</th>
               <th>Email</th>
@@ -56,62 +116,87 @@
           </thead>
           <tbody>
             <tr *ngFor="let user of getpaginatedUsers">
-              <td class="fw-semibold">{{user.fullName}}</td>
-              <td><span class="text-primary">{{ user.email }}</span></td>
-              <td><span class="badge bg-secondary text-white px-3 py-2 rounded-pill">{{user.role}}</span></td>
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="user-avatar me-3">
+                    <i class="bi bi-person-circle"></i>
+                  </div>
+                  <div class="fw-semibold">{{ user.fullName }}</div>
+                </div>
+              </td>
+              
+              <td>
+                <span class="fw-medium">{{ user.email }}</span>
+              </td>
+              
+              <td>
+                <span class="badge" 
+                      [ngClass]="{
+                        'badge-primary': user.role === 'Admin',
+                        'badge-success': user.role === 'Mentor', 
+                        'badge-info': user.role === 'Mentee'
+                      }">
+                  {{ user.role }}
+                </span>
+              </td>
+              
               <td>
                 <button
-                  class="btn btn-outline-success btn-sm action-btn me-2 rounded-pill"
-                  style="min-width: 110px"
+                  class="btn btn-outline-success btn-sm action-btn me-2"
                   *ngIf="!user.isActive"
                   (click)="updateUserStatus(user.id, true)">
-                  <i class="bi bi-check-circle me-1"></i> Activate
+                  <i class="bi bi-check-circle me-1"></i>Activate
                 </button>
                 <button
-                  class="btn btn-outline-secondary btn-sm action-btn me-2 rounded-pill"
-                  style="min-width: 110px"
+                  class="btn btn-outline-secondary btn-sm action-btn me-2"
                   *ngIf="user.isActive"
                   (click)="updateUserStatus(user.id, false)">
-                  <i class="bi bi-x-circle me-1"></i> Deactivate
+                  <i class="bi bi-x-circle me-1"></i>Deactivate
                 </button>
               </td>
-              <td><span class="text-primary">{{ user.createdAt | date:'short' }}</span></td>
+              
               <td>
-                <a
-                  class="btn btn-outline-primary btn-sm action-btn me-2 rounded-pill"
-                  style="min-width: 110px"
-                  [routerLink]="['edit-user/',user.id]">
-                  <i class="bi bi-pencil"></i> Edit
-                </a>
-                <button
-                  class="btn btn-outline-danger btn-sm action-btn rounded-pill"
-                  style="min-width: 110px"
-                  (click)="deleteUser(user.id)">
-                  <i class="bi bi-trash"></i> Delete
-                </button>
+                <span class="fw-medium">{{ user.createdAt | date:'short' }}</span>
+              </td>
+              
+              <td>
+                <div class="action-buttons">
+                  <a
+                    class="btn btn-outline-primary btn-sm action-btn me-2"
+                    [routerLink]="['edit-user/', user.id]">
+                    <i class="bi bi-pencil me-1"></i>Edit
+                  </a>
+                  <button
+                    class="btn btn-outline-danger btn-sm action-btn"
+                    (click)="deleteUser(user.id)">
+                    <i class="bi bi-trash me-1"></i>Delete
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
-  </div>
 
-  <!-- Pagination -->
-  <nav class="mt-4" *ngIf="totalPages >= 1">
-    <ul class="pagination justify-content-center">
-      <li class="page-item" [class.disabled]="currentPage === 1">
-        <a class="page-link rounded-pill" (click)="changePage(currentPage - 1)">‹</a>
-      </li>
-      <li *ngFor="let page of [].constructor(totalPages); let i = index"
-          class="page-item" [class.active]="i + 1 === currentPage">
-        <a class="page-link rounded-pill" (click)="changePage(i + 1)">{{ i + 1 }}</a>
-      </li>
-      <li class="page-item" [class.disabled]="currentPage === totalPages">
-        <a class="page-link rounded-pill" (click)="changePage(currentPage + 1)">›</a>
-      </li>
-    </ul>
-  </nav>
+    <!-- Pagination - Keep your exact pagination logic -->
+    <div class="pagination-container" *ngIf="totalPages >= 1">
+      <nav>
+        <ul class="pagination justify-content-center">
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" (click)="changePage(currentPage - 1)">‹</a>
+          </li>
+          <li *ngFor="let page of [].constructor(totalPages); let i = index"
+              class="page-item" [class.active]="i + 1 === currentPage">
+            <a class="page-link" (click)="changePage(i + 1)">{{ i + 1 }}</a>
+          </li>
+          <li class="page-item" [class.disabled]="currentPage === totalPages">
+            <a class="page-link" (click)="changePage(currentPage + 1)">›</a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
 </div>
 
 

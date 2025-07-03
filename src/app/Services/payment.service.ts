@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators'; // ✅ Add these imports
 import { Payments } from '../Models/Payments/Payments';
 import { PaymentDetailsDto } from '../Models/Payments/payment-details.model';
 import { CreatePaymentIntentDto } from '../Models/Payments/CreatePaymentIntentDto';
@@ -31,7 +32,20 @@ createPaymentIntent(bookingId: number): Observable<any> {
   console.log('BookingId being sent:', bookingId);
   console.log('==============================');
   
-  return this.http.post<any>('https://localhost:7001/api/payments/create-intent', requestBody);
+  return this.http.post<any>('https://localhost:7001/api/payments/create-intent', requestBody).pipe(
+    tap(response => {
+      console.log('=== PAYMENT INTENT RESPONSE ===');
+      console.log('Response:', response);
+      console.log('===============================');
+    }),
+    catchError(error => {
+      console.error('=== PAYMENT INTENT ERROR ===');
+      console.error('Error status:', error.status);
+      console.error('Error body:', error.error);
+      console.error('============================');
+      throw error; // Re-throw the error so component can handle it
+    })
+  );
 }
 
 

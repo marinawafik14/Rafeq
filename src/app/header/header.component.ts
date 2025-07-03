@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Router, RouterLink, RouterModule } from '@angular/router';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { AuthService } from '../Services/auth.service';
 import { TokenResponseDto } from '../Models/Auth/TokenResponseDto';
 import { Subject, takeUntil } from 'rxjs';
@@ -18,10 +18,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
   currentUser: TokenResponseDto | null = null;
   private destroy = new Subject<void>();
   role: string = '';
+   @Input() menteeName: string = '';
+  @Input() menteeId: number | null = null;
   
   constructor(
     private authService: AuthService,
     private router: Router,
+    private route: ActivatedRoute,
     private toastr: ToastrService
   ) {}
 
@@ -33,7 +36,43 @@ export class HeaderComponent implements OnInit, OnDestroy {
   
      
       });
+
+      if (this.menteeId) return;
+      const routeId = this.route.snapshot.paramMap.get('menteeId');
+  if (routeId) {
+    this.menteeId = +routeId;
+    return;
   }
+
+  const storedUser = localStorage.getItem('currentUser');
+  if (storedUser) {
+    try {
+      const user = JSON.parse(storedUser);
+      if (user?.userId && user?.role === 'Mentee') {
+        this.menteeId = +user.userId;
+      }
+    } catch (e) {
+      console.error('Invalid user data in localStorage');
+    }
+  }
+  }
+
+
+navigateTo(link: any) {
+    if (!this.menteeId) {
+      const id = this.route.snapshot.paramMap.get('menteeId');
+      if (id) this.menteeId = +id;
+    }
+    
+    if (this.menteeId) {
+      const commands = ['/mentee', this.menteeId, link.route];
+      this.router.navigate(commands, {
+        queryParams: { t: Date.now() },
+        queryParamsHandling: 'merge',
+      });
+    }
+  }
+
 
   logout(): void {
     if (!this.authService.isLoggedIn()) {

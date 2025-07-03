@@ -28,8 +28,12 @@ export class AuthService {
   private currentUserSubject: BehaviorSubject<TokenResponseDto | null>;
   public currentUser: Observable<TokenResponseDto | null>;
 
-  constructor(private http: HttpClient, private ngZone: NgZone,private jwtHelper: JwtHelperService) {
-    const storedToken = localStorage.getItem('currentUser');
+  constructor(
+    private http: HttpClient,
+    private ngZone: NgZone,
+    private jwtHelper: JwtHelperService
+  ) {
+    const storedToken = sessionStorage.getItem('currentUser');
     this.currentUserSubject = new BehaviorSubject<TokenResponseDto | null>(
       storedToken ? JSON.parse(storedToken) : null
     );
@@ -164,14 +168,14 @@ export class AuthService {
 
   private setToken(tokenData: TokenResponseDto): void {
     this.ngZone.run(() => {
-      localStorage.setItem('currentUser', JSON.stringify(tokenData));
+      sessionStorage.setItem('currentUser', JSON.stringify(tokenData));
       this.currentUserSubject.next(tokenData);
     });
   }
 
   public clearToken(): void {
     this.ngZone.run(() => {
-      localStorage.removeItem('currentUser');
+      sessionStorage.removeItem('currentUser');
       this.currentUserSubject.next(null);
     });
   }
@@ -192,43 +196,46 @@ export class AuthService {
       !!this.currentUserSubject.value.accessToken
     );
   }
-getCurrentUserId(): number | null {
-  const currentUser = this.currentUserValue;
-  if (!currentUser || !currentUser.accessToken) return null;
+  getCurrentUserId(): number | null {
+    const currentUser = this.currentUserValue;
+    if (!currentUser || !currentUser.accessToken) return null;
 
-  try {
+    try {
+      const decodedToken = this.jwtHelper.decodeToken(currentUser.accessToken);
+
+      const userId = decodedToken['nameid'];
+      return userId ? +userId : null;
+    } catch (e) {
+      console.error('Error decoding token:', e);
+      return null;
+    }
+  }
+
+  getCurrentUserRole(): string | null {
+    const currentUser = this.currentUserValue;
+    if (!currentUser || !currentUser.accessToken) return null;
+
     const decodedToken = this.jwtHelper.decodeToken(currentUser.accessToken);
-
-    const userId = decodedToken['nameid'];
-    return userId ? +userId : null;
-  } catch (e) {
-    console.error('Error decoding token:', e);
-    return null;
+    return (
+      decodedToken[
+        'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
+      ] || null
+    );
   }
-}
+  isTokenExpired(): boolean {
+    const token = this.getToken();
+    if (!token) return true;
 
-
-getCurrentUserRole(): string | null {
-  const currentUser = this.currentUserValue;
-  if (!currentUser || !currentUser.accessToken) return null;
-
-  const decodedToken = this.jwtHelper.decodeToken(currentUser.accessToken);
-  return decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] || null;
-}
-isTokenExpired(): boolean {
-  const token = this.getToken();
-  if (!token) return true;
-
-  try {
-    const decoded = this.jwtHelper.decodeToken(token);
-    const exp = decoded['exp'];
-    const expirationDate = new Date(0);
-    expirationDate.setUTCSeconds(exp);
-    return expirationDate.valueOf() < new Date().valueOf();
-  } catch {
-    return true;
+    try {
+      const decoded = this.jwtHelper.decodeToken(token);
+      const exp = decoded['exp'];
+      const expirationDate = new Date(0);
+      expirationDate.setUTCSeconds(exp);
+      return expirationDate.valueOf() < new Date().valueOf();
+    } catch {
+      return true;
+    }
   }
-}
 
   private handleError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'An unknown error occurred!';

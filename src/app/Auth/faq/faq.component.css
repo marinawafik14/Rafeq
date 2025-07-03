@@ -325,3 +325,79 @@
   border-radius: 3px;
   font-weight: 600;
 }
+
+.btn-contact{
+  background: linear-gradient(45deg, #1b74e4, #0a2e65);
+  border: none;
+  color: white;
+  font-weight: 500;
+  border-radius: 25px;
+  padding: 0.8rem 2rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: white;
+    color: #0a2e65;
+    transform: translateY(-1px);
+    border: 1px solid #0a2e65;
+  }
+}
+
+
+/* Article Pagination (exact style match with FAQ pagination) */
+.pagination-container {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 2px solid #e9ecef;
+}
+
+.pagination {
+  justify-content: center;
+}
+
+.page-link {
+  background-color: #f8f9fa;
+  color: #0a2e65;
+  border: 1px solid #0a2e65;
+  margin: 0 0.2rem;
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.page-link:hover {
+  background-color: #0a2e65;
+  color: white;
+}
+
+.page-item.active .page-link {
+  background-color: #0a2e65;
+  color: white;
+  border-color: #0a2e65;
+}
+
+.page-item.disabled .page-link {
+  background-color: #e9ecef;
+  color: #6c757d;
+  pointer-events: none;
+  border-color: #dee2e6;
+}
+
+
+.btn-chat {
+  background: linear-gradient(45deg,#0a2e65, #1b74e4);
+  border: none;
+  color: white;
+  font-weight: 500;
+  border-radius: 25px;
+  padding: 0.8rem 2rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: white;
+    color: #083161;
+    transform: translateY(-1px);
+    border: 1px solid #083161;
+  }
+}

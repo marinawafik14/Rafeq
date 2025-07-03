@@ -41,8 +41,8 @@
     <!-- Search Section -->
     <div class="search-container">
       <div class="input-group">
-        <input type="text" class="form-control" placeholder="Search articles "
-          [(ngModel)]="searchQuery" (input)="onSearch()">
+        <input type="text" class="form-control" placeholder="Search articles " [(ngModel)]="searchQuery"
+          (input)="onSearch()">
         <button class="btn" type="button" (click)="onSearch()">
           <i class="fas fa-search me-2"></i>Search
         </button>
@@ -91,7 +91,7 @@
                   <i class="fas fa-eye me-1"></i>{{ article.viewCount }} views
                 </div>
               </div>
-              <a [routerLink]="['/articles', article.articleId]" class="btn btn-read-more">
+              <a [routerLink]="['/articles', article.articleId]" class="btn btn-read-more" (click)="onArticleClick()">
                 <i class="fas fa-arrow-right me-2"></i>Read More
               </a>
             </div>
