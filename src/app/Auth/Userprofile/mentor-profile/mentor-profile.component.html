@@ -76,7 +76,7 @@
           <div class="photo-upload-section">
             <h5 class="section-title">
               <i class="fas fa-image me-2"></i>
-              Update Photo
+              Photo
             </h5>
             <input type="file" id="profileFileInput" (change)="onFileSelected($event)" accept="image/*"
               class="form-control file-input"> <button type="button" (click)="uploadProfilePhoto()"
@@ -142,7 +142,7 @@
                       <div class="form-group">
                         <label for="email" class="form-label">
                           <i class="fas fa-envelope me-2"></i>
-                          Email Address
+                          Email
                         </label>
                         <input type="email" id="email" formControlName="email" class="form-control"
                           [ngClass]="{'is-invalid': getControlError('email', profileForm)}">
@@ -160,7 +160,7 @@
                       <div class="form-group">
                         <label for="bio" class="form-label">
                           <i class="fas fa-align-left me-2"></i>
-                          Professional Bio
+                          Bio
                         </label>
                         <textarea id="bio" formControlName="bio" rows="4" class="form-control"
                           [ngClass]="{'is-invalid': getControlError('bio', profileForm)}" placeholder="..."></textarea>
@@ -172,7 +172,7 @@
                   <div class="text-center">
                     <button type="submit" class="btn btn-primary btn-lg px-4" [disabled]="profileForm.invalid">
                       <i class="fas fa-save me-2"></i>
-                      Update Profile
+                      Update
                     </button>
                   </div>
                 </form>
@@ -187,13 +187,13 @@
                       <div class="form-group">
                         <label for="hourlyRate" class="form-label">
                           <i class="fas fa-dollar-sign me-2"></i>
-                          Hourly Rate ($)
+                          Hourly Rate
                         </label>
                         <div class="input-group">
                           <span class="input-group-text">$</span>
                           <input type="number" id="hourlyRate" formControlName="hourlyRate" step="0.01"
                             class="form-control" [ngClass]="{'is-invalid': getControlError('hourlyRate', profileForm)}"
-                            placeholder="50.00">
+                            placeholder=" Your Price">
                         </div>
                         <div *ngIf="getControlError('hourlyRate', profileForm)" class="invalid-feedback">{{
                           getControlError('hourlyRate', profileForm) }}</div>
@@ -244,7 +244,7 @@
                   <div class="text-center mt-4">
                     <button type="submit" class="btn btn-primary btn-lg px-4" [disabled]="profileForm.invalid">
                       <i class="fas fa-save me-2"></i>
-                      Update Settings
+                      Update
                     </button>
                   </div>
                 </form>
@@ -263,8 +263,7 @@
                         <div class="input-group">
                           <input [type]="showCurrentPassword ? 'text' : 'password'" id="currentPassword"
                             formControlName="currentPassword" class="form-control"
-                            [ngClass]="{'is-invalid': getControlError('currentPassword', passwordForm)}"
-                            placeholder="Enter your current password">
+                            [ngClass]="{'is-invalid': getControlError('currentPassword', passwordForm)}" placeholder="">
                           <button type="button" class="btn btn-outline-secondary password-toggle"
                             (click)="togglePasswordVisibility('current')"
                             [attr.aria-label]="showCurrentPassword ? 'Hide password' : 'Show password'">
@@ -285,8 +284,7 @@
                         <div class="input-group">
                           <input [type]="showNewPassword ? 'text' : 'password'" id="newPassword"
                             formControlName="newPassword" class="form-control"
-                            [ngClass]="{'is-invalid': getControlError('newPassword', passwordForm)}"
-                            placeholder="Enter new password">
+                            [ngClass]="{'is-invalid': getControlError('newPassword', passwordForm)}" placeholder=" ">
                           <button type="button" class="btn btn-outline-secondary password-toggle"
                             (click)="togglePasswordVisibility('new')"
                             [attr.aria-label]="showNewPassword ? 'Hide password' : 'Show password'">
@@ -308,7 +306,7 @@
                           <input [type]="showConfirmPassword ? 'text' : 'password'" id="confirmNewPassword"
                             formControlName="confirmNewPassword" class="form-control"
                             [ngClass]="{'is-invalid': getControlError('confirmNewPassword', passwordForm)}"
-                            placeholder="Confirm password">
+                            placeholder="">
                           <button type="button" class="btn btn-outline-secondary password-toggle"
                             (click)="togglePasswordVisibility('confirm')"
                             [attr.aria-label]="showConfirmPassword ? 'Hide password' : 'Show password'">

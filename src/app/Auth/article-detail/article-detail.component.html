@@ -11,9 +11,9 @@
     <!-- Article Content -->
     <div *ngIf="!loading && article">
       <!-- Back Button -->
-      <a class="back-button" [routerLink]="['/articles']">
+      <button class="back-button" (click)="goBack()">
         <i class="fas fa-arrow-left"></i>Back to Articles
-      </a>
+      </button>
 
       <!-- Article Container -->
       <div class="article-container">
