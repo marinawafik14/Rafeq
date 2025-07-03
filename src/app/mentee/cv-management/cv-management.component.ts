@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CvService } from '../../Services/cv.service';
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from '../../Services/auth.service';
+import { ToastrService } from 'ngx-toastr';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 
 interface CV {
   id: number;
@@ -23,7 +25,7 @@ interface CV {
   templateUrl: './cv-management.component.html',
   styleUrls: ['./cv-management.component.css']
 })
-export class CvManagementComponent implements OnInit {
+export class CvManagementComponent implements OnInit, OnDestroy {
   cvs: CV[] = [];
   loading = true;
   error: string | null = null;
@@ -36,6 +38,9 @@ export class CvManagementComponent implements OnInit {
   selectedCV: CV | null = null;
   uploadingFile = false;
 
+  showDeleteConfirm = false;
+  cvToDelete: CV | null = null;
+
   // Base URL for API calls
   private apiBaseUrl = 'https://localhost:7001/api';
   private maxFileSize = 2 * 1024 * 1024; // 2MB in bytes
@@ -44,19 +49,22 @@ export class CvManagementComponent implements OnInit {
     private cvService: CvService, 
     private route: ActivatedRoute, 
     private http: HttpClient,
-    private authService: AuthService
+    private authService: AuthService,
+    private toastr: ToastrService,
+    private sanitizer: DomSanitizer
   ) {}
 
   ngOnInit() {
-    // Get current user ID from AuthService
     this.menteeId = this.authService.getCurrentUserId();
     
     if (this.authService.currentUserValue) {
       this.menteeName = this.authService.currentUserValue.fullName;
     }
-    
-    // Load CVs for current user
-    this.loadCVs();
+        this.loadCVs();
+  }
+
+  ngOnDestroy() {
+    this.toastr.clear();
   }
 
   private loadCVs() {
@@ -69,20 +77,20 @@ export class CvManagementComponent implements OnInit {
           id: cv.cvId,
           name: cv.fileName,
           uploadedAt: this.formatDate(cv.uploadDate),
-          size: null, // Not provided in response
+          size: null, 
           type: cv.fileName?.split('.').pop() || '',
           active: cv.isActive,
-          comments: [], // Will be loaded per CV
+          comments: [],
           userFullName: cv.userFullName,
         }));
+        
         this.loading = false;
-        // Load comments for each CV
         this.cvs.forEach(cv => this.loadCommentsForCV(cv));
       },
       error: (err) => {
-        this.error = 'Failed to load CVs. Please refresh the page and try again.';
-        this.loading = false;
         console.error('Error loading CVs:', err);
+        this.loading = false;
+        this.toastr.error('Failed to load CVs. Please refresh the page and try again.', 'Load Failed');
       }
     });
   }
@@ -109,7 +117,6 @@ export class CvManagementComponent implements OnInit {
       },
       error: err => {
         cv.comments = [];
-        console.error(`Error loading comments for CV ${cv.id}:`, err);
       }
     });
   }
@@ -139,10 +146,11 @@ export class CvManagementComponent implements OnInit {
   }
 
   onFileSelect(event: Event) {
+    this.clearErrors(); 
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0 && this.menteeId) {
+    if (input.files && input.files.length > 0) {
       this.handleFileUpload(input.files[0]);
-      input.value = ''; // Reset input to allow selecting the same file again
+      input.value = ''; 
     }
   }
 
@@ -151,16 +159,15 @@ export class CvManagementComponent implements OnInit {
     
     // Check file size
     if (file.size > this.maxFileSize) {
-      this.fileError = `File is too large. Maximum size is 2MB.`;
+      this.toastr.error('File is too large. Maximum size is 2MB.', 'Invalid File');
       return false;
     }
     
-    // Check file type
     const validTypes = ['.pdf', '.doc', '.docx'];
     const fileExtension = `.${file.name.split('.').pop()?.toLowerCase()}`;
     
     if (!validTypes.includes(fileExtension)) {
-      this.fileError = `Invalid file type. Accepted formats: PDF, DOC, DOCX.`;
+      this.toastr.error('Invalid file type. Accepted formats: PDF, DOC, DOCX.', 'Invalid File');
       return false;
     }
     
@@ -168,8 +175,9 @@ export class CvManagementComponent implements OnInit {
   }
 
   private handleFileUpload(file: File) {
-    if (!this.menteeId) {
-      this.fileError = 'Authentication error. Please log in again.';
+    const token = this.authService.getToken();
+    if (!token) {
+      this.toastr.error('Authentication error. Please log in again.', 'Upload Failed');
       return;
     }
     
@@ -181,39 +189,81 @@ export class CvManagementComponent implements OnInit {
     formData.append('file', file);
     
     this.uploadingFile = true;
-    this.fileError = null;
-    
-    this.http.post(`${this.apiBaseUrl}/MenteeCVs/mentee/${this.menteeId}`, formData, { 
+    this.fileError = null;    
+    this.http.post(`${this.apiBaseUrl}/MenteeCVs`, formData, { 
       headers: this.getAuthHeaders() 
     }).subscribe({
       next: () => {
         this.uploadingFile = false;
-        this.loadCVs(); // Refresh the list
+        this.toastr.success('CV uploaded successfully!', 'Upload Complete');
+        this.loadCVs(); 
       },
       error: err => {
         this.uploadingFile = false;
-        this.fileError = 'Failed to upload CV. Please try again.';
-        console.error('Error uploading CV:', err);
+        if (err.status === 401) {
+          this.toastr.error('Authentication failed. Please log in again.', 'Upload Failed');
+        } else if (err.status === 413) {
+          this.toastr.error('File is too large. Please try a smaller file.', 'Upload Failed');
+        } else if (err.status === 400) {
+          this.toastr.error('Invalid file format. Please use PDF, DOC, or DOCX.', 'Upload Failed');
+        } else {
+          this.toastr.error('Failed to upload CV. Please try again.', 'Upload Failed');
+        }
       }
     });
   }
 
   deleteCV(cv: CV) {
-    if (!cv.id || !this.menteeId) return;
-    
-    if (!confirm('Are you sure you want to delete this CV?')) {
+    if (!cv.id) {
+      console.warn('Cannot delete CV: No ID found'); 
+      this.toastr.error('No CV ID found!', 'Error');
       return;
     }
+    
+    const token = this.authService.getToken();
+    if (!token) {
+      console.log('No auth token found');
+      this.toastr.error('Authentication error. Please log in again.', 'Delete Failed');
+      return;
+    }
+    
+    this.cvToDelete = cv;
+    this.showDeleteConfirm = true;
+  }
 
-    this.http.delete(`${this.apiBaseUrl}/MenteeCVs/mentee/${this.menteeId}/${cv.id}`, { 
+  confirmDelete() {
+    if (this.cvToDelete) {
+      this.performDelete(this.cvToDelete);
+      this.closeDeleteConfirm();
+    }
+  }
+
+  closeDeleteConfirm() {
+    this.showDeleteConfirm = false;
+    this.cvToDelete = null;
+  }
+
+  private performDelete(cv: CV) {
+    
+    const deleteUrl = `${this.apiBaseUrl}/MenteeCVs/${cv.id}`;
+    
+    this.http.delete(deleteUrl, { 
       headers: this.getAuthHeaders() 
     }).subscribe({
-      next: () => {
+      next: (response) => {
         this.cvs = this.cvs.filter(item => item.id !== cv.id);
+        this.toastr.success('CV deleted successfully!', 'Delete Complete');
       },
       error: err => {
-        this.error = 'Failed to delete CV.';
-        console.error('Error deleting CV:', err);
+        console.error('Delete API error:', err);
+        
+        if (err.status === 401) {
+          this.toastr.error('Authentication failed. Please log in again.', 'Delete Failed');
+        } else if (err.status === 404) {
+          this.toastr.error('CV not found or already deleted.', 'Delete Failed');
+        } else {
+          this.toastr.error('Failed to delete CV. Please try again.', 'Delete Failed');
+        }
       }
     });
   }
@@ -230,7 +280,15 @@ export class CvManagementComponent implements OnInit {
     this.selectedComments = [];
   }
 
+  clearErrors() {
+    this.error = null;
+    this.fileError = null;
+    this.toastr.clear(); 
+  }
+
   retryLoadCVs() {
+    this.clearErrors();
     this.loadCVs();
   }
+
 }

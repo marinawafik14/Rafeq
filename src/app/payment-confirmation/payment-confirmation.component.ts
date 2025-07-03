@@ -17,6 +17,9 @@ export class PaymentConfirmationComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // Clear any remaining pending booking data since we've reached the confirmation page
+    sessionStorage.removeItem('pendingBooking');
+    
     // Get booking details from navigation state (passed from payment component)
     const state = history.state;
     
@@ -30,15 +33,18 @@ export class PaymentConfirmationComponent implements OnInit {
         sessionType: state.bookingDetails.sessionType || 'Mentorship Session'
       };
     } else {
-      // Fallback: Try to get booking ID and amount from session storage
+      // Fallback: Try to get booking ID and amount from route params or query params
+      const id = +this.route.snapshot.paramMap.get('id')!;
       const queryParams = this.route.snapshot.queryParams;
-      const bookingId = queryParams['bookingId'];
+      const bookingId = queryParams['bookingId'] || id;
       
       let amount = 60; // Default amount
       if (bookingId) {
         const storedAmount = sessionStorage.getItem(`booking_${bookingId}_amount`);
         if (storedAmount) {
           amount = parseFloat(storedAmount);
+          // Clean up this stored amount data since payment is complete
+          sessionStorage.removeItem(`booking_${bookingId}_amount`);
         }
       }
       

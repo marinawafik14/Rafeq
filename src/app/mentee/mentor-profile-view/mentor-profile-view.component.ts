@@ -22,6 +22,7 @@ export class MentorProfileViewComponent implements OnInit {
   // Free slots from the new endpoint
   freeSlots: any[] = [];
   loadingSlots = false;
+  private cachedGroupedSlots: any[] | null = null; // Cache for performance
 
   // Additional properties for enhanced UI
   showAllReviews = false;
@@ -55,7 +56,7 @@ export class MentorProfileViewComponent implements OnInit {
 
   // Availability pagination properties
   currentAvailabilityPage = 0;
-  availabilityPerPage = 3; // Show 3 days at a time
+  availabilityPerPage = 2; // Reduced from 3 to 2 days to improve performance
   showAllAvailability = false;
 
   constructor(
@@ -172,21 +173,57 @@ export class MentorProfileViewComponent implements OnInit {
     this.loadingSlots = true;
     this.http.get<any[]>(`https://localhost:7001/api/mentors/mentors/${this.mentorId}/free-slots`).subscribe({
       next: (slots) => {
-        // Filter out past slots
-        const now = new Date();
-        this.freeSlots = slots.filter(slot => {
-          const slotStart = new Date(slot.start);
-          return slotStart > now;
+        // Filter and process slots efficiently like in booking form
+        const availableSlots = slots.filter(slot => {
+          if (slot.status === 'pending_payment') {
+            return false; // Exclude pending payment slots
+          }
+          
+          // Filter out slots that have backend time issues but are actually booked
+          const startTime = new Date(slot.start);
+          const endTime = new Date(slot.end);
+          const timeRange = slot.formatted.split('•')[1]?.trim() || slot.formatted;
+          
+          // If backend shows same-day but formatted string shows cross-midnight, it might be booked
+          if (endTime <= startTime && this.isCrossMidnightTimeRange(timeRange)) {
+            return false;
+          }
+          
+          return true;
         });
-        console.log('Free slots loaded:', this.freeSlots);
+        
+        this.freeSlots = this.filterFutureSlots(availableSlots);
+        this.cachedGroupedSlots = null; // Clear cache when new data is loaded
         this.loadingSlots = false;
       },
       error: (err) => {
-        console.error('Error loading free slots:', err);
         this.freeSlots = [];
+        this.cachedGroupedSlots = null; // Clear cache on error
         this.loadingSlots = false;
       }
     });
+  }
+
+  private filterFutureSlots(slots: any[]): any[] {
+    const now = new Date();
+    return slots.filter(slot => {
+      const slotStart = new Date(slot.start);
+      return slotStart > now;
+    });
+  }
+
+  private isCrossMidnightTimeRange(timeRange: string): boolean {
+    try {
+      const [startStr, endStr] = timeRange.split(' - ');
+      if (!startStr || !endStr) return false;
+
+      const startPeriod = startStr.trim().split(' ')[1]?.toUpperCase();
+      const endPeriod = endStr.trim().split(' ')[1]?.toUpperCase();
+      
+      return startPeriod === 'PM' && endPeriod === 'AM';
+    } catch (error) {
+      return false;
+    }
   }
 
   hasAvailability(): boolean {
@@ -196,17 +233,17 @@ export class MentorProfileViewComponent implements OnInit {
   getGroupedFreeSlots(): any[] {
     if (!this.freeSlots || this.freeSlots.length === 0) return [];
     
-    // Group slots by date and remove duplicates
-    const grouped = new Map();
+    // Use more efficient grouping approach like booking form
+    const dateGroups = new Map<string, any>();
     
     this.freeSlots.forEach(slot => {
-      const slotDate = new Date(slot.start);
-      const dateKey = slotDate.toDateString();
+      const slotDate = new Date(slot.start).toISOString().slice(0, 10);
       
-      if (!grouped.has(dateKey)) {
-        grouped.set(dateKey, {
-          date: slotDate,
-          dayName: slotDate.toLocaleDateString('en-US', { 
+      if (!dateGroups.has(slotDate)) {
+        const date = new Date(slotDate);
+        dateGroups.set(slotDate, {
+          date: date,
+          dayName: date.toLocaleDateString('en-US', { 
             weekday: 'long', 
             month: 'short', 
             day: 'numeric' 
@@ -215,14 +252,13 @@ export class MentorProfileViewComponent implements OnInit {
         });
       }
       
-      // Create unique slot identifier to avoid duplicates
-      const slotIdentifier = `${slot.start}-${slot.end}`;
-      const existingSlots = grouped.get(dateKey).slots;
+      const timeRange = slot.formatted.split('•')[1]?.trim() || slot.formatted;
+      const group = dateGroups.get(slotDate);
       
-      // Only add if this exact time slot doesn't already exist
-      if (!existingSlots.some((s: any) => `${s.start}-${s.end}` === slotIdentifier)) {
-        existingSlots.push({
-          timeRange: this.formatTimeRange(slot.start, slot.end),
+      // Only add unique time slots
+      if (!group.slots.some((s: any) => s.timeRange === timeRange)) {
+        group.slots.push({
+          timeRange: timeRange,
           start: slot.start,
           end: slot.end,
           formatted: slot.formatted
@@ -231,11 +267,11 @@ export class MentorProfileViewComponent implements OnInit {
     });
 
     // Convert to array and sort by date
-    const allGroupedSlots = Array.from(grouped.values()).sort((a, b) => 
+    const allGroupedSlots = Array.from(dateGroups.values()).sort((a, b) => 
       a.date.getTime() - b.date.getTime()
     );
 
-    // Apply pagination if not showing all
+    // Apply pagination if not showing all - reduce to 2 days to match booking form efficiency
     if (!this.showAllAvailability) {
       const startIndex = this.currentAvailabilityPage * this.availabilityPerPage;
       return allGroupedSlots.slice(startIndex, startIndex + this.availabilityPerPage);
@@ -244,20 +280,26 @@ export class MentorProfileViewComponent implements OnInit {
     return allGroupedSlots;
   }
 
-  // Get all grouped slots for pagination calculations
+  // Get all grouped slots for pagination calculations - optimized version with caching
   getAllGroupedFreeSlots(): any[] {
     if (!this.freeSlots || this.freeSlots.length === 0) return [];
     
-    const grouped = new Map();
+    // Return cached result if available
+    if (this.cachedGroupedSlots !== null) {
+      return this.cachedGroupedSlots;
+    }
+    
+    // Use more efficient grouping like the main method
+    const dateGroups = new Map<string, any>();
     
     this.freeSlots.forEach(slot => {
-      const slotDate = new Date(slot.start);
-      const dateKey = slotDate.toDateString();
+      const slotDate = new Date(slot.start).toISOString().slice(0, 10);
       
-      if (!grouped.has(dateKey)) {
-        grouped.set(dateKey, {
-          date: slotDate,
-          dayName: slotDate.toLocaleDateString('en-US', { 
+      if (!dateGroups.has(slotDate)) {
+        const date = new Date(slotDate);
+        dateGroups.set(slotDate, {
+          date: date,
+          dayName: date.toLocaleDateString('en-US', { 
             weekday: 'long', 
             month: 'short', 
             day: 'numeric' 
@@ -266,12 +308,13 @@ export class MentorProfileViewComponent implements OnInit {
         });
       }
       
-      const slotIdentifier = `${slot.start}-${slot.end}`;
-      const existingSlots = grouped.get(dateKey).slots;
+      const timeRange = slot.formatted.split('•')[1]?.trim() || slot.formatted;
+      const group = dateGroups.get(slotDate);
       
-      if (!existingSlots.some((s: any) => `${s.start}-${s.end}` === slotIdentifier)) {
-        existingSlots.push({
-          timeRange: this.formatTimeRange(slot.start, slot.end),
+      // Only add unique time slots
+      if (!group.slots.some((s: any) => s.timeRange === timeRange)) {
+        group.slots.push({
+          timeRange: timeRange,
           start: slot.start,
           end: slot.end,
           formatted: slot.formatted
@@ -279,9 +322,12 @@ export class MentorProfileViewComponent implements OnInit {
       }
     });
 
-    return Array.from(grouped.values()).sort((a, b) => 
+    // Convert to array, sort by date, and cache the result
+    this.cachedGroupedSlots = Array.from(dateGroups.values()).sort((a, b) => 
       a.date.getTime() - b.date.getTime()
     );
+    
+    return this.cachedGroupedSlots;
   }
 
   formatTimeRange(startTime: string, endTime: string): string {
@@ -289,19 +335,21 @@ export class MentorProfileViewComponent implements OnInit {
     const start = new Date(startTime);
     const end = new Date(endTime);
     
-    // Subtract 3 hours to correct the timezone difference
-    // This compensates for the 3-hour increase problem
+    // The mentor profile seems to be getting times in a different format
+    // Subtract 3 hours to match the other components' display
     const correctedStart = new Date(start.getTime() - (3 * 60 * 60 * 1000));
     const correctedEnd = new Date(end.getTime() - (3 * 60 * 60 * 1000));
     
     const startFormatted = correctedStart.toLocaleTimeString('en-US', {
       hour: 'numeric',
-      minute: '2-digit'
+      minute: '2-digit',
+      hour12: true
     });
     
     const endFormatted = correctedEnd.toLocaleTimeString('en-US', {
       hour: 'numeric',
-      minute: '2-digit'
+      minute: '2-digit',
+      hour12: true
     });
     
     return `${startFormatted} - ${endFormatted}`;

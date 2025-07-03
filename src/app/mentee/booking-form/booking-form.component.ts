@@ -60,7 +60,7 @@ export class BookingFormComponent implements OnDestroy {
             const payload = JSON.parse(atob(token.split('.')[1]));
             this.menteeId = payload.menteeId || payload.userId || null;
           } catch (e) {
-            console.error('Failed to parse token:', e);
+            // Failed to parse token
           }
         }
       }
@@ -138,11 +138,36 @@ export class BookingFormComponent implements OnDestroy {
       const timeRange = slot.formatted.split('•')[1]?.trim() || slot.formatted;
       const startTime = new Date(slot.start);
       const endTime = new Date(slot.end);
-      const isBackendTimeValid = endTime > startTime;
-      const isValidAMPM = this.isValidAMPMTimeRange(timeRange);
-      const isValidSlot = isBackendTimeValid || isValidAMPM;
       
-      return slotDate === date && isValidSlot;
+      // Basic date match check
+      if (slotDate !== date) return false;
+      
+      // Check for backend time validity
+      const isBackendTimeValid = endTime > startTime;
+      
+      // Check if formatted string indicates cross-midnight
+      const isCrossMidnightFromFormat = this.isCrossMidnightTimeRange(timeRange);
+      
+      // If backend times are invalid AND formatted shows cross-midnight, 
+      // this slot might actually be booked (backend bug)
+      if (!isBackendTimeValid && isCrossMidnightFromFormat) {
+        // Try to validate using formatted string parsing
+        const parsedTimes = this.parseTimeRange(timeRange, date);
+        if (!parsedTimes || parsedTimes.end <= parsedTimes.start) {
+          // If we can't parse valid times, exclude this slot for safety
+          return false;
+        }
+        // If we can parse valid cross-midnight times, include it
+        return true;
+      }
+      
+      // For normal slots, backend times should be valid
+      if (!isBackendTimeValid) return false;
+      
+      // Additional validation using formatted string
+      const isValidAMPM = this.isValidAMPMTimeRange(timeRange);
+      
+      return isValidAMPM;
     });
     
     return selectedDateSlots
@@ -233,6 +258,20 @@ export class BookingFormComponent implements OnDestroy {
             }
             return false;
           }
+          
+          // Filter out slots that have backend time issues but are actually booked
+          // Check if this is a cross-midnight slot with invalid backend times
+          const startTime = new Date(slot.start);
+          const endTime = new Date(slot.end);
+          const timeRange = slot.formatted.split('•')[1]?.trim() || slot.formatted;
+          
+          // If backend shows same-day but formatted string shows cross-midnight, it might be booked
+          if (endTime <= startTime && this.isCrossMidnightTimeRange(timeRange)) {
+            // This slot has inconsistent data - likely it's actually booked but API shows wrong times
+            // We should exclude it to be safe
+            return false;
+          }
+          
           return true;
         });
         
@@ -290,7 +329,6 @@ export class BookingFormComponent implements OnDestroy {
     
     if (!this.sessionType) {
       this.bookingError = 'Session type is required.';
-      console.error('Session type is missing!');
       return;
     }
     
@@ -304,26 +342,20 @@ export class BookingFormComponent implements OnDestroy {
       return;
     }
 
-    
     const latestSlots = this.freeSlots;
     
+    // Log every single slot for our target date
     const slotsForTargetDate = latestSlots.filter(s => {
       const slotDate = new Date(s.start).toISOString().slice(0, 10);
       return slotDate === this.selectedDate;
     });
     
-    console.log(`All slots for ${this.selectedDate}:`, slotsForTargetDate);
-    
     slotsForTargetDate.forEach((slot, index) => {
       const timeRange = slot.formatted.split('•')[1]?.trim() || slot.formatted;
-      console.log(`  Slot ${index + 1}:`, {
-        timeRange,
-        exactMatch: timeRange === this.selectedSlot,
-        status: slot.status,
-        start: slot.start,
-        end: slot.end,
-        formatted: slot.formatted
-      });
+      const startTime = new Date(slot.start);
+      const endTime = new Date(slot.end);
+      const isBackendTimeValid = endTime > startTime;
+      const isCrossMidnightFromFormat = this.isCrossMidnightTimeRange(timeRange);
     });
     
     // Check if our selected slot is still available
@@ -335,23 +367,27 @@ export class BookingFormComponent implements OnDestroy {
       const timeMatches = timeRange === this.selectedSlot;
       
       if (dateMatches && timeMatches) {
-        const isNotBooked = !slot.status || slot.status !== 'booked';
+        // Additional validation for cross-midnight slots
+        const startTime = new Date(slot.start);
+        const endTime = new Date(slot.end);
+        const isBackendTimeValid = endTime > startTime;
+        const isCrossMidnightFromFormat = this.isCrossMidnightTimeRange(timeRange);
         
-        console.log(' Found exact matching slot:', {
-          slotStatus: slot.status,
-          isNotBooked,
-          slotData: slot
-        });
+        // If backend times are invalid and this is cross-midnight, it might be booked
+        if (!isBackendTimeValid && isCrossMidnightFromFormat) {
+          return false; // Exclude for safety
+        }
+        
+        // Found matching slot - now verify it's available
+        const isNotBooked = !slot.status || slot.status !== 'booked';
         
         return isNotBooked;
       }
       
       return false;
     });
-  
     
     if (!isSlotStillAvailable) {
-      console.error(' Selected slot is no longer available!');
       this.bookingError = `The selected time slot "${this.selectedSlot}" is no longer available. Please select a different time slot.`;
       
       // Reset selection and go back to date & time selection step
@@ -360,7 +396,8 @@ export class BookingFormComponent implements OnDestroy {
       this.step = 2; // Go back to date & time selection step
       return;
     }
-      this.proceedWithBooking(menteeId);
+    
+    this.proceedWithBooking(menteeId);
   }
 
   private proceedWithBooking(menteeId: number): void {
@@ -385,8 +422,6 @@ export class BookingFormComponent implements OnDestroy {
       
       startDateTime = startTime.toISOString();
       endDateTime = endTime.toISOString();
-
-      console.log('Duration (hours):', (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60));
     } else if (isCrossMidnightSlot && this.selectedSlot && this.selectedDate) {
       
       const parsedTimes = this.parseTimeRange(this.selectedSlot, this.selectedDate);
@@ -396,11 +431,8 @@ export class BookingFormComponent implements OnDestroy {
         endTime = parsedTimes.end;
         startDateTime = startTime.toISOString();
         endDateTime = endTime.toISOString();
-
-        console.log('Duration (hours):', (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60));
       } else {
         this.bookingError = `Unable to parse cross-midnight time slot: "${this.selectedSlot}". Please try a different slot.`;
-        console.error(' Failed to parse cross-midnight time from formatted string:', this.selectedSlot);
         return;
       }
     } else {
@@ -408,34 +440,19 @@ export class BookingFormComponent implements OnDestroy {
       endTime = backendEndTime;
       startDateTime = startTime.toISOString();
       endDateTime = endTime.toISOString();
-
-      console.log('Duration (hours):', (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60));
     }
     
     if (!isCrossMidnightSlot && endTime <= startTime) {
       this.bookingError = `Invalid time slot: End time must be after start time. Please select a different slot.`;
-      console.error(' Final validation failed for same-day slot:', { 
-        startTime: startDateTime, 
-        endTime: endDateTime,
-        selectedSlot: this.selectedSlot 
-      });
       return;
     }
     
     const durationHours = (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60);
     if (isCrossMidnightSlot && (durationHours <= 0 || durationHours > 24)) {
       this.bookingError = `Invalid cross-midnight time slot duration. Please select a different slot.`;
-      console.error(' Cross-midnight slot validation failed:', { 
-        durationHours,
-        startTime: startDateTime, 
-        endTime: endDateTime,
-        selectedSlot: this.selectedSlot 
-      });
       return;
     }
 
-    console.log('Duration (final):', (endTime.getTime() - startTime.getTime()) / (1000 * 60 * 60), 'hours');
-    
     // Create booking data object that includes totalAmount and pending payment status
     const bookingData = {
       mentorId: this.mentorId!,
@@ -446,22 +463,16 @@ export class BookingFormComponent implements OnDestroy {
       status: 'pending_payment' // Add status to indicate pending payment
     };
 
-    console.log('Booking data object created:', bookingData);
-    console.log('==============================');
-
     this.loadingSlots = true;
     this.bookingError = null;
 
     this.menteeBookingservice.createBookingForMentee(menteeId, bookingData).subscribe({
       next: (response) => {
-        console.log(' Booking created successfully:', response);
-        
         // Clear any existing pending booking info since we just created a new one
         sessionStorage.removeItem('pendingBooking');
         
         const bookingId = response.bookingId;
         if (!bookingId) {
-          console.error('No booking ID found in response:', response);
           this.bookingError = 'Booking created but missing ID. Please contact support.';
           return;
         }
@@ -479,7 +490,6 @@ export class BookingFormComponent implements OnDestroy {
         // Set up a cleanup timeout (15 minutes)
         this.setupBookingCleanupTimeout(bookingId);
         
-        console.log('Navigating to payment with booking ID:', bookingId);
         // Navigate to payment page
         this.router.navigate(['/mentee', 'payment'], {
           queryParams: { 
@@ -492,7 +502,6 @@ export class BookingFormComponent implements OnDestroy {
         this.loadingSlots = false;
       },
       error: (error) => {
-        console.error(' Booking creation failed:', error);
         this.loadingSlots = false;
         
         if (error.status === 409) {
@@ -505,17 +514,13 @@ export class BookingFormComponent implements OnDestroy {
           this.selectedFreeSlot = null;
           this.step = 2; // Go back to date & time selection
         } else if (error.status === 400 && error.error && error.error.message) {
-
           this.bookingError = error.error.message;
-          console.error('Server validation error:', error.error.message);
         } else if (error.status === 401 || error.status === 403) {
 
           this.bookingError = 'Authentication failed. Please log in again.';
           this.router.navigate(['/login']);
         } else {
-
           this.bookingError = 'Failed to create booking. Please try again.';
-          console.error('Unexpected booking error:', error);
         }
       }
     });
@@ -778,6 +783,39 @@ export class BookingFormComponent implements OnDestroy {
       if (this.availableSlots.length === 0) {
         this.bookingError = `No more available slots for ${this.selectedDate}. Please select a different date.`;
       }
+    }
+  }
+
+  completePendingBooking(): void {
+    const pendingBooking = sessionStorage.getItem('pendingBooking');
+    if (!pendingBooking) {
+      this.bookingError = 'No pending booking found.';
+      return;
+    }
+
+    try {
+      const booking = JSON.parse(pendingBooking);
+      const bookingId = booking.bookingId;
+      
+      if (!bookingId) {
+        this.bookingError = 'Invalid pending booking data.';
+        return;
+      }
+
+      // Get the stored amount for this booking
+      const storedAmount = sessionStorage.getItem(`booking_${bookingId}_amount`);
+      const amount = storedAmount ? parseFloat(storedAmount) : this.calculatedPrice;
+
+      // Redirect to payment page with the pending booking ID
+      this.router.navigate(['/mentee/payment'], {
+        queryParams: {
+          bookingId: bookingId,
+          amount: amount,
+          type: 'complete-booking'
+        }
+      });
+    } catch (error) {
+      this.bookingError = 'Error processing pending booking. Please try again.';
     }
   }
 
