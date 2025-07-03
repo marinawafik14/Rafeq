@@ -68,4 +68,3 @@ export interface PaymentConfirmationDto {
   paymentIntentId: string;
   bookingId: number;
 }
-
