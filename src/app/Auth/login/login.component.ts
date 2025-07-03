@@ -154,9 +154,9 @@ export class LoginComponent implements OnInit {
         this.toastr.success(response.message || 'Login successful!', 'Success');
 
         if (loginDto.rememberMe) {
-          localStorage.setItem('rememberMe', 'true');
+          sessionStorage.setItem('rememberMe', 'true');
         } else {
-          localStorage.removeItem('rememberMe');
+          sessionStorage.removeItem('rememberMe');
         }
 
         this.resetFormData();
