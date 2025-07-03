@@ -172,7 +172,7 @@ export class LoginComponent implements OnInit {
         ) {
           const menteeId = response.tokenData.userId;
           if (menteeId) {
-            this.router.navigate([`/mentee/${menteeId}/dashboard`]);
+            this.router.navigate(['/mentee/dashboard']);
           } else {
             this.toastr.error(
               'Mentee ID not found in token.',

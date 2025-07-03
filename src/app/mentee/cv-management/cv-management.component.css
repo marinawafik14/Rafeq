@@ -1,41 +1,313 @@
 /* CV Management Styles */
+.cv-management {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  padding: 2rem 0;
+}
+
+.cv-management::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="%23ffffff15" points="0,1000 1000,0 1000,1000"/></svg>');
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.cv-management .card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.cv-management .card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
 .cv-management .dropzone {
-  border: 2px dashed #0a2e65 ;
-  border-radius: 12px;
-  background: #f8fafc;
-  transition: background 0.2s, border-color 0.2s;
+  border: 2px dashed #0a2e65;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.85);
+  transition: all 0.3s ease;
   cursor: pointer;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(2, 14, 33, 0.05);
 }
+
 .cv-management .dropzone.drag-over {
-  background: #e7f1ff;
-  border-color: #0a2e65 ;
+  background: rgba(224, 231, 255, 0.7);
+  border-color: #0a2e65;
+  transform: scale(1.02);
+  box-shadow: 0 8px 25px rgba(2, 14, 33, 0.1);
 }
+
 .cv-management .dropzone input[type="file"] {
   display: none;
 }
+
 .cv-management .table {
-  background: #fff;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
   overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
+
+.cv-management .table thead {
+  background: linear-gradient(135deg, #f8faff 0%, #eef2ff 100%);
+  color: #0a2e65;
+  font-weight: 600;
+}
+
+.cv-management .table tbody tr {
+  transition: all 0.2s;
+  border-bottom: 1px solid rgba(10, 46, 101, 0.05);
+}
+
+.cv-management .table tbody tr:hover {
+  background-color: rgba(224, 231, 255, 0.3);
+}
+
+.cv-management .cv-icon {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #0a2e65 0%, #020e21 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(2, 14, 33, 0.2);
+}
+
 .cv-management .badge.bg-success {
-  font-size: 0.95em;
+  background: linear-gradient(135deg, #0a2e65 0%, #020e21 100%) !important;
+  color: white !important;
+  font-size: 0.85rem;
   font-weight: 500;
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(2, 14, 33, 0.2);
 }
+
 .cv-management .btn-sm {
-  font-size: 0.95em;
-  padding: 0.25rem 0.75rem;
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
-.cv-management .alert-info {
-  background: #e7f1ff;
-  color: #0a2e65 ;
+
+.cv-management .btn-primary {
+  background: linear-gradient(135deg, #0a2e65 0%, #020e21 100%);
   border: none;
 }
+
+.cv-management .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(2, 14, 33, 0.2);
+}
+
+.cv-management .btn-outline-primary {
+  border: 2px solid #0a2e65;
+  color: #0a2e65;
+  background: white;
+}
+
+.cv-management .btn-outline-primary:hover {
+  background: #0a2e65;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(2, 14, 33, 0.2);
+}
+
+.cv-management .alert-info {
+  background: rgba(224, 231, 255, 0.5);
+  color: #0a2e65;
+  border: 1px solid rgba(10, 46, 101, 0.1);
+  border-radius: 16px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 15px rgba(2, 14, 33, 0.05);
+  backdrop-filter: blur(10px);
+}
+
+.cv-management .comment-item {
+  transition: all 0.3s;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 15px rgba(2, 14, 33, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.cv-management .comment-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(2, 14, 33, 0.1);
+}
+
+.cv-management .comment-text {
+  line-height: 1.6;
+  color: #1e293b;
+}
+
+.border-dashed {
+  border-style: dashed !important;
+  border-width: 2px !important;
+  border-color: #0a2e65 !important;
+  border-radius: 16px;
+}
+
+/* Additional styles to match dashboard */
+.cv-management .section-title {
+  color: #0a2e65;
+  font-weight: 700;
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.cv-management .section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(135deg, #0a2e65 0%, #020e21 100%);
+  border-radius: 2px;
+}
+
+.cv-management .empty-state {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  padding: 3rem 2rem;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  max-width: 500px;
+  margin: 2rem auto;
+}
+
+.cv-management .empty-state-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  box-shadow: 0 4px 12px rgba(2, 14, 33, 0.1);
+}
+
+.cv-management .empty-state-icon i {
+  font-size: 2rem;
+  color: #0a2e65;
+}
+
+.cv-management .empty-state-title {
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.cv-management .empty-state-message {
+  color: #64748b;
+  margin-bottom: 1.5rem;
+}
+
+/* File preview styling */
+.cv-management .file-preview {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 16px;
+  padding: 1rem;
+  border: 1px solid rgba(10, 46, 101, 0.1);
+  transition: all 0.3s ease;
+  margin-bottom: 1rem;
+}
+
+.cv-management .file-preview:hover {
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(2, 14, 33, 0.1);
+}
+
+.cv-management .file-name {
+  font-weight: 600;
+  color: #0a2e65;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cv-management .file-details {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+/* Status badges */
+.cv-management .badge.bg-warning {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+  color: white !important;
+}
+
+.cv-management .badge.bg-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  color: white !important;
+}
+
+.cv-management .badge.bg-info {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  color: white !important;
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.cv-management .card,
+.cv-management .table,
+.cv-management .dropzone,
+.cv-management .file-preview {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
 @media (max-width: 767px) {
-  .cv-management .table-responsive {
-    font-size: 0.95em;
+  .cv-management {
+    padding: 1rem 0;
   }
+  
+  .cv-management .table-responsive {
+    font-size: 0.9rem;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  
   .cv-management .dropzone {
-    padding: 1rem 0.5rem;
+    padding: 1.5rem 1rem;
+  }
+  
+  .cv-management .card {
+    margin-bottom: 1.5rem;
   }
 }

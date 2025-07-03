@@ -1,91 +1,337 @@
 <div class="mentee-page d-flex">
   <mentee-layout></mentee-layout>
   <main class="main-content flex-grow-1">
-    <div class="container py-4 mentee-bookings">
-      <h3 class="mb-4 text-center">My Bookings</h3>
-      <ul class="nav nav-tabs mb-3 justify-content-center">
-        <li class="nav-item">
-          <a class="nav-link" [class.active]="tab==='upcoming'" (click)="setTab('upcoming')">Upcoming</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" [class.active]="tab==='past'" (click)="setTab('past')">Past</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" [class.active]="tab==='all'" (click)="setTab('all')">All</a>
-        </li>
-      </ul>
-      <div *ngIf="filteredBookings.length; else emptyState">
-        <div class="row g-3">
-          <div *ngFor="let booking of filteredBookings" class="col-12">
-            <div class="card shadow-sm booking-card">
-              <div class="card-body d-flex flex-column flex-md-row align-items-md-center justify-content-between">
-                <div class="mb-2 mb-md-0">
-                  <div class="fw-bold fs-5">{{booking.mentorName}}</div>
-                  <div class="text-muted small mb-1">{{booking.sessionType}} &bull; {{booking.startDateTime | date:'medium'}} </div>
-                  <span class="badge bg-success me-1" *ngIf="booking.startDateTime && (bookingTabDate(booking) === 'upcoming')">Upcoming</span>
-                  <span class="badge bg-secondary me-1" *ngIf="booking.startDateTime && (bookingTabDate(booking) === 'past')">Past</span>
-                  <span class="badge bg-danger me-1" *ngIf="booking.status==='Cancelled' || booking.status==='cancelled'">Cancelled</span>
-                </div>
-                <div class="d-flex gap-2 flex-wrap">
-                  <a *ngIf="booking.googleMeetLink && bookingTabDate(booking) === 'upcoming'" class="btn btn-success btn-sm" [href]="booking.googleMeetLink" target="_blank"><i class="bi bi-camera-video"></i> Join</a>
-                  <button class="btn btn-outline-primary btn-sm" (click)="viewBookingDetails(booking)"><i class="bi bi-eye"></i> View Details</button>
-                  <button *ngIf="bookingTabDate(booking) === 'upcoming' && booking.status !== 'Cancelled' && booking.status !== 'cancelled'" 
-                          class="btn btn-outline-danger btn-sm" 
-                          data-bs-toggle="modal" 
-                          data-bs-target="#cancelModal"
-                          (click)="cancelBooking(booking)">
-                    <i class="bi bi-x-circle"></i> Cancel
-                  </button>
-                </div>
-              </div>
+    <div class="dashboard-page">
+      <div class="container-fluid py-4">
+        <!-- Hero Section -->
+        <div class="hero-section">
+          <div class="hero-content">
+            <div class="hero-text">
+              <h1 class="hero-title">
+                <span class="name">My Bookings</span>
+              </h1>
             </div>
           </div>
         </div>
-        <nav class="mt-4 d-flex justify-content-center">
-          <ul class="pagination">
-            <li class="page-item" [class.disabled]="page === 1">
-              <button class="page-link" (click)="onPageChange(page - 1)" [disabled]="page === 1">Prev</button>
-            </li>
-            <li class="page-item disabled">
-              <span class="page-link">Page {{page}}</span>
-            </li>
-            <li class="page-item" [class.disabled]="page * pageSize >= totalFiltered">
-              <button class="page-link" (click)="onPageChange(page + 1)" [disabled]="page * pageSize >= totalFiltered">Next</button>
-            </li>
-          </ul>
-        </nav>
-      </div>
-      <ng-template #emptyState>
-        <div class="text-center text-muted py-5">No bookings found for this tab.</div>
-      </ng-template>
-    </div>
-  </main>
-</div>
 
-<!-- Cancel Booking Confirmation Modal -->
-<div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="cancelModalLabel">Cancel Booking</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div *ngIf="bookingToCancel">
-          <p>Are you sure you want to cancel your <strong>{{bookingToCancel.sessionType || 'session'}}</strong> with <strong>{{bookingToCancel.mentorName}}</strong>?</p>
-          <div class="text-muted small">
-            <i class="bi bi-calendar-event me-1"></i> {{bookingToCancel.startDateTime | date:'medium'}}
+        <!-- Stats Grid - 5 cards in one row -->
+        <div class="stats-grid">
+          <div class="stat-card" *ngFor="let stat of stats; trackBy: trackByStat" [class.loading]="isLoading">
+            <div class="stat-icon-wrapper" [style.background]="stat.color">
+              <i class="bi {{stat.icon}} stat-icon"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-value">{{isLoading ? '...' : stat.value}}</div>
+              <div class="stat-label">{{stat.label}}</div>
+            </div>
           </div>
-          <div class="alert alert-warning mt-3">
-            <i class="bi bi-exclamation-triangle me-2"></i>
-            This action cannot be undone. You may be charged a cancellation fee depending on the timing.
+        </div>
+
+        <!-- Tabs for different booking categories -->
+        <div class="tabs-section">
+          <div class="tabs-header">
+            <h2 class="section-title">Your Bookings</h2>
+            <div class="tabs-nav">
+              <!-- Search bar and sorting dropdown -->
+              <div class="search-sort-container d-flex">
+                <div class="search-box">
+                  <i class="bi bi-search search-icon"></i>
+                  <input 
+                    type="text" 
+                    class="form-control search-input" 
+                    placeholder="Search bookings..."
+                    [(ngModel)]="searchTerm" 
+                    (input)="onSearchChange($event)">
+                  <button 
+                    *ngIf="searchTerm" 
+                    class="btn-clear" 
+                    (click)="clearSearch()">
+                    <i class="bi bi-x"></i>
+                  </button>
+                </div>
+                <div class="sort-dropdown">
+                  <select class="form-select" [(ngModel)]="sortBy" (change)="changeSorting(sortBy)">
+                    <option value="date-desc">Newest first</option>
+                    <option value="date-asc">Oldest first</option>
+                    <option value="price-desc">Highest price</option>
+                    <option value="price-asc">Lowest price</option>
+                  </select>
+                </div>
+              </div>
+              
+              <!-- Tabs -->
+              <button 
+                class="tab-btn" 
+                [class.active]="activeTab === 'pending'"
+                (click)="setActiveTab('pending')">
+                <i class="bi bi-clock-history me-2"></i>
+                Pending ({{pendingBookings.length}})
+              </button>
+              <button 
+                class="tab-btn" 
+                [class.active]="activeTab === 'confirmed'"
+                (click)="setActiveTab('confirmed')">
+                <i class="bi bi-calendar-check me-2"></i>
+                Confirmed ({{confirmedBookings.length}})
+              </button>
+              <button 
+                class="tab-btn" 
+                [class.active]="activeTab === 'completed'"
+                (click)="setActiveTab('completed')">
+                <i class="bi bi-check-circle me-2"></i>
+                Completed ({{completedBookings.length}})
+              </button>
+              <button 
+                class="tab-btn" 
+                [class.active]="activeTab === 'cancelled'"
+                (click)="setActiveTab('cancelled')">
+                <i class="bi bi-x-circle me-2"></i>
+                Cancelled ({{cancelledBookings.length}})
+              </button>
+            </div>
+          </div>
+
+          <!-- Booking Cards Grid -->
+          <div class="bookings-grid" *ngIf="!isLoading; else loadingBookings">
+            <div 
+              class="booking-card" 
+              *ngFor="let booking of getCurrentBookings(); trackBy: trackByBooking"
+              [ngClass]="getStatusBadgeClass(booking.status)">
+              
+              <div class="booking-header">
+                <div class="booking-info">
+                  <h3 class="mentor-name">{{booking.mentorName || 'Unknown Mentor'}}</h3>
+                  <span class="booking-id">#{{booking.bookingId}}</span>
+                </div>
+                <div class="status-badge" [ngClass]="getStatusBadgeClass(booking.status)">
+                  {{booking.status || 'Unknown'}}
+                </div>
+              </div>
+
+              <div class="booking-details">
+                <div class="detail-item">
+                  <i class="bi bi-calendar3"></i>
+                  <span>{{formatDate(booking.startDateTime)}}</span>
+                </div>
+                <div class="detail-item">
+                  <i class="bi bi-clock"></i>
+                  <span>{{formatTime(booking.startDateTime)}} - {{formatTime(booking.endDateTime)}}</span>
+                </div>
+                <div class="detail-item" *ngIf="booking.sessionType">
+                  <i class="bi bi-tag"></i>
+                  <span>{{booking.sessionType}}</span>
+                </div>
+                <div class="detail-item" *ngIf="booking.totalAmount">
+                  <i class="bi bi-currency-dollar"></i>
+                  <span>${{booking.totalAmount}}</span>
+                </div>
+                <div class="detail-item">
+                  <i class="bi bi-credit-card"></i>
+                  <span class="payment-status" [ngClass]="booking.paymentStatus?.toLowerCase()">
+                    {{booking.paymentStatus || 'Unpaid'}}
+                  </span>
+                </div>
+              </div>
+
+              <div class="booking-actions">
+                <!-- Join Session Button for confirmed bookings -->
+                <button 
+                  class="btn btn-join"
+                  *ngIf="booking.status?.toLowerCase() === 'confirmed' && canJoinSession(booking)"
+                  (click)="joinSession(booking)">
+                  <i class="bi bi-camera-video me-1"></i>
+                  Join Session
+                </button>
+                
+                <!-- View Details Button -->
+                <button 
+                  class="btn btn-outline-primary btn-sm"
+                  (click)="viewBookingDetails(booking)">
+                  <i class="bi bi-eye me-1"></i>
+                  View Details
+                </button>
+                
+                <!-- Cancel Button for pending bookings only (not in the past) -->
+                <button 
+                  class="btn btn-outline-danger btn-sm"
+                  *ngIf="canCancelBooking(booking)"
+                  (click)="confirmCancel(booking)">
+                  <i class="bi bi-x-circle me-1"></i>
+                  Cancel
+                </button>
+                
+                <!-- Past session indicator for pending bookings -->
+                <span
+                  class="join-info text-warning"
+                  *ngIf="booking.status?.toLowerCase() === 'pending' && isSessionInPast(booking)">
+                  <i class="bi bi-clock-history me-1"></i>
+                  In past
+                </span>
+                
+                <!-- Join info messages -->
+                <span 
+                  class="join-info"
+                  *ngIf="booking.status?.toLowerCase() === 'confirmed' && !canJoinSession(booking) && booking.googleMeetLink && booking.googleMeetLink.trim()">
+                  <i class="bi bi-clock me-1"></i>
+                  Join available {{getJoinTimeMessage(booking)}}
+                </span>
+                <span 
+                  class="join-info"
+                  *ngIf="booking.status?.toLowerCase() === 'confirmed' && (!booking.googleMeetLink || !booking.googleMeetLink.trim())">
+                  <i class="bi bi-exclamation-circle me-1"></i>
+                  Meeting link not available
+                </span>
+              </div>
+            </div>
+
+            <!-- Empty state -->
+            <div class="empty-state" *ngIf="getCurrentBookings().length === 0">
+              <div class="empty-icon">
+                <i class="bi" [ngClass]="searchTerm ? 'bi-search' : 'bi-calendar-x'"></i>
+              </div>
+              <h3>No {{activeTab}} bookings</h3>
+              <p>{{getEmptyStateMessage()}}</p>
+              
+              <div class="empty-actions">
+                <button 
+                  *ngIf="searchTerm"
+                  class="btn btn-secondary me-2"
+                  (click)="clearSearch()">
+                  <i class="bi bi-x-circle me-2"></i>
+                  Clear Search
+                </button>
+                
+                <button 
+                  class="btn btn-primary"
+                  (click)="navigateToSearchMentors()">
+                  <i class="bi bi-search me-2"></i>
+                  Find Mentors
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Loading state -->
+          <ng-template #loadingBookings>
+            <div class="loading-grid">
+              <div class="booking-card loading-card" *ngFor="let item of [1,2,3,4,5,6]">
+                <div class="loading-content">
+                  <div class="skeleton-line skeleton-title"></div>
+                  <div class="skeleton-line skeleton-text"></div>
+                  <div class="skeleton-line skeleton-text"></div>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+
+          <!-- Pagination -->
+          <div class="pagination-section" *ngIf="totalPages > 1 && !isLoading">
+            <div class="pagination-info">
+              <span *ngIf="searchTerm">
+                Found {{totalItems}} result<span *ngIf="totalItems !== 1">s</span> for "{{searchTerm}}"
+              </span>
+              <span *ngIf="!searchTerm">
+                Showing {{startItem}} to {{endItem}} of {{totalItems}} bookings
+              </span>
+            </div>
+            <div class="pagination-controls">
+              <button 
+                class="btn btn-pagination"
+                [disabled]="currentPage === 1"
+                (click)="goToPage(currentPage - 1)">
+                <i class="bi bi-chevron-left"></i>
+              </button>
+              
+              <button 
+                class="btn btn-pagination"
+                *ngFor="let page of getPaginationRange()"
+                [class.active]="page === currentPage"
+                (click)="goToPage(page)">
+                {{page}}
+              </button>
+              
+              <button 
+                class="btn btn-pagination"
+                [disabled]="currentPage === totalPages"
+                (click)="goToPage(currentPage + 1)">
+                <i class="bi bi-chevron-right"></i>
+              </button>
+            </div>
           </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keep Booking</button>
-        <button type="button" class="btn btn-danger" (click)="confirmCancelBooking()">Yes, Cancel Booking</button>
+    </div>
+
+    <!-- Cancel Confirmation Modal -->
+    <div class="modal" [class.show]="showCancelModal" [style.display]="showCancelModal ? 'block' : 'none'" id="cancelModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-danger text-white">
+            <h5 class="modal-title">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              Cancel Booking
+            </h5>
+            <button type="button" class="btn-close btn-close-white" (click)="closeCancelModal()"></button>
+          </div>
+          <div class="modal-body">
+            <div class="booking-summary mb-4" *ngIf="bookingToCancel">
+              <div class="d-flex align-items-center mb-3">
+                <div class="me-3">
+                  <i class="bi bi-person-circle text-primary" style="font-size: 2rem;"></i>
+                </div>
+                <div>
+                  <h6 class="mb-1">{{bookingToCancel?.mentorName || 'Unknown Mentor'}}</h6>
+                  <small class="text-muted">Booking #{{bookingToCancel?.bookingId}}</small>
+                </div>
+              </div>
+              
+              <div class="booking-details-list">
+                <div class="detail-row">
+                  <div class="detail-label"><i class="bi bi-calendar3 me-2"></i>Date:</div>
+                  <div class="detail-value">{{formatDate(bookingToCancel?.startDateTime)}}</div>
+                </div>
+                <div class="detail-row">
+                  <div class="detail-label"><i class="bi bi-clock me-2"></i>Time:</div>
+                  <div class="detail-value">
+                    {{formatTime(bookingToCancel?.startDateTime)}} - {{formatTime(bookingToCancel?.endDateTime)}}
+                  </div>
+                </div>
+                <div class="detail-row">
+                  <div class="detail-label"><i class="bi bi-tag me-2"></i>Session:</div>
+                  <div class="detail-value">{{bookingToCancel?.sessionType || 'N/A'}}</div>
+                </div>
+                <div class="detail-row">
+                  <div class="detail-label"><i class="bi bi-currency-dollar me-2"></i>Amount:</div>
+                  <div class="detail-value">${{bookingToCancel?.totalAmount || 0}}</div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="alert alert-warning">
+              <i class="bi bi-exclamation-circle me-2"></i>
+              <strong>Warning:</strong> This action cannot be undone. The mentor will be notified of your cancellation.
+            </div>
+            
+            <p>Are you sure you want to cancel this booking?</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" (click)="closeCancelModal()">
+              <i class="bi bi-x me-1"></i>
+              Keep Booking
+            </button>
+            <button type="button" class="btn btn-danger" (click)="confirmCancelBooking()">
+              <i class="bi bi-trash me-1"></i>
+              Yes, Cancel This Booking
+            </button>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
+
+    <!-- Modal backdrop -->
+    <div class="modal-backdrop" 
+         [class.show]="showCancelModal"
+         [style.display]="showCancelModal ? 'block' : 'none'">
+    </div>
+  </main>
 </div>

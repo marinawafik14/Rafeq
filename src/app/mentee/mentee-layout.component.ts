@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
+import { AuthService } from '../Services/auth.service';
 
 @Component({
   selector: 'mentee-layout',
@@ -24,29 +25,23 @@ export class MenteeLayoutComponent implements OnInit, AfterViewInit {
 
   sidebarOpen = true;
 
-  constructor(private router: Router, private route: ActivatedRoute) {}
+  constructor(
+    private router: Router, 
+    private route: ActivatedRoute,
+    private authService: AuthService
+  ) {}
 
   ngOnInit() {
-  if (this.menteeId) return;
+    if (this.menteeId) return;
 
-  const routeId = this.route.snapshot.paramMap.get('menteeId');
-  if (routeId) {
-    this.menteeId = +routeId;
-    return;
-  }
-
-  const storedUser = localStorage.getItem('currentUser');
-  if (storedUser) {
-    try {
-      const user = JSON.parse(storedUser);
-      if (user?.userId && user?.role === 'Mentee') {
-        this.menteeId = +user.userId;
-      }
-    } catch (e) {
-      console.error('Invalid user data in localStorage');
+    // Use AuthService to get user info
+    const user = this.authService.currentUserValue;
+    
+    if (user && user.role === 'Mentee') {
+      this.menteeId = user.userId;
+      this.menteeName = user.fullName;
     }
   }
-}
 
 
   ngAfterViewInit(): void {
@@ -73,23 +68,14 @@ export class MenteeLayoutComponent implements OnInit, AfterViewInit {
   }
 
   navigateTo(link: any) {
-    if (!this.menteeId) {
-      const id = this.route.snapshot.paramMap.get('menteeId');
-      if (id) this.menteeId = +id;
-    }
-    
-    if (this.menteeId) {
-      const commands = ['/mentee', this.menteeId, link.route];
-      this.router.navigate(commands, {
-        queryParams: { t: Date.now() },
-        queryParamsHandling: 'merge',
-      }).then(() => {
-        if (window.innerWidth < 768) {
-          this.sidebarOpen = false;
-          document.querySelector('.sidebar')?.classList.add('close');
-        }
-      });
-    }
+    // Always navigate to the route without the menteeId in the URL
+    const commands = ['/mentee', link.route];
+    this.router.navigate(commands).then(() => {
+      if (window.innerWidth < 768) {
+        this.sidebarOpen = false;
+        document.querySelector('.sidebar')?.classList.add('close');
+      }
+    });
   }
 
   toggleSidebar() {
@@ -101,8 +87,15 @@ export class MenteeLayoutComponent implements OnInit, AfterViewInit {
   }
 
   logout() {
-    localStorage.clear();
-    sessionStorage.clear();
-    window.location.href = '/login';
+    this.authService.logout().subscribe({
+      next: () => {
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        console.error('Logout error:', error);
+        // Still navigate to login even if the server request fails
+        this.router.navigate(['/login']);
+      }
+    });
   }
 }
