@@ -24,7 +24,6 @@
                      alt="{{mentor.fullName}}" 
                      class="profile-image"
                      (error)="onImageError($event)">
-                <div class="online-status" title="Available for booking"></div>
               </div>
             </div>
             <div class="col-lg-6 col-md-8">
@@ -317,20 +316,6 @@
             <p>No completed bookings available for review.</p>
           </div>
         </div>
-
-        <!-- Rating
-        <div class="form-group">
-          <label>Rating:</label>
-          <div class="rating-input">
-            <button class="star-btn" 
-                    *ngFor="let star of [1,2,3,4,5]" 
-                    [class.active]="star <= newReview.rating"
-                    (click)="newReview.rating = star">
-              <i class="bi bi-star-fill"></i>
-            </button>
-          </div>
-        </div> -->
-
         <!-- Comment -->
         <div class="form-group">
           <label>Comment:</label>
@@ -361,19 +346,6 @@
         </button>
       </div>
       <div class="toast-body" *ngIf="editingReview">
-        <!-- Rating -->
-        <!-- <div class="form-group">
-          <label>Rating:</label>
-          <div class="rating-input">
-            <button class="star-btn" 
-                    *ngFor="let star of [1,2,3,4,5]" 
-                    [class.active]="star <= editingReview.rating"
-                    (click)="editingReview.rating = star">
-              <i class="bi bi-star-fill"></i>
-            </button>
-          </div>
-        </div> -->
-
         <!-- Comment -->
         <div class="form-group">
           <label>Comment:</label>

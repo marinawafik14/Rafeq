@@ -370,13 +370,13 @@ export class BookingDetailsComponent implements OnInit {
     return !this.hasReview();
   }
 
-  getStarArray(rating: number): boolean[] {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      stars.push(i <= Math.floor(rating));
-    }
-    return stars;
-  }
+  // getStarArray(rating: number): boolean[] {
+  //   const stars = [];
+  //   for (let i = 1; i <= 5; i++) {
+  //     stars.push(i <= Math.floor(rating));
+  //   }
+  //   return stars;
+  // }
 
   formatReviewDate(dateString: string): string {
     if (!dateString) return 'No date';

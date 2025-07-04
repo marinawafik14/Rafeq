@@ -18,7 +18,7 @@ export class MenteeLayoutComponent implements OnInit, AfterViewInit {
     { label: 'Bookings', route: 'bookings', icon: 'bx-calendar' },
     { label: 'Search Mentors', route: 'search-mentors', icon: 'bx-search' },
     { label: 'CV Management', route: 'cv-management', icon: 'bx-file' },
-    { label: 'AI Assistant', route: 'ai-chatbot', icon: 'bx-bot' }, // Add this line
+    { label: 'AI Assistant', route: 'ai-chatbot', icon: 'bx-bot' }, 
     { label: 'Messages', route: 'messages', icon: 'bx-chat' },
     { label: 'Profile', route: 'profile', icon: 'bx-user' }
   ];

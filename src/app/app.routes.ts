@@ -95,114 +95,111 @@ export const routes: Routes = [
       },
 
       // Mentee
-        {
-    path: 'mentee',
-    component: MenteeLayoutComponent, 
-    children: [
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       {
-        path: 'dashboard',
-        loadComponent: () =>
-          import('./mentee/mentee-dashboard/mentee-dashboard.component').then(
-            (m) => m.MenteeDashboardComponent
-          ),
-      },
-      {
-        path: 'bookings',
-        loadComponent: () =>
-          import('./mentee/mentee-bookings/mentee-bookings.component').then(
-            (m) => m.MenteeBookingsComponent
-          ),
-      },
-      {
-        path: 'search-mentors',
-        loadComponent: () =>
-          import('./mentee/mentee-search-mentors/mentee-search-mentors.component').then(
-            (m) => m.MenteeSearchMentorsComponent
-          ),
-      },
-      {
-        path: 'cv-management',
-        loadComponent: () =>
-          import('./mentee/cv-management/cv-management.component').then(
-            (m) => m.CvManagementComponent
-          ),
-      },
-      {
-        path: 'booking-details/:id',
-        loadComponent: () =>
-          import('./mentee/booking-details/booking-details.component').then(
-            (m) => m.BookingDetailsComponent
-          ),
-      },
-      {
-        path: 'booking-form',
-        loadComponent: () =>
-          import('./mentee/booking-form/booking-form.component').then(
-            (m) => m.BookingFormComponent
-          ),
-      },
-      {
-        path: 'mentor/:id',
-        loadComponent: () =>
-          import('./mentee/mentor-profile-view/mentor-profile-view.component').then(
-            (m) => m.MentorProfileViewComponent
-          ),
-      },
-      {
-        path: 'payment',
-        loadComponent: () =>
-          import('./payment/payment.component').then((m) => m.PaymentComponent),
-      },
-      {
-        path: 'payment-complete',
-        loadComponent: () =>
-          import('./payment-confirmation/payment-confirmation.component').then(
-            (m) => m.PaymentConfirmationComponent
-          ),
-      },
-      {
-        path: 'messages',
-        loadComponent: () =>
-          import('./mentee/mentee-contact-chat/mentee-contact-chat.component').then(
-            (m) => m.MenteeContactChatComponent
-          ),
-      },
-      {
-        path: 'profile',
-        loadComponent: () =>
-          import('./Auth/Userprofile/mentee-profile/mentee-profile.component').then(
-            (m) => m.MenteeProfileComponent
-          ),
-      },
-
+        path: 'mentee',
+        canActivateChild: [authGuardGuard],
+        data: { roles: ['Mentee'] },
+        component: MenteeLayoutComponent, 
+        children: [
+          { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+          {
+            path: 'dashboard',
+            loadComponent: () =>
+              import('./mentee/mentee-dashboard/mentee-dashboard.component').then(
+                (m) => m.MenteeDashboardComponent
+              ),
+          },
+          {
+            path: 'bookings',
+            loadComponent: () =>
+              import('./mentee/mentee-bookings/mentee-bookings.component').then(
+                (m) => m.MenteeBookingsComponent
+              ),
+          },
+          {
+            path: 'search-mentors',
+            loadComponent: () =>
+              import('./mentee/mentee-search-mentors/mentee-search-mentors.component').then(
+                (m) => m.MenteeSearchMentorsComponent
+              ),
+          },
+          {
+            path: 'cv-management',
+            loadComponent: () =>
+              import('./mentee/cv-management/cv-management.component').then(
+                (m) => m.CvManagementComponent
+              ),
+          },
+          {
+            path: 'booking-details/:id',
+            loadComponent: () =>
+              import('./mentee/booking-details/booking-details.component').then(
+                (m) => m.BookingDetailsComponent
+              ),
+          },
+          {
+            path: 'booking-form',
+            loadComponent: () =>
+              import('./mentee/booking-form/booking-form.component').then(
+                (m) => m.BookingFormComponent
+              ),
+          },
+          {
+            path: 'mentor/:id',
+            loadComponent: () =>
+              import('./mentee/mentor-profile-view/mentor-profile-view.component').then(
+                (m) => m.MentorProfileViewComponent
+              ),
+          },
+          {
+            path: 'payment',
+            loadComponent: () =>
+              import('./payment/payment.component').then((m) => m.PaymentComponent),
+          },
+          {
+            path: 'payment-complete',
+            loadComponent: () =>
+              import('./payment-confirmation/payment-confirmation.component').then(
+                (m) => m.PaymentConfirmationComponent
+              ),
+          },
+          {
+            path: 'messages',
+            loadComponent: () =>
+              import('./mentee/mentee-contact-chat/mentee-contact-chat.component').then(
+                (m) => m.MenteeContactChatComponent
+              ),
+          },
+          {
+            path: 'profile',
+            loadComponent: () =>
+              import('./Auth/Userprofile/mentee-profile/mentee-profile.component').then(
+                (m) => m.MenteeProfileComponent
+              ),
+          },
+          {
+            path: 'ai-chatbot',
+            loadComponent: () =>
+              import('./features/ai-chatbot/ai-chatbot.component').then(
+                (m) => m.AiChatbotComponent
+              ),
+          },
         ],
       },
-
-      {
+{
         path: 'ai-chatbot',
         loadComponent: () =>
           import('./features/ai-chatbot/ai-chatbot.component').then(
             (m) => m.AiChatbotComponent
           ),
-        data: { roles: ['Mentor', 'Mentee'] },
+        data: { roles: ['Mentor'] },
       },
-
       // User Profiles
       { path: 'user-profile', component: ProfileRedirectComponent },
       { path: 'mentor-profile', component: MentorProfileComponent },
       { path: 'mentee-profile', component: MenteeProfileComponent },
 
     ],
-  },
-
-  {
-    path: 'messages',
-    loadComponent: () =>
-      import('./mentee/mentee-contact-chat/mentee-contact-chat.component').then(
-        (m) => m.MenteeContactChatComponent
-      ),
-    data: { roles: ['Mentee'] },
   },
 
   // Not found
