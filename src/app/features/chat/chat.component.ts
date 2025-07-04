@@ -300,68 +300,35 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   private async loadConversations(): Promise<void> {
-    const now = Date.now();
-    if (now - this.lastLoadTime < this.LOAD_THROTTLE_MS) {
-      return;
+  console.log('🔄 ChatComponent: Loading conversations...');
+  
+  try {
+    this.conversations = await this.chatService.getAllConversations().toPromise() || [];
+    
+    console.log('📋 ChatComponent: Received conversations:', this.conversations.length);
+    console.log('📋 ChatComponent: Conversation statuses:', this.conversations.map(c => ({
+      id: c.bookingId,
+      status: c.sessionStatus
+    })));
+    
+    // Check if any cancelled/pending conversations made it through
+    const problematicConversations = this.conversations.filter(conv => {
+      const status = conv.sessionStatus?.toLowerCase().trim();
+      return status === 'cancelled' || status === 'pending';
+    });
+    
+    if (problematicConversations.length > 0) {
+      console.error('🚨 ChatComponent: Found conversations that should have been filtered:');
+      problematicConversations.forEach(conv => {
+        console.error(`  🚨 ID: ${conv.bookingId}, Status: "${conv.sessionStatus}"`);
+      });
     }
     
-    this.lastLoadTime = now;
-    
-    try {
-      console.log('🔄 Loading conversations from multiple sources...');
-      
-      // Try to load from BOTH endpoints with better error handling
-      const [existingConversations, potentialConversations] = await Promise.allSettled([
-        this.chatService.getConversations().toPromise(),
-        this.chatService.getPotentialConversations().toPromise()
-      ]);
-
-      // Process existing conversations
-      const existing = existingConversations.status === 'fulfilled' ? 
-        (existingConversations.value || []) : [];
-      
-      // Process potential conversations  
-      const potential = potentialConversations.status === 'fulfilled' ? 
-        (potentialConversations.value || []) : [];
-
-      console.log('📊 Raw data:', {
-        existing: existing.length,
-        potential: potential.length,
-        existingStatus: existingConversations.status,
-        potentialStatus: potentialConversations.status
-      });
-
-      // Combine conversations smartly
-      const allConversations = [...existing];
-      const existingBookingIds = new Set(existing.map(c => c.bookingId));
-      
-      // Add potential conversations that aren't already in existing
-      potential.forEach(p => {
-        if (!existingBookingIds.has(p.bookingId)) {
-          allConversations.push(p);
-        }
-      });
-
-      // Remove duplicates by bookingId (extra safety)
-      const uniqueConversations = allConversations.filter((conversation, index, self) => 
-        index === self.findIndex(c => c.bookingId === conversation.bookingId)
-      );
-
-      // Sort by last message time
-      this.conversations = uniqueConversations.sort((a, b) => {
-        const aTime = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
-        const bTime = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
-        return bTime - aTime;
-      });
-      
-      console.log('✅ Final conversations loaded:', this.conversations.length);
-      console.log('📋 Conversation IDs:', this.conversations.map(c => c.bookingId));
-      
-    } catch (error) {
-      console.error('❌ Error loading conversations:', error);
-      this.conversations = [];
-    }
+  } catch (error) {
+    console.error('❌ Error loading conversations:', error);
+    this.conversations = [];
   }
+}
 
   // 1. Always join the SignalR room when selecting a conversation
   async selectConversation(conversation: ChatConversation): Promise<void> {
