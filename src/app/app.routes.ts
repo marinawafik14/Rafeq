@@ -18,7 +18,7 @@ import { VerifyEmailComponent } from './Auth/verify-email/verify-email.component
 import { ResendVerificationEmailComponent } from './Auth/resend-verification-email/resend-verification-email.component';
 import { AdminReviewsComponent } from './Components/Admin/admin-reviews/admin-reviews.component';
 import { DashboardComponent } from './features/mentor/dashboard/dashboard.component';
-import { ProfileManagementComponent } from './features/mentor/profile-management/profile-management.component';
+
 import { AvailabilityManagementComponent } from './features/mentor/availability-management/availability-management.component';
 import { BookingsComponent } from './features/mentor/bookings/bookings.component';
 import { CVReviewComponent } from './features/mentor/cv-review/cv-review.component';
@@ -83,10 +83,10 @@ export const routes: Routes = [
       // Mentor
       {
         path: 'mentor',
+        canActivateChild: [authGuardGuard],
         data: { roles: ['Mentor'] },
         children: [
           { path: 'dashboard', component: DashboardComponent },
-          { path: 'profile', component: ProfileManagementComponent },
           { path: 'availability', component: AvailabilityManagementComponent },
           { path: 'bookings', component: BookingsComponent },
           { path: 'cv-review', component: CVReviewComponent },
