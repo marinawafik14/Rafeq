@@ -174,10 +174,16 @@ export class LoginComponent implements OnInit {
           if (menteeId) {
             this.router.navigate(['/mentee/dashboard']);
           } else {
-            this.toastr.error(
-              'Mentee ID not found in token.',
-              'Navigation Error'
-            );
+            this.toastr.error('Mentee ID not found in token.', 'Navigation Error');
+            this.router.navigate([this.returnUrl]);
+          }
+        } else if (response.tokenData.role && response.tokenData.role.toLowerCase() === 'mentor') {
+          // ADD THIS NEW MENTOR BLOCK
+          const mentorId = response.tokenData.userId;
+          if (mentorId) {
+            this.router.navigate(['/mentor/dashboard']);
+          } else {
+            this.toastr.error('Mentor ID not found in token.', 'Navigation Error');
             this.router.navigate([this.returnUrl]);
           }
         } else {
@@ -244,6 +250,15 @@ export class LoginComponent implements OnInit {
                     'Mentee ID not found in token.',
                     'Navigation Error'
                   );
+                  this.router.navigate([this.returnUrl]);
+                }
+              } else if (apiResponse.tokenData.role && apiResponse.tokenData.role.toLowerCase() === 'mentor') {
+                // ADD THIS NEW MENTOR BLOCK FOR GOOGLE LOGIN
+                const mentorId = apiResponse.tokenData.userId;
+                if (mentorId) {
+                  this.router.navigate(['/mentor/dashboard']);
+                } else {
+                  this.toastr.error('Mentor ID not found in token.', 'Navigation Error');
                   this.router.navigate([this.returnUrl]);
                 }
               } else {
