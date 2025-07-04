@@ -300,35 +300,32 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   private async loadConversations(): Promise<void> {
-  console.log('🔄 ChatComponent: Loading conversations...');
-  
-  try {
-    this.conversations = await this.chatService.getAllConversations().toPromise() || [];
-    
-    console.log('📋 ChatComponent: Received conversations:', this.conversations.length);
-    console.log('📋 ChatComponent: Conversation statuses:', this.conversations.map(c => ({
-      id: c.bookingId,
-      status: c.sessionStatus
-    })));
-    
-    // Check if any cancelled/pending conversations made it through
-    const problematicConversations = this.conversations.filter(conv => {
-      const status = conv.sessionStatus?.toLowerCase().trim();
-      return status === 'cancelled' || status === 'pending';
-    });
-    
-    if (problematicConversations.length > 0) {
-      console.error('🚨 ChatComponent: Found conversations that should have been filtered:');
-      problematicConversations.forEach(conv => {
-        console.error(`  🚨 ID: ${conv.bookingId}, Status: "${conv.sessionStatus}"`);
-      });
+    const now = Date.now();
+    if (now - this.lastLoadTime < this.LOAD_THROTTLE_MS) {
+      return;
     }
     
-  } catch (error) {
-    console.error('❌ Error loading conversations:', error);
-    this.conversations = [];
+    this.lastLoadTime = now;
+    
+    try {
+      console.log('🔄 Loading conversations...');
+      
+      // Use the service method that handles filtering
+      this.conversations = await this.chatService.getAllConversations().toPromise() || [];
+      
+      console.log('✅ Conversations loaded:', this.conversations.length);
+      console.log('📋 Conversation statuses:', this.conversations.map(c => ({
+        id: c.bookingId,
+        status: c.sessionStatus,
+        mentorName: c.mentorName,
+        menteeName: c.menteeName
+      })));
+      
+    } catch (error) {
+      console.error('❌ Error loading conversations:', error);
+      this.conversations = [];
+    }
   }
-}
 
   // 1. Always join the SignalR room when selecting a conversation
   async selectConversation(conversation: ChatConversation): Promise<void> {

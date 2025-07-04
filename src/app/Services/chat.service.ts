@@ -219,10 +219,8 @@ export class ChatService {
           console.log(`  Already exists: ${existingBookingIds.has(p.bookingId)}`);
           
           if (!existingBookingIds.has(p.bookingId)) {
-            const allowed = this.shouldAllowChat(p.sessionStatus);
-            console.log(`  Decision: ${allowed ? 'ALLOWED' : 'REJECTED'}`);
-            
-            if (allowed) {
+            // Only add if booking status allows chat (exclude pending and cancelled only)
+            if (this.shouldAllowChat(p.sessionStatus)) {
               allConversations.push(p);
               console.log('✅ ADDED potential conversation:', p.bookingId);
             } else {
@@ -240,26 +238,7 @@ export class ChatService {
             self.findIndex((c) => c.bookingId === conversation.bookingId)
         );
 
-        console.log('📊 === FINAL RESULTS ===');
-        console.log('📊 Final filtered conversations:', uniqueConversations.length);
-        console.log('📊 Final conversation details:');
-        uniqueConversations.forEach((conv, index) => {
-          console.log(`  [${index}] ID: ${conv.bookingId}, Status: "${conv.sessionStatus}"`);
-        });
-        console.log('📊 Total filtered out:', existing.length + potential.length - uniqueConversations.length);
-
-        // Double-check for any cancelled/pending that slipped through
-        const problematicConversations = uniqueConversations.filter(conv => {
-          const status = conv.sessionStatus?.toLowerCase().trim();
-          return status === 'cancelled' || status === 'pending';
-        });
-
-        if (problematicConversations.length > 0) {
-          console.error('🚨 ALERT: Found problematic conversations that should have been filtered:');
-          problematicConversations.forEach(conv => {
-            console.error(`  🚨 ID: ${conv.bookingId}, Status: "${conv.sessionStatus}"`);
-          });
-        }
+        console.log('📊 Final unique conversations:', uniqueConversations.length);
 
         return uniqueConversations.sort(
           (a, b) =>
@@ -274,42 +253,20 @@ export class ChatService {
     );
   }
 
-  // Update shouldAllowChat to handle all possible status variations
+  // Simple filtering - only exclude pending and cancelled
   private shouldAllowChat(sessionStatus?: string): boolean {
-    console.log('🔍 DETAILED STATUS CHECK:');
-    console.log('  Raw status:', sessionStatus);
-    console.log('  Type:', typeof sessionStatus);
-    console.log('  Is null/undefined:', sessionStatus == null);
-    
-    if (!sessionStatus) {
-      console.log('  ❌ REJECTED: Status is null/undefined');
-      return false; // Don't allow if status is unknown
-    }
-    
+    if (!sessionStatus) return true; // Allow if status unknown
+
     const normalizedStatus = sessionStatus.toLowerCase().trim();
-    console.log('  Normalized status:', normalizedStatus);
-    
-    // Based on your codebase, these are the statuses that should allow chat
-    const allowedStatuses = [
-      'confirmed',
-      'inprogress', 
-      'in-progress',
-      'completed',
-      'upcoming',    // Sometimes used for confirmed sessions
-      'scheduled'    // Sometimes used for confirmed sessions
-    ];
-    
-    console.log('  Allowed statuses:', allowedStatuses);
-    const allowed = allowedStatuses.includes(normalizedStatus);
-    console.log('  ✅ Status allowed:', allowed);
-    
-    // Log specific rejections
-    if (!allowed) {
-      console.log('  🚫 REJECTED STATUS:', normalizedStatus);
-      console.log('  🚫 This status should be filtered out');
-    }
-    
-    return allowed;
+
+    // Only block these specific statuses
+    const blockedStatuses = ['pending', 'cancelled', 'canceled'];
+
+    const isBlocked = blockedStatuses.includes(normalizedStatus);
+
+    console.log(`🔍 Status: "${sessionStatus}" -> ${isBlocked ? 'BLOCKED' : 'ALLOWED'}`);
+
+    return !isBlocked; // Return true if NOT blocked
   }
 
   // 1. Upload voice message
