@@ -308,54 +308,18 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.lastLoadTime = now;
     
     try {
-      console.log('🔄 Loading conversations from multiple sources...');
+      console.log('🔄 Loading conversations...');
       
-      // Try to load from BOTH endpoints with better error handling
-      const [existingConversations, potentialConversations] = await Promise.allSettled([
-        this.chatService.getConversations().toPromise(),
-        this.chatService.getPotentialConversations().toPromise()
-      ]);
-
-      // Process existing conversations
-      const existing = existingConversations.status === 'fulfilled' ? 
-        (existingConversations.value || []) : [];
+      // Use the service method that handles filtering
+      this.conversations = await this.chatService.getAllConversations().toPromise() || [];
       
-      // Process potential conversations  
-      const potential = potentialConversations.status === 'fulfilled' ? 
-        (potentialConversations.value || []) : [];
-
-      console.log('📊 Raw data:', {
-        existing: existing.length,
-        potential: potential.length,
-        existingStatus: existingConversations.status,
-        potentialStatus: potentialConversations.status
-      });
-
-      // Combine conversations smartly
-      const allConversations = [...existing];
-      const existingBookingIds = new Set(existing.map(c => c.bookingId));
-      
-      // Add potential conversations that aren't already in existing
-      potential.forEach(p => {
-        if (!existingBookingIds.has(p.bookingId)) {
-          allConversations.push(p);
-        }
-      });
-
-      // Remove duplicates by bookingId (extra safety)
-      const uniqueConversations = allConversations.filter((conversation, index, self) => 
-        index === self.findIndex(c => c.bookingId === conversation.bookingId)
-      );
-
-      // Sort by last message time
-      this.conversations = uniqueConversations.sort((a, b) => {
-        const aTime = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
-        const bTime = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
-        return bTime - aTime;
-      });
-      
-      console.log('✅ Final conversations loaded:', this.conversations.length);
-      console.log('📋 Conversation IDs:', this.conversations.map(c => c.bookingId));
+      console.log('✅ Conversations loaded:', this.conversations.length);
+      console.log('📋 Conversation statuses:', this.conversations.map(c => ({
+        id: c.bookingId,
+        status: c.sessionStatus,
+        mentorName: c.mentorName,
+        menteeName: c.menteeName
+      })));
       
     } catch (error) {
       console.error('❌ Error loading conversations:', error);

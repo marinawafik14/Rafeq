@@ -182,7 +182,7 @@ export class ChatService {
         // Add potential conversations that aren't already in existing
         potential.forEach((p) => {
           if (!existingBookingIds.has(p.bookingId)) {
-            // Only add if booking status allows chat
+            // Only add if booking status allows chat (exclude pending and cancelled only)
             if (this.shouldAllowChat(p.sessionStatus)) {
               allConversations.push(p);
             }
@@ -196,10 +196,7 @@ export class ChatService {
             self.findIndex((c) => c.bookingId === conversation.bookingId)
         );
 
-        console.log(
-          '📊 Final unique conversations:',
-          uniqueConversations.length
-        );
+        console.log('📊 Final unique conversations:', uniqueConversations.length);
 
         return uniqueConversations.sort(
           (a, b) =>
@@ -215,12 +212,20 @@ export class ChatService {
     );
   }
 
-  // Add helper method
+  // Simple filtering - only exclude pending and cancelled
   private shouldAllowChat(sessionStatus?: string): boolean {
     if (!sessionStatus) return true; // Allow if status unknown
 
-    const allowedStatuses = ['confirmed', 'inprogress', 'completed'];
-    return allowedStatuses.includes(sessionStatus.toLowerCase());
+    const normalizedStatus = sessionStatus.toLowerCase().trim();
+
+    // Only block these specific statuses
+    const blockedStatuses = ['pending', 'cancelled', 'canceled'];
+
+    const isBlocked = blockedStatuses.includes(normalizedStatus);
+
+    console.log(`🔍 Status: "${sessionStatus}" -> ${isBlocked ? 'BLOCKED' : 'ALLOWED'}`);
+
+    return !isBlocked; // Return true if NOT blocked
   }
 
   // 1. Upload voice message
