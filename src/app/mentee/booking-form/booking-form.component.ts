@@ -453,7 +453,7 @@ export class BookingFormComponent implements OnDestroy {
         };
         sessionStorage.setItem('pendingBooking', JSON.stringify(pendingBooking));
         
-        // Set up a cleanup timeout (15 minutes)
+        // Set up a cleanup timeout (5 minutes)
         this.setupBookingCleanupTimeout(bookingId);
         
         this.router.navigate(['/mentee', 'payment'], {
@@ -499,7 +499,7 @@ export class BookingFormComponent implements OnDestroy {
           this.cleanupUnpaidBooking(bookingId);
         }
       }
-    }, 15 * 60 * 1000);
+    }, 5 * 60 * 1000);
   }
 
   private cleanupUnpaidBooking(bookingId: number): void {
@@ -528,7 +528,7 @@ export class BookingFormComponent implements OnDestroy {
       const booking = JSON.parse(pendingBooking);
       const now = new Date().getTime();
       const timeDiff = now - booking.timestamp;
-      const timeoutDuration = 15 * 60 * 1000;
+      const timeoutDuration = 5 * 60 * 1000;
       
       if (timeDiff > timeoutDuration) {
         this.cleanupUnpaidBooking(booking.bookingId);
@@ -559,7 +559,7 @@ export class BookingFormComponent implements OnDestroy {
       
       const now = new Date().getTime();
       const timeDiff = now - booking.timestamp;
-      const timeoutDuration = 15 * 60 * 1000;
+      const timeoutDuration = 5 * 60 * 1000;
       const newRemainingTime = timeoutDuration - timeDiff;
       
       if (newRemainingTime <= 0) {
@@ -654,7 +654,7 @@ export class BookingFormComponent implements OnDestroy {
     const now = new Date().getTime();
     const timeDiff = now - booking.timestamp;
     
-    return timeDiff < (15 * 60 * 1000);
+    return timeDiff < (5 * 60 * 1000);
   }
 
   ngOnDestroy(): void {
