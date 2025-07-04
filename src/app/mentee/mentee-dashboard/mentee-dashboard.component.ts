@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../Services/auth.service';
 import { menteeBookingservice } from '../../Services/menteeBooking.service';
 
@@ -26,6 +27,7 @@ export class MenteeDashboardComponent implements OnInit {
   completedBookings: any[] = [];
   upcomingBookings: any[] = [];
   cancelledBookings: any[] = [];
+  bookingReviews: { [bookingId: number]: any } = {};
 
   isLoading = true;
   currentPage = 1;
@@ -37,7 +39,8 @@ export class MenteeDashboardComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private menteeBookingservice: menteeBookingservice
+    private menteeBookingservice: menteeBookingservice,
+    private http: HttpClient
   ) {}
 
   ngOnInit() {
@@ -214,7 +217,7 @@ export class MenteeDashboardComponent implements OnInit {
     const timeDiff = sessionDateTime.getTime() - now.getTime();
     const minutesDiff = timeDiff / (1000 * 60);
     
-    return minutesDiff <= 15 && minutesDiff >= -60;
+    return minutesDiff <= 5 && minutesDiff >= -60;
   }
 
   trackByStat(index: number, stat: any): string {

@@ -392,11 +392,12 @@ export class MentorProfileViewComponent implements OnInit {
     
     this.http.get<any[]>(`https://localhost:7001/api/MenteeBookings/mentee/${this.menteeId}/all`).subscribe({
       next: (bookings) => {
-        this.menteeBookings = bookings.filter(booking => 
-          booking.mentorId === this.mentorId && 
-          booking.status === 'Completed' &&
-          new Date(booking.endDateTime) < new Date()
-        );
+        this.menteeBookings = bookings.filter(booking => {
+          const mentorMatch = booking.mentorId === this.mentorId;
+          const statusMatch = booking.status.toLowerCase() === 'completed' || booking.status.toLowerCase() === 'finished';
+          
+          return mentorMatch && statusMatch;
+        });
       },
       error: (error) => {
         this.menteeBookings = [];

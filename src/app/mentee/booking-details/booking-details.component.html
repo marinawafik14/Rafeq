@@ -130,19 +130,45 @@
               </div>
             </div>
             <div class="card mb-4" *ngIf="booking.status==='completed' || booking.status==='Completed'">
-              <div class="card-header bg-white fw-bold">Your Review</div>
+              <div class="card-header bg-white fw-bold">
+                <i class="bi bi-star me-2"></i>Your Review
+              </div>
               <div class="card-body">
-                <div *ngIf="booking.review; else noReview">
-                  <div class="mb-2">
-                    <i class="bi bi-star-fill text-warning"></i>
-                    <span class="fw-bold">{{booking.review.rating}}</span>
-                    <span class="text-muted ms-2 small">{{booking.review.date}}</span>
+                <div *ngIf="loadingReview" class="text-center py-3">
+                  <div class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="visually-hidden">Loading review...</span>
                   </div>
-                  <div>{{booking.review.comment}}</div>
                 </div>
-                <ng-template #noReview>
-                  <div class="text-muted">You have not left a review for this session yet.</div>
-                </ng-template>
+                
+                <div *ngIf="!loadingReview && bookingReview" class="review-content">
+                  <div class="d-flex align-items-center mb-3">
+                    <div class="star-rating me-3">
+                      <span *ngFor="let star of getStarArray(bookingReview.rating)" 
+                            class="star"
+                            [class.filled]="star">
+                        <i class="bi" [class.bi-star-fill]="star" [class.bi-star]="!star"></i>
+                      </span>
+                    </div>
+                    <div class="rating-text">
+                      <span class="fw-bold">{{bookingReview.rating}}/5</span>
+                    </div>
+                    <div class="ms-auto">
+                      <small class="text-muted">{{formatReviewDate(bookingReview.createdAt)}}</small>
+                    </div>
+                  </div>
+                  
+                  <div class="review-comment">
+                    <p class="mb-0">{{bookingReview.comment}}</p>
+                  </div>
+                </div>
+                
+                <div *ngIf="!loadingReview && !bookingReview" class="no-review">
+                  <div class="text-center py-4">
+                    <i class="bi bi-star text-muted mb-2" style="font-size: 2rem;"></i>
+                    <p class="text-muted mb-0">You haven't left a review for this session yet.</p>
+                    <small class="text-muted">Reviews help mentors improve their services.</small>
+                  </div>
+                </div>
               </div>
             </div>
             </div>
