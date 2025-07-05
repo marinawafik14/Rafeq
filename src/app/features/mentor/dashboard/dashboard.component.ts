@@ -22,6 +22,12 @@ export class DashboardComponent implements OnInit {
   isLoading: boolean = true;
   error: string | null = null;
 
+  // Add pagination properties
+  currentPage: number = 1;
+  itemsPerPage: number = 5;
+  totalPages: number = 0;
+  paginatedTodaySessions: MentorBooking[] = [];
+
   constructor(
     private mentorService: MentorService,
     private authService: AuthService
@@ -67,6 +73,9 @@ export class DashboardComponent implements OnInit {
         if (this.earnings) {
           this.earnings.pendingSessions = pendingSessionsCount;
         }
+        
+        // Update pagination
+        this.updatePagination();
         
         this.isLoading = false;
       },
@@ -291,5 +300,90 @@ export class DashboardComponent implements OnInit {
     }
     
     console.log('=== END DEBUG ===');
+  }
+
+  // Add these methods to your DashboardComponent
+
+  updatePagination(): void {
+    this.totalPages = Math.ceil(this.todaySessions.length / this.itemsPerPage);
+    
+    // Ensure current page is valid
+    if (this.currentPage > this.totalPages) {
+      this.currentPage = 1;
+    }
+    
+    // Calculate start and end indices
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    
+    // Get paginated sessions
+    this.paginatedTodaySessions = this.todaySessions.slice(startIndex, endIndex);
+    
+    console.log(`Pagination: Page ${this.currentPage}/${this.totalPages}, Items: ${this.paginatedTodaySessions.length}`);
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePagination();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePagination();
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagination();
+    }
+  }
+
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxVisiblePages = 5;
+    
+    if (this.totalPages <= maxVisiblePages) {
+      // Show all pages
+      for (let i = 1; i <= this.totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Show first page, current page range, and last page
+      const currentPage = this.currentPage;
+      const startPage = Math.max(1, currentPage - 2);
+      const endPage = Math.min(this.totalPages, currentPage + 2);
+      
+      // Always show first page
+      if (startPage > 1) {
+        pages.push(1);
+        if (startPage > 2) {
+          pages.push(-1); // -1 represents "..."
+        }
+      }
+      
+      // Show current range
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+      
+      // Always show last page
+      if (endPage < this.totalPages) {
+        if (endPage < this.totalPages - 1) {
+          pages.push(-1); // -1 represents "..."
+        }
+        pages.push(this.totalPages);
+      }
+    }
+    
+    return pages;
+  }
+
+  trackByBookingId(index: number, session: MentorBooking): number {
+    return session.bookingId;
   }
 }
