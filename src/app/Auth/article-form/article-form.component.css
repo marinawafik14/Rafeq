@@ -1,0 +1,123 @@
+/* src/app/admin/articles/article-form/article-form.component.css */
+.article-form-container {
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  max-width: 800px;
+  margin: 20px auto;
+}
+
+.article-form-container h2 {
+  color: #333;
+  margin-bottom: 25px;
+  font-size: 1.8rem;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 10px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  color: #555;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.form-control:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+  outline: none;
+}
+
+.form-control.is-invalid {
+  border-color: #dc3545;
+}
+
+.invalid-feedback {
+  color: #dc3545;
+  font-size: 0.85em;
+  margin-top: 5px;
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.form-check-input {
+  margin-right: 10px;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.form-check-label {
+  margin-bottom: 0;
+  font-weight: normal;
+  color: #333;
+  cursor: pointer;
+}
+
+.form-actions {
+  margin-top: 25px;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end; /* Align buttons to the right */
+}
+
+.form-actions .btn {
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.form-actions .btn-primary {
+  background-color: #007bff;
+  color: white;
+  border: 1px solid #007bff;
+}
+
+.form-actions .btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+.form-actions .btn-primary:disabled {
+  background-color: #a0cffc;
+  border-color: #a0cffc;
+  cursor: not-allowed;
+}
+
+.form-actions .btn-secondary {
+  background-color: #6c757d;
+  color: white;
+  border: 1px solid #6c757d;
+}
+
+.form-actions .btn-secondary:hover {
+  background-color: #5a6268;
+  border-color: #545b62;
+}
+
+.loading-indicator {
+  text-align: center;
+  padding: 20px;
+  font-size: 1.1rem;
+  color: #555;
+}

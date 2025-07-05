@@ -34,6 +34,9 @@ import { MenteeLayoutComponent } from './mentee/mentee-layout.component';
 import { ArticleDetailComponent } from './Auth/article-detail/article-detail.component';
 import { authGuardGuard } from './guards/auth-guard.guard';
 import { AdminDashboardComponent } from './Components/Admin/admin-dashboard/admin-dashboard.component';
+import { AdminArticleListComponent } from './Auth/admin-article-list/admin-article-list.component';
+import { AdminFaqListComponent } from './Auth/admin-faq-list/admin-faq-list.component';
+import { ArticleFormComponent } from './Auth/article-form/article-form.component';
 
 
 
@@ -77,6 +80,16 @@ export const routes: Routes = [
           { path: 'home', component: HomeComponent },
           { path: 'contact', component: AdminContactComponent },
 
+
+          { path: 'articles', component: AdminArticleListComponent },
+          { path: 'articles/create', component: ArticleFormComponent },
+          { path: 'articles/edit/:id', component: ArticleFormComponent },
+          { path: 'faqs', component: AdminFaqListComponent },
+          { path: 'faqs/create', component: AdminFaqListComponent }, // Use the aliased AdminFaqFormComponent
+          { path: 'faqs/edit/:id', component: AdminFaqListComponent },
+
+
+
         ],
       },
 
@@ -99,7 +112,7 @@ export const routes: Routes = [
         path: 'mentee',
         canActivateChild: [authGuardGuard],
         data: { roles: ['Mentee'] },
-        component: MenteeLayoutComponent, 
+        component: MenteeLayoutComponent,
         children: [
           { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
           {

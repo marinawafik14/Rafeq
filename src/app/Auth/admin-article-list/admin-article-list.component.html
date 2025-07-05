@@ -1,0 +1,68 @@
+<div class="admin-panel">
+  <h2>Manage Articles</h2>
+
+  <div class="controls">
+    <input type="text" [(ngModel)]="searchQuery" placeholder="Search title or content..." (keyup.enter)="onSearch()">
+    <input type="text" [(ngModel)]="category" placeholder="Filter by category" (keyup.enter)="onSearch()">
+    <button class="btn btn-primary" (click)="onSearch()">Search</button>
+    <button class="btn btn-secondary" (click)="clearFilters()">Clear Filters</button>
+    <button class="btn btn-success" routerLink="create">Add New Article</button>
+  </div>
+
+  <div *ngIf="loading" class="loading-indicator">Loading articles...</div>
+  <div *ngIf="error" class="error-message">{{ error }}</div>
+
+  <table class="data-table" *ngIf="!loading && articles.length > 0">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Title</th>
+        <th>Category</th>
+        <th>Published</th>
+        <th>Views</th>
+        <th>Author</th>
+        <th>Created At</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let article of articles">
+        <td>{{ article.articleId }}</td>
+        <td>{{ article.title }}</td>
+        <td>{{ article.category || 'N/A' }}</td>
+        <td>
+          <span [class.published]="article.isPublished" [class.unpublished]="!article.isPublished">
+            {{ article.isPublished ? 'Yes' : 'No' }}
+          </span>
+        </td>
+        <td>{{ article.viewCount }}</td>
+        <td>{{ article.authorName }}</td>
+        <td>{{ article.createdAt | date:'shortDate' }}</td>
+        <td class="action-buttons">
+          <button class="btn btn-info btn-sm" routerLink="edit/{{ article.articleId }}">Edit</button>
+          <button class="btn btn-danger btn-sm" (click)="deleteArticle(article.articleId)">Delete</button>
+          <a class="btn btn-secondary btn-sm" [routerLink]="['/articles', article.articleId]" target="_blank">View Public</a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!loading && articles.length === 0 && !error" class="no-results-message">
+    No articles found matching your criteria.
+  </div>
+
+  <nav *ngIf="pagedResult && pagedResult.totalPages > 1" class="pagination-controls">
+    <ul class="pagination">
+      <li class="page-item" [class.disabled]="pageNumber === 1">
+        <a class="page-link" (click)="onPageChange(pageNumber - 1)">Previous</a>
+      </li>
+      <li class="page-item" *ngFor="let page of totalPagesArray" [class.active]="page === pageNumber">
+        <a class="page-link" (click)="onPageChange(page)">{{ page }}</a>
+      </li>
+      <li class="page-item" [class.disabled]="pageNumber === pagedResult.totalPages">
+        <a class="page-link" (click)="onPageChange(pageNumber + 1)">Next</a>
+      </li>
+    </ul>
+    <span class="pagination-info">Page {{ pageNumber }} of {{ pagedResult.totalPages }}</span>
+  </nav>
+</div>

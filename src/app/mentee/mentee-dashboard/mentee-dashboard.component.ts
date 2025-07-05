@@ -46,6 +46,7 @@ export class MenteeDashboardComponent implements OnInit {
   ngOnInit() {
     const user = this.authService.currentUserValue;
     this.menteeId = user && user.userId ? user.userId : null;
+    this.menteeName = user && user.fullName ? user.fullName : '';
     if (!this.menteeId) return;
     this.updatePagination(); // Initialize pagination
     this.loadDashboardData(this.menteeId);
@@ -190,6 +191,24 @@ export class MenteeDashboardComponent implements OnInit {
   navigateToSearchMentors() {
     if (this.menteeId) {
       this.router.navigate(['/mentee/search-mentors']);
+    }
+  }
+
+  navigateToCVManagement() {
+    if (this.menteeId) {
+      this.router.navigate(['/mentee/cv-management']);
+    }
+  }
+
+  navigateToMessages() {
+    if (this.menteeId) {
+      this.router.navigate(['/mentee/messages']);
+    }
+  }
+
+  navigateToAIAssistant() {
+    if (this.menteeId) {
+      this.router.navigate(['/mentee/ai-chatbot']);
     }
   }
 

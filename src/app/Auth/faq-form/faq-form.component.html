@@ -1,0 +1,51 @@
+<div class="faq-form-container">
+  <h2>{{ isEditMode ? 'Edit FAQ' : 'Create New FAQ' }}</h2>
+
+  <div *ngIf="loading" class="loading-indicator">Loading FAQ data...</div>
+
+  <form [formGroup]="faqForm" (ngSubmit)="onSubmit()" *ngIf="!loading">
+    <div class="form-group">
+      <label for="question">Question:</label>
+      <input id="question" type="text" formControlName="question" class="form-control"
+             [class.is-invalid]="faqForm.get('question')?.invalid && faqForm.get('question')?.touched">
+      <div *ngIf="faqForm.get('question')?.invalid && faqForm.get('question')?.touched" class="invalid-feedback">
+        Question is required.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="answer">Answer:</label>
+      <textarea id="answer" formControlName="answer" class="form-control" rows="5"
+                [class.is-invalid]="faqForm.get('answer')?.invalid && faqForm.get('answer')?.touched"></textarea>
+      <div *ngIf="faqForm.get('answer')?.invalid && faqForm.get('answer')?.touched" class="invalid-feedback">
+        Answer is required.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="category">Category:</label>
+      <input id="category" type="text" formControlName="category" class="form-control">
+    </div>
+
+    <div class="form-group">
+      <label for="sortOrder">Sort Order:</label>
+      <input id="sortOrder" type="number" formControlName="sortOrder" class="form-control"
+             [class.is-invalid]="faqForm.get('sortOrder')?.invalid && faqForm.get('sortOrder')?.touched">
+      <div *ngIf="faqForm.get('sortOrder')?.invalid && faqForm.get('sortOrder')?.touched" class="invalid-feedback">
+        Sort Order is required and must be a non-negative number.
+      </div>
+    </div>
+
+    <div class="form-group form-check">
+      <input type="checkbox" id="isActive" formControlName="isActive" class="form-check-input">
+      <label class="form-check-label" for="isActive">Is Active</label>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="faqForm.invalid || loading">
+        {{ isEditMode ? 'Update' : 'Create' }} FAQ
+      </button>
+      <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
+    </div>
+  </form>
+</div>

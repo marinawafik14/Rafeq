@@ -108,3 +108,43 @@
     }
   }
 }
+
+.dashboard-popup {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: #0a2e65;
+  padding: 20px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  width: 60px;
+  height: 60px;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.dashboard-popup i {
+  font-size: 2.2rem;
+  transition: transform 0.3s ease;
+}
+
+.dashboard-popup:hover {
+  background-color: #0d3a7a;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  transform: translateY(-3px);
+}
+
+.dashboard-popup:hover i {
+  transform: scale(1.1);
+}
+
+.dashboard-popup:active {
+  transform: translateY(1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}

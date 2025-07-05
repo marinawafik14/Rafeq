@@ -1,4 +1,4 @@
-/* Enhanced styling for articles-list.component */
+/* src/app/articles-list/articles-list.component.css */
 .articles-header {
   background: linear-gradient(135deg, #0a2e65 0%, #1b74e4 100%);
   color: white;
@@ -11,11 +11,6 @@
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
-}
-
-.articles-header .lead {
-  font-size: 1.2rem;
-  opacity: 0.9;
 }
 
 /* Filter buttons */
@@ -34,10 +29,11 @@
   margin-bottom: 1rem;
 }
 
+/* The primary button styles should be global or shared, but for this component: */
 .btn-outline-primary {
   border: 2px solid #0a2e65;
-  background-color: #0a2e65;
-  color: #ffffff;
+  background-color: #0a2e65; /* Active state background */
+  color: #ffffff; /* Active state text color */
   font-weight: 500;
   border-radius: 25px;
   padding: 0.5rem 1.5rem;
@@ -47,8 +43,8 @@
 }
 
 .btn-outline-primary:hover {
-  background-color: #ffffff;
-  color: #0a2e65;
+  background-color: #ffffff; /* Hover background */
+  color: #0a2e65; /* Hover text color */
   transform: translateY(-2px);
   box-shadow: 0 4px 15px rgba(27, 116, 228, 0.3);
 }
@@ -118,11 +114,6 @@
   height: 100%;
   background: white;
 }
-
-/* .article-card:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.02);
-} */
 
 .article-card .card-body {
   padding: 1.5rem;
@@ -243,7 +234,6 @@
   pointer-events: none;
   border-color: #dee2e6;
 }
-
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
