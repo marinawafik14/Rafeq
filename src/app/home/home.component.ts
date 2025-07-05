@@ -66,4 +66,15 @@ export class HomeComponent implements AfterViewInit,OnInit,OnDestroy {
       }
     });
   }
+
+  goToDashboard() {
+    if (!this.currentUser || !this.currentUser.role) return;
+    if (this.currentUser.role === 'Mentee') {
+      window.location.href = '/mentee/dashboard';
+    } else if (this.currentUser.role === 'Mentor') {
+      window.location.href = '/mentor/dashboard';
+    } else {
+      window.location.href = '/home';
+    }
+  }
 }
