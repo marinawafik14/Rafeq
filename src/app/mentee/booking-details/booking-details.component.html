@@ -142,16 +142,16 @@
                 
                 <div *ngIf="!loadingReview && bookingReview" class="review-content">
                   <div class="d-flex align-items-center mb-3">
-                    <div class="star-rating me-3">
+                    <!-- <div class="star-rating me-3">
                       <span *ngFor="let star of getStarArray(bookingReview.rating)" 
                             class="star"
                             [class.filled]="star">
                         <i class="bi" [class.bi-star-fill]="star" [class.bi-star]="!star"></i>
                       </span>
-                    </div>
-                    <div class="rating-text">
+                    </div> -->
+                    <!-- <div class="rating-text">
                       <span class="fw-bold">{{bookingReview.rating}}/5</span>
-                    </div>
+                    </div> -->
                     <div class="ms-auto">
                       <small class="text-muted">{{formatReviewDate(bookingReview.createdAt)}}</small>
                     </div>
@@ -183,13 +183,6 @@
 <div class="modal" [class.show]="showCancelModal" [style.display]="showCancelModal ? 'block' : 'none'" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
-      <!-- <div class="modal-header bg-danger text-white">
-        <h5 class="modal-title">
-          <i class="bi bi-exclamation-triangle-fill me-2"></i>
-          Cancel Booking
-        </h5>
-        <button type="button" class="btn-close btn-close-white" (click)="closeCancelModal()"></button>
-      </div> -->
       <div class="modal-body">
         <div class="booking-summary mb-4" *ngIf="booking">
           <div class="d-flex align-items-center mb-3">
