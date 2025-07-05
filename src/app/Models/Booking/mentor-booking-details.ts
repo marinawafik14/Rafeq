@@ -4,13 +4,14 @@ export interface MentorBookingDetails {
   mentorName: string;
   menteeId: number;
   menteeName: string;
-  sessionType: string; // 'Mentorship' or 'Interview'
+  sessionType: string;
   startDateTime: Date;
   endDateTime: Date;
-  status: string; // 'Pending', 'Confirmed', 'InProgress', 'Completed', 'Cancelled'
-  googleMeetLink?: string;
-  paymentStatus: string; // 'Paid', 'Unpaid'
+  status: string;
+  googleMeetLink?: string | undefined; 
+  paymentStatus: string;
   totalAmount: number;
   commission?: number;
   createdAt: Date;
+  meetingLinkInput?: string; 
 }
