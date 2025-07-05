@@ -5,7 +5,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-
+import { Router } from '@angular/router'; 
 import { catchError, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -46,7 +46,8 @@ export class MenteeProfileComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private userProfileService: UserProfileService
+    private userProfileService: UserProfileService,
+    private router: Router // Add this to constructor
   ) {}
   ngOnInit(): void {
     this.initForms();
@@ -367,5 +368,8 @@ export class MenteeProfileComponent implements OnInit {
     this.toasts = this.toasts.filter((toast) => toast.id !== id);
   }
 
-  
+  // Add this method at the end of the class, before the closing brace
+  goToMenteeDashboard(): void {
+    this.router.navigate(['/mentee/dashboard']);
+  }
 }
