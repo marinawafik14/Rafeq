@@ -201,9 +201,8 @@ export class MenteeDashboardComponent implements OnInit {
   }
 
   navigateToMessages() {
-    if (this.menteeId) {
-      this.router.navigate(['/mentee/messages']);
-    }
+   
+    this.router.navigate(['/chat']);
   }
 
   navigateToAIAssistant() {
