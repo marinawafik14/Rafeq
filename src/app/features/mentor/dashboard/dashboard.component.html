@@ -45,53 +45,69 @@
     <div *ngIf="!isLoading">
       <!-- Earnings Summary Cards -->
       <div class="row g-4 mb-5">
-        <div class="col-lg-3 col-md-6">
-          <div class="stats-card earnings-card h-100">
-            <div class="card-body text-center p-4">
-              <div class="stats-icon mb-3">
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="col-12">
+          <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading stats...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Cards (only show when not loading) -->
+        <ng-container *ngIf="!isLoading">
+          <!-- Total Earnings -->
+          <div class="col-lg-3 col-md-6">
+            <div class="stats-card text-center">
+              <div class="stats-icon earnings">
                 <i class="fas fa-dollar-sign"></i>
               </div>
-              <h3 class="stats-number mb-1">{{ earnings?.totalEarnings | currency:'USD':'symbol':'1.0-0' }}</h3>
-              <p class="stats-label mb-0">Total Earnings</p>
+              <div class="stats-content">
+                <h3 class="stats-number">${{ earnings?.totalEarnings || 0 }}</h3>
+                <p class="stats-label">TOTAL EARNINGS</p>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <div class="col-lg-3 col-md-6">
-          <div class="stats-card pending-card h-100">
-            <div class="card-body text-center p-4">
-              <div class="stats-icon mb-3">
+
+          <!-- Pending Sessions (Fixed property name) -->
+          <div class="col-lg-3 col-md-6">
+            <div class="stats-card text-center">
+              <div class="stats-icon pending">
                 <i class="fas fa-hourglass-half"></i>
               </div>
-              <h3 class="stats-number mb-1">{{ earnings?.pendingEarnings | currency:'USD':'symbol':'1.0-0' }}</h3>
-              <p class="stats-label mb-0">Pending</p>
+              <div class="stats-content">
+                <h3 class="stats-number">{{ earnings?.pendingSessions || 0 }}</h3>
+                <p class="stats-label">PENDING</p>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <div class="col-lg-3 col-md-6">
-          <div class="stats-card completed-card h-100">
-            <div class="card-body text-center p-4">
-              <div class="stats-icon mb-3">
+
+          <!-- Completed Sessions -->
+          <div class="col-lg-3 col-md-6">
+            <div class="stats-card text-center">
+              <div class="stats-icon completed">
                 <i class="fas fa-check-circle"></i>
               </div>
-              <h3 class="stats-number mb-1">{{ earnings?.completedSessions }}</h3>
-              <p class="stats-label mb-0">Completed Sessions</p>
+              <div class="stats-content">
+                <h3 class="stats-number">{{ earnings?.completedSessions || 0 }}</h3>
+                <p class="stats-label">COMPLETED SESSIONS</p>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <div class="col-lg-3 col-md-6">
-          <div class="stats-card upcoming-card h-100">
-            <div class="card-body text-center p-4">
-              <div class="stats-icon mb-3">
+
+          <!-- Upcoming Sessions -->
+          <div class="col-lg-3 col-md-6">
+            <div class="stats-card text-center">
+              <div class="stats-icon upcoming">
                 <i class="fas fa-calendar-alt"></i>
               </div>
-              <h3 class="stats-number mb-1">{{ earnings?.upcomingSessions }}</h3>
-              <p class="stats-label mb-0">Upcoming Sessions</p>
+              <div class="stats-content">
+                <h3 class="stats-number">{{ earnings?.upcomingSessions || 0 }}</h3>
+                <p class="stats-label">UPCOMING SESSIONS</p>
+              </div>
             </div>
           </div>
-        </div>
+        </ng-container>
       </div>
 
       <!-- Quick Actions Section -->
@@ -304,61 +320,6 @@
               </tbody>
             </table>
           </div>
-        </div>
-      </div>
-
-      <!-- Original Quick Actions (now at bottom) -->
-      <div class="row g-4">
-        <!-- Messages & Chat -->
-        <div class="col-lg-3 col-md-6">
-          <a routerLink="/chat" class="quick-action-card text-decoration-none h-100 d-block">
-            <div class="card-body text-center p-4">
-              <div class="quick-action-icon mb-3">
-                <i class="fas fa-comments"></i>
-              </div>
-              <h5 class="fw-bold mb-2 text-dark">Messages</h5>
-              <p class="text-muted mb-0 small">Chat with your mentees and manage conversations</p>
-            </div>
-          </a>
-        </div>
-        
-        <!-- All Bookings -->
-        <div class="col-lg-3 col-md-6">
-          <a routerLink="/mentor/bookings" class="quick-action-card text-decoration-none h-100 d-block">
-            <div class="card-body text-center p-4">
-              <div class="quick-action-icon mb-3">
-                <i class="fas fa-calendar-check"></i>
-              </div>
-              <h5 class="fw-bold mb-2 text-dark">All Bookings</h5>
-              <p class="text-muted mb-0 small">Manage all your sessions and appointments</p>
-            </div>
-          </a>
-        </div>
-        
-        <!-- Manage Availability -->
-        <div class="col-lg-3 col-md-6">
-          <a routerLink="/mentor/availability" class="quick-action-card text-decoration-none h-100 d-block">
-            <div class="card-body text-center p-4">
-              <div class="quick-action-icon mb-3">
-                <i class="fas fa-calendar-alt"></i>
-              </div>
-              <h5 class="fw-bold mb-2 text-dark">Availability</h5>
-              <p class="text-muted mb-0 small">Set up your schedule and time slots</p>
-            </div>
-          </a>
-        </div>
-        
-        <!-- Update Profile -->
-        <div class="col-lg-3 col-md-6">
-          <a routerLink="/mentor-profile" class="quick-action-card text-decoration-none h-100 d-block">
-            <div class="card-body text-center p-4">
-              <div class="quick-action-icon mb-3">
-                <i class="fas fa-user-edit"></i>
-              </div>
-              <h5 class="fw-bold mb-2 text-dark">Profile</h5>
-              <p class="text-muted mb-0 small">Update your profile and information</p>
-            </div>
-          </a>
         </div>
       </div>
     </div>

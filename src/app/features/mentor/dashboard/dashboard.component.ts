@@ -36,11 +36,16 @@ export class DashboardComponent implements OnInit {
 
   loadDashboardData(): void {
     this.isLoading = true;
+    let pendingSessionsCount = 0;
 
     // Load earnings data first
     this.mentorService.getMentorEarnings().subscribe({
       next: (earnings) => {
         this.earnings = earnings;
+        console.log('Earnings data received:', earnings);
+        
+        // Add calculated pending sessions to earnings
+        this.earnings.pendingSessions = pendingSessionsCount;
       },
       error: (error) => {
         console.error('Error loading earnings data:', error);
@@ -51,11 +56,18 @@ export class DashboardComponent implements OnInit {
     this.mentorService.getTodaySessions(this.mentorId).subscribe({
       next: (sessions) => {
         this.todaySessions = sessions;
-        // Add this debug line
         console.log('Today sessions data:', sessions);
-        sessions.forEach(session => {
-          console.log(`Session ${session.bookingId}: status=${session.status}, googleMeetLink=${session.googleMeetLink}`);
-        });
+        
+        // Calculate pending sessions count
+        pendingSessionsCount = sessions.filter(session => 
+          session.status === 'Pending' || session.status === 'Confirmed'
+        ).length;
+        
+        // Update earnings with calculated pending sessions
+        if (this.earnings) {
+          this.earnings.pendingSessions = pendingSessionsCount;
+        }
+        
         this.isLoading = false;
       },
       error: (error) => {
@@ -68,7 +80,7 @@ export class DashboardComponent implements OnInit {
     // Load upcoming sessions
     this.mentorService.getUpcomingBookings(this.mentorId).subscribe({
       next: (sessions) => {
-        this.upcomingSessions = sessions.slice(0, 5); // Only get the first 5 upcoming sessions
+        this.upcomingSessions = sessions.slice(0, 5);
       },
       error: (error) => {
         console.error('Error loading upcoming sessions:', error);
@@ -257,5 +269,27 @@ export class DashboardComponent implements OnInit {
       default:
         return 'badge bg-secondary';
     }
+  }
+
+  // Add this method to your component for testing
+  testData(): void {
+    console.log('=== EARNINGS DEBUG ===');
+    console.log('Current earnings object:', this.earnings);
+    console.log('Earnings keys:', this.earnings ? Object.keys(this.earnings) : 'No earnings object');
+    console.log('Pending sessions value:', this.earnings?.pendingSessions); // Updated property name
+    console.log('Type of pending sessions:', typeof this.earnings?.pendingSessions);
+    
+    // Check all available properties
+    if (this.earnings) {
+      console.log('All earnings properties:');
+      console.log('  totalEarnings:', this.earnings.totalEarnings);
+      console.log('  thisMonthEarnings:', this.earnings.thisMonthEarnings);
+      console.log('  lastMonthEarnings:', this.earnings.lastMonthEarnings);
+      console.log('  completedSessions:', this.earnings.completedSessions);
+      console.log('  upcomingSessions:', this.earnings.upcomingSessions);
+      console.log('  pendingSessions:', (this.earnings as any).pendingSessions);
+    }
+    
+    console.log('=== END DEBUG ===');
   }
 }
