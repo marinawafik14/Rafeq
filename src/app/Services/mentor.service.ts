@@ -51,4 +51,17 @@ export class MentorService {
         map(response => response.data)
       );
   }
+
+  // Get mentor's earnings summary (mocked data)
+  getMentorEarningsSummary(): Observable<any> {
+    return new Observable(observer => {
+      observer.next({
+        totalEarnings: 1000,
+        completedSessions: 11,
+        upcomingSessions: 19,
+        pendingBookings: 5
+      });
+      observer.complete();
+    });
+  }
 }

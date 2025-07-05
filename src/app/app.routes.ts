@@ -34,11 +34,9 @@ import { MenteeLayoutComponent } from './mentee/mentee-layout.component';
 import { ArticleDetailComponent } from './Auth/article-detail/article-detail.component';
 import { authGuardGuard } from './guards/auth-guard.guard';
 import { AdminDashboardComponent } from './Components/Admin/admin-dashboard/admin-dashboard.component';
-
-
+import { NotificationsComponent } from './features/notifications/notifications.component'; // Add this import
 
 export const routes: Routes = [
-
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
   { path: 'about', component: AboutComponent },
@@ -54,6 +52,15 @@ export const routes: Routes = [
   { path: 'faq', component: FaqComponent },
   { path: 'chat', component: ChatComponent },
   { path: 'chat/:bookingId', component: ChatComponent },
+  
+  
+  { 
+    path: 'notifications', 
+    component: NotificationsComponent,
+    canActivate: [authGuardGuard],
+    data: { roles: ['Admin', 'Mentor', 'Mentee'] }
+  },
+  
   // general guard depends on user role
   {
     path: '',
