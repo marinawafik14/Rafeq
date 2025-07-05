@@ -120,6 +120,11 @@ export class DashboardComponent implements OnInit {
 
   // Replace the canJoinSession method with proper business logic
   canJoinSession(session: MentorBooking): boolean {
+    // Must have meeting link
+    if (!session.googleMeetLink) {
+      return false;
+    }
+    
     const now = new Date();
     const sessionStart = new Date(session.startDateTime);
     const sessionEnd = new Date(session.endDateTime);
@@ -140,17 +145,10 @@ export class DashboardComponent implements OnInit {
       return false;
     }
     
-    // 3. Time-based rules
+    // 3. Time-based rules - can join 15 minutes before to 30 minutes after end
     const canJoinByTime = 
       (minutesUntilStart <= 15 && minutesUntilStart > -30) || // 15 min before to 30 min after start
       (session.status === 'InProgress' && minutesSinceEnd <= 30); // In progress sessions up to 30 min after end
-    
-    console.log(`Session ${session.bookingId}: 
-      - Status: ${session.status}
-      - Payment: ${session.paymentStatus}
-      - Minutes until start: ${minutesUntilStart.toFixed(1)}
-      - Minutes since end: ${minutesSinceEnd.toFixed(1)}
-      - Can join: ${canJoinByTime}`);
     
     return canJoinByTime;
   }
@@ -161,21 +159,31 @@ export class DashboardComponent implements OnInit {
     const sessionStart = new Date(session.startDateTime);
     const minutesUntilStart = (sessionStart.getTime() - now.getTime()) / (1000 * 60);
     
-    // Payment not made
-    if (session.paymentStatus !== 'Paid') {
+    // No meeting link set
+    if (!session.googleMeetLink) {
       return {
-        type: 'payment',
-        label: 'Payment Required',
+        type: 'no-link',
+        label: 'Set Meeting Link',
         class: 'btn-warning',
         enabled: false
       };
     }
     
-    // Session not confirmed yet
-    if (session.status === 'Pending') {
+    // Payment not completed
+    if (session.paymentStatus !== 'Paid') {
       return {
-        type: 'pending',
-        label: 'Awaiting Confirmation',
+        type: 'payment',
+        label: 'Payment Required',
+        class: 'btn-secondary',
+        enabled: false
+      };
+    }
+    
+    // Session completed
+    if (session.status === 'Completed') {
+      return {
+        type: 'completed',
+        label: 'Completed',
         class: 'btn-secondary',
         enabled: false
       };
@@ -196,25 +204,15 @@ export class DashboardComponent implements OnInit {
       return {
         type: 'early',
         label: `Available in ${Math.ceil(minutesUntilStart - 15)} min`,
-        class: 'btn-outline-primary',
+        class: 'btn-secondary',
         enabled: false
       };
     }
     
-    // Session ended
-    if (session.status === 'Completed') {
-      return {
-        type: 'completed',
-        label: 'Session Completed',
-        class: 'btn-success',
-        enabled: false
-      };
-    }
-    
-    // Default - session ended or cancelled
+    // Default state
     return {
-      type: 'ended',
-      label: 'Session Ended',
+      type: 'default',
+      label: 'Not Available',
       class: 'btn-secondary',
       enabled: false
     };
