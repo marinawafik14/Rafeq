@@ -91,6 +91,13 @@ export class MentorBookingService {
       );
   }
 
+  // Update meeting link
+  updateMeetingLink(bookingId: number, meetingLink: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/bookings/${bookingId}/meeting-link`, {
+      meetingLink: meetingLink
+    });
+  }
+
   // Helper methods for frontend logic
   getAvailableActions(booking: MentorBookingDetails): BookingAction[] {
     const actions: BookingAction[] = [];

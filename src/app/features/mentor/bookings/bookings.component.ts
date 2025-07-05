@@ -50,6 +50,7 @@ export class BookingsComponent implements OnInit {
   // UI state
   isLoading: boolean = true;
   isUpdatingStatus: boolean = false;
+  isUpdatingMeetingLink: boolean = false;
   error: string | null = null;
   selectedBooking: MentorBookingDetails | null = null;
   showDetailsModal: boolean = false;
@@ -743,27 +744,144 @@ export class BookingsComponent implements OnInit {
 
   // Add this method to your BookingsComponent class
   canShowJoinButton(booking: MentorBookingDetails): boolean {
-    return booking.status === 'Confirmed' || booking.status === 'InProgress';
+    // Must have meeting link set
+    if (!booking.googleMeetLink) {
+      return false;
+    }
+    
+    // Must be confirmed or in progress
+    if (booking.status !== 'Confirmed' && booking.status !== 'InProgress') {
+      return false;
+    }
+    
+    // Must be paid
+    if (booking.paymentStatus !== 'Paid') {
+      return false;
+    }
+    
+    return true;
   }
 
   // Add this method to handle join functionality
   joinSessionFromBookings(booking: MentorBookingDetails): void {
+    if (!booking.googleMeetLink) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'No Meeting Link',
+        text: 'Please set up the meeting link first.',
+        confirmButtonColor: '#0a2e65'
+      });
+      return;
+    }
+
     console.log('Joining session:', booking.bookingId);
     
-    // Call the mentor booking service to join
     this.mentorBookingService.joinBooking(booking.bookingId).subscribe({
       next: (joinInfo) => {
-        // Update status locally
-        booking.status = 'InProgress';
+        // Update status locally if needed
+        if (booking.status === 'Confirmed') {
+          booking.status = 'InProgress';
+        }
         
-        // Open Google Meet link
+        // Open the meeting link
         window.open(joinInfo.meetLink, '_blank');
         
-        console.log('Session joined successfully');
+        Swal.fire({
+          icon: 'success',
+          title: 'Session Joined!',
+          text: 'Opening meeting in new tab...',
+          timer: 2000,
+          showConfirmButton: false,
+          toast: true,
+          position: 'top-end'
+        });
       },
       error: (error) => {
         console.error('Error joining session:', error);
+        let errorMessage = 'Unable to join the session.';
+        
+        if (error.error?.message) {
+          errorMessage = error.error.message;
+        }
+        
+        Swal.fire({
+          icon: 'error',
+          title: 'Cannot Join Session',
+          text: errorMessage,
+          confirmButtonColor: '#0a2e65'
+        });
       }
     });
+  }
+
+  updateMeetingLink(booking: MentorBookingDetails): void {
+    if (!booking.meetingLinkInput?.trim()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Invalid Link',
+        text: 'Please enter a valid meeting link.',
+        confirmButtonColor: '#0a2e65'
+      });
+      return;
+    }
+
+    this.isUpdatingMeetingLink = true;
+
+    this.mentorBookingService.updateMeetingLink(booking.bookingId, booking.meetingLinkInput).subscribe({
+      next: (response: any) => { // Add explicit type
+        if (response.success) {
+          booking.googleMeetLink = booking.meetingLinkInput;
+          booking.meetingLinkInput = '';
+          
+          const index = this.allBookings.findIndex(b => b.bookingId === booking.bookingId);
+          if (index !== -1) {
+            this.allBookings[index].googleMeetLink = booking.googleMeetLink;
+          }
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Link Saved!',
+            text: 'Meeting link has been saved successfully.',
+            timer: 2000,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+          });
+        }
+      },
+      error: (error: any) => { // Add explicit type
+        console.error('Error updating meeting link:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Failed to Save',
+          text: 'Please check the link format and try again.',
+          confirmButtonColor: '#0a2e65'
+        });
+      },
+      complete: () => {
+        this.isUpdatingMeetingLink = false;
+      }
+    });
+  }
+
+  editMeetingLink(booking: MentorBookingDetails): void {
+    booking.meetingLinkInput = booking.googleMeetLink || '';
+    // Fix the type issue by setting to undefined instead of null
+    booking.googleMeetLink = undefined;
+  }
+
+  copyMeetingLink(booking: MentorBookingDetails): void {
+    if (booking.googleMeetLink) {
+      navigator.clipboard.writeText(booking.googleMeetLink);
+      Swal.fire({
+        icon: 'success',
+        title: 'Copied!',
+        text: 'Meeting link copied to clipboard.',
+        timer: 1500,
+        showConfirmButton: false,
+        toast: true,
+        position: 'top-end'
+      });
+    }
   }
 }

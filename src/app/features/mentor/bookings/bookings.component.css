@@ -503,6 +503,47 @@
   border-width: 0.2em;
 }
 
+/* Meeting Setup Styles */
+.meeting-setup-section {
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  padding-top: 1rem;
+}
+
+.alert-sm {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.meeting-link-input .input-group {
+  margin-top: 0.5rem;
+}
+
+.meeting-link-input .form-control {
+  font-size: 0.875rem;
+}
+
+.meeting-actions {
+  margin-top: 0.5rem;
+}
+
+.meeting-actions .btn-sm {
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+.no-link-container,
+.link-exists-container {
+  padding: 1rem;
+  background: rgba(248, 249, 250, 0.5);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.link-exists-container {
+  background: rgba(40, 167, 69, 0.05);
+  border-color: rgba(40, 167, 69, 0.2);
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
   .bookings-grid {

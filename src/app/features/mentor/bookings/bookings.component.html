@@ -234,27 +234,85 @@
                 </div>
               </div>
 
-              <!-- Action Buttons -->
-              <div class="action-buttons">
-                <div class="d-flex gap-2 flex-wrap">
-                  <!-- Simple join button that won't conflict -->
-                  <button *ngIf="canShowJoinButton(booking)" 
-                          class="btn btn-primary btn-sm rounded-pill"
-                          (click)="joinSessionFromBookings(booking)">
-                    <i class="fas fa-video me-1"></i>
-                    Join Session
-                  </button>
+              <!-- Enhanced Meeting Setup Section (Add this before action buttons) -->
+              <div class="meeting-setup-section mb-3" *ngIf="booking.status === 'Confirmed'">
+                <!-- If no meeting link set yet -->
+                <div *ngIf="!booking.googleMeetLink" class="no-link-container">
+                  <div class="alert alert-warning alert-sm">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <small>Meeting link required to join session</small>
+                  </div>
                   
-                  <!-- Keep existing action buttons -->
-                  <button *ngFor="let action of getActions(booking)" 
-                          class="btn btn-sm rounded-pill"
-                          [ngClass]="action.cssClass"
-                          [disabled]="!action.enabled || isUpdatingStatus"
-                          (click)="executeAction(action, booking)">
-                    <i [class]="action.icon + ' me-1'"></i>
-                    {{ action.label }}
-                  </button>
+                  <!-- Quick create button and input -->
+                  <div class="meeting-link-input">
+                    <div class="input-group input-group-sm">
+                      <input 
+                        type="url" 
+                        [(ngModel)]="booking.meetingLinkInput" 
+                        placeholder="Paste Google Meet link here..."
+                        class="form-control">
+                      <a href="https://meet.google.com/" target="_blank" 
+                         class="btn btn-outline-primary btn-sm"
+                         title="Create Google Meet">
+                        <i class="fab fa-google me-1"></i>Create
+                      </a>
+                      <button 
+                        (click)="updateMeetingLink(booking)"
+                        class="btn btn-success btn-sm"
+                        [disabled]="!booking.meetingLinkInput"
+                        title="Save meeting link">
+                        <i class="fas fa-save"></i>
+                      </button>
+                    </div>
+                  </div>
                 </div>
+                
+                <!-- If meeting link exists -->
+                <div *ngIf="booking.googleMeetLink" class="link-exists-container">
+                  <div class="alert alert-success alert-sm">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <small>Meeting ready!</small>
+                  </div>
+                  
+                  <div class="meeting-actions d-flex gap-1">
+                    <button (click)="editMeetingLink(booking)" 
+                            class="btn btn-outline-secondary btn-sm">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button (click)="copyMeetingLink(booking)" 
+                            class="btn btn-outline-info btn-sm">
+                      <i class="fas fa-copy"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Updated Join Button -->
+              <div class="d-flex gap-2 flex-wrap">
+                <!-- Join button - only show if meeting link exists -->
+                <button *ngIf="canShowJoinButton(booking)" 
+                        class="btn btn-primary btn-sm rounded-pill"
+                        (click)="joinSessionFromBookings(booking)">
+                  <i class="fas fa-video me-1"></i>
+                  Join Session
+                </button>
+                
+                <!-- Show message if no meeting link -->
+                <span *ngIf="booking.status === 'Confirmed' && !booking.googleMeetLink" 
+                      class="text-warning small">
+                  <i class="fas fa-exclamation-triangle me-1"></i>
+                  Set meeting link to enable join button
+                </span>
+                
+                <!-- Keep existing action buttons -->
+                <button *ngFor="let action of getActions(booking)" 
+                        class="btn btn-sm rounded-pill"
+                        [ngClass]="action.cssClass"
+                        [disabled]="!action.enabled || isUpdatingStatus"
+                        (click)="executeAction(action, booking)">
+                  <i [class]="action.icon + ' me-1'"></i>
+                  {{ action.label }}
+                </button>
               </div>
             </div>
           </div>
