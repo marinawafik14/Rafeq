@@ -955,11 +955,14 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  margin: 0 auto 1rem auto;
+ 
 }
 
 .action-icon i {
   font-size: 1.5rem;
   color: white;
+  
 }
 
 .action-content h4 {
@@ -1025,5 +1028,12 @@
 @media (max-width: 1200px) {
   .content-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Show 5 quick actions in one row on large screens */
+@media (min-width: 1200px) {
+  .actions-grid {
+    grid-template-columns: repeat(5, 1fr);
   }
 }
