@@ -27,15 +27,8 @@ export class ArticleFormComponent implements OnInit {
   isEditMode: boolean = false;
   articleId: number | null = null;
   loading: boolean = false;
-  authors: UserFADto[] = []; // Using UserFADto for authors
-  categories: string[] = [
-    'Mentoring',
-    'Career',
-    'Interview',
-    'CV',
-    'Product Update',
-    'General',
-  ]; // Hardcoded categories for example
+  authors: UserFADto[] = [];
+  categories: string[] = ['Mentoring', 'Career', 'Interview', 'CV'];
 
   constructor(
     private fb: FormBuilder,
