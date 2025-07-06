@@ -26,6 +26,7 @@ export class AiInputAreaComponent implements OnInit {
   isUploading = false;
   uploadProgress = 0;
   dragActive = false;
+  uploadError: string | null = null;
 
   // Suggestions based on mode
   suggestions: string[] = [];
@@ -137,9 +138,14 @@ export class AiInputAreaComponent implements OnInit {
     this.fileInput.nativeElement.click();
   }
 
+  clearError(): void {
+    this.uploadError = null;
+  }
+
   private async handleFiles(files: File[]): Promise<void> {
     this.isUploading = true;
     this.uploadProgress = 0;
+    this.uploadError = null; // Clear previous errors
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -148,8 +154,13 @@ export class AiInputAreaComponent implements OnInit {
         // Update progress
         this.uploadProgress = Math.round(((i + 0.5) / files.length) * 100);
 
-        // Process file
-        const processedFile = await this.fileProcessingService.processFile(file).toPromise();
+        // Process file with timeout
+        const processedFile = await Promise.race([
+          this.fileProcessingService.processFile(file).toPromise(),
+          new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Processing timeout')), 30000) // 30 second timeout
+          )
+        ]) as FileAttachment;
         
         if (processedFile) {
           this.fileUploaded.emit(processedFile);
@@ -159,9 +170,24 @@ export class AiInputAreaComponent implements OnInit {
         // Update progress
         this.uploadProgress = Math.round(((i + 1) / files.length) * 100);
         
-      } catch (error) {
+      } catch (error: unknown) {
         console.error('Error processing file:', error);
-        // Could emit error event here
+        
+        const errorMessage = this.getErrorMessage(error);
+        this.uploadError = `Failed to process ${file.name}: ${errorMessage}`;
+        
+        // Still create fallback attachment
+        if (file.type === 'application/pdf') {
+          const fallbackAttachment: FileAttachment = {
+            id: Date.now().toString(36) + Math.random().toString(36).substr(2),
+            fileName: file.name,
+            fileType: file.type,
+            fileSize: file.size,
+            uploadedAt: new Date(),
+            content: `[PDF Upload: ${file.name}] - Text extraction failed. Please describe the contents of your CV in your message.`
+          };
+          this.fileUploaded.emit(fallbackAttachment);
+        }
       }
     }
 
@@ -174,6 +200,20 @@ export class AiInputAreaComponent implements OnInit {
         this.fileInput.nativeElement.value = '';
       }
     }, 1000);
+  }
+
+  // Add this helper method to the component
+  private getErrorMessage(error: unknown): string {
+    if (error instanceof Error) {
+      return error.message;
+    }
+    if (typeof error === 'string') {
+      return error;
+    }
+    if (error && typeof error === 'object' && 'message' in error) {
+      return String((error as any).message);
+    }
+    return 'Unknown error occurred';
   }
 
   // Drag and drop handling

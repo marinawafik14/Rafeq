@@ -45,143 +45,271 @@
     <div *ngIf="!isLoading">
       <!-- Earnings Summary Cards -->
       <div class="row g-4 mb-5">
-        <div class="col-lg-3 col-md-6">
-          <div class="stats-card earnings-card h-100">
-            <div class="card-body text-center p-4">
-              <div class="stats-icon mb-3">
+        <!-- Loading State -->
+        <div *ngIf="isLoading" class="col-12">
+          <div class="text-center py-4">
+            <div class="spinner-border text-primary" role="status">
+              <span class="visually-hidden">Loading stats...</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Cards (only show when not loading) -->
+        <ng-container *ngIf="!isLoading">
+          <!-- Total Earnings -->
+          <div class="col-lg-3 col-md-6">
+            <div class="stats-card text-center">
+              <div class="stats-icon earnings">
                 <i class="fas fa-dollar-sign"></i>
               </div>
-              <h3 class="stats-number mb-1">{{ earnings?.totalEarnings | currency:'USD':'symbol':'1.0-0' }}</h3>
-              <p class="stats-label mb-0">Total Earnings</p>
+              <div class="stats-content">
+                <h3 class="stats-number">${{ earnings?.totalEarnings || 0 }}</h3>
+                <p class="stats-label">TOTAL EARNINGS</p>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <div class="col-lg-3 col-md-6">
-          <div class="stats-card pending-card h-100">
-            <div class="card-body text-center p-4">
-              <div class="stats-icon mb-3">
+
+          <!-- Pending Sessions (Fixed property name) -->
+          <div class="col-lg-3 col-md-6">
+            <div class="stats-card text-center">
+              <div class="stats-icon pending">
                 <i class="fas fa-hourglass-half"></i>
               </div>
-              <h3 class="stats-number mb-1">{{ earnings?.pendingEarnings | currency:'USD':'symbol':'1.0-0' }}</h3>
-              <p class="stats-label mb-0">Pending</p>
+              <div class="stats-content">
+                <h3 class="stats-number">{{ earnings?.pendingSessions || 0 }}</h3>
+                <p class="stats-label">PENDING</p>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <div class="col-lg-3 col-md-6">
-          <div class="stats-card completed-card h-100">
-            <div class="card-body text-center p-4">
-              <div class="stats-icon mb-3">
+
+          <!-- Completed Sessions -->
+          <div class="col-lg-3 col-md-6">
+            <div class="stats-card text-center">
+              <div class="stats-icon completed">
                 <i class="fas fa-check-circle"></i>
               </div>
-              <h3 class="stats-number mb-1">{{ earnings?.completedSessions }}</h3>
-              <p class="stats-label mb-0">Completed Sessions</p>
+              <div class="stats-content">
+                <h3 class="stats-number">{{ earnings?.completedSessions || 0 }}</h3>
+                <p class="stats-label">COMPLETED SESSIONS</p>
+              </div>
             </div>
           </div>
-        </div>
-        
-        <div class="col-lg-3 col-md-6">
-          <div class="stats-card upcoming-card h-100">
-            <div class="card-body text-center p-4">
-              <div class="stats-icon mb-3">
+
+          <!-- Upcoming Sessions -->
+          <div class="col-lg-3 col-md-6">
+            <div class="stats-card text-center">
+              <div class="stats-icon upcoming">
                 <i class="fas fa-calendar-alt"></i>
               </div>
-              <h3 class="stats-number mb-1">{{ earnings?.upcomingSessions }}</h3>
-              <p class="stats-label mb-0">Upcoming Sessions</p>
+              <div class="stats-content">
+                <h3 class="stats-number">{{ earnings?.upcomingSessions || 0 }}</h3>
+                <p class="stats-label">UPCOMING SESSIONS</p>
+              </div>
             </div>
+          </div>
+        </ng-container>
+      </div>
+
+      <!-- Quick Actions Section -->
+      <div class="quick-actions-section mb-5">
+        <div class="section-header mb-4">
+          <h3 class="fw-bold text-dark">
+            <i class="fas fa-bolt me-2 text-primary"></i>Quick Actions
+          </h3>
+          <p class="text-muted mb-0">Access your most-used features instantly</p>
+        </div>
+        
+        <div class="row g-4">
+          <!-- Messages & Chat -->
+          <div class="col-lg-3 col-md-6">
+            <a routerLink="/chat" class="quick-action-card text-decoration-none h-100 d-block">
+              <div class="card-body text-center p-4">
+                <div class="quick-action-icon mb-3">
+                  <i class="fas fa-comments"></i>
+                </div>
+                <h5 class="fw-bold mb-2 text-dark">Messages</h5>
+                <p class="text-muted mb-0 small">Chat with your mentees and manage conversations</p>
+              </div>
+            </a>
+          </div>
+          
+          <!-- All Bookings -->
+          <div class="col-lg-3 col-md-6">
+            <a routerLink="/mentor/bookings" class="quick-action-card text-decoration-none h-100 d-block">
+              <div class="card-body text-center p-4">
+                <div class="quick-action-icon mb-3">
+                  <i class="fas fa-calendar-check"></i>
+                </div>
+                <h5 class="fw-bold mb-2 text-dark">All Bookings</h5>
+                <p class="text-muted mb-0 small">Manage all your sessions and appointments</p>
+              </div>
+            </a>
+          </div>
+          
+          <!-- Manage Availability -->
+          <div class="col-lg-3 col-md-6">
+            <a routerLink="/mentor/availability" class="quick-action-card text-decoration-none h-100 d-block">
+              <div class="card-body text-center p-4">
+                <div class="quick-action-icon mb-3">
+                  <i class="fas fa-calendar-alt"></i>
+                </div>
+                <h5 class="fw-bold mb-2 text-dark">Availability</h5>
+                <p class="text-muted mb-0 small">Set up your schedule and time slots</p>
+              </div>
+            </a>
+          </div>
+          
+          <!-- Update Profile -->
+          <div class="col-lg-3 col-md-6">
+            <a routerLink="/mentor-profile" class="quick-action-card text-decoration-none h-100 d-block">
+              <div class="card-body text-center p-4">
+                <div class="quick-action-icon mb-3">
+                  <i class="fas fa-user-edit"></i>
+                </div>
+                <h5 class="fw-bold mb-2 text-dark">Profile</h5>
+                <p class="text-muted mb-0 small">Update your profile and information</p>
+              </div>
+            </a>
           </div>
         </div>
       </div>
 
-      <!-- Today's Sessions -->
+      <!-- Today's Sessions with Pagination -->
       <div class="session-card mb-5">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <div>
-            <h5 class="mb-1 fw-bold">
-              <i class="fas fa-calendar-day me-2 text-primary"></i>Today's Sessions
-            </h5>
-            <p class="text-muted mb-0 small">Your schedule for today</p>
+          <h4 class="mb-0">
+            <i class="fas fa-calendar-day me-2 text-primary"></i>
+            Today's Sessions
+            <span class="badge bg-primary ms-2">{{ todaySessions.length }}</span>
+          </h4>
+          <div class="header-actions">
+            <small class="text-muted">
+              Showing {{ paginatedTodaySessions.length }} of {{ todaySessions.length }} sessions
+            </small>
           </div>
-          <a routerLink="/mentor/bookings" class="btn btn-outline-primary btn-sm rounded-pill">
-            View All <i class="fas fa-arrow-right ms-1"></i>
-          </a>
         </div>
+        
         <div class="card-body p-0">
-          <div *ngIf="todaySessions.length === 0" class="empty-state p-5 text-center">
-            <i class="fas fa-calendar-check fa-3x text-muted mb-3"></i>
-            <h6 class="text-muted">No sessions scheduled for today</h6>
-            <p class="text-muted small mb-0">Enjoy your free time or check your availability settings</p>
+          <!-- No sessions message -->
+          <div *ngIf="todaySessions.length === 0" class="text-center py-5">
+            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">No sessions scheduled for today</h5>
+            <p class="text-muted">Check your upcoming sessions or set your availability.</p>
           </div>
           
+          <!-- Sessions table -->
           <div *ngIf="todaySessions.length > 0" class="table-responsive">
-            <table class="table table-hover mb-0 sessions-table">
-              <thead>
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
                 <tr>
-                  <th class="border-0 ps-4">Time</th>
-                  <th class="border-0">Mentee</th>
-                  <th class="border-0">Type</th>
-                  <th class="border-0">Status</th>
-                  <th class="border-0 text-end pe-4">Action</th>
+                  <th>Time</th>
+                  <th>Mentee</th>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Payment</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let session of todaySessions" class="session-row">
-                  <td class="ps-4">
-                    <div class="time-display">
-                      <strong>{{ session.startDateTime | date:'shortTime' }}</strong>
-                      <small class="text-muted d-block">{{ session.endDateTime | date:'shortTime' }}</small>
-                    </div>
+                <tr *ngFor="let session of paginatedTodaySessions; trackBy: trackByBookingId">
+                  <td class="align-middle">
+                    <div class="fw-bold">{{ session.startDateTime | date:'shortTime' }}</div>
+                    <small class="text-muted">{{ session.startDateTime | date:'shortTime' }} - {{ session.endDateTime | date:'shortTime' }}</small>
                   </td>
-                  <td>
-                    <div class="mentee-info">
-                      <strong>{{ session.menteeName }}</strong>
-                    </div>
+                  <td class="align-middle">
+                    <div class="fw-bold">{{ session.menteeName }}</div>
+                    <small class="text-muted">{{ session.sessionType }}</small>
                   </td>
-                  <td>
-                    <span class="session-type">{{ session.sessionType }}</span>
+                  <td class="align-middle">
+                    <span class="badge bg-info">{{ session.sessionType }}</span>
                   </td>
-                  <td>
-                    <span [ngClass]="getStatusBadgeClass(session.status)">
+                  <td class="align-middle">
+                    <span [class]="getStatusBadgeClass(session.status)">
                       {{ session.status }}
                     </span>
                   </td>
-                  <td class="text-end pe-4">
-                    <ng-container *ngIf="getSessionButtonState(session) as buttonState">
-                      <!-- Join/Rejoin Button -->
-                      <button *ngIf="buttonState.type === 'join'" 
-                              class="btn btn-sm rounded-pill me-2"
-                              [ngClass]="buttonState.class"
-                              [disabled]="!buttonState.enabled"
+                  <td class="align-middle">
+                    <span class="badge" [class]="session.paymentStatus === 'Paid' ? 'bg-success' : 'bg-warning'">
+                      {{ session.paymentStatus }}
+                    </span>
+                  </td>
+                  <td class="align-middle">
+                    <ng-container [ngSwitch]="getSessionButtonState(session).type">
+                      <!-- Join Button -->
+                      <button *ngSwitchCase="'join'" 
+                              class="btn btn-sm btn-primary me-2"
+                              [disabled]="!getSessionButtonState(session).enabled"
                               (click)="joinSession(session.bookingId, session.googleMeetLink)">
                         <i class="fas fa-video me-1"></i>
-                        {{ buttonState.label }}
+                        {{ getSessionButtonState(session).label }}
                       </button>
                       
                       <!-- Other States -->
-                      <button *ngIf="buttonState.type !== 'join'" 
-                              class="btn btn-sm rounded-pill me-2"
-                              [ngClass]="buttonState.class"
-                              [disabled]="!buttonState.enabled">
-                        <i class="fas fa-clock me-1" *ngIf="buttonState.type === 'early'"></i>
-                        <i class="fas fa-exclamation-triangle me-1" *ngIf="buttonState.type === 'payment'"></i>
-                        <i class="fas fa-hourglass-half me-1" *ngIf="buttonState.type === 'pending'"></i>
-                        <i class="fas fa-check me-1" *ngIf="buttonState.type === 'completed'"></i>
-                        {{ buttonState.label }}
-                      </button>
-                      
-                      <!-- Complete Button (only for ongoing sessions) -->
-                      <button *ngIf="(session.status === 'Confirmed' || session.status === 'InProgress') && canJoinSession(session)" 
-                              class="btn btn-success btn-sm rounded-pill"
-                              (click)="markComplete(session)">
-                        <i class="fas fa-check me-1"></i>
-                        Complete
+                      <button *ngSwitchDefault 
+                              class="btn btn-sm me-2"
+                              [ngClass]="getSessionButtonState(session).class"
+                              [disabled]="!getSessionButtonState(session).enabled">
+                        {{ getSessionButtonState(session).label }}
                       </button>
                     </ng-container>
+                    
+                    <!-- Complete Button -->
+                    <button *ngIf="session.status === 'InProgress'" 
+                            class="btn btn-sm btn-outline-success"
+                            (click)="markComplete(session)">
+                      <i class="fas fa-check me-1"></i>
+                      Complete
+                    </button>
                   </td>
                 </tr>
               </tbody>
             </table>
+          </div>
+          
+          <!-- Pagination -->
+          <div *ngIf="totalPages > 1" class="card-footer">
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="pagination-info">
+                <small class="text-muted">
+                  Page {{ currentPage }} of {{ totalPages }} 
+                  ({{ todaySessions.length }} total sessions)
+                </small>
+              </div>
+              
+              <nav aria-label="Today's sessions pagination">
+                <ul class="pagination pagination-sm mb-0">
+                  <!-- Previous Button -->
+                  <li class="page-item" [class.disabled]="currentPage === 1">
+                    <button class="page-link" (click)="previousPage()" [disabled]="currentPage === 1">
+                      <i class="fas fa-chevron-left"></i>
+                      Previous
+                    </button>
+                  </li>
+                  
+                  <!-- Page Numbers -->
+                  <li *ngFor="let page of getPageNumbers()" 
+                      class="page-item" 
+                      [class.active]="page === currentPage"
+                      [class.disabled]="page === -1">
+                    <button *ngIf="page !== -1" 
+                            class="page-link" 
+                            (click)="goToPage(page)"
+                            [class.active]="page === currentPage">
+                      {{ page }}
+                    </button>
+                    <span *ngIf="page === -1" class="page-link">...</span>
+                  </li>
+                  
+                  <!-- Next Button -->
+                  <li class="page-item" [class.disabled]="currentPage === totalPages">
+                    <button class="page-link" (click)="nextPage()" [disabled]="currentPage === totalPages">
+                      Next
+                      <i class="fas fa-chevron-right"></i>
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            </div>
           </div>
         </div>
       </div>
@@ -240,45 +368,6 @@
               </tbody>
             </table>
           </div>
-        </div>
-      </div>
-
-      <!-- Quick Actions -->
-      <div class="row g-4">
-        <div class="col-md-4">
-          <a routerLink="/mentor/availability" class="action-card text-decoration-none h-100 d-block">
-            <div class="card-body text-center p-4">
-              <div class="action-icon mb-3">
-                <i class="fas fa-calendar-alt"></i>
-              </div>
-              <h5 class="fw-bold mb-2">Manage Availability</h5>
-              <p class="text-muted mb-0">Set up your schedule and manage your available time slots</p>
-            </div>
-          </a>
-        </div>
-        
-        <div class="col-md-4">
-          <a routerLink="/mentor-profile" class="action-card text-decoration-none h-100 d-block">
-            <div class="card-body text-center p-4">
-              <div class="action-icon mb-3">
-                <i class="fas fa-user-edit"></i>
-              </div>
-              <h5 class="fw-bold mb-2">Update Profile</h5>
-              <p class="text-muted mb-0">Keep your profile up to date to attract more mentees</p>
-            </div>
-          </a>
-        </div>
-        
-        <div class="col-md-4">
-          <a routerLink="/mentor/cv-review" class="action-card text-decoration-none h-100 d-block">
-            <div class="card-body text-center p-4">
-              <div class="action-icon mb-3">
-                <i class="fas fa-file-alt"></i>
-              </div>
-              <h5 class="fw-bold mb-2">CV Reviews</h5>
-              <p class="text-muted mb-0">Review CVs from your mentees and provide feedback</p>
-            </div>
-          </a>
         </div>
       </div>
     </div>

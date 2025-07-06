@@ -34,10 +34,7 @@ import { MenteeLayoutComponent } from './mentee/mentee-layout.component';
 import { ArticleDetailComponent } from './Auth/article-detail/article-detail.component';
 import { authGuardGuard } from './guards/auth-guard.guard';
 import { AdminDashboardComponent } from './Components/Admin/admin-dashboard/admin-dashboard.component';
-import { AdminArticleListComponent } from './Auth/admin-article-list/admin-article-list.component';
-import { AdminFaqListComponent } from './Auth/admin-faq-list/admin-faq-list.component';
-import { ArticleFormComponent } from './Auth/article-form/article-form.component';
-import { FaqFormComponent } from './Auth/faq-form/faq-form.component';
+import { NotificationsComponent } from './features/notifications/notifications.component'; // Add this import
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -55,6 +52,15 @@ export const routes: Routes = [
   { path: 'faq', component: FaqComponent },
   { path: 'chat', component: ChatComponent },
   { path: 'chat/:bookingId', component: ChatComponent },
+
+
+  {
+    path: 'notifications',
+    component: NotificationsComponent,
+    canActivate: [authGuardGuard],
+    data: { roles: ['Admin', 'Mentor', 'Mentee'] }
+  },
+
   // general guard depends on user role
   {
     path: '',
