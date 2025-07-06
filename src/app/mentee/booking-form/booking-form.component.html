@@ -119,85 +119,101 @@
                 </div>
               </div>
 
-              <!-- Step 2: Enhanced Date & Time Selection -->
-              <div class="step-content" *ngIf="step === 2">
-                <div class="step-header">
-                  <h3><i class="bi bi-calendar-event me-2"></i>Select Date & Time</h3>
-                  <p class="step-description">Choose your preferred date and time slot</p>
-                </div>
+             <!-- Step 2:  Date & Time Selection with Pagination -->
+<div class="step-content" *ngIf="step === 2">
+  <div class="step-header">
+    <h3><i class="bi bi-calendar-event me-2"></i>Select Date & Time</h3>
+    <p class="step-description">Choose your preferred date and time slot</p>
+  </div>
 
-                <!-- Loading State -->
-                <div class="text-center my-4" *ngIf="loadingSlots">
-                  <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading available dates...</span>
-                  </div>
-                  <p class="mt-2 text-muted">Loading available dates...</p>
-                </div>
+  <!-- Loading State -->
+  <div class="text-center my-4" *ngIf="loadingSlots">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading available dates...</span>
+    </div>
+    <p class="mt-2 text-muted">Loading available dates...</p>
+  </div>
 
-                <!-- Available Days with Time Slots -->
-                <div class="availability-section" *ngIf="!loadingSlots && availableDates.length > 0">
-                  <h5 class="mb-3">Select Date</h5>
-                  <div class="available-days-horizontal d-flex flex-wrap gap-3 justify-content-start">
-                    <div class="day-availability-card flex-shrink-0" 
-                         *ngFor="let date of availableDates"
-                         [class.selected]="selectedDate === date"
-                         [class.disabled]="!hasSlots(date) || hasPendingBooking"
-                         (click)="hasSlots(date) && !hasPendingBooking && selectDate(date)">
-                      
-                      <!-- Day Header -->
-                      <div class="day-header">
-                        <div class="day-info">
-                          <div class="day-main">
-                            <span class="day-name">{{date | date:'EEE'}}</span>
-                            <span class="day-date">{{date | date:'MMM d'}}</span>
-                          </div>
-                        </div>
-                        <div class="slots-count">
-                          <span class="badge rounded-pill" 
-                                [ngClass]="{'bg-primary': hasSlots(date), 'bg-secondary': !hasSlots(date)}">
-                            {{ getSlotsForDate(date).length }} Slots
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+  <!-- Available Days with Time Slots -->
+  <div class="availability-section" *ngIf="!loadingSlots && availableDates.length > 0">
+    <h5 class="mb-3">Select Date</h5>
+    
+    <!-- Pagination Controls - Top -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <button class="btn btn-outline-secondary btn-sm" 
+              [disabled]="currentPage === 1" 
+              (click)="previousPage()">
+        <i class="bi bi-chevron-left"></i> Previous
+      </button>
+      <span class="text-muted">Page {{currentPage}} of {{totalPages}}</span>
+      <button class="btn btn-outline-secondary btn-sm" 
+              [disabled]="currentPage === totalPages" 
+              (click)="nextPage()">
+        Next <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+    
+    <div class="available-days-horizontal d-flex flex-wrap gap-3 justify-content-start">
+      <div class="day-availability-card flex-shrink-0" 
+           *ngFor="let date of paginatedDates"
+           [class.selected]="selectedDate === date"
+           [class.disabled]="!hasSlots(date) || hasPendingBooking"
+           (click)="hasSlots(date) && !hasPendingBooking && selectDate(date)">
+        
+        <div class="day-header">
+          <div class="day-info">
+            <div class="day-main">
+              <span class="day-name">{{date | date:'EEE'}}</span>
+              <span class="day-date">{{date | date:'MMM d'}}</span>
+            </div>
+          </div>
+          <div class="slots-count">
+            <span class="badge rounded-pill" 
+                  [ngClass]="{'bg-primary': hasSlots(date), 'bg-secondary': !hasSlots(date)}">
+              {{ getSlotsForDate(date).length }} Slots
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
 
-                <!-- Time Slots Grid (shown after date selection) -->
-                <div class="time-slots-section mt-4" *ngIf="selectedDate && availableSlots.length > 0">
-                  <h5 class="mb-3">Select Time Slot for {{selectedDate | date:'EEEE, MMMM d'}}</h5>
-                  <div class="time-slots-grid">
-                    <button class="time-slot-btn" 
-                            *ngFor="let slot of availableSlots"
-                            [class.selected]="selectedSlot === slot"
-                            [disabled]="hasPendingBooking"
-                            (click)="!hasPendingBooking && selectSlot(slot)">
-                      <i class="bi bi-clock"></i>
-                      <span class="time-text">{{slot}}</span>
-                    </button>
-                  </div>
-                </div>
+  </div>
 
-                <!-- No Availability State -->
-                <div class="no-availability-state" *ngIf="!loadingSlots && availableDates.length === 0">
-                  <div class="no-availability-content">
-                    <i class="bi bi-calendar-x"></i>
-                    <h4>No Available Slots</h4>
-                    <p>This mentor doesn't have any available time slots at the moment.</p>
-                  </div>
-                </div>
+  <!-- Time Slots Grid -->
+  <div class="time-slots-section mt-4" *ngIf="selectedDate && availableSlots.length > 0">
+    <h5 class="mb-3">Select Time Slot for {{selectedDate | date:'EEEE, MMMM d'}}</h5>
+    <div class="time-slots-grid">
+      <button class="time-slot-btn" 
+              *ngFor="let slot of availableSlots"
+              [class.selected]="selectedSlot === slot"
+              [disabled]="hasPendingBooking"
+              (click)="!hasPendingBooking && selectSlot(slot)">
+        <i class="bi bi-clock"></i>
+        <span class="time-text">{{slot}}</span>
+      </button>
+    </div>
+  </div>
 
-                <div class="step-actions">
-                  <button class="btn btn-outline-secondary me-2" (click)="prevStep()">
-                    <i class="bi bi-arrow-left me-2"></i>Back
-                  </button>
-                  <button class="btn btn-primary btn-lg" 
-                          [disabled]="!selectedDate || !selectedSlot || hasPendingBooking" 
-                          (click)="nextStep()">
-                    Continue <i class="bi bi-arrow-right ms-2"></i>
-                  </button>
-                </div>
-              </div>
+  <!-- No Availability State -->
+  <div class="no-availability-state" *ngIf="!loadingSlots && availableDates.length === 0">
+    <div class="no-availability-content">
+      <i class="bi bi-calendar-x"></i>
+      <h4>No Available Slots</h4>
+      <p>This mentor doesn't have any available time slots at the moment.</p>
+    </div>
+  </div>
+
+  <div class="step-actions">
+    <button class="btn btn-outline-secondary me-2" (click)="prevStep()">
+      <i class="bi bi-arrow-left me-2"></i>Back
+    </button>
+    <button class="btn btn-primary btn-lg" 
+            [disabled]="!selectedDate || !selectedSlot || hasPendingBooking" 
+            (click)="nextStep()">
+      Continue <i class="bi bi-arrow-right ms-2"></i>
+    </button>
+  </div>
+</div>
 
               <!-- Step 3: Payment Summary & Booking -->
               <div class="step-content" *ngIf="step === 3">
@@ -269,16 +285,6 @@
                           (click)="completePayment()">
                     Pay & Book <i class="bi bi-credit-card ms-2"></i>
                   </button>
-                </div>
-              </div>
-
-              <!-- Step 4: Confirmation -->
-              <div class="step-content" *ngIf="step === 5">
-                <div class="confirmation-content text-center py-5">
-                  <i class="bi bi-check-circle-fill text-success display-3 mb-3"></i>
-                  <h4 class="mb-2">Booking Confirmed!</h4>
-                  <p>Your session has been booked successfully.</p>
-                  <a class="btn btn-outline-primary mt-2" href="/mentee/sessions">Go to My Sessions</a>
                 </div>
               </div>
 

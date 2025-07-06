@@ -77,16 +77,4 @@ export class MenteeLayoutComponent implements OnInit, AfterViewInit {
     }
     this.sidebarOpen = !this.sidebarOpen;
   }
-
-  logout() {
-    this.authService.logout().subscribe({
-      next: () => {
-        this.router.navigate(['/login']);
-      },
-      error: (error) => {
-        console.error('Logout error:', error);
-        this.router.navigate(['/login']);
-      }
-    });
-  }
 }

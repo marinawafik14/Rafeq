@@ -32,6 +32,11 @@ export class BookingFormComponent implements OnDestroy {
   bookingError: string|null = null;
   private cleanupTimeoutId: any = null;
 
+  // Pagination properties
+  itemsPerPage: number = 7; // Number of dates to show per page
+  currentPage: number = 1;
+  totalPages: number = 1;
+  paginatedDates: string[] = [];
 
    getUtcSlot(date: string, hour: number, min: number): string {
   const d = new Date(`${date}T${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}:00+02:00`);
@@ -223,7 +228,32 @@ export class BookingFormComponent implements OnDestroy {
   loadingSlots = false;
   private slotsLoaded = false;
 
-  private loadFreeSlots(forceRefresh: boolean = false): void {
+   initializePagination(): void {
+    this.totalPages = Math.ceil(this.availableDates.length / this.itemsPerPage);
+    this.updatePaginatedDates();
+  }
+
+  updatePaginatedDates(): void {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedDates = this.availableDates.slice(startIndex, endIndex);
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePaginatedDates();
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePaginatedDates();
+    }
+  }
+
+   private loadFreeSlots(forceRefresh: boolean = false): void {
     if (!this.mentorId) return;
     
     if (this.slotsLoaded && !forceRefresh) {
@@ -255,6 +285,7 @@ export class BookingFormComponent implements OnDestroy {
         
         this.freeSlots = this.filterFutureSlots(availableSlots);
         this.availableDates = this.getAvailableDatesFromFreeSlots();
+        this.initializePagination(); // Initialize pagination after dates are loaded
         this.slotsLoaded = true;
         this.loadingSlots = false;
       },

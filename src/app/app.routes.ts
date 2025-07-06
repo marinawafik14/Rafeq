@@ -202,6 +202,13 @@ export const routes: Routes = [
                 (m) => m.AiChatbotComponent
               ),
           },
+           {
+            path: 'notifications',
+            loadComponent: () =>
+              import('./features/notifications/notifications.component').then(
+                (m) => m.NotificationsComponent
+              ),
+          },
         ],
       },
       {
