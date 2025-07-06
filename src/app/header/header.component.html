@@ -65,7 +65,15 @@
         </ul>
         <div class="d-flex align-items-center gap-3">
           <!-- Notification Badge - Show only for logged-in users -->
-          <app-notification-badge *ngIf="currentUser"></app-notification-badge>
+          <!-- Notification Badge - Show only for logged-in mentee users and link to mentee notifications -->
+          <ng-container *ngIf="currentUser?.role === 'Mentee'">
+            <a [routerLink]="['/mentee/notifications']" class="nav-link p-0">
+              <app-notification-badge></app-notification-badge>
+            </a>
+          </ng-container>
+          <ng-container *ngIf="currentUser && currentUser.role !== 'Mentee'">
+            <app-notification-badge></app-notification-badge>
+          </ng-container>
 
           <div class="d-flex gap-2">
             <ng-container *ngIf="!currentUser">

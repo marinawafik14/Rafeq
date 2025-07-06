@@ -6,6 +6,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
 import { NotificationBadgeComponent } from '../shared/components/notification-badge/notification-badge.component';
+import { menteeBookingservice } from '../Services/menteeBooking.service';
 
 @Component({
   selector: 'app-header',
@@ -25,7 +26,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private menteeBookingservice: menteeBookingservice
   ) {}
 
   ngOnInit(): void {
@@ -74,12 +76,15 @@ navigateTo(link: any) {
   }
 
 
-  logout(): void {
+  async logout(): Promise<void> {
     if (!this.authService.isLoggedIn()) {
       this.toastr.info('You are already logged out.', 'Info');
       this.router.navigate(['/login']);
       return;
     }
+
+    // Cancel pending booking and free slot before logout
+    await this.menteeBookingservice.cancelPendingBookingAndFreeSlot();
 
     this.authService.logout().subscribe({
       next: (response: { message: string }) => {
@@ -105,5 +110,7 @@ navigateTo(link: any) {
     this.destroy.next();
     this.destroy.complete();
   }
+
+  
  
 }

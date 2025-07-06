@@ -605,3 +605,50 @@
   align-items: flex-start;
   min-height: 100vh;
 }
+/* Pagination Styles */
+.pagination-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.page-info {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+/* Date Cards Container */
+.available-days-horizontal {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  gap: 15px;
+  scrollbar-width: thin;
+}
+
+/* Scrollbar styling for Webkit browsers */
+.available-days-horizontal::-webkit-scrollbar {
+  height: 6px;
+}
+
+.available-days-horizontal::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .available-days-horizontal {
+    gap: 10px;
+  }
+  
+  .day-availability-card {
+    min-width: 120px;
+  }
+  
+  .itemsPerPage {
+    width: 5;
+  }
+}
