@@ -1,99 +1,115 @@
 <div class="sidebar close">
-      <div class="logo-details">
-        <i class="bx bxl-c-plus-plus"></i>
-        <span class="logo_name">Rafeq</span>
-      </div>
-      <ul class="nav-links">
-  <li>
-    <a routerLink="charts">
-      <i class="bx bx-bar-chart-alt-2"></i>
-      <span class="link_name">Dashboard</span>
-    </a>
-    <ul class="sub-menu blank">
-      <li><a class="link_name" routerLink="charts">Dashboard</a></li>
-    </ul>
-  </li>
-  <li>
-    <a routerLink="skills">
-      <i class="bx bx-bulb"></i>
-      <span class="link_name">Skills</span>
-    </a>
-    <ul class="sub-menu blank">
-      <li><a class="link_name" routerLink="skills">Skills</a></li>
-    </ul>
-  </li>
-  <li>
-    <a routerLink="users">
-      <i class="bx bx-user"></i>
-      <span class="link_name">Users</span>
-    </a>
-    <ul class="sub-menu blank">
-      <li><a class="link_name" routerLink="users">Users</a></li>
-    </ul>
-  </li>
-  <li>
-    <a routerLink="bookings">
-      <i class="bx bx-calendar"></i>
-      <span class="link_name">Bookings</span>
-    </a>
-    <ul class="sub-menu blank">
-      <li><a class="link_name" routerLink="bookings">Bookings</a></li>
-    </ul>
-  </li>
-  <li>
-    <a routerLink="payments">
-      <i class="bx bx-credit-card"></i>
-      <span class="link_name">Payments</span>
-    </a>
-    <ul class="sub-menu blank">
-      <li><a class="link_name" routerLink="payments">Payments</a></li>
-    </ul>
-  </li>
-  <li>
-    <a routerLink="reviews">
-      <i class="bx bx-star"></i>
-      <span class="link_name">Reviews</span>
-    </a>
-    <ul class="sub-menu blank">
-      <li><a class="link_name" routerLink="reviews">Reviews</a></li>
-    </ul>
-  </li>
-  <li>
-    <a routerLink="contact">
-      <i class="bx bx-envelope"></i>
-      <span class="link_name">Contact</span>
-    </a>
-    <ul class="sub-menu blank">
-      <li><a class="link_name" routerLink="contact">Contact</a></li>
-    </ul>
-  </li>
-  <li>
-    <a routerLink="home">
-      <i class="bx bx-home"></i>
-      <span class="link_name">Home</span>
-    </a>
-    <ul class="sub-menu blank">
-      <li><a class="link_name" routerLink="home">Home</a></li>
-    </ul>
-  </li>
-
-<li>
-  <a href="#" (click)="logout()" style="cursor:pointer;">
-    <i class="bx bx-log-out"></i>
-    <span class="link_name">Logout</span>
-  </a>
-  <ul class="sub-menu blank">
-    <li><span class="link_name">Logout</span></li>
-  </ul>
-</li>
+  <div class="logo-details">
+    <i class="bx bxl-c-plus-plus"></i>
+    <span class="logo_name">Rafeq</span>
+  </div>
+  <ul class="nav-links">
+    <li>
+      <a routerLink="charts">
+        <i class="bx bx-bar-chart-alt-2"></i>
+        <span class="link_name">Dashboard</span>
+      </a>
+      <ul class="sub-menu blank">
+        <li><a class="link_name" routerLink="charts">Dashboard</a></li>
       </ul>
-    </div>
-    <section class="home-section">
-      <div class="home-content">
-        <i class="bx bx-menu"></i>
-      </div>
-      <router-outlet></router-outlet>
-    </section>
-    
+    </li>
+    <li>
+      <a routerLink="skills">
+        <i class="bx bx-bulb"></i>
+        <span class="link_name">Skills</span>
+      </a>
+      <ul class="sub-menu blank">
+        <li><a class="link_name" routerLink="skills">Skills</a></li>
+      </ul>
+    </li>
+    <li>
+      <a routerLink="users">
+        <i class="bx bx-user"></i>
+        <span class="link_name">Users</span>
+      </a>
+      <ul class="sub-menu blank">
+        <li><a class="link_name" routerLink="users">Users</a></li>
+      </ul>
+    </li>
+    <li>
+      <a routerLink="bookings">
+        <i class="bx bx-calendar"></i>
+        <span class="link_name">Bookings</span>
+      </a>
+      <ul class="sub-menu blank">
+        <li><a class="link_name" routerLink="bookings">Bookings</a></li>
+      </ul>
+    </li>
+    <li>
+      <a routerLink="payments">
+        <i class="bx bx-credit-card"></i>
+        <span class="link_name">Payments</span>
+      </a>
+      <ul class="sub-menu blank">
+        <li><a class="link_name" routerLink="payments">Payments</a></li>
+      </ul>
+    </li>
+    <li>
+      <a routerLink="reviews">
+        <i class="bx bx-star"></i>
+        <span class="link_name">Reviews</span>
+      </a>
+      <ul class="sub-menu blank">
+        <li><a class="link_name" routerLink="reviews">Reviews</a></li>
+      </ul>
+    </li>
+    <li>
+      <a routerLink="contact">
+        <i class="bx bx-envelope"></i>
+        <span class="link_name">Contact</span>
+      </a>
+      <ul class="sub-menu blank">
+        <li><a class="link_name" routerLink="contact">Contact</a></li>
+      </ul>
+    </li>
+
+    <li>
+      <a routerLink="articles">
+        <i class="bx bx-file"></i> <span class="link_name">Articles</span>
+      </a>
+      <ul class="sub-menu blank">
+        <li><a class="link_name" routerLink="articles">Articles </a></li>
+      </ul>
+    </li>
+    <li>
+      <a routerLink="faqs">
+        <i class="bx bx-help-circle"></i> <span class="link_name">FAQs </span>
+      </a>
+      <ul class="sub-menu blank">
+        <li><a class="link_name" routerLink="faqs">FAQs </a></li>
+      </ul>
+    </li>
 
 
+    <li>
+      <a routerLink="home">
+        <i class="bx bx-home"></i>
+        <span class="link_name">Home</span>
+      </a>
+      <ul class="sub-menu blank">
+        <li><a class="link_name" routerLink="home">Home</a></li>
+      </ul>
+    </li>
+
+    <li>
+      <a href="#" (click)="logout()" style="cursor:pointer;">
+        <i class="bx bx-log-out"></i>
+        <span class="link_name">Logout</span>
+      </a>
+      <ul class="sub-menu blank">
+        <li><span class="link_name">Logout</span></li>
+      </ul>
+    </li>
+  </ul>
+</div>
+<section class="home-section">
+  <div class="home-content">
+    <i class="bx bx-menu"></i>
+  </div>
+  <router-outlet></router-outlet>
+</section>

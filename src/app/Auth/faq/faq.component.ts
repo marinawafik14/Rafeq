@@ -1,21 +1,22 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { FaqDto } from '../../Models/FQA/FaqDto'; // Assuming this path
-import { FaqCategoryDto } from '../../Models/FQA/FaqCategoryDto'; // Assuming this path
-import { FaqService } from '../../Services/faq.service'; // Assuming this path
+
 import { ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
+import { FaqDto, PagedResult } from '../../Models/FQA/FaqDto';
+import { FaqCategoryDto } from '../../Models/FQA/FaqCategoryDto';
+import { FaqService } from '../../Services/faq.service';
 
 @Component({
   selector: 'app-faq',
-  standalone: true, // Assuming standalone component
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './faq.component.html',
   styleUrl: './faq.component.css'
 })
 export class FaqComponent implements OnInit {
-   filteredFaqs: FaqDto[] = [];
+  filteredFaqs: FaqDto[] = [];
   categories: FaqCategoryDto[] = [];
   searchQuery: string = '';
   currentCategoryFilter: string | undefined;
@@ -41,10 +42,10 @@ export class FaqComponent implements OnInit {
 
   loadFaqCategories(): void {
     this.faqService.getFaqCategories().subscribe({
-      next: (data) => {
+      next: (data: FaqCategoryDto[]) => {
         this.categories = data;
       },
-      error: (err) => {
+      error: (err: any) => {
         this.toastr.error(err.message || 'Failed to load FAQ categories.', 'Error');
         console.error('Error loading FAQ categories:', err);
       }
@@ -59,13 +60,13 @@ export class FaqComponent implements OnInit {
       this.currentPage,
       this.pageSize
     ).subscribe({
-      next: (pagedResult) => {
+      next: (pagedResult: PagedResult<FaqDto>) => {
         this.filteredFaqs = pagedResult.items;
         this.totalFaqs = pagedResult.totalCount;
         this.totalPages = pagedResult.totalPages;
         this.loading = false;
       },
-      error: (err) => {
+      error: (err: any) => {
         this.toastr.error(err.message || 'Failed to load FAQs.', 'Error');
         console.error('Error loading FAQs:', err);
         this.loading = false;
