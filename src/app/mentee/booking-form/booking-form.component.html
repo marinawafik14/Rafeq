@@ -74,9 +74,6 @@
                        *ngIf="showMentorship"
                        [class.selected]="sessionType==='mentorship'" 
                        [class.disabled]="hasPendingBooking"
-                       [style.opacity]="hasPendingBooking ? '0.5' : '1'"
-                       [style.pointer-events]="hasPendingBooking ? 'none' : 'auto'"
-                       [style.cursor]="hasPendingBooking ? 'not-allowed' : 'pointer'"
                        (click)="!hasPendingBooking && selectSessionType('mentorship')">
                     <div class="session-icon">
                       <i class="bi bi-person-video2"></i>
@@ -84,30 +81,19 @@
                     <h4>Mentorship Session</h4>
                     <p>Get personalized guidance and career advice</p>
                     <div class="session-price">${{mentor?.hourlyRate || 60}}/hour</div>
-                    <div *ngIf="hasPendingBooking" class="disabled-overlay">
-                      <i class="bi bi-lock-fill"></i>
-                      <span>Disabled</span>
-                    </div>
                   </div>
                   
                   <div class="session-type-card" 
                        *ngIf="showInterview"
                        [class.selected]="sessionType==='interview'" 
                        [class.disabled]="hasPendingBooking"
-                       [style.opacity]="hasPendingBooking ? '0.5' : '1'"
-                       [style.pointer-events]="hasPendingBooking ? 'none' : 'auto'"
-                       [style.cursor]="hasPendingBooking ? 'not-allowed' : 'pointer'"
                        (click)="!hasPendingBooking && selectSessionType('interview')">
                     <div class="session-icon">
                       <i class="bi bi-briefcase"></i>
                     </div>
-                    <h4>Mock Interview</h4>
+                    <h4>Mock Interview Session</h4>
                     <p>Practice interviews with professional feedback</p>
                     <div class="session-price">${{mentor?.hourlyRate || 100}}/hour</div>
-                    <div *ngIf="hasPendingBooking" class="disabled-overlay">
-                      <i class="bi bi-lock-fill"></i>
-                      <span>Disabled</span>
-                    </div>
                   </div>
                 </div>
 
@@ -225,21 +211,23 @@
 
                 <div class="booking-summary">
                   <div class="summary-card">
+                    <!-- Session Type (FIXED) -->
                     <div class="summary-item">
                       <div class="summary-label">
                         <i class="bi bi-person-video2"></i>
                         Session Type
                       </div>
                       <div class="summary-value">
-                        <span class="text-capitalize">{{sessionType}}</span>
-                        <span class="session-badge">{{sessionType === 'interview' ? 'Mock Interview' : 'Mentorship'}}</span>
+                        <span class="text-capitalize">{{sessionType === 'interview' ? 'Mock Interview Session' : 'Mentorship Session'}}</span>
+                        <span class="session-badge">{{sessionDurationDisplay}}</span>
                       </div>
                     </div>
 
+                    <!-- Date & Time (FIXED) -->
                     <div class="summary-item">
                       <div class="summary-label">
                         <i class="bi bi-calendar-event"></i>
-                        Date & Time
+                        Scheduled Session
                       </div>
                       <div class="summary-value">
                         <span class="date-display">{{selectedDate | date:'EEEE, MMMM d, y'}}</span>
@@ -247,17 +235,34 @@
                       </div>
                     </div>
 
+                    <!-- Mentor (FIXED) -->
                     <div class="summary-item">
                       <div class="summary-label">
                         <i class="bi bi-person"></i>
                         Mentor
                       </div>
                       <div class="summary-value">
-                        <span class="mentor-display">{{mentor?.fullName}}</span>
-                        <span class="mentor-rate">${{mentor?.hourlyRate}}/hour</span>
+                        <span class="mentor-display">{{mentor?.fullName || 'Loading...'}}</span>
+                        <span class="mentor-rate">${{mentor?.hourlyRate || 0}}/hour</span>
                       </div>
                     </div>
 
+                    <!-- Pricing Breakdown (NEW) -->
+                    <div class="summary-item">
+                      <div class="summary-label">
+                        <i class="bi bi-calculator"></i>
+                        Pricing
+                      </div>
+                      <div class="summary-value">
+                        <div class="pricing-breakdown">
+                          <div class="price-line">
+                            <span>${{mentor?.hourlyRate || 0}}/hour × {{sessionDurationDisplay}}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Total Price (FIXED) -->
                     <div class="summary-item total-price">
                       <div class="summary-label">
                         <i class="bi bi-currency-dollar"></i>
@@ -284,7 +289,7 @@
                   <button class="btn btn-success btn-lg" 
                           [disabled]="hasPendingBooking"
                           (click)="completePayment()">
-                    Pay & Book <i class="bi bi-credit-card ms-2"></i>
+                    Pay ${{calculatedPrice}} & Book <i class="bi bi-credit-card ms-2"></i>
                   </button>
                 </div>
               </div>
