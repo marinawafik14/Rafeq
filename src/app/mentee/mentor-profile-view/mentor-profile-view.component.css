@@ -32,6 +32,7 @@
   align-items: center;
   min-height: 80vh;
   background: var(--bg-secondary);
+  color:#0a2e65;
 }
 
 .loading-spinner {
@@ -84,7 +85,7 @@
 /* Hero Section */
 .hero-section {
   position: relative;
-  background: var(--gradient-primary);
+  background: linear-gradient(135deg, #0a2e65 0%, #1b74e4 100%);
   border-radius: 24px;
   padding: 3rem 2rem;
   margin: 2rem 0;
@@ -278,8 +279,8 @@
 }
 
 .book-session-btn {
-  background: linear-gradient(135deg, var(--secondary-color) 0%, #059669 100%);
-  color: white;
+  background: #ffffff;
+  color: #0a2e65;
   border: none;
   padding: 1rem 2rem;
   border-radius: 50px;
@@ -296,12 +297,13 @@
 
 .book-session-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 15px 30px rgba(16, 185, 129, 0.4);
-  background: linear-gradient(135deg, #059669 0%, var(--secondary-color) 100%);
+  box-shadow: 0 15px 30px #0a2e65;
+  background: linear-gradient(135deg, #0a2e65 0%, #1b74e4 100%);
+  color: white;
 }
 
 .book-session-btn:disabled {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.65);
   cursor: not-allowed;
   transform: none;
   box-shadow: var(--shadow-sm);
@@ -386,9 +388,15 @@
 .about-text {
   font-size: 1.1rem;
   line-height: 1.7;
-  color: var(--text-secondary);
+  color: #0a2e65;
   margin: 0;
 }
+
+.about-card .card-header i {
+  color: #0a2e65;
+}
+
+
 
 /* Skills Card */
 .skills-grid {
@@ -409,10 +417,12 @@
 }
 
 .skill-item:hover {
-  background: var(--primary-color);
+  background: #0a2e65;
   color: white;
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
+
+  
 }
 
 .skill-item i {
@@ -420,9 +430,7 @@
   font-size: 1.25rem;
 }
 
-.skill-item:hover i {
-  color: white;
-}
+
 
 /* Reviews Card */
 .reviews-summary {
@@ -600,7 +608,7 @@
   left: 0;
   width: 30%;
   height: 2px;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  background: #0a2e65;
   border-radius: 1px;
 }
 
@@ -696,73 +704,58 @@
 
 /* Availability Pagination */
 .availability-pagination {
-  margin-top: 1.5rem;
-  padding-top: 1rem;
-  border-top: 1px solid var(--border-color);
-  background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
-  border-radius: 0.5rem;
-  padding: 1rem;
-}
-
-.pagination-info {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 2px solid #e9ecef;
   text-align: center;
-  margin-bottom: 0.75rem;
-}
-
-.pagination-info small {
-  font-weight: 500;
-  color: var(--text-primary);
 }
 
 .pagination-controls {
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 1rem;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
 }
 
 .pagination-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border: 2px solid var(--border-color);
-  background: var(--bg-primary);
-  border-radius: 50%;
+  background-color: #f8f9fa;
+  color: #0a2e65;
+  border: 1px solid #0a2e65;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
   cursor: pointer;
-  color: var(--text-secondary);
-  box-shadow: var(--shadow-sm);
 }
 
-.pagination-btn:active:not(:disabled) {
-  transform: scale(1.05);
-  box-shadow: var(--shadow-sm);
+.pagination-btn:hover:not(:disabled) {
+  background-color: #0a2e65;
+  color: white;
+  box-shadow:none;
 }
 
 .pagination-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  background: var(--bg-tertiary);
-  border-color: var(--border-color);
+  background-color: #e9ecef;
+  color: #6c757d;
+  pointer-events: none;
+  border-color: #dee2e6;
+  box-shadow: none;
 }
 
 .page-indicator {
-  font-weight: 600;
-  color: var(--text-primary);
-  font-size: 0.875rem;
+  padding: 0.6rem 1rem;
+  background-color: #0a2e65;
+  color: white;
+  border-radius: 8px;
+  font-weight: 500;
   min-width: 60px;
-  text-align: center;
-  padding: 0.5rem 1rem;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 1rem;
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--border-color);
 }
+
 
 /* Loading slots */
 .loading-slots {
   padding: 2rem 0;
+  color: #0a2e65;
 }
 
 /* Sticky positioning */
@@ -777,11 +770,37 @@
   flex-direction: column;
   gap: 0.25rem;
 }
-
+.card-header .header-content i {
+color:#0a2e65;
+}
 .card-header .header-actions {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+}
+.show-more-btn {
+  padding: 0.75rem 1.5rem;
+  background: #0a2e65;
+  color: white;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 50px;
+  box-shadow: 0 4px 12px rgba(10, 46, 101, 0.3);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.show-more-btn:hover {
+  background: white;
+  color: #0a2e65;
+  transform: translateY(-2px);
+  border: 1px solid #0a2e65;
+}
+
+.show-more-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 3px 8px rgba(10, 46, 101, 0.2);
 }
 
 /* Show All Button Design */
@@ -790,7 +809,7 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  background: #0a2e65;
   color: white;
   border: none;
   border-radius: 0.5rem;
@@ -821,7 +840,14 @@
 .show-all-btn:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
-  background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
+  background: white;
+  color: #0a2e65;
+  border: 1px solid #0a2e65;
+
+  .badge {
+    background: #0a2e65;
+    border-color: #0a2e65;
+  }
 }
 
 .show-all-btn:active {
@@ -829,14 +855,15 @@
   box-shadow: var(--shadow-sm);
 }
 
-.show-all-btn i {
-  font-size: 1rem;
-  transition: transform 0.3s ease;
+.show-all-btn i.bi {
+  color: white !important; /* Your desired color */
 }
 
-.show-all-btn:hover i {
-  transform: scale(1.1);
+/* Optional: icon color on hover */
+.show-all-btn:hover i.bi {
+  color: #0a2e65 !important; /* Or any hover color */
 }
+
 
 .show-all-btn .badge {
   background: rgba(255, 255, 255, 0.2);
@@ -848,15 +875,18 @@
   margin-left: 0.25rem;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-}
 
+}
+.day-header i{
+  color:#0a2e65;
+}
 /* Review Management Styles */
 .create-review-btn {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, var(--secondary-color), #059669);
+  background: #0a2e65;
   color: white;
   border: none;
   border-radius: 0.5rem;
@@ -870,7 +900,16 @@
 .create-review-btn:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
-  background: linear-gradient(135deg, #059669, var(--secondary-color));
+  background: white ;
+  color: #0a2e65;
+  border: 1px solid #0a2e65;
+}
+.create-review-btn i {
+  color: white !important; /* Your desired color */
+}
+
+.create-review-btn:hover i {
+  color: #0a2e65 !important; /* Your desired hover color */
 }
 
 .review-actions {
@@ -1060,6 +1099,13 @@
 
 .toast-body::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 0, 0, 0.3);
+}
+.skills-card i.bi {
+  color: #0a2e65 !important; /* your primary dark blue */
+}
+
+.skills-card i.bi:hover {
+  color: #ffffff;
 }
 
 .toast-footer {
@@ -1555,3 +1601,4 @@
   position: relative;
   z-index: 5; /* Increased but still lower than toast-overlay z-index */
 }
+
