@@ -32,6 +32,11 @@ export class BookingFormComponent implements OnDestroy {
   bookingError: string|null = null;
   private cleanupTimeoutId: any = null;
 
+  // Pagination properties
+  itemsPerPage: number = 7; // Number of dates to show per page
+  currentPage: number = 1;
+  totalPages: number = 1;
+  paginatedDates: string[] = [];
 
    getUtcSlot(date: string, hour: number, min: number): string {
   const d = new Date(`${date}T${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}:00+02:00`);
@@ -223,7 +228,32 @@ export class BookingFormComponent implements OnDestroy {
   loadingSlots = false;
   private slotsLoaded = false;
 
-  private loadFreeSlots(forceRefresh: boolean = false): void {
+   initializePagination(): void {
+    this.totalPages = Math.ceil(this.availableDates.length / this.itemsPerPage);
+    this.updatePaginatedDates();
+  }
+
+  updatePaginatedDates(): void {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    this.paginatedDates = this.availableDates.slice(startIndex, endIndex);
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePaginatedDates();
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePaginatedDates();
+    }
+  }
+
+   private loadFreeSlots(forceRefresh: boolean = false): void {
     if (!this.mentorId) return;
     
     if (this.slotsLoaded && !forceRefresh) {
@@ -233,24 +263,29 @@ export class BookingFormComponent implements OnDestroy {
     this.loadingSlots = true;
     this.http.get<any[]>(`https://localhost:7001/api/mentors/mentors/${this.mentorId}/free-slots`).subscribe({
       next: (slots) => {
-        // Get current user id (menteeId)
-        const user = this.authService.currentUserValue;
-        const menteeId = user && user.userId ? user.userId : this.menteeId;
         const availableSlots = slots.filter(slot => {
           if (slot.status === 'pending_payment') {
-            // Only show pending slots if they belong to the current user
-            return slot.menteeId && menteeId && slot.menteeId === menteeId;
+            const pendingBooking = sessionStorage.getItem('pendingBooking');
+            if (pendingBooking) {
+              const booking = JSON.parse(pendingBooking);
+              return slot.bookingId === booking.bookingId;
+            }
+            return false;
           }
           const startTime = new Date(slot.start);
           const endTime = new Date(slot.end);
           const timeRange = slot.formatted.split('•')[1]?.trim() || slot.formatted;
+          
           if (endTime <= startTime && this.isCrossMidnightTimeRange(timeRange)) {
             return false;
           }
+          
           return true;
         });
+        
         this.freeSlots = this.filterFutureSlots(availableSlots);
         this.availableDates = this.getAvailableDatesFromFreeSlots();
+        this.initializePagination(); // Initialize pagination after dates are loaded
         this.slotsLoaded = true;
         this.loadingSlots = false;
       },
