@@ -7,6 +7,15 @@
   padding: 2rem 0;
 }
 
+.cv{
+  color:#0a2e65;
+}
+h5{
+  color: #0a2e65 !important;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
 .cv-management::before {
   content: '';
   position: absolute;
@@ -44,6 +53,10 @@
   box-shadow: 0 4px 15px rgba(2, 14, 33, 0.05);
 }
 
+.cv-management .dropzone i {
+  color: #0a2e65;
+}
+
 .cv-management .dropzone.drag-over {
   background: rgba(224, 231, 255, 0.7);
   border-color: #0a2e65;
@@ -66,8 +79,12 @@
 
 .cv-management .table thead {
   background: linear-gradient(135deg, #f8faff 0%, #eef2ff 100%);
-  color: #0a2e65;
+  color: #0a2e65 ;
   font-weight: 600;
+}
+
+.cv-management .table thead th {
+  color: #0a2e65 !important;
 }
 
 .cv-management .table tbody tr {
@@ -78,7 +95,22 @@
 .cv-management .table tbody tr:hover {
   background-color: rgba(224, 231, 255, 0.3);
 }
+.btn-close-modal{
+  background: #0a2e65;
+  border: 1px solid #0a2e65;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  transition: all 0.3s ease;
 
+  &:hover {
+    background: white;
+    color: #0a2e65;
+    border: 1px solid #0a2e65;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(2, 14, 33, 0.2);
+  }
+}
 .cv-management .cv-icon {
   width: 44px;
   height: 44px;
@@ -118,6 +150,7 @@
 .cv-management .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 15px rgba(2, 14, 33, 0.2);
+  border:none;
 }
 
 .cv-management .btn-outline-primary {
@@ -275,7 +308,7 @@
 }
 
 .cv-management .badge.bg-info {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  background: #0a2e65 !important;
   color: white !important;
 }
 
