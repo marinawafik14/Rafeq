@@ -1,83 +1,119 @@
 <div class="sidebar close">
-      <ul class="nav-links">
+  <ul class="nav-links">
+    <li>
+      <a
+        [routerLink]="['/mentee', 'dashboard']"
+        (click)="navigateTo({ route: 'dashboard' })"
+      >
+        <i class="bx bx-home"></i>
+        <span class="link_name">Dashboard</span>
+      </a>
+      <ul class="sub-menu blank">
         <li>
-          <a [routerLink]="['/mentee', 'dashboard']" (click)="navigateTo({route: 'dashboard'})">
-            <i class="bx bx-home"></i>
-            <span class="link_name">Dashboard</span>
-          </a>
-          <ul class="sub-menu blank">
-            <li><a class="link_name" [routerLink]="['/mentee', 'dashboard']">Dashboard</a></li>
-          </ul>
-        </li>
-        <li>
-          <a [routerLink]="['/mentee', 'bookings']" (click)="navigateTo({route: 'bookings'})">
-            <i class="bx bx-calendar"></i>
-            <span class="link_name">Bookings</span>
-          </a>
-          <ul class="sub-menu blank">
-            <li><a class="link_name" [routerLink]="['/mentee', 'bookings']">Bookings</a></li>
-          </ul>
-        </li>
-        <li>
-          <a [routerLink]="['/mentee', 'search-mentors']" (click)="navigateTo({route: 'search-mentors'})">
-            <i class="bx bx-search"></i>
-            <span class="link_name">Find Mentors</span>
-          </a>
-          <ul class="sub-menu blank">
-            <li><a class="link_name" [routerLink]="['/mentee', 'search-mentors']">Search Mentors</a></li>
-          </ul>
-        </li>
-        <li>
-          <a [routerLink]="['/mentee', 'cv-management']" (click)="navigateTo({route: 'cv-management'})">
-            <i class="bx bx-file"></i>
-            <span class="link_name">CV Management</span>
-          </a>
-          <ul class="sub-menu blank">
-            <li><a class="link_name" [routerLink]="['/mentee', 'cv-management']">CV Management</a></li>
-          </ul>
-        </li>
-
-       <li>
-  <a [routerLink]="['/mentee', 'messages']">
-    <i class="fa-brands fa-rocketchat fa-xl"></i>
-    <span class="link_name">Messages</span>
-  </a>
-  <ul class="sub-menu blank">
-    <li><a class="link_name" [routerLink]="['/mentee', 'messages']">Messages</a></li>
-  </ul>
-</li>
-
-
-        <li>
-          <a [routerLink]="['/mentee', 'ai-chatbot']" 
-             (click)="navigateTo({route: 'ai-chatbot'})"
-             class="ai-assistant-card">
-            <i class="bx bx-bot ai-assistant-icon"></i>
-            <span class="link_name ai-assistant-text">AI Assistant</span>
-          </a>
-          <ul class="sub-menu blank">
-            <li><a class="link_name" [routerLink]="['/mentee', 'ai-chatbot']">AI Career Assistant</a></li>
-          </ul>
-        </li>
-        <li>
-          <a href="#" (click)="logout()" style="cursor:pointer;">
-            <i class="bx bx-log-out"></i>
-            <span class="link_name">Logout</span>
-          </a>
-          <ul class="sub-menu blank">
-            <li><span class="link_name">Logout</span></li>
-          </ul>
+          <a class="link_name" [routerLink]="['/mentee', 'dashboard']"
+            >Dashboard</a
+          >
         </li>
       </ul>
-    </div>
+    </li>
+    <li>
+      <a
+        [routerLink]="['/mentee', 'bookings']"
+        (click)="navigateTo({ route: 'bookings' })"
+      >
+        <i class="bx bx-calendar"></i>
+        <span class="link_name">Bookings</span>
+      </a>
+      <ul class="sub-menu blank">
+        <li>
+          <a class="link_name" [routerLink]="['/mentee', 'bookings']"
+            >Bookings</a
+          >
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a
+        [routerLink]="['/mentee', 'search-mentors']"
+        (click)="navigateTo({ route: 'search-mentors' })"
+      >
+        <i class="bx bx-search"></i>
+        <span class="link_name">Find Mentors</span>
+      </a>
+      <ul class="sub-menu blank">
+        <li>
+          <a class="link_name" [routerLink]="['/mentee', 'search-mentors']"
+            >Search Mentors</a
+          >
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a
+        [routerLink]="['/mentee', 'cv-management']"
+        (click)="navigateTo({ route: 'cv-management' })"
+      >
+        <i class="bx bx-file"></i>
+        <span class="link_name">CV Management</span>
+      </a>
+      <ul class="sub-menu blank">
+        <li>
+          <a class="link_name" [routerLink]="['/mentee', 'cv-management']"
+            >CV Management</a
+          >
+        </li>
+      </ul>
+    </li>
 
-    <section class="home-section">
-      <div class="home-content">
-        <i class="bx bx-menu" (click)="toggleSidebar()"></i>
-      </div>
-      <ng-content></ng-content>
-      <router-outlet></router-outlet>
-    </section>
+    <li>
+      <a [routerLink]="['/mentee', 'messages']">
+        <i class="bx bx-message-rounded-dots"></i>
 
 
+        <span class="link_name">Messages</span>
+      </a>
+      <ul class="sub-menu blank">
+        <li>
+          <a class="link_name" [routerLink]="['/mentee', 'messages']"
+            >Messages</a
+          >
+        </li>
+      </ul>
+    </li>
 
+    <li>
+      <a
+        [routerLink]="['/mentee', 'ai-chatbot']"
+        (click)="navigateTo({ route: 'ai-chatbot' })"
+        class="ai-assistant-card"
+      >
+        <i class="bx bx-bot ai-assistant-icon"></i>
+        <span class="link_name ai-assistant-text">AI Assistant</span>
+      </a>
+      <ul class="sub-menu blank">
+        <li>
+          <a class="link_name" [routerLink]="['/mentee', 'ai-chatbot']"
+            >AI Career Assistant</a
+          >
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="#" (click)="logout()" style="cursor: pointer">
+        <i class="bx bx-log-out"></i>
+        <span class="link_name">Logout</span>
+      </a>
+      <ul class="sub-menu blank">
+        <li><span class="link_name">Logout</span></li>
+      </ul>
+    </li>
+  </ul>
+</div>
+
+<section class="home-section">
+  <div class="home-content">
+    <i class="bx bx-menu" (click)="toggleSidebar()"></i>
+  </div>
+  <ng-content></ng-content>
+  <router-outlet></router-outlet>
+</section>

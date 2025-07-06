@@ -107,7 +107,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #0a2e65;
 }
 
 .booking-details .card:hover {
@@ -123,7 +123,7 @@
   font-weight: 700;
   padding: 1.5rem 2rem;
   border-radius: var(--border-radius) var(--border-radius) 0 0 !important;
-  color: #1e293b;
+  color: #0a2e65;
 }
 
 .booking-details .card-body {
@@ -136,12 +136,12 @@
   height: 80px;
   object-fit: cover;
   border: 3px solid white;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 25px #0a2e65;
   border-radius: 50%;
 }
 
 .booking-details .fw-bold.fs-5 {
-  color: #1e293b;
+  color: #0a2e65;
   font-weight: 700;
   font-size: 1.5rem !important;
   margin-bottom: 0.5rem;

@@ -49,19 +49,19 @@
           </li>
           
           <!-- Messages - Mentee Only (FIXED ROUTE) -->
-          <li class="nav-item mx-2" *ngIf="currentUser?.role === 'Mentee'">
+          <!-- <li class="nav-item mx-2" *ngIf="currentUser?.role === 'Mentee'">
             <a class="nav-link rounded-pill px-3" routerLink="/mentee/messages" routerLinkActive="active">
               <i class="fa-brands fa-rocketchat fa-xl"></i>
             </a>
-          </li>
+          </li> -->
 
           <!-- AI Assistant - Mentee Only (FIXED ROUTE) -->
-          <li class="nav-item mx-2" *ngIf="currentUser?.role === 'Mentee'">
+          <!-- <li class="nav-item mx-2" *ngIf="currentUser?.role === 'Mentee'">
             <a class="nav-link rounded-pill px-3 ai-assistant-card" routerLink="/mentee/ai-chatbot" routerLinkActive="active">
               <i class="fas fa-robot ai-assistant-icon"></i>
               <span class="ai-assistant-text">AI Assistant</span>
             </a>
-          </li>
+          </li> -->
         </ul>
         <div class="d-flex align-items-center gap-3">
           <!-- Notification Badge - Show only for logged-in users -->
