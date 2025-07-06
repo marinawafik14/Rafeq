@@ -1,3 +1,4 @@
+// src/app/Components/Admin/admin-faqs/faq-form/faq-form.component.ts
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -20,6 +21,7 @@ export class FaqFormComponent implements OnInit {
   isEditMode: boolean = false;
   faqId: number | null = null;
   loading: boolean = false;
+  categories: string[] = ['General', 'Technical', 'Account', 'Billing', 'Support']; // Hardcoded categories for example
 
   constructor(
     private fb: FormBuilder,
@@ -46,7 +48,7 @@ export class FaqFormComponent implements OnInit {
     this.faqForm = this.fb.group({
       question: ['', Validators.required],
       answer: ['', Validators.required],
-      category: [''],
+      category: ['', Validators.required], // Category is now required for select
       sortOrder: [0, [Validators.required, Validators.min(0)]],
       isActive: [true]
     });

@@ -1,58 +1,74 @@
-<div class="article-form-container">
-  <h2>{{ isEditMode ? 'Edit Article' : 'Create New Article' }}</h2>
+<div class="form-wrapper">
+  <div class="form-container">
+    <h2 class="form-title">{{ isEditMode ? 'Edit Article' : 'Create New Article' }}</h2>
 
-  <div *ngIf="loading" class="loading-indicator">Loading article data...</div>
-
-  <form [formGroup]="articleForm" (ngSubmit)="onSubmit()" *ngIf="!loading">
-    <div class="form-group">
-      <label for="title">Title:</label>
-      <input id="title" type="text" formControlName="title" class="form-control"
-             [class.is-invalid]="articleForm.get('title')?.invalid && articleForm.get('title')?.touched">
-      <div *ngIf="articleForm.get('title')?.invalid && articleForm.get('title')?.touched" class="invalid-feedback">
-        Title is required.
+    <div *ngIf="loading" class="loading-indicator">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
       </div>
+      <p>Loading article data...</p>
     </div>
 
-    <div class="form-group">
-      <label for="summary">Summary:</label>
-      <textarea id="summary" formControlName="summary" class="form-control" rows="3"></textarea>
-    </div>
-
-    <div class="form-group">
-      <label for="content">Content:</label>
-      <textarea id="content" formControlName="content" class="form-control" rows="10"
-                [class.is-invalid]="articleForm.get('content')?.invalid && articleForm.get('content')?.touched"></textarea>
-      <div *ngIf="articleForm.get('content')?.invalid && articleForm.get('content')?.touched" class="invalid-feedback">
-        Content is required.
+    <form [formGroup]="articleForm" (ngSubmit)="onSubmit()" *ngIf="!loading">
+      <div class="form-group">
+        <label for="title" class="form-label">Title:</label>
+        <input id="title" type="text" formControlName="title" class="form-control"
+          [class.is-invalid]="articleForm.get('title')?.invalid && articleForm.get('title')?.touched">
+        <div *ngIf="articleForm.get('title')?.invalid && articleForm.get('title')?.touched" class="invalid-feedback">
+          Title is required.
+        </div>
       </div>
-    </div>
 
-    <div class="form-group">
-      <label for="category">Category:</label>
-      <input id="category" type="text" formControlName="category" class="form-control">
-    </div>
-
-    <div class="form-group form-check">
-      <input type="checkbox" id="isPublished" formControlName="isPublished" class="form-check-input">
-      <label class="form-check-label" for="isPublished">Publish Article</label>
-    </div>
-
-    <div class="form-group">
-      <label for="authorId">Author:</label>
-      <select id="authorId" formControlName="authorId" class="form-control"
-              [class.is-invalid]="articleForm.get('authorId')?.invalid && articleForm.get('authorId')?.touched">
-        <option [ngValue]="null">-- Select Author --</option> <option *ngFor="let author of authors" [ngValue]="author.userId">{{ author.fullName }}</option>
-      </select>
-      <div *ngIf="articleForm.get('authorId')?.invalid && articleForm.get('authorId')?.touched" class="invalid-feedback">
-        Author is required.
+      <div class="form-group">
+        <label for="summary" class="form-label">Summary:</label>
+        <textarea id="summary" formControlName="summary" class="form-control" rows="3"></textarea>
       </div>
-    </div>
 
-    <div class="form-actions">
-      <button type="submit" class="btn btn-primary" [disabled]="articleForm.invalid || loading">
-        {{ isEditMode ? 'Update' : 'Create' }} Article
-      </button>
-      <button type="button" class="btn btn-secondary" (click)="onCancel()">Cancel</button>
-    </div>
-  </form>
+      <div class="form-group">
+        <label for="content" class="form-label">Content:</label>
+        <textarea id="content" formControlName="content" class="form-control" rows="10"
+          [class.is-invalid]="articleForm.get('content')?.invalid && articleForm.get('content')?.touched"></textarea>
+        <div *ngIf="articleForm.get('content')?.invalid && articleForm.get('content')?.touched"
+          class="invalid-feedback">
+          Content is required.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="category" class="form-label">Category:</label>
+        <select id="category" formControlName="category" class="form-control"
+          [class.is-invalid]="articleForm.get('category')?.invalid && articleForm.get('category')?.touched">
+          <option value="">-- Select Category --</option>
+          <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+        </select>
+        <div *ngIf="articleForm.get('category')?.invalid && articleForm.get('category')?.touched"
+          class="invalid-feedback">
+          Category is required.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="authorId" class="form-label">Author:</label>
+        <select id="authorId" formControlName="authorId" class="form-control">
+          <option [ngValue]="null">-- Select Author --</option>
+          <option *ngFor="let author of authors" [ngValue]="author.userId">{{ author.fullName }}</option>
+        </select>
+      </div>
+
+      <div class="form-group form-check">
+        <input type="checkbox" id="isPublished" formControlName="isPublished" class="form-check-input">
+        <label class="form-check-label" for="isPublished">Publish Article</label>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-submit" [disabled]="articleForm.invalid || loading">
+          <i class="fas" [class.fa-save]="isEditMode" [class.fa-plus]="!isEditMode"></i>
+          {{ isEditMode ? 'Update Article' : 'Create Article' }}
+        </button>
+        <button type="button" class="btn btn-cancel" (click)="onCancel()">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+      </div>
+    </form>
+  </div>
 </div>

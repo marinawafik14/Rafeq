@@ -4,5 +4,5 @@ export interface ArticleCreateUpdateDto {
   content: string;
   category?: string;
   isPublished: boolean;
-  authorId: number;
+  authorId?: number;
 }
