@@ -1,19 +1,21 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../environments/environment.development';
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { catchError, Observable, throwError } from 'rxjs';
+import { environment } from '../environments/environment.development';
 import { FaqDto, PagedResult } from '../Models/FQA/FaqDto';
 import { FaqCategoryDto } from '../Models/FQA/FaqCategoryDto';
+import { FaqCreateUpdateDto } from '../Models/FQA/FaqCreateUpdateDto';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FaqService {
-    private apiUrl = `${environment.apiUrl}/FAQ`;
+  private apiUrl = `${environment.apiUrl}/FAQ`;
 
   constructor(private http: HttpClient) { }
 
-getFaq(
+
+  getFaq(
     category?: string,
     searchQuery?: string,
     pageNumber: number = 1,
@@ -41,23 +43,68 @@ getFaq(
     );
   }
 
-
-    incrementFaqViewCount(faqId: number): Observable<any> {
+  incrementFaqViewCount(faqId: number): Observable<any> {
     return this.http.put(`${this.apiUrl}/${faqId}/view`, {}).pipe(
       catchError(this.handleError)
     );
   }
 
-
-    incrementFaqHelpfulCount(faqId: number): Observable<any> {
+  incrementFaqHelpfulCount(faqId: number): Observable<any> {
     return this.http.put(`${this.apiUrl}/${faqId}/helpful`, {}).pipe(
       catchError(this.handleError)
     );
   }
 
-
-    incrementFaqNotHelpfulCount(faqId: number): Observable<any> {
+  incrementFaqNotHelpfulCount(faqId: number): Observable<any> {
     return this.http.put(`${this.apiUrl}/${faqId}/nothelpful`, {}).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // --- Admin Methods ---
+
+  getAllFaqsForAdmin(
+    pageNumber: number = 1,
+    pageSize: number = 10,
+    category?: string,
+    searchQuery?: string
+  ): Observable<PagedResult<FaqDto>> {
+    let params = new HttpParams()
+      .set('pageNumber', pageNumber.toString())
+      .set('pageSize', pageSize.toString());
+
+    if (category) {
+      params = params.set('category', category);
+    }
+    if (searchQuery) {
+      params = params.set('searchQuery', searchQuery);
+    }
+
+    return this.http.get<PagedResult<FaqDto>>(`${this.apiUrl}/admin`, { params }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  getFaqByIdForAdmin(id: number): Observable<FaqDto> {
+    return this.http.get<FaqDto>(`${this.apiUrl}/admin/${id}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  createFaq(faq: FaqCreateUpdateDto): Observable<FaqDto> {
+    return this.http.post<FaqDto>(this.apiUrl, faq).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  updateFaq(id: number, faq: FaqCreateUpdateDto): Observable<FaqDto> {
+    return this.http.put<FaqDto>(`${this.apiUrl}/${id}`, faq).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  deleteFaq(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
       catchError(this.handleError)
     );
   }

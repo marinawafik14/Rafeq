@@ -34,11 +34,9 @@ import { MenteeLayoutComponent } from './mentee/mentee-layout.component';
 import { ArticleDetailComponent } from './Auth/article-detail/article-detail.component';
 import { authGuardGuard } from './guards/auth-guard.guard';
 import { AdminDashboardComponent } from './Components/Admin/admin-dashboard/admin-dashboard.component';
-
-
+import { NotificationsComponent } from './features/notifications/notifications.component'; // Add this import
 
 export const routes: Routes = [
-
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
   { path: 'about', component: AboutComponent },
@@ -54,6 +52,15 @@ export const routes: Routes = [
   { path: 'faq', component: FaqComponent },
   { path: 'chat', component: ChatComponent },
   { path: 'chat/:bookingId', component: ChatComponent },
+
+
+  {
+    path: 'notifications',
+    component: NotificationsComponent,
+    canActivate: [authGuardGuard],
+    data: { roles: ['Admin', 'Mentor', 'Mentee'] }
+  },
+
   // general guard depends on user role
   {
     path: '',
@@ -77,6 +84,12 @@ export const routes: Routes = [
           { path: 'home', component: HomeComponent },
           { path: 'contact', component: AdminContactComponent },
 
+          { path: 'articles', component: AdminArticleListComponent },
+          { path: 'articles/create', component: ArticleFormComponent },
+          { path: 'articles/edit/:id', component: ArticleFormComponent },
+          { path: 'faqs', component: AdminFaqListComponent },
+          { path: 'faqs/create', component: FaqFormComponent },
+          { path: 'faqs/edit/:id', component: FaqFormComponent },
         ],
       },
 
@@ -90,7 +103,6 @@ export const routes: Routes = [
           { path: 'availability', component: AvailabilityManagementComponent },
           { path: 'bookings', component: BookingsComponent },
           { path: 'cv-review', component: CVReviewComponent },
-
         ],
       },
 
@@ -99,15 +111,15 @@ export const routes: Routes = [
         path: 'mentee',
         canActivateChild: [authGuardGuard],
         data: { roles: ['Mentee'] },
-        component: MenteeLayoutComponent, 
+        component: MenteeLayoutComponent,
         children: [
           { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
           {
             path: 'dashboard',
             loadComponent: () =>
-              import('./mentee/mentee-dashboard/mentee-dashboard.component').then(
-                (m) => m.MenteeDashboardComponent
-              ),
+              import(
+                './mentee/mentee-dashboard/mentee-dashboard.component'
+              ).then((m) => m.MenteeDashboardComponent),
           },
           {
             path: 'bookings',
@@ -119,9 +131,9 @@ export const routes: Routes = [
           {
             path: 'search-mentors',
             loadComponent: () =>
-              import('./mentee/mentee-search-mentors/mentee-search-mentors.component').then(
-                (m) => m.MenteeSearchMentorsComponent
-              ),
+              import(
+                './mentee/mentee-search-mentors/mentee-search-mentors.component'
+              ).then((m) => m.MenteeSearchMentorsComponent),
           },
           {
             path: 'cv-management',
@@ -147,35 +159,37 @@ export const routes: Routes = [
           {
             path: 'mentor/:id',
             loadComponent: () =>
-              import('./mentee/mentor-profile-view/mentor-profile-view.component').then(
-                (m) => m.MentorProfileViewComponent
-              ),
+              import(
+                './mentee/mentor-profile-view/mentor-profile-view.component'
+              ).then((m) => m.MentorProfileViewComponent),
           },
           {
             path: 'payment',
             loadComponent: () =>
-              import('./payment/payment.component').then((m) => m.PaymentComponent),
+              import('./payment/payment.component').then(
+                (m) => m.PaymentComponent
+              ),
           },
           {
             path: 'payment-complete',
             loadComponent: () =>
-              import('./payment-confirmation/payment-confirmation.component').then(
-                (m) => m.PaymentConfirmationComponent
-              ),
+              import(
+                './payment-confirmation/payment-confirmation.component'
+              ).then((m) => m.PaymentConfirmationComponent),
           },
           {
             path: 'messages',
             loadComponent: () =>
-              import('./mentee/mentee-contact-chat/mentee-contact-chat.component').then(
-                (m) => m.MenteeContactChatComponent
-              ),
+              import(
+                './mentee/mentee-contact-chat/mentee-contact-chat.component'
+              ).then((m) => m.MenteeContactChatComponent),
           },
           {
             path: 'profile',
             loadComponent: () =>
-              import('./Auth/Userprofile/mentee-profile/mentee-profile.component').then(
-                (m) => m.MenteeProfileComponent
-              ),
+              import(
+                './Auth/Userprofile/mentee-profile/mentee-profile.component'
+              ).then((m) => m.MenteeProfileComponent),
           },
           {
             path: 'ai-chatbot',
@@ -193,7 +207,7 @@ export const routes: Routes = [
           },
         ],
       },
-{
+      {
         path: 'ai-chatbot',
         loadComponent: () =>
           import('./features/ai-chatbot/ai-chatbot.component').then(
@@ -205,10 +219,9 @@ export const routes: Routes = [
       { path: 'user-profile', component: ProfileRedirectComponent },
       { path: 'mentor-profile', component: MentorProfileComponent },
       { path: 'mentee-profile', component: MenteeProfileComponent },
-
     ],
   },
 
   // Not found
-  { path: '**', component: NotFoundComponent }
+  { path: '**', component: NotFoundComponent },
 ];

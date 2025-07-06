@@ -1,23 +1,25 @@
 export interface ArticleDto {
-  articleId: number;
+ articleId: number;
   title: string;
-  content: string;
   summary?: string;
+  content: string;
   category?: string;
-  authorId: number;
-  authorName: string;
+  isPublished: boolean;
   viewCount: number;
-  createdAt: Date;
-  updatedAt?: Date;
+  createdAt: string;
+  updatedAt?: string;
+  authorId?: number;
+  authorName?: string;
 }
 export interface ArticleListDto {
   articleId: number;
   title: string;
-  summary: string;
-  category: string;
-  authorName?: string;
+  summary?: string;
+  category?: string;
+  isPublished: boolean; 
   viewCount: number;
-  createdAt: Date;
+  createdAt: string;
+  authorName?: string;
 }
 
 export interface PagedResult<T> {

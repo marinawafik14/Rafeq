@@ -57,7 +57,8 @@
               (click)="toggleFaq(faq.faqId)" [attr.aria-expanded]="faq.faqId === expandedFaqId ? 'true' : 'false'"
               [attr.aria-controls]="'collapse' + faq.faqId">
               <div class="accordion-button-content">
-                <span class="question-number">{{ (currentPage - 1) * pageSize + i + 1 }}</span> <span>{{ faq.question }}</span>
+                <span class="question-number">{{ (currentPage - 1) * pageSize + i + 1 }}</span> <span>{{ faq.question
+                  }}</span>
               </div>
             </button>
           </h2>
@@ -74,11 +75,11 @@
                 <div class="helpful-actions">
                   <small class="text-muted me-2">Was this helpful?</small>
                   <button class="btn btn-sm btn-outline-success ms-1" title="Yes, this was helpful"
-                          (click)="markFaqAsHelpful(faq.faqId, $event)">
+                    (click)="markFaqAsHelpful(faq.faqId, $event)">
                     <i class="fas fa-thumbs-up"></i> {{ faq.helpfulCount }}
                   </button>
                   <button class="btn btn-sm btn-outline-danger ms-1" title="No, this wasn't helpful"
-                          (click)="markFaqAsNotHelpful(faq.faqId, $event)">
+                    (click)="markFaqAsNotHelpful(faq.faqId, $event)">
                     <i class="fas fa-thumbs-down"></i> {{ faq.notHelpfulCount }}
                   </button>
                 </div>

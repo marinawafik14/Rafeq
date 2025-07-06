@@ -18,7 +18,6 @@ import Swal from 'sweetalert2';
   styleUrls: ['./bookings.component.css']
 })
 export class BookingsComponent implements OnInit {
-  
   Math = Math;
   
   currentUserId: number = 0;
@@ -26,7 +25,6 @@ export class BookingsComponent implements OnInit {
   filteredBookings: MentorBookingDetails[] = [];
   bookingStats: BookingStats | null = null;
   
-  // Tab management
   activeTab: string = 'all';
   tabs = [
     { id: 'all', label: 'All Bookings', count: 0 },
@@ -36,18 +34,10 @@ export class BookingsComponent implements OnInit {
     { id: 'cancelled', label: 'Cancelled', count: 0 }
   ];
   
-  // Filtering and searching
-  searchForm: FormGroup;
-  searchQuery: string = '';
-  statusFilter: string = '';
-  sessionTypeFilter: string = '';
-  paymentStatusFilter: string = '';
-  dateFromFilter: string = '';
-  dateToFilter: string = '';
-  sortBy: string = 'date';
-  sortOrder: string = 'desc';
-  
-  // UI state
+  // Declare without initialization
+  searchForm!: FormGroup;
+  rescheduleForm!: FormGroup;
+
   isLoading: boolean = true;
   isUpdatingStatus: boolean = false;
   isUpdatingMeetingLink: boolean = false;
@@ -56,10 +46,6 @@ export class BookingsComponent implements OnInit {
   showDetailsModal: boolean = false;
   showRescheduleModal: boolean = false;
   
-  // Reschedule form
-  rescheduleForm: FormGroup;
-  
-  // Pagination
   currentPage: number = 1;
   pageSize: number = 10;
   totalPages: number = 0;
@@ -69,14 +55,14 @@ export class BookingsComponent implements OnInit {
     private mentorBookingService: MentorBookingService,
     private authService: AuthService
   ) {
-   
+    // Initialize forms here
     this.searchForm = this.fb.group({
       searchQuery: [''],
-      statusFilter: [''],
-      sessionTypeFilter: [''],
-      paymentStatusFilter: [''],
-      dateFromFilter: [''], 
-      dateToFilter: [''],   
+      statusFilter: [''],        
+      sessionTypeFilter: [''],   
+      paymentStatusFilter: [''], 
+      dateFromFilter: [''],      
+      dateToFilter: [''],        
       sortBy: ['date'],
       sortOrder: ['desc']
     });
@@ -93,12 +79,15 @@ export class BookingsComponent implements OnInit {
       if (user) {
         this.currentUserId = user.userId;
         this.loadBookings();
+        this.setupFormSubscriptions(); // Add this line
       }
     });
   }
 
   setupFormSubscriptions(): void {
+    // Set up real-time filtering
     this.searchForm.valueChanges.subscribe(() => {
+      this.currentPage = 1; // Reset to first page when filters change
       this.applyFilters();
     });
   }
@@ -188,13 +177,15 @@ export class BookingsComponent implements OnInit {
     const formValues = this.searchForm.value;
     const now = new Date();
     
+    console.log('=== FILTER DEBUG ===');
+    console.log('Form values:', formValues);
+    console.log('Active tab:', this.activeTab);
+    console.log('Initial bookings count:', filtered.length);
+    
     // Apply tab filter first
     switch (this.activeTab) {
       case 'upcoming':
         filtered = filtered.filter(b => {
-          // A booking is "upcoming" if:
-          // 1. It hasn't been cancelled or completed
-          // 2. The session hasn't ended yet (based on endDateTime)
           const sessionEnd = new Date(b.endDateTime);
           return (b.status === 'Confirmed' || b.status === 'Pending' || b.status === 'InProgress') && 
                  now < sessionEnd;
@@ -212,54 +203,71 @@ export class BookingsComponent implements OnInit {
       // 'all' shows everything
     }
     
+    console.log('After tab filter:', filtered.length);
+    
     // Apply search query
     if (formValues.searchQuery?.trim()) {
-      const query = formValues.searchQuery.toLowerCase();
+      const query = formValues.searchQuery.toLowerCase().trim();
+      console.log('Applying search query:', query);
       filtered = filtered.filter(b => 
         b.menteeName.toLowerCase().includes(query) ||
-        b.sessionType.toLowerCase().includes(query)
+        b.sessionType.toLowerCase().includes(query) ||
+        b.bookingId.toString().includes(query)
       );
+      console.log('After search filter:', filtered.length);
     }
     
-    // Apply status filter
-    if (formValues.statusFilter) {
+    // Apply status filter (only if not on a specific tab)
+    if (formValues.statusFilter && this.activeTab === 'all') {
+      console.log('Applying status filter:', formValues.statusFilter);
       filtered = filtered.filter(b => b.status === formValues.statusFilter);
+      console.log('After status filter:', filtered.length);
     }
     
     // Apply session type filter
-    if (formValues.sessionTypeFilter) {
+    if (formValues.sessionTypeFilter?.trim()) {
+      console.log('Applying session type filter:', formValues.sessionTypeFilter);
       filtered = filtered.filter(b => b.sessionType === formValues.sessionTypeFilter);
+      console.log('After session type filter:', filtered.length);
     }
     
     // Apply payment status filter
-    if (formValues.paymentStatusFilter) {
+    if (formValues.paymentStatusFilter?.trim()) {
+      console.log('Applying payment status filter:', formValues.paymentStatusFilter);
       filtered = filtered.filter(b => b.paymentStatus === formValues.paymentStatusFilter);
+      console.log('After payment status filter:', filtered.length);
     }
     
     // Apply date range filter
     if (formValues.dateFromFilter) {
       const fromDate = new Date(formValues.dateFromFilter);
+      fromDate.setHours(0, 0, 0, 0); // Start of day
+      console.log('Applying date from filter:', fromDate);
       filtered = filtered.filter(b => new Date(b.startDateTime) >= fromDate);
+      console.log('After date from filter:', filtered.length);
     }
     
     if (formValues.dateToFilter) {
       const toDate = new Date(formValues.dateToFilter);
       toDate.setHours(23, 59, 59, 999); // End of day
+      console.log('Applying date to filter:', toDate);
       filtered = filtered.filter(b => new Date(b.startDateTime) <= toDate);
+      console.log('After date to filter:', filtered.length);
     }
     
     // Apply sorting
+    console.log('Applying sort - By:', formValues.sortBy, 'Order:', formValues.sortOrder);
     filtered.sort((a, b) => {
       let aValue: any, bValue: any;
       
       switch (formValues.sortBy) {
         case 'mentee':
-          aValue = a.menteeName;
-          bValue = b.menteeName;
+          aValue = a.menteeName.toLowerCase();
+          bValue = b.menteeName.toLowerCase();
           break;
         case 'status':
-          aValue = a.status;
-          bValue = b.status;
+          aValue = a.status.toLowerCase();
+          bValue = b.status.toLowerCase();
           break;
         case 'amount':
           aValue = a.totalAmount;
@@ -280,6 +288,9 @@ export class BookingsComponent implements OnInit {
     this.filteredBookings = filtered;
     this.totalPages = Math.ceil(filtered.length / this.pageSize);
     this.currentPage = Math.min(this.currentPage, this.totalPages || 1);
+    
+    console.log('Final filtered count:', filtered.length);
+    console.log('=== END FILTER DEBUG ===');
   }
 
   getPaginatedBookings(): MentorBookingDetails[] {
@@ -306,6 +317,10 @@ export class BookingsComponent implements OnInit {
       sortOrder: 'desc'
     });
     this.currentPage = 1;
+  }
+
+  clearSearch(): void {
+    this.searchForm.patchValue({ searchQuery: '' });
   }
 
   getActions(booking: MentorBookingDetails): BookingAction[] {
@@ -683,6 +698,21 @@ export class BookingsComponent implements OnInit {
     Object.keys(form.controls).forEach(key => {
       form.get(key)?.markAsTouched();
     });
+  }
+
+  // Add this temporary debug method
+  debugBookingData(): void {
+    console.log('=== BOOKING DATA DEBUG ===');
+    console.log('Total bookings:', this.allBookings.length);
+    
+    if (this.allBookings.length > 0) {
+      const firstBooking = this.allBookings[0];
+      console.log('Sample booking:', firstBooking);
+      console.log('Status values in data:', [...new Set(this.allBookings.map(b => b.status))]);
+      console.log('Session types in data:', [...new Set(this.allBookings.map(b => b.sessionType))]);
+      console.log('Payment statuses in data:', [...new Set(this.allBookings.map(b => b.paymentStatus))]);
+    }
+    console.log('=== END BOOKING DATA DEBUG ===');
   }
 
   // Add this method for copying Google Meet links
