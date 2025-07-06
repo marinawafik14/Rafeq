@@ -6,7 +6,6 @@
   align-items: flex-start; /* Align to top */
   min-height: calc(100vh - 80px); /* Adjust based on header/footer height */
   padding: 30px 20px;
-  background: linear-gradient(135deg, #e0f2f7 0%, #cce7ff 100%); /* Light gradient background */
 }
 
 .form-container {

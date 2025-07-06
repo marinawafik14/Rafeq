@@ -24,7 +24,6 @@ export class AdminFaqListComponent implements OnInit {
   loading: boolean = false;
   error: string | null = null;
 
-  // Subjects for automatic filtering
   private searchSubject = new Subject<string>();
   private categorySubject = new Subject<string>();
 
@@ -36,37 +35,23 @@ export class AdminFaqListComponent implements OnInit {
   }
 
   setupAutoFiltering(): void {
-    // Auto-filter on search query changes with debounce
     this.searchSubject
       .pipe(
-        debounceTime(500), // Wait 500ms after user stops typing
-        distinctUntilChanged() // Only trigger if value actually changed
+        debounceTime(500),
+        distinctUntilChanged()
       )
       .subscribe((searchTerm) => {
         this.searchQuery = searchTerm;
-        this.pageNumber = 1; // Reset to first page
+        this.pageNumber = 1;
         this.loadFaqs();
-        if (searchTerm) {
-          this.toastr.info(`Searching for: "${searchTerm}"`, 'Auto Search', {
-            timeOut: 2000,
-          });
-        }
       });
 
-    // Auto-filter on category changes with debounce
     this.categorySubject
       .pipe(debounceTime(300), distinctUntilChanged())
       .subscribe((categoryTerm) => {
         this.category = categoryTerm;
-        this.pageNumber = 1; // Reset to first page
+        this.pageNumber = 1;
         this.loadFaqs();
-        if (categoryTerm) {
-          this.toastr.info(
-            `Filtering by category: "${categoryTerm}"`,
-            'Auto Filter',
-            { timeOut: 2000 }
-          );
-        }
       });
   }
 
@@ -85,9 +70,6 @@ export class AdminFaqListComponent implements OnInit {
     this.category = '';
     this.pageNumber = 1;
     this.loadFaqs();
-    this.toastr.success('All filters cleared!', 'Filters Reset', {
-      timeOut: 2000,
-    });
   }
 
   loadFaqs(): void {
@@ -105,19 +87,6 @@ export class AdminFaqListComponent implements OnInit {
           this.pagedResult = data;
           this.faqs = data.items;
           this.loading = false;
-
-          // Show results info
-          if (this.searchQuery || this.category) {
-            const filterInfo = [];
-            if (this.searchQuery)
-              filterInfo.push(`search: "${this.searchQuery}"`);
-            if (this.category) filterInfo.push(`category: "${this.category}"`);
-            this.toastr.info(
-              `Found ${data.totalCount} FAQs with ${filterInfo.join(', ')}`,
-              'Search Results',
-              { timeOut: 3000 }
-            );
-          }
         },
         error: (err: any) => {
           console.error('Error loading FAQs for admin:', err);
@@ -139,44 +108,31 @@ export class AdminFaqListComponent implements OnInit {
     }
   }
 
-  // Remove onSearch method as we now have automatic filtering
-
-  // Remove clearFilters method as we replaced it with clearAllFilters
-
   deleteFaq(id: number): void {
-    // Find the FAQ to show more details in confirmation
     const faq = this.faqs.find((f) => f.faqId === id);
     const faqTitle = faq ? faq.question : 'this FAQ';
 
-    if (
-      confirm(
-        `⚠️ DELETE FAQ CONFIRMATION ⚠️\n\nAre you sure you want to permanently delete:\n"${faqTitle}"\n\n❌ This action CANNOT be undone!\n\nClick OK to delete, or Cancel to keep this FAQ.`
-      )
-    ) {
-      this.toastr.info('Deleting FAQ...', 'Processing', { timeOut: 1000 });
+    const confirmed = confirm(
+      `Are you sure you want to delete "${faqTitle}"?\n\nThis action cannot be undone.`
+    );
 
+    if (confirmed) {
       this.faqService.deleteFaq(id).subscribe({
         next: () => {
           this.toastr.success(
-            `FAQ "${faqTitle}" has been permanently deleted!`,
-            'FAQ Deleted',
-            { timeOut: 4000 }
+            `FAQ "${faqTitle}" has been deleted successfully!`,
+            'FAQ Deleted'
           );
-          this.loadFaqs(); // Reload the list
+          this.loadFaqs();
         },
         error: (err: any) => {
           console.error('Error deleting FAQ:', err);
           this.error = 'Failed to delete FAQ. Please try again.';
           this.toastr.error(
-            err.message || 'Failed to delete FAQ. Please try again.',
-            'Delete Failed',
-            { timeOut: 5000 }
+            `Failed to delete "${faqTitle}". Please try again.`,
+            'Delete Failed'
           );
         },
-      });
-    } else {
-      this.toastr.info('FAQ deletion cancelled.', 'Action Cancelled', {
-        timeOut: 2000,
       });
     }
   }
@@ -206,7 +162,6 @@ export class AdminFaqListComponent implements OnInit {
   }
 
   ngOnDestroy(): void {
-    // Clean up subscriptions
     this.searchSubject.complete();
     this.categorySubject.complete();
   }
