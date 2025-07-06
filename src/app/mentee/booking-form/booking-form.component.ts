@@ -233,26 +233,22 @@ export class BookingFormComponent implements OnDestroy {
     this.loadingSlots = true;
     this.http.get<any[]>(`https://localhost:7001/api/mentors/mentors/${this.mentorId}/free-slots`).subscribe({
       next: (slots) => {
+        // Get current user id (menteeId)
+        const user = this.authService.currentUserValue;
+        const menteeId = user && user.userId ? user.userId : this.menteeId;
         const availableSlots = slots.filter(slot => {
           if (slot.status === 'pending_payment') {
-            const pendingBooking = sessionStorage.getItem('pendingBooking');
-            if (pendingBooking) {
-              const booking = JSON.parse(pendingBooking);
-              return slot.bookingId === booking.bookingId;
-            }
-            return false;
+            // Only show pending slots if they belong to the current user
+            return slot.menteeId && menteeId && slot.menteeId === menteeId;
           }
           const startTime = new Date(slot.start);
           const endTime = new Date(slot.end);
           const timeRange = slot.formatted.split('•')[1]?.trim() || slot.formatted;
-          
           if (endTime <= startTime && this.isCrossMidnightTimeRange(timeRange)) {
             return false;
           }
-          
           return true;
         });
-        
         this.freeSlots = this.filterFutureSlots(availableSlots);
         this.availableDates = this.getAvailableDatesFromFreeSlots();
         this.slotsLoaded = true;
