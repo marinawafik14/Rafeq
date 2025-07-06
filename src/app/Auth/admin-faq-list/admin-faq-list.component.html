@@ -1,12 +1,42 @@
 <div class="admin-panel">
-  <h2>Manage FAQs</h2>
+  <h2> FAQs</h2>
 
   <div class="controls">
-    <input type="text" [(ngModel)]="searchQuery" placeholder="Search questions or answers..." (keyup.enter)="onSearch()">
-    <input type="text" [(ngModel)]="category" placeholder="Filter by category" (keyup.enter)="onSearch()">
-    <button class="btn btn-primary" (click)="onSearch()">Search</button>
-    <button class="btn btn-secondary" (click)="clearFilters()">Clear Filters</button>
-    <button class="btn btn-success" routerLink="create">Add New FAQ</button>
+    <div class="search-container">
+      <i class="fas fa-search search-icon"></i>
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (input)="onSearchInput($event)"
+        placeholder="🔍 Search questions or answers..."
+        class="search-input">
+    </div>
+
+    <div class="filter-container">
+      <i class="fas fa-filter filter-icon"></i>
+      <input
+        type="text"
+        [(ngModel)]="category"
+        (input)="onCategoryInput($event)"
+        placeholder="📂 Filter by category..."
+        class="filter-input">
+    </div>
+
+    <button class="btn btn-clear" (click)="clearAllFilters()" [disabled]="!searchQuery && !category">
+      <i class="fas fa-times"></i> Clear All
+    </button>
+
+    <button class="btn btn-success" routerLink="create">
+      <i class="fas fa-plus"></i> Add New FAQ
+    </button>
+  </div>
+
+  <!-- Results Info -->
+  <div class="results-info" *ngIf="!loading && pagedResult">
+    <span class="info-text">{{ filteredResultsInfo }}</span>
+    <span class="loading-indicator-small" *ngIf="loading">
+      <i class="fas fa-spinner fa-spin"></i> Updating...
+    </span>
   </div>
 
   <div *ngIf="loading" class="loading-indicator">Loading FAQs...</div>
