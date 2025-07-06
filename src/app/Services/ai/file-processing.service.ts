@@ -3,17 +3,39 @@ import { Observable, from, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { FileAttachment } from '../../Models/ai/file-attachment';
 import { environment } from '../../environments/environment';
-import * as pdfjsLib from 'pdfjs-dist';
 
-// Configure PDF.js worker
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
+// Dynamic import for PDF.js to avoid build issues
+declare var pdfjsLib: any;
 
 @Injectable({
   providedIn: 'root'
 })
 export class FileProcessingService {
 
-  constructor() {}
+  private pdfLibLoaded = false;
+
+  constructor() {
+    this.loadPdfJs();
+  }
+
+  private async loadPdfJs(): Promise<void> {
+    if (this.pdfLibLoaded) return;
+
+    try {
+      // Load PDF.js dynamically
+      const pdfjsModule = await import('pdfjs-dist');
+      (window as any).pdfjsLib = pdfjsModule;
+      
+      // Configure worker with a more reliable CDN
+      pdfjsModule.GlobalWorkerOptions.workerSrc = 
+        'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+      
+      this.pdfLibLoaded = true;
+      console.log('📄 PDF.js loaded successfully');
+    } catch (error) {
+      console.error('❌ Failed to load PDF.js:', error);
+    }
+  }
 
   // Process uploaded file
   processFile(file: File): Observable<FileAttachment> {
@@ -34,7 +56,8 @@ export class FileProcessingService {
         map(text => ({ ...fileAttachment, content: text })),
         catchError(error => {
           console.error('PDF processing error:', error);
-          return throwError(() => new Error('Failed to process PDF file'));
+          // Fallback: return file without content for basic upload
+          return throwError(() => new Error('Failed to process PDF file. Please try uploading again or use a different format.'));
         })
       );
     } else if (file.type.startsWith('image/')) {
@@ -50,31 +73,109 @@ export class FileProcessingService {
     }
   }
 
-  // Extract text from PDF
+  // Extract text from PDF with better error handling
   private extractPDFText(file: File): Observable<string> {
     return from(this.processPDF(file));
   }
 
   private async processPDF(file: File): Promise<string> {
+    // Ensure PDF.js is loaded
+    await this.loadPdfJs();
+    
+    if (!this.pdfLibLoaded) {
+      throw new Error('PDF.js library failed to load');
+    }
+
     try {
+      console.log('🔄 Processing PDF:', file.name);
+      
       const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      console.log('📊 ArrayBuffer size:', arrayBuffer.byteLength);
+      
+      const pdfjsLib = (window as any).pdfjsLib;
+      
+      // Load the PDF document with error handling
+      const loadingTask = pdfjsLib.getDocument({
+        data: arrayBuffer,
+        cMapUrl: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/cmaps/',
+        cMapPacked: true,
+        verbosity: 0 // Reduce console output
+      });
+      
+      const pdf = await loadingTask.promise;
+      console.log('📄 PDF loaded, pages:', pdf.numPages);
+      
       let fullText = '';
 
+      // Process pages with progress tracking
       for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const textContent = await page.getTextContent();
-        const pageText = textContent.items
-          .map((item: any) => item.str)
-          .join(' ');
-        fullText += pageText + '\n';
+        try {
+          console.log(`📖 Processing page ${i}/${pdf.numPages}`);
+          
+          const page = await pdf.getPage(i);
+          const textContent = await page.getTextContent();
+          
+          const pageText = textContent.items
+            .filter((item: any) => item.str && item.str.trim()) // Filter empty strings
+            .map((item: any) => item.str)
+            .join(' ');
+          
+          if (pageText.trim()) {
+            fullText += pageText + '\n';
+          }
+          
+          // Clean up page resources
+          page.cleanup();
+          
+        } catch (pageError) {
+          console.warn(`⚠️ Error processing page ${i}:`, pageError);
+          // Continue with other pages
+        }
       }
 
-      return fullText.trim();
-    } catch (error) {
-      console.error('PDF processing error:', error);
-      throw new Error('Failed to extract text from PDF');
+      // Clean up PDF resources
+      pdf.cleanup();
+
+      const result = fullText.trim();
+      console.log('✅ PDF processing complete, text length:', result.length);
+      
+      if (!result) {
+        throw new Error('No readable text found in PDF');
+      }
+      
+      return result;
+      
+    } catch (error: unknown) {
+      console.error('❌ PDF processing error:', error);
+      
+      // Type guard to safely access error properties
+      const errorMessage = this.getErrorMessage(error);
+      
+      // Provide more specific error messages
+      if (errorMessage.includes('Invalid PDF')) {
+        throw new Error('The PDF file appears to be corrupted or invalid');
+      } else if (errorMessage.includes('password')) {
+        throw new Error('This PDF is password protected and cannot be processed');
+      } else if (errorMessage.includes('No readable text')) {
+        throw new Error('This PDF contains no readable text (might be an image-based PDF)');
+      } else {
+        throw new Error(`Failed to process PDF: ${errorMessage}`);
+      }
     }
+  }
+
+  // Helper method to safely extract error message
+  private getErrorMessage(error: unknown): string {
+    if (error instanceof Error) {
+      return error.message;
+    }
+    if (typeof error === 'string') {
+      return error;
+    }
+    if (error && typeof error === 'object' && 'message' in error) {
+      return String((error as any).message);
+    }
+    return 'Unknown error occurred';
   }
 
   // Convert image to base64
@@ -82,9 +183,13 @@ export class FileProcessingService {
     return new Observable(observer => {
       const reader = new FileReader();
       reader.onload = () => {
-        const base64 = (reader.result as string).split(',')[1];
-        observer.next(base64);
-        observer.complete();
+        try {
+          const base64 = (reader.result as string).split(',')[1];
+          observer.next(base64);
+          observer.complete();
+        } catch (error) {
+          observer.error(new Error('Failed to convert image to base64'));
+        }
       };
       reader.onerror = () => {
         observer.error(new Error('Failed to read image file'));
@@ -93,7 +198,7 @@ export class FileProcessingService {
     });
   }
 
-  // Validate file
+  // Enhanced file validation
   private isValidFile(file: File): boolean {
     const allowedTypes = [
       'application/pdf',
@@ -104,14 +209,21 @@ export class FileProcessingService {
     ];
 
     if (!allowedTypes.includes(file.type)) {
+      console.warn('❌ Invalid file type:', file.type);
       return false;
     }
 
+    // Check if environment has the required properties
     const maxSize = file.type === 'application/pdf' 
-      ? environment.openai.maxFileSize 
-      : environment.openai.maxImageSize;
+      ? (environment as any).openai?.maxFileSize || 10 * 1024 * 1024 // 10MB default
+      : (environment as any).openai?.maxImageSize || 5 * 1024 * 1024; // 5MB default
 
-    return file.size <= maxSize;
+    if (file.size > maxSize) {
+      console.warn('❌ File too large:', file.size, 'Max:', maxSize);
+      return false;
+    }
+
+    return true;
   }
 
   // Get file type description
