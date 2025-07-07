@@ -8,7 +8,7 @@
           <div class="hero-content">
             <div class="hero-text">
               <h1 class="hero-title">
-                <span class="name">My Bookings</span>
+                <span class="name text-primary">My Bookings</span>
               </h1>
             </div>
           </div>
@@ -94,7 +94,7 @@
               <div class="booking-header">
                 <div class="booking-info">
                   <h3 class="mentor-name">{{booking.mentorName || 'Unknown Mentor'}}</h3>
-                  <span class="booking-id">#{{booking.bookingId}}</span>
+                  <!-- <span class="booking-id">#{{booking.bookingId}}</span> -->
                 </div>
                 <div class="status-badge" [ngClass]="getStatusBadgeClass(booking.status)">
                   {{booking.status || 'Unknown'}}
@@ -110,20 +110,20 @@
                   <i class="bi bi-clock"></i>
                   <span>{{formatTime(booking.startDateTime)}} - {{formatTime(booking.endDateTime)}}</span>
                 </div>
-                <div class="detail-item" *ngIf="booking.sessionType">
+                <!-- <div class="detail-item" *ngIf="booking.sessionType">
                   <i class="bi bi-tag"></i>
                   <span>{{booking.sessionType}}</span>
-                </div>
-                <div class="detail-item" *ngIf="booking.totalAmount">
+                </div> -->
+                <!-- <div class="detail-item" *ngIf="booking.totalAmount">
                   <i class="bi bi-currency-dollar"></i>
                   <span>${{booking.totalAmount}}</span>
-                </div>
-                <div class="detail-item">
+                </div> -->
+                <!-- <div class="detail-item">
                   <i class="bi bi-credit-card"></i>
                   <span class="payment-status" [ngClass]="booking.paymentStatus?.toLowerCase()">
                     {{booking.paymentStatus || 'Unpaid'}}
                   </span>
-                </div>
+                </div> -->
               </div>
 
               <div class="booking-actions">
@@ -219,38 +219,42 @@
 
           <!-- Pagination -->
           <div class="pagination-section" *ngIf="totalPages > 1 && !isLoading">
-            <div class="pagination-info">
-              <span *ngIf="searchTerm">
-                Found {{totalItems}} result<span *ngIf="totalItems !== 1">s</span> for "{{searchTerm}}"
-              </span>
-              <span *ngIf="!searchTerm">
-                Showing {{startItem}} to {{endItem}} of {{totalItems}} bookings
-              </span>
-            </div>
-            <div class="pagination-controls">
-              <button 
-                class="btn btn-pagination"
-                [disabled]="currentPage === 1"
-                (click)="goToPage(currentPage - 1)">
-                <i class="bi bi-chevron-left"></i>
-              </button>
-              
-              <button 
-                class="btn btn-pagination"
-                *ngFor="let page of getPaginationRange()"
-                [class.active]="page === currentPage"
-                (click)="goToPage(page)">
-                {{page}}
-              </button>
-              
-              <button 
-                class="btn btn-pagination"
-                [disabled]="currentPage === totalPages"
-                (click)="goToPage(currentPage + 1)">
-                <i class="bi bi-chevron-right"></i>
-              </button>
-            </div>
-          </div>
+  <div class="pagination-info">
+    <span *ngIf="searchTerm">
+      Found {{ totalItems }} result<span *ngIf="totalItems !== 1">s</span> for "{{ searchTerm }}"
+    </span>
+    <span *ngIf="!searchTerm">
+      Showing {{ startItem }} to {{ endItem }} of {{ totalItems }} bookings
+    </span>
+  </div>
+
+  <div class="pagination-controls">
+    <ul class="pagination">
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <button class="page-link" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+          <i class="bi bi-chevron-left me-1"></i> Previous
+        </button>
+      </li>
+
+      <li
+        class="page-item"
+        *ngFor="let page of getPaginationRange()"
+        [class.active]="page === currentPage"
+      >
+        <button class="page-link" (click)="goToPage(page)">
+          {{ page }}
+        </button>
+      </li>
+
+      <li class="page-item" [class.disabled]="currentPage === totalPages">
+        <button class="page-link" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
+          Next <i class="bi bi-chevron-right ms-1"></i>
+        </button>
+      </li>
+    </ul>
+  </div>
+</div>
+
         </div>
       </div>
     </div>

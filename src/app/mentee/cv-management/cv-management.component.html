@@ -1,15 +1,15 @@
 <div class="container py-5 cv-management">
     <div class="card shadow-sm border-0 mb-5">
         <div class="card-body">
-            <h3 class="mb-4 text-center text-primary">CV Management</h3>
+            <h3 class="mb-4 text-center cv">CV Management</h3>
             
             <!-- Upload Area -->
             <div class="row mb-4">
                 <div class="col-12">
                     <div class="dropzone card p-5 text-center mb-3 bg-light border-dashed" [class.drag-over]="dragOver"
                         (drop)="onFileDrop($event)" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)">
-                        <i *ngIf="!uploadingFile" class="bi bi-cloud-arrow-up display-3 text-primary mb-3"></i>
-                        <div *ngIf="uploadingFile" class="spinner-border text-primary mb-3" role="status">
+                        <i *ngIf="!uploadingFile" class="bi bi-cloud-arrow-up display-3  mb-3"></i>
+                        <div *ngIf="uploadingFile" class="spinner-border mb-3" role="status">
                             <span class="visually-hidden">Uploading...</span>
                         </div>
                         <h5 class="mb-2">{{uploadingFile ? 'Uploading...' : 'Upload Your CV'}}</h5>
@@ -33,9 +33,9 @@
                     <div *ngIf="cvs.length; else emptyCVs">
                         <h5 class="mb-3"><i class="bi bi-file-earmark-text me-2"></i>Your CVs</h5>
                         <div class="table-responsive">
-                            <table class="table align-middle table-hover">
+                            <table class="table align-middle table-hover " >
                                 <thead class="table-light">
-                                    <tr>
+                                    <tr >
                                         <th scope="col">File</th>
                                         <th scope="col">Uploaded</th>
                                         <th scope="col">Comments</th>
@@ -47,12 +47,12 @@
                                         <td>
                                             <div class="d-flex align-items-center">
                                                 <div class="cv-icon bg-light rounded p-2 me-3">
-                                                    <i class="bi bi-file-earmark-text text-primary fs-5"></i>
+                                                    <i class="bi bi-file-earmark-text fs-5"></i>
                                                 </div>
-                                                <span class="fw-medium">{{cv.name}}</span>
+                                                <span class="fw-medium" style="color: #0a2e65;">{{cv.name}}</span>
                                             </div>
                                         </td>
-                                        <td>{{cv.uploadedAt}}</td>
+                                        <td style="color: #0a2e65;">{{cv.uploadedAt}}</td>
                                         <td>
                                             <button class="btn btn-outline-secondary btn-sm" (click)="openCommentsModal(cv)">
                                                 <i class="bi bi-chat-dots me-1"></i> 
@@ -105,7 +105,7 @@
             <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-light">
                     <h5 class="modal-title">
-                        <i class="bi bi-chat-dots me-2 text-primary"></i>
+                        <i class="bi bi-chat-dots me-2"></i>
                         Feedback for {{selectedCV?.name}}
                     </h5>
                     <button type="button" class="btn-close" (click)="closeCommentsModal()"></button>
@@ -114,23 +114,23 @@
                     <div *ngIf="selectedComments.length; else noComments">
                         <div *ngFor="let comment of selectedComments" class="comment-item mb-4 pb-3 border-bottom">
                             <div class="d-flex justify-content-between mb-2">
-                                <div class="fw-bold">
-                                    <i class="bi bi-person-circle me-2"></i>{{comment.mentorName}}
+                                <div class="fw-bold" style="color: #0a2e65;">
+                                    <i class="bi bi-person-circle me-2" style="color: #0a2e65;"></i>{{comment.mentorName}}
                                 </div>
                                 <span class="text-muted small">{{comment.createdAt | date:'medium'}}</span>
                             </div>
-                            <div class="comment-text bg-light p-3 rounded">{{comment.comment}}</div>
+                            <div class="comment-text bg-light p-3 rounded" style="color: #0a2e65;">{{comment.comment}}</div>
                         </div>
                     </div>
                     <ng-template #noComments>
                         <div class="text-center py-4">
-                            <i class="bi bi-chat-square text-muted display-4 mb-3"></i>
+                            <i class="bi bi-chat-square text-muted display-4 mb-3" ></i>
                             <p class="text-muted">No feedback received for this CV yet.</p>
                         </div>
                     </ng-template>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" (click)="closeCommentsModal()">Close</button>
+                    <button type="button" class="btn btn-close-modal" (click)="closeCommentsModal()">Close</button>
                 </div>
             </div>
         </div>

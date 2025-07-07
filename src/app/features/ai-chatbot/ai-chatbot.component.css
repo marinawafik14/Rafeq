@@ -1,16 +1,30 @@
 /* Main Container - CRITICAL: Full-screen "Focus Mode" */
 .ai-chatbot-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  position: relative;
+    padding: 3rem;
+  max-width: 1400px;
+  margin: 0 auto;
   z-index: 1050; /* High z-index to cover all other content */
   height: 100vh;
   display: flex;
   flex-direction: column;
   background: #f0f4f8; /* A softer, more modern background color */
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+.top-right-header {
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  z-index: 1000;
+  background: white;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header-title {
+  font-size: 1rem;
+  color: #0a2e65;
 }
 
 /* Header - Adjust for the new layout */

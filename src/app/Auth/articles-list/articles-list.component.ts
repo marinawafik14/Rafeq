@@ -2,13 +2,15 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { ArticleDto, ArticleListDto } from '../../Models/articles/ArticleDto';
+// Ensure this service exists and works
+import { ToastrService } from 'ngx-toastr';
+import { ArticleListDto, PagedResult } from '../../Models/articles/ArticleDto';
 import { ArticlesService } from '../../Services/articles.service';
 import { ScrollPositionService } from '../../Services/scroll-position.service';
-import { ToastrService } from 'ngx-toastr';
 
 @Component({
   selector: 'app-articles-list',
+  standalone: true,
   imports: [CommonModule, RouterLink, FormsModule],
   templateUrl: './articles-list.component.html',
   styleUrl: './articles-list.component.css',
@@ -21,7 +23,7 @@ export class ArticlesListComponent implements OnInit {
 
   // Pagination properties
   currentPage: number = 1;
-  pageSize: number = 6; // Number of articles per page
+  pageSize: number = 6; // Number of articles per page for public view
   totalArticles: number = 0; // Total articles matching current filters (from backend)
   totalPages: number = 0;
 
@@ -43,7 +45,7 @@ export class ArticlesListComponent implements OnInit {
       this.loadArticles(); // Reload articles based on new parameters
     });
 
-    // Restore scroll position after component is fully loaded
+    // Restore scroll position after component is fully loaded (if ScrollPositionService is used)
     setTimeout(() => {
       const savedPosition =
         this.scrollPositionService.getScrollPosition('/articles');
@@ -61,16 +63,16 @@ export class ArticlesListComponent implements OnInit {
         this.currentCategoryFilter,
         this.currentPage,
         this.pageSize,
-        this.searchQuery // Pass search query to service
+        this.searchQuery
       )
       .subscribe({
-        next: (pagedResult) => {
+        next: (pagedResult: PagedResult<ArticleListDto>) => {
           this.articles = pagedResult.items;
           this.totalArticles = pagedResult.totalCount;
           this.totalPages = pagedResult.totalPages;
           this.loading = false;
         },
-        error: (err) => {
+        error: (err: any) => {
           this.toastr.error(err.message || 'Failed to load articles.', 'Error');
           console.error('Error loading articles:', err);
           this.loading = false;

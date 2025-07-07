@@ -76,14 +76,18 @@ export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
       this.router.navigate(['/mentee/dashboard']);
     } else if (this.currentUser.role === 'Mentor') {
       this.router.navigate(['/mentor/dashboard']);
-    } else {
+    }else if (this.currentUser.role === 'Admin') {
+      this.router.navigate(['/admin/charts']);
+    }
+    
+    else {
       this.router.navigate(['/home']);
     }
   }
 
   // Add this new method
   goToChat() {
-    if (!this.currentUser) return;
+    if (!this.currentUser || this.currentUser.role === 'Admin') return;
     this.router.navigate(['/chat']);
   }
 }

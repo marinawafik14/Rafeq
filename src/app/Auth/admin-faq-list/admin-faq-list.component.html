@@ -1,0 +1,99 @@
+<div class="admin-panel">
+  <h2> FAQs</h2>
+
+  <div class="controls">
+    <div class="search-container">
+      <i class="fas fa-search search-icon"></i>
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (input)="onSearchInput($event)"
+        placeholder=" Search questions "
+        class="search-input">
+    </div>
+
+    <div class="filter-container">
+      <i class="fas fa-filter filter-icon"></i>
+      <input
+        type="text"
+        [(ngModel)]="category"
+        (input)="onCategoryInput($event)"
+        placeholder=" Filter by category..."
+        class="filter-input">
+    </div>
+
+    <button class="btn btn-clear" (click)="clearAllFilters()" [disabled]="!searchQuery && !category">
+      <i class="fas fa-times"></i> Clear All
+    </button>
+
+    <button class="btn btn-success" routerLink="create">
+      <i class="fas fa-plus"></i> Add New FAQ
+    </button>
+  </div>
+
+  <!-- Results Info -->
+  <div class="results-info" *ngIf="!loading && pagedResult">
+    <span class="info-text">{{ filteredResultsInfo }}</span>
+    <span class="loading-indicator-small" *ngIf="loading">
+      <i class="fas fa-spinner fa-spin"></i> Updating...
+    </span>
+  </div>
+
+  <div *ngIf="loading" class="loading-indicator">Loading FAQs...</div>
+  <div *ngIf="error" class="error-message">{{ error }}</div>
+
+  <table class="data-table" *ngIf="!loading && faqs.length > 0">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Question</th>
+        <th>Category</th>
+        <th>Active</th>
+        <th>Sort Order</th>
+        <th>Views</th>
+        <th>Helpful</th>
+        <th>Not Helpful</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let faq of faqs">
+        <td>{{ faq.faqId }}</td>
+        <td>{{ faq.question }}</td>
+        <td>{{ faq.category || 'N/A' }}</td>
+        <td>
+          <span [class.active-status]="faq.isActive" [class.inactive-status]="!faq.isActive">
+            {{ faq.isActive ? 'Yes' : 'No' }}
+          </span>
+        </td>
+        <td>{{ faq.sortOrder }}</td>
+        <td>{{ faq.viewCount }}</td>
+        <td>{{ faq.helpfulCount }}</td>
+        <td>{{ faq.notHelpfulCount }}</td>
+        <td class="action-buttons">
+          <button class="btn btn-info btn-sm" routerLink="edit/{{ faq.faqId }}">Edit</button>
+          <button class="btn btn-danger btn-sm" (click)="deleteFaq(faq.faqId)">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!loading && faqs.length === 0 && !error" class="no-results-message">
+    No FAQs found matching your criteria.
+  </div>
+
+  <nav *ngIf="pagedResult && pagedResult.totalPages > 1" class="pagination-controls">
+    <ul class="pagination">
+      <li class="page-item" [class.disabled]="pageNumber === 1">
+        <a class="page-link" (click)="onPageChange(pageNumber - 1)">Previous</a>
+      </li>
+      <li class="page-item" *ngFor="let page of totalPagesArray" [class.active]="page === pageNumber">
+        <a class="page-link" (click)="onPageChange(page)">{{ page }}</a>
+      </li>
+      <li class="page-item" [class.disabled]="pageNumber === pagedResult.totalPages">
+        <a class="page-link" (click)="onPageChange(pageNumber + 1)">Next</a>
+      </li>
+    </ul>
+    <span class="pagination-info">Page {{ pageNumber }} of {{ pagedResult.totalPages }}</span>
+  </nav>
+</div>

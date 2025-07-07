@@ -15,15 +15,17 @@ import { ChatConversation } from '../../Models/Chat/chat-conversation';
 import { ConversationParticipants } from '../../Models/Chat/conversation-participants';
 import { SendMessageRequest } from '../../Models/Chat/send-message-request';
 import { VoiceMessageComponent } from '../../shared/components/voice-message/voice-message.component';
+import { MenteeLayoutComponent } from '../../mentee/mentee-layout.component';
 
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule, VoiceMessageComponent],
+  imports: [CommonModule, FormsModule, VoiceMessageComponent, MenteeLayoutComponent],
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css']
 })
 export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
+  menteeId: number | null = null;
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
   @ViewChild('messageInput') messageInput!: ElementRef;
 
@@ -86,6 +88,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     const currentUser = this.authService.currentUserValue;
     if (currentUser) {
       this.currentUserId = currentUser.userId || 0;
+      // Set menteeId only if user is a mentee
+      if (currentUser.role === 'Mentee') {
+        this.menteeId = currentUser.userId;
+      }
       console.log('🔑 Current User from AuthService:', currentUser);
       console.log('🔑 Extracted User ID:', this.currentUserId);
     } else {

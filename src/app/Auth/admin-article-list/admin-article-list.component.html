@@ -1,0 +1,182 @@
+<!-- Enhanced Admin Article List -->
+<div class="admin-panel">
+  <div class="panel-header">
+    <h2> Articles </h2>
+    <span class="article-count" *ngIf="pagedResult">{{ pagedResult.totalCount }} articles</span>
+  </div>
+
+  <!-- Enhanced Search and Filter Controls -->
+  <div class="controls">
+    <div class="search-container">
+      <i class="fas fa-search search-icon"></i>
+      <input type="text" [(ngModel)]="searchQuery" (input)="onSearchInput($event)" placeholder=" Search articles ..."
+        class="search-input">
+      <button class="clear-search" *ngIf="searchQuery" (click)="clearSearch()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="filter-container">
+      <i class="fas fa-filter filter-icon"></i>
+      <input type="text" [(ngModel)]="category" (input)="onCategoryInput($event)" placeholder=" Filter by category..."
+        class="filter-input">
+      <button class="clear-filter" *ngIf="category" (click)="clearCategory()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="action-container">
+      <button class="btn btn-success" routerLink="create">
+        <i class="fas fa-plus"></i> New Article
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter Status Bar -->
+  <div class="filter-status" *ngIf="searchQuery || category">
+    <div class="filter-info">
+      <i class="fas fa-info-circle"></i>
+      <span> filtered results</span>
+      <!-- <span *ngIf="searchQuery" class="filter-tag">
+        Search: "{{ searchQuery }}"
+        <button (click)="clearSearch()"><i class="fas fa-times"></i></button>
+      </span> -->
+      <!-- <span *ngIf="category" class="filter-tag">
+        Category: "{{ category }}"
+        <button (click)="clearCategory()"><i class="fas fa-times"></i></button>
+      </span> -->
+    </div>
+    <button class="btn btn-clear-all" (click)="clearAllFilters()">
+      <i class="fas fa-times-circle"></i> Clear Filters
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="loading-spinner">
+      <i class="fas fa-spinner fa-spin"></i>
+    </div>
+    <p>Loading articles...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="error-container">
+    <i class="fas fa-exclamation-triangle"></i>
+    <h3>Error Loading Articles</h3>
+    <p>{{ error }}</p>
+    <button class="btn btn-retry" (click)="loadArticles()">
+      <i class="fas fa-redo"></i> Retry
+    </button>
+  </div>
+
+  <!-- Articles Table -->
+  <div class="table-container" *ngIf="!loading && articles.length > 0">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Title</th>
+          <th>Category</th>
+          <th>Status</th>
+          <th>Views</th>
+          <th>Author</th>
+          <th>Created</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let article of articles; trackBy: trackByArticleId">
+          <td class="id-cell">{{ article.articleId }}</td>
+          <td class="title-cell">
+            <div class="title-content">
+              <h4>{{ article.title }}</h4>
+              <!-- <p *ngIf="article.summary">{{ article.summary | slice:0:100 }}...</p> -->
+            </div>
+          </td>
+          <td class="category-cell">
+            <span class="category-badge" *ngIf="article.category">{{ article.category }}</span>
+            <span class="no-category" *ngIf="!article.category">No Category</span>
+          </td>
+          <td class="status-cell">
+            <span class="status-badge" [class.published]="article.isPublished"
+              [class.unpublished]="!article.isPublished">
+              <!-- <i class="fas" [class.fa-eye]="article.isPublished" [class.fa-eye-slash]="!article.isPublished"></i> -->
+              {{ article.isPublished ? 'Published' : 'Draft' }}
+            </span>
+          </td>
+          <td class="views-cell">
+            <span class="view-count">
+              <i class="fas fa-eye"></i> {{ article.viewCount }}
+            </span>
+          </td>
+          <td class="author-cell">{{ article.authorName || 'Unknown' }}</td>
+          <td class="date-cell">
+            <span class="date-display">{{ article.createdAt | date:'shortDate' }}</span>
+            <!-- <small>{{ article.createdAt | date:'shortTime' }}</small> -->
+          </td>
+          <td class="action-cell">
+            <div class="action-buttons">
+              <button class="btn btn-edit" routerLink="edit/{{ article.articleId }}" title="Edit Article">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn btn-delete" (click)="deleteArticle(article.articleId)" title="Delete Article">
+                <i class="fas fa-trash"></i>
+              </button>
+              <a class="btn btn-view" [routerLink]="['/articles', article.articleId]" target="_blank"
+                title="View Public">
+                <i class="fas fa-external-link-alt"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- No Results State -->
+  <div *ngIf="!loading && articles.length === 0 && !error" class="no-results-container">
+    <div class="no-results-content">
+      <i class="fas fa-search" *ngIf="searchQuery || category"></i>
+      <i class="fas fa-newspaper" *ngIf="!searchQuery && !category"></i>
+      <h3 *ngIf="searchQuery || category">No articles found</h3>
+      <h3 *ngIf="!searchQuery && !category">No articles yet</h3>
+      <p *ngIf="searchQuery || category">Try adjusting your search terms or filters.</p>
+      <p *ngIf="!searchQuery && !category">Create your first article to get started.</p>
+      <button class="btn btn-success" routerLink="create" *ngIf="!searchQuery && !category">
+        <i class="fas fa-plus"></i> Create First Article
+      </button>
+    </div>
+  </div>
+
+  <!-- Enhanced Pagination -->
+  <nav *ngIf="pagedResult && pagedResult.totalPages > 1" class="pagination-controls">
+
+    <ul class="pagination">
+      <li class="page-item" [class.disabled]="pageNumber === 1">
+        <button class="page-link" (click)="onPageChange(1)" [disabled]="pageNumber === 1">
+          <i class="fas fa-angle-double-left"></i>
+        </button>
+      </li>
+      <li class="page-item" [class.disabled]="pageNumber === 1">
+        <button class="page-link" (click)="onPageChange(pageNumber - 1)" [disabled]="pageNumber === 1">
+          <i class="fas fa-angle-left"></i>
+        </button>
+      </li>
+      <li class="page-item" *ngFor="let page of totalPagesArray" [class.active]="page === pageNumber">
+        <button class="page-link" (click)="onPageChange(page)">{{ page }}</button>
+      </li>
+      <li class="page-item" [class.disabled]="pageNumber === pagedResult.totalPages">
+        <button class="page-link" (click)="onPageChange(pageNumber + 1)"
+          [disabled]="pageNumber === pagedResult.totalPages">
+          <i class="fas fa-angle-right"></i>
+        </button>
+      </li>
+      <li class="page-item" [class.disabled]="pageNumber === pagedResult.totalPages">
+        <button class="page-link" (click)="onPageChange(pagedResult.totalPages)"
+          [disabled]="pageNumber === pagedResult.totalPages">
+          <i class="fas fa-angle-double-right"></i>
+        </button>
+      </li>
+    </ul>
+  </nav>
+</div>

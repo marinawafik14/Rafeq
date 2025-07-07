@@ -1,0 +1,69 @@
+<!-- src/app/Components/Admin/admin-faqs/faq-form/faq-form.component.html -->
+<div class="form-wrapper">
+  <div class="form-container">
+    <h2 class="form-title">{{ isEditMode ? 'Edit FAQ' : 'Create New FAQ' }}</h2>
+
+    <div *ngIf="loading" class="loading-indicator">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p>Loading FAQ data...</p>
+    </div>
+
+    <form [formGroup]="faqForm" (ngSubmit)="onSubmit()" *ngIf="!loading">
+      <div class="form-group">
+        <label for="question" class="form-label">Question:</label>
+        <input id="question" type="text" formControlName="question" class="form-control"
+               [class.is-invalid]="faqForm.get('question')?.invalid && faqForm.get('question')?.touched">
+        <div *ngIf="faqForm.get('question')?.invalid && faqForm.get('question')?.touched" class="invalid-feedback">
+          Question is required.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="answer" class="form-label">Answer:</label>
+        <textarea id="answer" formControlName="answer" class="form-control" rows="5"
+                  [class.is-invalid]="faqForm.get('answer')?.invalid && faqForm.get('answer')?.touched"></textarea>
+        <div *ngIf="faqForm.get('answer')?.invalid && faqForm.get('answer')?.touched" class="invalid-feedback">
+          Answer is required.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="category" class="form-label">Category:</label>
+        <select id="category" formControlName="category" class="form-control"
+                [class.is-invalid]="faqForm.get('category')?.invalid && faqForm.get('category')?.touched">
+          <option value="">-- Select Category --</option>
+          <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+        </select>
+        <div *ngIf="faqForm.get('category')?.invalid && faqForm.get('category')?.touched" class="invalid-feedback">
+          Category is required.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="sortOrder" class="form-label">Sort Order:</label>
+        <input id="sortOrder" type="number" formControlName="sortOrder" class="form-control"
+               [class.is-invalid]="faqForm.get('sortOrder')?.invalid && faqForm.get('sortOrder')?.touched">
+        <div *ngIf="faqForm.get('sortOrder')?.invalid && faqForm.get('sortOrder')?.touched" class="invalid-feedback">
+          Sort Order is required and must be a non-negative number.
+        </div>
+      </div>
+
+      <div class="form-group form-check">
+        <input type="checkbox" id="isActive" formControlName="isActive" class="form-check-input">
+        <label class="form-check-label" for="isActive">Is Active</label>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-submit" [disabled]="faqForm.invalid || loading">
+          <i class="fas" [class.fa-save]="isEditMode" [class.fa-plus]="!isEditMode"></i>
+          {{ isEditMode ? 'Update FAQ' : 'Create FAQ' }}
+        </button>
+        <button type="button" class="btn btn-cancel" (click)="onCancel()">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

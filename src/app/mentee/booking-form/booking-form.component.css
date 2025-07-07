@@ -16,7 +16,7 @@
 }
 
 .booking-title {
-  color: #1e293b;
+  color: #0a2e65;
   font-weight: 700;
   margin-bottom: 1.5rem;
   display: flex;
@@ -24,7 +24,7 @@
 }
 
 .booking-title i {
-  color: #3b82f6;
+  color: #0a2e65;
   margin-right: 0.5rem;
 }
 
@@ -48,7 +48,7 @@
 }
 
 .progress-bar {
-  background: linear-gradient(to right, #3b82f6, #6366f1);
+  background: #0a2e65;
   border-radius: 100px;
   transition: width 0.4s ease;
 }
@@ -89,13 +89,13 @@
 }
 
 .step-indicator.active .step-number {
-  background-color: #3b82f6;
+  background-color: #0a2e65;
   color: white;
   box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
 }
 
 .step-indicator.active .step-label {
-  color: #1e293b;
+  color: #0a2e65;
   font-weight: 600;
 }
 
@@ -122,7 +122,7 @@
 }
 
 .step-header h3 {
-  color: #1e293b;
+  color: #0a2e65;
   font-weight: 700;
   margin-bottom: 0.5rem;
   display: flex;
@@ -130,7 +130,7 @@
 }
 
 .step-header h3 i {
-  color: #3b82f6;
+  color: #0a2e65;
   margin-right: 0.5rem;
 }
 
@@ -168,7 +168,7 @@
 }
 
 .session-type-card.selected {
-  border-color: #3b82f6;
+  border-color: #0a2e65;
   background-color: #f0f7ff;
   box-shadow: 0 10px 25px rgba(59, 130, 246, 0.15);
 }
@@ -177,7 +177,7 @@
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  background: #0a2e65;
   color: white;
   display: flex;
   align-items: center;
@@ -190,7 +190,7 @@
 }
 
 .session-type-card h4 {
-  color: #1e293b;
+  color: #0a2e65;
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
@@ -203,7 +203,7 @@
 
 .session-price {
   font-weight: 700;
-  color: #3b82f6;
+  color: #0a2e65;
   font-size: 1.125rem;
 }
 
@@ -268,7 +268,7 @@
 }
 
 .day-availability-card.selected {
-  border-color: #3b82f6;
+  border-color:#0a2e65;
   background-color: #f0f7ff;
   box-shadow: 0 8px 20px rgba(59, 130, 246, 0.15);
 }
@@ -304,7 +304,7 @@
 
 .day-name {
   font-weight: 700;
-  color: #1e293b;
+  color: #0a2e65;
   font-size: 1.125rem;
 }
 
@@ -323,8 +323,8 @@
   margin-bottom: 2rem;
 }
 
-.time-slots-section h4 {
-  color: #1e293b;
+.time-slots-section h5 {
+  color:#0a2e65;
   font-weight: 600;
   margin-bottom: 1rem;
   font-size: 1.125rem;
@@ -346,7 +346,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #1e293b;
+  color: #0a2e65;
   font-weight: 500;
 }
 
@@ -357,14 +357,14 @@
 }
 
 .time-slot-btn.selected {
-  border-color: #3b82f6;
+  border-color: #0a2e65;
   background-color: #f0f7ff;
-  color: #1e40af;
+  color: #0a2e65;
 }
 
 .time-slot-btn i {
   margin-right: 0.5rem;
-  color: #3b82f6;
+  color:#0a2e65;
 }
 
 /* No Availability State */
@@ -383,7 +383,7 @@
 }
 
 .no-availability-content h4 {
-  color: #1e293b;
+  color: #0a2e65;
   font-weight: 600;
   margin-bottom: 0.5rem;
 }
@@ -425,13 +425,13 @@
 
 .summary-label i {
   margin-right: 0.5rem;
-  color: #3b82f6;
+  color: #0a2e65;
 }
 
 .summary-value {
   text-align: right;
   font-weight: 600;
-  color: #1e293b;
+  color: #0a2e65;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
@@ -442,7 +442,7 @@
   padding: 0.25rem 0.5rem;
   border-radius: 100px;
   background-color: #e0f2fe;
-  color: #0369a1;
+  color: #0a2e65;
   margin-top: 0.25rem;
 }
 
@@ -452,7 +452,7 @@
 
 .time-display {
   font-size: 0.875rem;
-  color: #3b82f6;
+  color: #0a2e65;
 }
 
 .mentor-rate {
@@ -469,7 +469,7 @@
 
 .price-amount {
   font-size: 1.25rem;
-  color: #3b82f6;
+  color: #0a2e65;
   font-weight: 700;
 }
 
@@ -492,27 +492,30 @@
 }
 
 .btn-primary {
-  background: linear-gradient(to right, #3b82f6, #6366f1);
+  background: #0a2e65;
   border: none;
   color: white;
 }
 
 .btn-primary:hover {
-  background: linear-gradient(to right, #2563eb, #4f46e5);
+  background: white;
+  color: #0a2e65;
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.25);
+  border: 2px solid #0a2e65;
 }
 
 .btn-success {
-  background: linear-gradient(to right, #10b981, #059669);
+  background: #0a2e65;
   border: none;
   color: white;
 }
 
 .btn-success:hover {
-  background: linear-gradient(to right, #059669, #047857);
+  background: white;
+  color: #0a2e65;
+  border: 1px solid #0a2e65;
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.25);
+  box-shadow: 0 8px 20px #0a2e65
 }
 
 .btn-outline-secondary {
@@ -543,7 +546,7 @@
 }
 
 .confirmation-content h4 {
-  color: #1e293b;
+  color: #0a2e65;
   font-weight: 700;
   margin-bottom: 0.5rem;
 }
@@ -604,4 +607,51 @@
   justify-content: center;
   align-items: flex-start;
   min-height: 100vh;
+}
+/* Pagination Styles */
+.pagination-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 1rem 0;
+}
+
+.page-info {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+/* Date Cards Container */
+.available-days-horizontal {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  gap: 15px;
+  scrollbar-width: thin;
+}
+
+/* Scrollbar styling for Webkit browsers */
+.available-days-horizontal::-webkit-scrollbar {
+  height: 6px;
+}
+
+.available-days-horizontal::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .available-days-horizontal {
+    gap: 10px;
+  }
+  
+  .day-availability-card {
+    min-width: 120px;
+  }
+  
+  .itemsPerPage {
+    width: 5;
+  }
 }

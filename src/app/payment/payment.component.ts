@@ -1,11 +1,11 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http'; // Add this import
 import { loadStripe } from '@stripe/stripe-js';
 import { PaymentService } from '../Services/payment.service';
 import { PaymentDetailsDto } from '../Models/Payments/payment-details.model';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../Services/auth.service';
-
 
 @Component({
    selector: 'app-payment',
@@ -15,7 +15,7 @@ import { AuthService } from '../Services/auth.service';
 })
 
 
-export class PaymentComponent implements AfterViewInit, OnDestroy,OnInit {
+export class PaymentComponent implements AfterViewInit, OnDestroy, OnInit {
   @ViewChild('cardInfo') cardInfo!: ElementRef;
 
   stripe: any;
@@ -33,6 +33,7 @@ export class PaymentComponent implements AfterViewInit, OnDestroy,OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private http: HttpClient, // Add this injection
     private paymentService: PaymentService,
     private authService: AuthService
   ) {}
@@ -56,58 +57,50 @@ ngOnInit(): void {
   // Get the amount from navigation state or query params
   const amount = state?.amount || queryAmount || 60;
 
-  // Set payment details so UI works immediately
-  this.paymentDetails = {
-    paymentId: 0,
-    bookingId: this.bookingId,
-    amountPaid: +amount,
-    paymentMethod: 'card',
-    transactionId: '',
-    paymentDate: new Date().toISOString(),
-    mentorName: 'Mentor',
-    menteeName: 'You',
-    sessionType: amount >= 100 ? 'Interview' : 'Mentorship',
-    sessionDateTime: new Date().toISOString(),
-    commission: Math.round(+amount * 0.2 * 100) / 100,
-    mentorAmount: Math.round(+amount * 0.8 * 100) / 100
-  };
-  
-  this.loadingVisible = false;
+  // Load actual booking details to get session info
+  this.loadBookingDetails();
 }
 
-private loadPaymentDetails(): void {
-  this.loadingVisible = true;
-  this.errorVisible = false;
-  
-  // Use the API endpoint that gets payment details by booking ID
-  this.paymentService.getPaymentDetailsByBookingId(this.bookingId).subscribe({
-    next: (response) => {
-      console.log('Payment details loaded:', response);
-      this.paymentDetails = response.data;
-      this.loadingVisible = false;
-    },
-    error: (err) => {
-      console.error('Error loading payment details:', err);
-      // If payment details don't exist yet, that's normal for a new booking
-      // The payment will be created when the user clicks "Pay"
-      this.errorMessage = 'Unable to load payment details. You can still proceed with payment.';
-      this.loadingVisible = false;
-      
-      // Set some default values so the UI doesn't break
+// Add this new method to load booking details
+private loadBookingDetails(): void {
+  // First try to load from booking service to get session date/time
+  this.http.get<any>(`https://localhost:7001/api/MenteeBookings/${this.bookingId}`).subscribe({
+    next: (booking) => {
       this.paymentDetails = {
         paymentId: 0,
         bookingId: this.bookingId,
-        amountPaid: 60, // Default amount - you might want to get this from the booking
+        amountPaid: booking.totalAmount || 60,
+        paymentMethod: 'card',
+        transactionId: '',
+        paymentDate: new Date().toISOString(),
+        mentorName: booking.mentorName || 'Mentor',
+        menteeName: 'You',
+        sessionType: booking.sessionType || 'Mentorship',
+        sessionDateTime: booking.startDateTime, // Use session date, not payment date
+        commission: Math.round((booking.totalAmount || 60) * 0.2 * 100) / 100,
+        mentorAmount: Math.round((booking.totalAmount || 60) * 0.8 * 100) / 100
+      };
+      this.loadingVisible = false;
+    },
+    error: (err) => {
+      console.error('Error loading booking details:', err);
+      // Fallback to query params
+      const amount = +this.route.snapshot.queryParamMap.get('amount')! || 60;
+      this.paymentDetails = {
+        paymentId: 0,
+        bookingId: this.bookingId,
+        amountPaid: amount,
         paymentMethod: 'card',
         transactionId: '',
         paymentDate: new Date().toISOString(),
         mentorName: 'Mentor',
         menteeName: 'You',
-        sessionType: 'Mentorship',
+        sessionType: amount >= 100 ? 'Interview' : 'Mentorship',
         sessionDateTime: new Date().toISOString(),
-        commission: 0,
-        mentorAmount: 60
+        commission: Math.round(amount * 0.2 * 100) / 100,
+        mentorAmount: Math.round(amount * 0.8 * 100) / 100
       };
+      this.loadingVisible = false;
     }
   });
 }
