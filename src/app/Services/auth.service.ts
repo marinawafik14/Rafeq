@@ -230,9 +230,9 @@ export class AuthService {
 
     const decodedToken = this.jwtHelper.decodeToken(currentUser.accessToken);
     return (
-      decodedToken[
-        'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'
-      ] || null
+      decodedToken['role'] ||
+      decodedToken['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ||
+      null
     );
   }
   isTokenExpired(): boolean {

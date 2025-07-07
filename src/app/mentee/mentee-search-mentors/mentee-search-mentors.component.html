@@ -199,10 +199,36 @@
                 </h4>
               </div>
 
+              <div class="mb-3 d-flex gap-3 align-items-center">
+                <label class="form-label mb-0">Search Mode:</label>
+                <div class="form-check form-check-inline">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    id="normalSearch"
+                    name="searchMode"
+                    [checked]="!aiSearchMode"
+                    (change)="toggleSearchMode('normal')"
+                  />
+                  <label class="form-check-label" for="normalSearch">Normal</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    id="aiSearch"
+                    name="searchMode"
+                    [checked]="aiSearchMode"
+                    (change)="toggleSearchMode('ai')"
+                  />
+                  <label class="form-check-label" for="aiSearch">AI Semantic</label>
+                </div>
+              </div>
+
               <div class="search-controls-row">
                 <div class="search-input-section">
                   <div class="enhanced-search-input">
-                    <div class="input-group">
+                    <div class="input-group" *ngIf="!aiSearchMode">
                       <span class="input-group-text bg-white border-end-0">
                         <i class="bi bi-person-search text-primary"></i>
                       </span>
@@ -220,6 +246,32 @@
                         (click)="clearSearch()"
                       >
                         <i class="bi bi-x"></i>
+                      </button>
+                    </div>
+                    <div class="input-group" *ngIf="aiSearchMode">
+                      <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-robot text-primary"></i>
+                      </span>
+                      <input
+                        type="text"
+                        class="form-control border-start-0 shadow-none"
+                        placeholder="Describe your ideal mentor or what you want to learn..."
+                        [(ngModel)]="semanticQuery"
+                        (keyup.enter)="onSemanticSearch()"
+                      />
+                      <button
+                        class="btn btn-primary"
+                        type="button"
+                        (click)="onSemanticSearch()"
+                        [disabled]="semanticLoading || !semanticQuery.trim()"
+                      >
+                        <span *ngIf="!semanticLoading">
+                          <i class="bi bi-search"></i> AI Search
+                        </span>
+                        <span
+                          *ngIf="semanticLoading"
+                          class="spinner-border spinner-border-sm"
+                        ></span>
                       </button>
                     </div>
                   </div>
@@ -363,89 +415,127 @@
             <!-- Mentors Grid -->
             <div *ngIf="!emptyState && !isLoading" class="mentors-grid">
               <div class="row g-4">
-                <div
-                  *ngFor="let mentor of mentors; trackBy: trackByMentorId"
-                  class="col-xl-4 col-lg-6 col-md-6"
-                >
+                <!-- Normal Search -->
+                <ng-container *ngIf="!aiSearchMode">
                   <div
-                    class="mentor-card-enhanced"
-                    (click)="viewMentorProfile(mentor.userId)"
+                    *ngFor="let mentor of mentors; trackBy: trackByMentorId"
+                    class="col-xl-4 col-lg-6 col-md-6"
                   >
-                    <div class="mentor-card-header">
-                      <div class="mentor-avatar-section">
-                        <img
-                          [src]="
-                            mentor.profilePicture ||
-                            '/images/default-avatar.png'
-                          "
-                          alt="{{ mentor.fullName }}"
-                          class="mentor-avatar"
-                          (error)="onImageError($event)"
-                        />
-                        <div *ngIf="mentor.rating" class="mentor-rating-badge">
-                          <i class="bi bi-star-fill"></i>
-                          {{ mentor.rating }}
-                        </div>
-                      </div>
-                      <div class="mentor-basic-info">
-                        <h5 class="mentor-name">{{ mentor.fullName }}</h5>
-                        <div class="mentor-price">
-                          <i class="bi bi-currency-dollar"></i>
-                          <span class="price-value"
-                            >${{ mentor.hourlyRate }}</span
-                          >
-                          <span class="price-unit">/hour</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="mentor-card-body">
-                      <div class="mentor-skills-section">
-                        <div
-                          *ngIf="
-                            mentor.skills.length > 0;
-                            else noSkillsTemplate
-                          "
-                          class="skills-list"
-                        >
-                          <span
-                            *ngFor="
-                              let skill of mentor.skills.slice(0, 4);
-                              trackBy: trackBySkillName
-                            "
-                            class="skill-badge"
-                          >
-                            {{ skill.Name }}
-                          </span>
-                          <span
-                            *ngIf="mentor.skills.length > 4"
-                            class="more-skills-badge"
-                          >
-                            +{{ mentor.skills.length - 4 }} more
-                          </span>
-                        </div>
-                        <ng-template #noSkillsTemplate>
-                          <div class="no-skills-notice">
-                            <i class="bi bi-info-circle me-1"></i>
-                            <span>No skills listed</span>
+                    <div class="mentor-card-enhanced" (click)="viewMentorProfile(mentor.userId)">
+                      <div class="mentor-card-header">
+                        <div class="mentor-avatar-section">
+                          <img [src]="mentor.profilePicture || '/images/default-avatar.png'" alt="{{ mentor.fullName }}" class="mentor-avatar" (error)="onImageError($event)" />
+                          <div *ngIf="mentor.rating" class="mentor-rating-badge">
+                            <i class="bi bi-star-fill"></i>
+                            {{ mentor.rating }}
                           </div>
-                        </ng-template>
+                        </div>
+                        <div class="mentor-basic-info">
+                          <h5 class="mentor-name">{{ mentor.fullName }}</h5>
+                          <div class="mentor-price">
+                            <i class="bi bi-currency-dollar"></i>
+                            <span class="price-value"
+                              >${{ mentor.hourlyRate }}</span
+                            >
+                            <span class="price-unit">/hour</span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
 
-                    <div class="mentor-card-footer">
-                      <button
-                        class="btn btn-primary btn-sm w-100"
-                        (click)="
-                          viewMentorProfile(mentor.userId);
-                          $event.stopPropagation()
-                        "
-                      >
-                        <i class="bi bi-eye me-1"></i>View Profile
-                      </button>
+                      <div class="mentor-card-body">
+                        <div class="mentor-skills-section">
+                          <div *ngIf="mentor.skills.length > 0; else noSkillsTemplate" class="skills-list">
+                            <span *ngFor="let skill of mentor.skills.slice(0, 4); trackBy: trackBySkillName" class="skill-badge">
+                              {{ skill.Name }}
+                            </span>
+                            <span *ngIf="mentor.skills.length > 4" class="more-skills-badge">
+                              +{{ mentor.skills.length - 4 }} more
+                            </span>
+                          </div>
+                          <ng-template #noSkillsTemplate>
+                            <div class="no-skills-notice">
+                              <i class="bi bi-info-circle me-1"></i>
+                              <span>No skills listed</span>
+                            </div>
+                          </ng-template>
+                        </div>
+                      </div>
+
+                      <div class="mentor-card-footer">
+                        <button
+                          class="btn btn-primary btn-sm w-100"
+                          (click)="
+                            viewMentorProfile(mentor.userId);
+                            $event.stopPropagation()
+                          "
+                        >
+                          <i class="bi bi-eye me-1"></i>View Profile
+                        </button>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </ng-container>
+
+                <!-- AI Semantic Search -->
+                <ng-container *ngIf="aiSearchMode">
+                  <div
+                    *ngFor="let mentor of semanticMentors; trackBy: trackBySemanticMentorId"
+                    class="col-xl-4 col-lg-6 col-md-6"
+                  >
+                    <div class="mentor-card-enhanced" (click)="viewMentorProfile(mentor.userId)">
+                      <div class="mentor-card-header">
+                        <div class="mentor-avatar-section">
+                          <img [src]="mentor.profilePicture || '/images/default-avatar.png'" alt="{{ mentor.fullName }}" class="mentor-avatar" (error)="onImageError($event)" />
+                          <div *ngIf="mentor.averageRating" class="mentor-rating-badge">
+                            <i class="bi bi-star-fill"></i>
+                            {{ mentor.averageRating }}
+                          </div>
+                        </div>
+                        <div class="mentor-basic-info">
+                          <h5 class="mentor-name">{{ mentor.fullName }}</h5>
+                          <div class="mentor-price">
+                            <i class="bi bi-currency-dollar"></i>
+                            <span class="price-value"
+                              >${{ mentor.hourlyRate }}</span
+                            >
+                            <span class="price-unit">/hour</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="mentor-card-body">
+                        <div class="mentor-skills-section">
+                          <div *ngIf="mentor.skills.length > 0; else noSkillsTemplateAI" class="skills-list">
+                            <span *ngFor="let skill of mentor.skills.slice(0, 4)" class="skill-badge">
+                              {{ skill }}
+                            </span>
+                            <span *ngIf="mentor.skills.length > 4" class="more-skills-badge">
+                              +{{ mentor.skills.length - 4 }} more
+                            </span>
+                          </div>
+                          <ng-template #noSkillsTemplateAI>
+                            <div class="no-skills-notice">
+                              <i class="bi bi-info-circle me-1"></i>
+                              <span>No skills listed</span>
+                            </div>
+                          </ng-template>
+                        </div>
+                      </div>
+
+                      <div class="mentor-card-footer">
+                        <button
+                          class="btn btn-primary btn-sm w-100"
+                          (click)="
+                            viewMentorProfile(mentor.userId);
+                            $event.stopPropagation()
+                          "
+                        >
+                          <i class="bi bi-eye me-1"></i>View Profile
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </ng-container>
               </div>
             </div>
           </div>
