@@ -1,5 +1,5 @@
 /* Enhanced Mentor Profile Styles */
-:host {
+/* :host {
   --primary-color: #4f46e5;
   --primary-light: #6366f1;
   --primary-dark: #3730a3;
@@ -18,7 +18,7 @@
   --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
   --gradient-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-}
+} */
 
 .main-content {
   background: var(--bg-secondary);
@@ -917,7 +917,29 @@ color:#0a2e65;
   gap: 0.5rem;
   margin-left: auto;
 }
+.toggle-btn{
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #0a2e65;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
 
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    background: white;
+    color: #0a2e65;
+    border: 1px solid #0a2e65;
+  }
+}
 .edit-review-btn, .delete-review-btn {
   display: flex;
   align-items: center;

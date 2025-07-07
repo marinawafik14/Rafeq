@@ -11,7 +11,8 @@ import { AuthService } from '../Services/auth.service';
    selector: 'app-payment',
   imports: [CommonModule],
 
-  templateUrl: './payment.component.html'
+  templateUrl: './payment.component.html',
+  styleUrls: ['./payment.component.css'],
 })
 
 

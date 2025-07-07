@@ -1,3 +1,7 @@
+*{
+  color: #0a2e65;
+}
+
 .payment-section {
   background-color: #f9fbff;
 }
@@ -16,7 +20,7 @@
 
 .ord-sum,
 .pay-sec {
-  color: #0a2e65;
+  color: #0a2e65 !important;
 }
 
 .total {
