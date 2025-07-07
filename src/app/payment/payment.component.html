@@ -5,7 +5,7 @@
 <!-- Left Side: Order Summary -->
 <div *ngIf="!loadingVisible && !errorVisible" class="col-lg-5 col-md-6">
   <div class="card shadow-sm border-0 rounded-4 h-100 p-4 p-md-5">
-    <h4 class="fw-bold mb-4 ord-sum">Order Summary</h4>
+    <h4 class="fw-bold mb-4 ord-sum"  style="color: #0a2e65;">Order Summary</h4>
     <ul class="list-group list-group-flush">
     <!-- Mentor Session -->
 <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-3">
@@ -91,7 +91,7 @@
 
    <!-- Loading State -->
 <div *ngIf="loadingVisible" class="text-center my-4">
-  <div class="spinner-border text-primary" role="status">
+  <div class="spinner-border" role="status">
     <span class="visually-hidden">Processing...</span>
   </div>
   <p class="mt-2 text-muted">Fetching payment details...</p>
