@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import Swiper from 'swiper';
 import { CommonModule } from '@angular/common';
-import { RouterLink, RouterModule } from '@angular/router';
+import { RouterLink, RouterModule, Router } from '@angular/router'; // Add Router import
 import 'swiper/css';
 import { TokenResponseDto } from '../Models/Auth/TokenResponseDto';
 import { AuthService } from '../Services/auth.service';
@@ -9,16 +9,19 @@ import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterModule, RouterLink,CommonModule],
-templateUrl: './home.component.html',
+  imports: [RouterModule, RouterLink, CommonModule],
+  templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent implements AfterViewInit,OnInit,OnDestroy {
+export class HomeComponent implements AfterViewInit, OnInit, OnDestroy {
 
   currentUser: TokenResponseDto | null = null;
-    private destroy = new Subject<void>();
+  private destroy = new Subject<void>();
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router // Add Router to constructor
+  ) {}
 
   ngOnInit(): void {
     this.authService.currentUser
@@ -65,5 +68,22 @@ export class HomeComponent implements AfterViewInit,OnInit,OnDestroy {
         }
       }
     });
+  }
+
+  goToDashboard() {
+    if (!this.currentUser || !this.currentUser.role) return;
+    if (this.currentUser.role === 'Mentee') {
+      this.router.navigate(['/mentee/dashboard']);
+    } else if (this.currentUser.role === 'Mentor') {
+      this.router.navigate(['/mentor/dashboard']);
+    } else {
+      this.router.navigate(['/home']);
+    }
+  }
+
+  // Add this new method
+  goToChat() {
+    if (!this.currentUser) return;
+    this.router.navigate(['/chat']);
   }
 }

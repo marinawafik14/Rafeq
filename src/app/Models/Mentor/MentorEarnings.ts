@@ -1,9 +1,11 @@
 export interface MentorEarnings {
   totalEarnings: number;
-  pendingEarnings: number;
+  thisMonthEarnings: number;
+  lastMonthEarnings: number;
   completedSessions: number;
   upcomingSessions: number;
-  monthlyEarnings: {
+  pendingSessions: number; // Changed from pendingBookings to pendingSessions
+  monthlyEarnings?: {
     month: string;
     amount: number;
   }[];

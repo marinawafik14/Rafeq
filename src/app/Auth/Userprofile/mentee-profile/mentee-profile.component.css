@@ -374,6 +374,25 @@
   font-size: 1rem;
 }
 
+
+.btn-outline-success {
+  border-color: #28a745;
+  color: #28a745;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-success:hover {
+  background-color: #28a745;
+  border-color: #28a745;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+}
+
+.btn-outline-success:focus {
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
 /* Alerts */
 .alert {
   border-radius: 6px;

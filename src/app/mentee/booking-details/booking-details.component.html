@@ -130,19 +130,45 @@
               </div>
             </div>
             <div class="card mb-4" *ngIf="booking.status==='completed' || booking.status==='Completed'">
-              <div class="card-header bg-white fw-bold">Your Review</div>
+              <div class="card-header bg-white fw-bold">
+                <i class="bi bi-star me-2"></i>Your Review
+              </div>
               <div class="card-body">
-                <div *ngIf="booking.review; else noReview">
-                  <div class="mb-2">
-                    <i class="bi bi-star-fill text-warning"></i>
-                    <span class="fw-bold">{{booking.review.rating}}</span>
-                    <span class="text-muted ms-2 small">{{booking.review.date}}</span>
+                <div *ngIf="loadingReview" class="text-center py-3">
+                  <div class="spinner-border spinner-border-sm text-primary" role="status">
+                    <span class="visually-hidden">Loading review...</span>
                   </div>
-                  <div>{{booking.review.comment}}</div>
                 </div>
-                <ng-template #noReview>
-                  <div class="text-muted">You have not left a review for this session yet.</div>
-                </ng-template>
+                
+                <div *ngIf="!loadingReview && bookingReview" class="review-content">
+                  <div class="d-flex align-items-center mb-3">
+                    <!-- <div class="star-rating me-3">
+                      <span *ngFor="let star of getStarArray(bookingReview.rating)" 
+                            class="star"
+                            [class.filled]="star">
+                        <i class="bi" [class.bi-star-fill]="star" [class.bi-star]="!star"></i>
+                      </span>
+                    </div> -->
+                    <!-- <div class="rating-text">
+                      <span class="fw-bold">{{bookingReview.rating}}/5</span>
+                    </div> -->
+                    <div class="ms-auto">
+                      <small class="text-muted">{{formatReviewDate(bookingReview.createdAt)}}</small>
+                    </div>
+                  </div>
+                  
+                  <div class="review-comment">
+                    <p class="mb-0">{{bookingReview.comment}}</p>
+                  </div>
+                </div>
+                
+                <div *ngIf="!loadingReview && !bookingReview" class="no-review">
+                  <div class="text-center py-4">
+                    <i class="bi bi-star text-muted mb-2" style="font-size: 2rem;"></i>
+                    <p class="text-muted mb-0">You haven't left a review for this session yet.</p>
+                    <small class="text-muted">Reviews help mentors improve their services.</small>
+                  </div>
+                </div>
               </div>
             </div>
             </div>
@@ -157,13 +183,6 @@
 <div class="modal" [class.show]="showCancelModal" [style.display]="showCancelModal ? 'block' : 'none'" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
-      <!-- <div class="modal-header bg-danger text-white">
-        <h5 class="modal-title">
-          <i class="bi bi-exclamation-triangle-fill me-2"></i>
-          Cancel Booking
-        </h5>
-        <button type="button" class="btn-close btn-close-white" (click)="closeCancelModal()"></button>
-      </div> -->
       <div class="modal-body">
         <div class="booking-summary mb-4" *ngIf="booking">
           <div class="d-flex align-items-center mb-3">
@@ -221,4 +240,32 @@
 <div class="modal-backdrop" 
      [class.show]="showCancelModal"
      [style.display]="showCancelModal ? 'block' : 'none'">
+</div>
+
+<!-- Toaster Notification -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;">
+  <div class="toast align-items-center text-white border-0" 
+       [class.show]="showToast"
+       [class.bg-success]="toastType === 'success'"
+       [class.bg-danger]="toastType === 'error'"
+       [class.bg-warning]="toastType === 'warning'"
+       [class.bg-info]="toastType === 'info'"
+       role="alert" 
+       aria-live="assertive" 
+       aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body">
+        <i class="bi" 
+           [class.bi-check-circle-fill]="toastType === 'success'"
+           [class.bi-x-circle-fill]="toastType === 'error'"
+           [class.bi-exclamation-triangle-fill]="toastType === 'warning'"
+           [class.bi-info-circle-fill]="toastType === 'info'"></i>
+        {{ toastMessage }}
+      </div>
+      <button type="button" 
+              class="btn-close btn-close-white me-2 m-auto" 
+              aria-label="Close"
+              (click)="hideToaster()"></button>
+    </div>
+  </div>
 </div>

@@ -248,3 +248,19 @@
 </section>
 <br>
 <br>
+<!-- Floating Action Buttons (only show when user is logged in) -->
+<ng-container *ngIf="currentUser">
+  <div class="floating-actions">
+    <!-- Chat Button -->
+    <div class="chat-popup" (click)="goToChat()" title="Open Chat">
+      <i class="fas fa-comments"></i>
+      <span class="floating-tooltip">Chat</span>
+    </div>
+    
+    <!-- Dashboard Button -->
+    <div class="dashboard-popup" (click)="goToDashboard()" title="Go to Dashboard">
+      <i class="fas fa-tachometer-alt"></i>
+      <span class="floating-tooltip">Dashboard</span>
+    </div>
+  </div>
+</ng-container>

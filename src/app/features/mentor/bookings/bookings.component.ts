@@ -18,7 +18,6 @@ import Swal from 'sweetalert2';
   styleUrls: ['./bookings.component.css']
 })
 export class BookingsComponent implements OnInit {
-  
   Math = Math;
   
   currentUserId: number = 0;
@@ -26,7 +25,6 @@ export class BookingsComponent implements OnInit {
   filteredBookings: MentorBookingDetails[] = [];
   bookingStats: BookingStats | null = null;
   
-  // Tab management
   activeTab: string = 'all';
   tabs = [
     { id: 'all', label: 'All Bookings', count: 0 },
@@ -36,29 +34,18 @@ export class BookingsComponent implements OnInit {
     { id: 'cancelled', label: 'Cancelled', count: 0 }
   ];
   
-  // Filtering and searching
-  searchForm: FormGroup;
-  searchQuery: string = '';
-  statusFilter: string = '';
-  sessionTypeFilter: string = '';
-  paymentStatusFilter: string = '';
-  dateFromFilter: string = '';
-  dateToFilter: string = '';
-  sortBy: string = 'date';
-  sortOrder: string = 'desc';
-  
-  // UI state
+  // Declare without initialization
+  searchForm!: FormGroup;
+  rescheduleForm!: FormGroup;
+
   isLoading: boolean = true;
   isUpdatingStatus: boolean = false;
+  isUpdatingMeetingLink: boolean = false;
   error: string | null = null;
   selectedBooking: MentorBookingDetails | null = null;
   showDetailsModal: boolean = false;
   showRescheduleModal: boolean = false;
   
-  // Reschedule form
-  rescheduleForm: FormGroup;
-  
-  // Pagination
   currentPage: number = 1;
   pageSize: number = 10;
   totalPages: number = 0;
@@ -68,14 +55,14 @@ export class BookingsComponent implements OnInit {
     private mentorBookingService: MentorBookingService,
     private authService: AuthService
   ) {
-   
+    // Initialize forms here
     this.searchForm = this.fb.group({
       searchQuery: [''],
-      statusFilter: [''],
-      sessionTypeFilter: [''],
-      paymentStatusFilter: [''],
-      dateFromFilter: [''], 
-      dateToFilter: [''],   
+      statusFilter: [''],        
+      sessionTypeFilter: [''],   
+      paymentStatusFilter: [''], 
+      dateFromFilter: [''],      
+      dateToFilter: [''],        
       sortBy: ['date'],
       sortOrder: ['desc']
     });
@@ -92,12 +79,15 @@ export class BookingsComponent implements OnInit {
       if (user) {
         this.currentUserId = user.userId;
         this.loadBookings();
+        this.setupFormSubscriptions(); // Add this line
       }
     });
   }
 
   setupFormSubscriptions(): void {
+    // Set up real-time filtering
     this.searchForm.valueChanges.subscribe(() => {
+      this.currentPage = 1; // Reset to first page when filters change
       this.applyFilters();
     });
   }
@@ -187,13 +177,15 @@ export class BookingsComponent implements OnInit {
     const formValues = this.searchForm.value;
     const now = new Date();
     
+    console.log('=== FILTER DEBUG ===');
+    console.log('Form values:', formValues);
+    console.log('Active tab:', this.activeTab);
+    console.log('Initial bookings count:', filtered.length);
+    
     // Apply tab filter first
     switch (this.activeTab) {
       case 'upcoming':
         filtered = filtered.filter(b => {
-          // A booking is "upcoming" if:
-          // 1. It hasn't been cancelled or completed
-          // 2. The session hasn't ended yet (based on endDateTime)
           const sessionEnd = new Date(b.endDateTime);
           return (b.status === 'Confirmed' || b.status === 'Pending' || b.status === 'InProgress') && 
                  now < sessionEnd;
@@ -211,54 +203,71 @@ export class BookingsComponent implements OnInit {
       // 'all' shows everything
     }
     
+    console.log('After tab filter:', filtered.length);
+    
     // Apply search query
     if (formValues.searchQuery?.trim()) {
-      const query = formValues.searchQuery.toLowerCase();
+      const query = formValues.searchQuery.toLowerCase().trim();
+      console.log('Applying search query:', query);
       filtered = filtered.filter(b => 
         b.menteeName.toLowerCase().includes(query) ||
-        b.sessionType.toLowerCase().includes(query)
+        b.sessionType.toLowerCase().includes(query) ||
+        b.bookingId.toString().includes(query)
       );
+      console.log('After search filter:', filtered.length);
     }
     
-    // Apply status filter
-    if (formValues.statusFilter) {
+    // Apply status filter (only if not on a specific tab)
+    if (formValues.statusFilter && this.activeTab === 'all') {
+      console.log('Applying status filter:', formValues.statusFilter);
       filtered = filtered.filter(b => b.status === formValues.statusFilter);
+      console.log('After status filter:', filtered.length);
     }
     
     // Apply session type filter
-    if (formValues.sessionTypeFilter) {
+    if (formValues.sessionTypeFilter?.trim()) {
+      console.log('Applying session type filter:', formValues.sessionTypeFilter);
       filtered = filtered.filter(b => b.sessionType === formValues.sessionTypeFilter);
+      console.log('After session type filter:', filtered.length);
     }
     
     // Apply payment status filter
-    if (formValues.paymentStatusFilter) {
+    if (formValues.paymentStatusFilter?.trim()) {
+      console.log('Applying payment status filter:', formValues.paymentStatusFilter);
       filtered = filtered.filter(b => b.paymentStatus === formValues.paymentStatusFilter);
+      console.log('After payment status filter:', filtered.length);
     }
     
     // Apply date range filter
     if (formValues.dateFromFilter) {
       const fromDate = new Date(formValues.dateFromFilter);
+      fromDate.setHours(0, 0, 0, 0); // Start of day
+      console.log('Applying date from filter:', fromDate);
       filtered = filtered.filter(b => new Date(b.startDateTime) >= fromDate);
+      console.log('After date from filter:', filtered.length);
     }
     
     if (formValues.dateToFilter) {
       const toDate = new Date(formValues.dateToFilter);
       toDate.setHours(23, 59, 59, 999); // End of day
+      console.log('Applying date to filter:', toDate);
       filtered = filtered.filter(b => new Date(b.startDateTime) <= toDate);
+      console.log('After date to filter:', filtered.length);
     }
     
     // Apply sorting
+    console.log('Applying sort - By:', formValues.sortBy, 'Order:', formValues.sortOrder);
     filtered.sort((a, b) => {
       let aValue: any, bValue: any;
       
       switch (formValues.sortBy) {
         case 'mentee':
-          aValue = a.menteeName;
-          bValue = b.menteeName;
+          aValue = a.menteeName.toLowerCase();
+          bValue = b.menteeName.toLowerCase();
           break;
         case 'status':
-          aValue = a.status;
-          bValue = b.status;
+          aValue = a.status.toLowerCase();
+          bValue = b.status.toLowerCase();
           break;
         case 'amount':
           aValue = a.totalAmount;
@@ -279,6 +288,9 @@ export class BookingsComponent implements OnInit {
     this.filteredBookings = filtered;
     this.totalPages = Math.ceil(filtered.length / this.pageSize);
     this.currentPage = Math.min(this.currentPage, this.totalPages || 1);
+    
+    console.log('Final filtered count:', filtered.length);
+    console.log('=== END FILTER DEBUG ===');
   }
 
   getPaginatedBookings(): MentorBookingDetails[] {
@@ -305,6 +317,10 @@ export class BookingsComponent implements OnInit {
       sortOrder: 'desc'
     });
     this.currentPage = 1;
+  }
+
+  clearSearch(): void {
+    this.searchForm.patchValue({ searchQuery: '' });
   }
 
   getActions(booking: MentorBookingDetails): BookingAction[] {
@@ -684,6 +700,21 @@ export class BookingsComponent implements OnInit {
     });
   }
 
+  // Add this temporary debug method
+  debugBookingData(): void {
+    console.log('=== BOOKING DATA DEBUG ===');
+    console.log('Total bookings:', this.allBookings.length);
+    
+    if (this.allBookings.length > 0) {
+      const firstBooking = this.allBookings[0];
+      console.log('Sample booking:', firstBooking);
+      console.log('Status values in data:', [...new Set(this.allBookings.map(b => b.status))]);
+      console.log('Session types in data:', [...new Set(this.allBookings.map(b => b.sessionType))]);
+      console.log('Payment statuses in data:', [...new Set(this.allBookings.map(b => b.paymentStatus))]);
+    }
+    console.log('=== END BOOKING DATA DEBUG ===');
+  }
+
   // Add this method for copying Google Meet links
   copyToClipboard(text: string): void {
     if (navigator.clipboard && window.isSecureContext) {
@@ -743,27 +774,144 @@ export class BookingsComponent implements OnInit {
 
   // Add this method to your BookingsComponent class
   canShowJoinButton(booking: MentorBookingDetails): boolean {
-    return booking.status === 'Confirmed' || booking.status === 'InProgress';
+    // Must have meeting link set
+    if (!booking.googleMeetLink) {
+      return false;
+    }
+    
+    // Must be confirmed or in progress
+    if (booking.status !== 'Confirmed' && booking.status !== 'InProgress') {
+      return false;
+    }
+    
+    // Must be paid
+    if (booking.paymentStatus !== 'Paid') {
+      return false;
+    }
+    
+    return true;
   }
 
   // Add this method to handle join functionality
   joinSessionFromBookings(booking: MentorBookingDetails): void {
+    if (!booking.googleMeetLink) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'No Meeting Link',
+        text: 'Please set up the meeting link first.',
+        confirmButtonColor: '#0a2e65'
+      });
+      return;
+    }
+
     console.log('Joining session:', booking.bookingId);
     
-    // Call the mentor booking service to join
     this.mentorBookingService.joinBooking(booking.bookingId).subscribe({
       next: (joinInfo) => {
-        // Update status locally
-        booking.status = 'InProgress';
+        // Update status locally if needed
+        if (booking.status === 'Confirmed') {
+          booking.status = 'InProgress';
+        }
         
-        // Open Google Meet link
+        // Open the meeting link
         window.open(joinInfo.meetLink, '_blank');
         
-        console.log('Session joined successfully');
+        Swal.fire({
+          icon: 'success',
+          title: 'Session Joined!',
+          text: 'Opening meeting in new tab...',
+          timer: 2000,
+          showConfirmButton: false,
+          toast: true,
+          position: 'top-end'
+        });
       },
       error: (error) => {
         console.error('Error joining session:', error);
+        let errorMessage = 'Unable to join the session.';
+        
+        if (error.error?.message) {
+          errorMessage = error.error.message;
+        }
+        
+        Swal.fire({
+          icon: 'error',
+          title: 'Cannot Join Session',
+          text: errorMessage,
+          confirmButtonColor: '#0a2e65'
+        });
       }
     });
+  }
+
+  updateMeetingLink(booking: MentorBookingDetails): void {
+    if (!booking.meetingLinkInput?.trim()) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Invalid Link',
+        text: 'Please enter a valid meeting link.',
+        confirmButtonColor: '#0a2e65'
+      });
+      return;
+    }
+
+    this.isUpdatingMeetingLink = true;
+
+    this.mentorBookingService.updateMeetingLink(booking.bookingId, booking.meetingLinkInput).subscribe({
+      next: (response: any) => { // Add explicit type
+        if (response.success) {
+          booking.googleMeetLink = booking.meetingLinkInput;
+          booking.meetingLinkInput = '';
+          
+          const index = this.allBookings.findIndex(b => b.bookingId === booking.bookingId);
+          if (index !== -1) {
+            this.allBookings[index].googleMeetLink = booking.googleMeetLink;
+          }
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Link Saved!',
+            text: 'Meeting link has been saved successfully.',
+            timer: 2000,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+          });
+        }
+      },
+      error: (error: any) => { // Add explicit type
+        console.error('Error updating meeting link:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Failed to Save',
+          text: 'Please check the link format and try again.',
+          confirmButtonColor: '#0a2e65'
+        });
+      },
+      complete: () => {
+        this.isUpdatingMeetingLink = false;
+      }
+    });
+  }
+
+  editMeetingLink(booking: MentorBookingDetails): void {
+    booking.meetingLinkInput = booking.googleMeetLink || '';
+    // Fix the type issue by setting to undefined instead of null
+    booking.googleMeetLink = undefined;
+  }
+
+  copyMeetingLink(booking: MentorBookingDetails): void {
+    if (booking.googleMeetLink) {
+      navigator.clipboard.writeText(booking.googleMeetLink);
+      Swal.fire({
+        icon: 'success',
+        title: 'Copied!',
+        text: 'Meeting link copied to clipboard.',
+        timer: 1500,
+        showConfirmButton: false,
+        toast: true,
+        position: 'top-end'
+      });
+    }
   }
 }

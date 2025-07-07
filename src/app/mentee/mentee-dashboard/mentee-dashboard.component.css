@@ -120,7 +120,7 @@
 /* Stats Grid - 5 cards in one row */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
   margin-bottom: 3rem;
 }
@@ -690,6 +690,90 @@
   opacity: 0.8;
 }
 
+/* Review Section */
+.booking-review {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #f8faff 0%, #eef2ff 100%);
+  border: 1px solid rgba(10, 46, 101, 0.1);
+  border-radius: 12px;
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  color: #0a2e65;
+}
+
+.review-header i {
+  color: #f59e0b;
+}
+
+.review-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.review-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.stars {
+  display: flex;
+  gap: 0.125rem;
+}
+
+.stars i {
+  color: #f59e0b;
+  font-size: 0.875rem;
+}
+
+.stars .bi-star {
+  color: #e2e8f0;
+}
+
+.rating-value {
+  font-weight: 600;
+  color: #0a2e65;
+  font-size: 0.875rem;
+}
+
+.review-comment {
+  margin-top: 0.5rem;
+}
+
+.review-comment p {
+  margin: 0;
+  font-style: italic;
+  color: #475569;
+  line-height: 1.4;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 0.75rem;
+  border-radius: 8px;
+  border-left: 3px solid #f59e0b;
+}
+
+.review-date {
+  margin-top: 0.5rem;
+}
+
+.no-review {
+  text-align: center;
+  padding: 1rem;
+}
+
+.no-review p {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.875rem;
+}
+
 /* Empty State */
 .empty-state {
   text-align: center;
@@ -871,11 +955,14 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  margin: 0 auto 1rem auto;
+ 
 }
 
 .action-icon i {
   font-size: 1.5rem;
   color: white;
+  
 }
 
 .action-content h4 {
@@ -941,5 +1028,12 @@
 @media (max-width: 1200px) {
   .content-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Show 5 quick actions in one row on large screens */
+@media (min-width: 1200px) {
+  .actions-grid {
+    grid-template-columns: repeat(5, 1fr);
   }
 }

@@ -62,11 +62,11 @@
         <div class="col-12">
           <form [formGroup]="searchForm" class="filters-form">
             <div class="row g-3">
-              <!-- Search and Basic Filters Row -->
-              <div class="col-lg-8">
-                <div class="d-flex gap-2 flex-wrap">
+              <!-- First Row: Search and Basic Filters -->
+              <div class="col-12">
+                <div class="row g-2">
                   <!-- Search Input -->
-                  <div class="search-input-group">
+                  <div class="col-lg-4 col-md-6">
                     <div class="input-group">
                       <span class="input-group-text bg-white border-end-0">
                         <i class="fas fa-search text-muted"></i>
@@ -74,72 +74,107 @@
                       <input type="text" 
                              formControlName="searchQuery"
                              class="form-control border-start-0" 
-                             placeholder="Search by mentee name...">
+                             placeholder="Search by mentee name or session type..."
+                             #searchInput>
+                      <span *ngIf="searchForm.get('searchQuery')?.value" 
+                            class="input-group-text bg-white border-start-0 cursor-pointer"
+                            (click)="clearSearch()"
+                            title="Clear search">
+                        <i class="fas fa-times text-muted"></i>
+                      </span>
                     </div>
+                    <small *ngIf="searchForm.get('searchQuery')?.value" class="text-muted">
+                      Found {{ filteredBookings.length }} results
+                    </small>
                   </div>
 
                   <!-- Status Filter -->
-                  <select formControlName="statusFilter" class="form-select filter-select">
-                    <option value="">All Status</option>
-                    <option value="Pending">Pending</option>
-                    <option value="Confirmed">Confirmed</option>
-                    <option value="InProgress">In Progress</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Cancelled">Cancelled</option>
-                  </select>
+                  <div class="col-lg-2 col-md-3 col-sm-6">
+                    <select formControlName="statusFilter" class="form-select">
+                      <option value="">All Status</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Confirmed">Confirmed</option>
+                      <option value="InProgress">In Progress</option>
+                      <option value="Completed">Completed</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+                  </div>
 
                   <!-- Session Type Filter -->
-                  <select formControlName="sessionTypeFilter" class="form-select filter-select">
-                    <option value="">All Types</option>
-                    <option value="Mentorship">Mentorship</option>
-                    <option value="Interview">Interview</option>
-                  </select>
+                  <div class="col-lg-2 col-md-3 col-sm-6">
+                    <select formControlName="sessionTypeFilter" class="form-select">
+                      <option value="">All Types</option>
+                      <option value="Mentorship">Mentorship</option>
+                      <option value="Interview">Interview</option>
+                    </select>
+                  </div>
 
                   <!-- Payment Status Filter -->
-                  <select formControlName="paymentStatusFilter" class="form-select filter-select">
-                    <option value="">All Payments</option>
-                    <option value="Paid">Paid</option>
-                    <option value="Unpaid">Unpaid</option>
-                  </select>
+                  <div class="col-lg-2 col-md-6 col-sm-6">
+                    <select formControlName="paymentStatusFilter" class="form-select">
+                      <option value="">All Payments</option>
+                      <option value="Paid">Paid</option>
+                      <option value="Unpaid">Unpaid</option>
+                    </select>
+                  </div>
+
+                  <!-- Clear Filters Button -->
+                  <div class="col-lg-2 col-md-6 col-sm-6">
+                    <button type="button" 
+                            class="btn btn-outline-secondary w-100" 
+                            (click)="clearFilters()"
+                            title="Clear All Filters">
+                      <i class="fas fa-times me-2"></i>Clear
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              <!-- Date Filters and Sort Row -->
-              <div class="col-lg-4">
-                <div class="d-flex gap-2">
+              <!-- Second Row: Date Filters and Sorting -->
+              <div class="col-12">
+                <div class="row g-2">
                   <!-- Date From -->
-                  <input type="date" 
-                         formControlName="dateFromFilter"
-                         class="form-control" 
-                         title="From Date">
+                  <div class="col-lg-2 col-md-3 col-sm-6">
+                    <input type="date" 
+                           formControlName="dateFromFilter"
+                           class="form-control" 
+                           title="From Date">
+                  </div>
                   
                   <!-- Date To -->
-                  <input type="date" 
-                         formControlName="dateToFilter"
-                         class="form-control" 
-                         title="To Date">
+                  <div class="col-lg-2 col-md-3 col-sm-6">
+                    <input type="date" 
+                           formControlName="dateToFilter"
+                           class="form-control" 
+                           title="To Date">
+                  </div>
 
-                  <!-- Sort -->
-                  <select formControlName="sortBy" class="form-select">
-                    <option value="date">Sort by Date</option>
-                    <option value="mentee">Sort by Mentee</option>
-                    <option value="status">Sort by Status</option>
-                    <option value="amount">Sort by Amount</option>
-                  </select>
+                  <!-- Sort By -->
+                  <div class="col-lg-3 col-md-3 col-sm-6">
+                    <select formControlName="sortBy" class="form-select">
+                      <option value="date">Sort by Date</option>
+                      <option value="mentee">Sort by Mentee</option>
+                      <option value="status">Sort by Status</option>
+                      <option value="amount">Sort by Amount</option>
+                    </select>
+                  </div>
 
                   <!-- Sort Order -->
-                  <select formControlName="sortOrder" class="form-select">
-                    <option value="desc">Newest First</option>
-                    <option value="asc">Oldest First</option>
-                  </select>
+                  <div class="col-lg-3 col-md-3 col-sm-6">
+                    <select formControlName="sortOrder" class="form-select">
+                      <option value="desc">Newest First</option>
+                      <option value="asc">Oldest First</option>
+                    </select>
+                  </div>
 
-                  <!-- Clear Filters -->
-                  <button type="button" 
-                          class="btn btn-outline-secondary" 
-                          (click)="clearFilters()"
-                          title="Clear Filters">
-                    <i class="fas fa-times"></i>
-                  </button>
+                  <!-- Filter Summary -->
+                  <div class="col-lg-2 col-md-12">
+                    <div class="filter-summary text-center">
+                      <small class="text-muted">
+                        Showing {{ filteredBookings.length }} of {{ allBookings.length }}
+                      </small>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -163,7 +198,7 @@
           <span *ngIf="activeTab === 'completed'">No completed sessions yet.</span>
           <span *ngIf="activeTab === 'cancelled'">No cancelled bookings.</span>
         </p>
-        <div *ngIf="searchForm.get('searchQuery')?.value || statusFilter || sessionTypeFilter">
+        <div *ngIf="searchForm.get('searchQuery')?.value || searchForm.get('statusFilter')?.value || searchForm.get('sessionTypeFilter')?.value">
           <button class="btn btn-outline-primary rounded-pill" (click)="clearFilters()">
             <i class="fas fa-filter me-2"></i>Clear Filters
           </button>
@@ -234,27 +269,85 @@
                 </div>
               </div>
 
-              <!-- Action Buttons -->
-              <div class="action-buttons">
-                <div class="d-flex gap-2 flex-wrap">
-                  <!-- Simple join button that won't conflict -->
-                  <button *ngIf="canShowJoinButton(booking)" 
-                          class="btn btn-primary btn-sm rounded-pill"
-                          (click)="joinSessionFromBookings(booking)">
-                    <i class="fas fa-video me-1"></i>
-                    Join Session
-                  </button>
+              <!-- Enhanced Meeting Setup Section (Add this before action buttons) -->
+              <div class="meeting-setup-section mb-3" *ngIf="booking.status === 'Confirmed'">
+                <!-- If no meeting link set yet -->
+                <div *ngIf="!booking.googleMeetLink" class="no-link-container">
+                  <div class="alert alert-warning alert-sm">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <small>Meeting link required to join session</small>
+                  </div>
                   
-                  <!-- Keep existing action buttons -->
-                  <button *ngFor="let action of getActions(booking)" 
-                          class="btn btn-sm rounded-pill"
-                          [ngClass]="action.cssClass"
-                          [disabled]="!action.enabled || isUpdatingStatus"
-                          (click)="executeAction(action, booking)">
-                    <i [class]="action.icon + ' me-1'"></i>
-                    {{ action.label }}
-                  </button>
+                  <!-- Quick create button and input -->
+                  <div class="meeting-link-input">
+                    <div class="input-group input-group-sm">
+                      <input 
+                        type="url" 
+                        [(ngModel)]="booking.meetingLinkInput" 
+                        placeholder="Paste Google Meet link here..."
+                        class="form-control">
+                      <a href="https://meet.google.com/" target="_blank" 
+                         class="btn btn-outline-primary btn-sm"
+                         title="Create Google Meet">
+                        <i class="fab fa-google me-1"></i>Create
+                      </a>
+                      <button 
+                        (click)="updateMeetingLink(booking)"
+                        class="btn btn-success btn-sm"
+                        [disabled]="!booking.meetingLinkInput"
+                        title="Save meeting link">
+                        <i class="fas fa-save"></i>
+                      </button>
+                    </div>
+                  </div>
                 </div>
+                
+                <!-- If meeting link exists -->
+                <div *ngIf="booking.googleMeetLink" class="link-exists-container">
+                  <div class="alert alert-success alert-sm">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <small>Meeting ready!</small>
+                  </div>
+                  
+                  <div class="meeting-actions d-flex gap-1">
+                    <button (click)="editMeetingLink(booking)" 
+                            class="btn btn-outline-secondary btn-sm">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button (click)="copyMeetingLink(booking)" 
+                            class="btn btn-outline-info btn-sm">
+                      <i class="fas fa-copy"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Updated Join Button -->
+              <div class="d-flex gap-2 flex-wrap">
+                <!-- Join button - only show if meeting link exists -->
+                <button *ngIf="canShowJoinButton(booking)" 
+                        class="btn btn-primary btn-sm rounded-pill"
+                        (click)="joinSessionFromBookings(booking)">
+                  <i class="fas fa-video me-1"></i>
+                  Join Session
+                </button>
+                
+                <!-- Show message if no meeting link -->
+                <span *ngIf="booking.status === 'Confirmed' && !booking.googleMeetLink" 
+                      class="text-warning small">
+                  <i class="fas fa-exclamation-triangle me-1"></i>
+                  Set meeting link to enable join button
+                </span>
+                
+                <!-- Keep existing action buttons -->
+                <button *ngFor="let action of getActions(booking)" 
+                        class="btn btn-sm rounded-pill"
+                        [ngClass]="action.cssClass"
+                        [disabled]="!action.enabled || isUpdatingStatus"
+                        (click)="executeAction(action, booking)">
+                  <i [class]="action.icon + ' me-1'"></i>
+                  {{ action.label }}
+                </button>
               </div>
             </div>
           </div>
@@ -341,6 +434,16 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- Add this debug section temporarily -->
+<div class="debug-section" style="background: #f8f9fa; padding: 1rem; margin: 1rem 0; border-radius: 8px;">
+  <h6>Debug Info:</h6>
+  <p><strong>Form Values:</strong> {{ searchForm.value | json }}</p>
+  <p><strong>Active Tab:</strong> {{ activeTab }}</p>
+  <p><strong>Total Bookings:</strong> {{ allBookings.length }}</p>
+  <p><strong>Filtered Bookings:</strong> {{ filteredBookings.length }}</p>
+  <button class="btn btn-sm btn-info" (click)="debugBookingData()">Debug Data</button>
 </div>
 
 <!-- Booking Details Modal -->

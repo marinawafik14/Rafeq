@@ -193,6 +193,11 @@ private loadPaymentDetails(): void {
 
     if (confirmResult?.success) {
       this.successVisible = true;
+      
+      // Clear the pending booking from session storage since payment was successful
+      sessionStorage.removeItem('pendingBooking');
+      sessionStorage.removeItem(`booking_${this.bookingId}_amount`);
+      
       setTimeout(() => {
         // ✅ Fix: Use the correct route path from your routes
         this.router.navigate(['/mentee/payment-complete'], {

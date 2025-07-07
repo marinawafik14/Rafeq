@@ -54,6 +54,18 @@
                       <strong>Booking Temporarily Disabled</strong><br>
                       You have a pending booking. Please complete or cancel it before creating a new booking.
                     </div>
+                    <div class="d-flex gap-2 ms-3">
+                      <button class="btn btn-success btn-sm" 
+                              (click)="completePendingBooking()"
+                              title="Complete payment for the pending booking">
+                        <i class="bi bi-credit-card me-1"></i>Complete Payment
+                      </button>
+                      <button class="btn btn-outline-secondary btn-sm" 
+                              (click)="cancelPendingBooking()"
+                              title="Cancel the pending booking">
+                        <i class="bi bi-x-circle me-1"></i>Cancel
+                      </button>
+                    </div>
                   </div>
                 </div>
                 
@@ -62,6 +74,9 @@
                        *ngIf="showMentorship"
                        [class.selected]="sessionType==='mentorship'" 
                        [class.disabled]="hasPendingBooking"
+                       [style.opacity]="hasPendingBooking ? '0.5' : '1'"
+                       [style.pointer-events]="hasPendingBooking ? 'none' : 'auto'"
+                       [style.cursor]="hasPendingBooking ? 'not-allowed' : 'pointer'"
                        (click)="!hasPendingBooking && selectSessionType('mentorship')">
                     <div class="session-icon">
                       <i class="bi bi-person-video2"></i>
@@ -69,12 +84,19 @@
                     <h4>Mentorship Session</h4>
                     <p>Get personalized guidance and career advice</p>
                     <div class="session-price">${{mentor?.hourlyRate || 60}}/hour</div>
+                    <div *ngIf="hasPendingBooking" class="disabled-overlay">
+                      <i class="bi bi-lock-fill"></i>
+                      <span>Disabled</span>
+                    </div>
                   </div>
                   
                   <div class="session-type-card" 
                        *ngIf="showInterview"
                        [class.selected]="sessionType==='interview'" 
                        [class.disabled]="hasPendingBooking"
+                       [style.opacity]="hasPendingBooking ? '0.5' : '1'"
+                       [style.pointer-events]="hasPendingBooking ? 'none' : 'auto'"
+                       [style.cursor]="hasPendingBooking ? 'not-allowed' : 'pointer'"
                        (click)="!hasPendingBooking && selectSessionType('interview')">
                     <div class="session-icon">
                       <i class="bi bi-briefcase"></i>
@@ -82,12 +104,16 @@
                     <h4>Mock Interview</h4>
                     <p>Practice interviews with professional feedback</p>
                     <div class="session-price">${{mentor?.hourlyRate || 100}}/hour</div>
+                    <div *ngIf="hasPendingBooking" class="disabled-overlay">
+                      <i class="bi bi-lock-fill"></i>
+                      <span>Disabled</span>
+                    </div>
                   </div>
                 </div>
 
                 <div class="step-actions">
                   <button class="btn btn-primary btn-lg" 
-                          [disabled]="!sessionType" 
+                          [disabled]="!sessionType || hasPendingBooking" 
                           (click)="nextStep()">
                     Continue <i class="bi bi-arrow-right ms-2"></i>
                   </button>
@@ -268,12 +294,6 @@
                   <div class="flex-grow-1">
                     {{bookingError}}
                   </div>
-                  <button *ngIf="bookingError.includes('pending booking') && hasPendingBooking" 
-                          class="btn btn-outline-danger btn-sm ms-3" 
-                          (click)="cancelPendingBooking()"
-                          title="Cancel the pending booking to create a new one">
-                    <i class="bi bi-x-circle me-1"></i>Cancel Pending
-                  </button>
                 </div>
               </div>
             </div>

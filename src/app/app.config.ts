@@ -16,9 +16,17 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([authInterceptor])),
    provideAnimations(),
       provideToastr({
-      timeOut: 3000,
+      timeOut: 5000,
       positionClass: 'toast-top-right',
       preventDuplicates: true,
+      progressBar: true,
+      progressAnimation: 'increasing',
+      enableHtml: true,
+      closeButton: true,
+      tapToDismiss: true,
+      maxOpened: 5,
+      autoDismiss: false,
+      newestOnTop: true
     }),
       // ✅ Provide JwtHelperService via importProvidersFrom
     importProvidersFrom(

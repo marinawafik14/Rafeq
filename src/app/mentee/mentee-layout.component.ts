@@ -18,7 +18,7 @@ export class MenteeLayoutComponent implements OnInit, AfterViewInit {
     { label: 'Bookings', route: 'bookings', icon: 'bx-calendar' },
     { label: 'Search Mentors', route: 'search-mentors', icon: 'bx-search' },
     { label: 'CV Management', route: 'cv-management', icon: 'bx-file' },
-    { label: 'AI Assistant', route: 'ai-chatbot', icon: 'bx-bot' }, // Add this line
+    { label: 'AI Assistant', route: 'ai-chatbot', icon: 'bx-bot' }, 
     { label: 'Messages', route: 'messages', icon: 'bx-chat' },
     { label: 'Profile', route: 'profile', icon: 'bx-user' }
   ];
@@ -33,10 +33,7 @@ export class MenteeLayoutComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     if (this.menteeId) return;
-
-    // Use AuthService to get user info
     const user = this.authService.currentUserValue;
-    
     if (user && user.role === 'Mentee') {
       this.menteeId = user.userId;
       this.menteeName = user.fullName;
@@ -45,11 +42,8 @@ export class MenteeLayoutComponent implements OnInit, AfterViewInit {
 
 
   ngAfterViewInit(): void {
-    // Initialize sidebar toggle functionality
     const sidebar = document.querySelector('.sidebar');
     const sidebarBtn = document.querySelector('.bx-menu');
-    
-    // Arrow functionality for submenus if needed
     const arrows = document.querySelectorAll(".arrow");
     arrows.forEach(arrow => {
       arrow.addEventListener('click', e => {
@@ -58,7 +52,6 @@ export class MenteeLayoutComponent implements OnInit, AfterViewInit {
       });
     });
 
-    // Main sidebar toggle
     if (sidebarBtn && sidebar) {
       sidebarBtn.addEventListener('click', () => {
         sidebar.classList.toggle('close');
@@ -68,7 +61,6 @@ export class MenteeLayoutComponent implements OnInit, AfterViewInit {
   }
 
   navigateTo(link: any) {
-    // Always navigate to the route without the menteeId in the URL
     const commands = ['/mentee', link.route];
     this.router.navigate(commands).then(() => {
       if (window.innerWidth < 768) {
@@ -93,7 +85,6 @@ export class MenteeLayoutComponent implements OnInit, AfterViewInit {
       },
       error: (error) => {
         console.error('Logout error:', error);
-        // Still navigate to login even if the server request fails
         this.router.navigate(['/login']);
       }
     });

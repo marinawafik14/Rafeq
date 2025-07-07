@@ -167,25 +167,67 @@ export class ChatService {
 
   // Update this method to be the primary conversation loader
   getAllConversations(): Observable<ChatConversation[]> {
+    console.log('🔄 Starting getAllConversations...');
+    
     return forkJoin({
       existing: this.getConversations(),
       potential: this.getPotentialConversations(),
     }).pipe(
       map(({ existing, potential }) => {
+        console.log('📊 === CONVERSATION FILTERING DEBUG ===');
         console.log('📊 Raw existing conversations:', existing.length);
         console.log('📊 Raw potential conversations:', potential.length);
 
-        // Combine both arrays - existing takes priority
-        const allConversations = [...existing];
-        const existingBookingIds = new Set(existing.map((c) => c.bookingId));
+        // Log ALL statuses with details
+        console.log('📊 EXISTING CONVERSATIONS:');
+        existing.forEach((conv, index) => {
+          console.log(`  [${index}] ID: ${conv.bookingId}, Status: "${conv.sessionStatus}", Type: ${typeof conv.sessionStatus}`);
+        });
 
+        console.log('📊 POTENTIAL CONVERSATIONS:');
+        potential.forEach((conv, index) => {
+          console.log(`  [${index}] ID: ${conv.bookingId}, Status: "${conv.sessionStatus}", Type: ${typeof conv.sessionStatus}`);
+        });
+
+        // Filter existing conversations to only include allowed statuses
+        console.log('🔍 FILTERING EXISTING CONVERSATIONS:');
+        const filteredExisting = existing.filter((conv, index) => {
+          console.log(`\n--- Filtering existing conversation ${index} ---`);
+          console.log(`  Booking ID: ${conv.bookingId}`);
+          console.log(`  Status: "${conv.sessionStatus}"`);
+          const allowed = this.shouldAllowChat(conv.sessionStatus);
+          console.log(`  Decision: ${allowed ? 'ALLOWED' : 'REJECTED'}`);
+          
+          if (!allowed) {
+            console.log('🚫 FILTERING OUT existing conversation:', conv.bookingId, 'status:', conv.sessionStatus);
+          }
+          return allowed;
+        });
+
+        console.log('📊 Filtered existing count:', filteredExisting.length);
+
+        // Use filtered existing instead of raw existing
+        const allConversations = [...filteredExisting];
+        const existingBookingIds = new Set(filteredExisting.map((c) => c.bookingId));
+
+        console.log('🔍 FILTERING POTENTIAL CONVERSATIONS:');
         // Add potential conversations that aren't already in existing
-        potential.forEach((p) => {
+        potential.forEach((p, index) => {
+          console.log(`\n--- Filtering potential conversation ${index} ---`);
+          console.log(`  Booking ID: ${p.bookingId}`);
+          console.log(`  Status: "${p.sessionStatus}"`);
+          console.log(`  Already exists: ${existingBookingIds.has(p.bookingId)}`);
+          
           if (!existingBookingIds.has(p.bookingId)) {
-            // Only add if booking status allows chat
+            // Only add if booking status allows chat (exclude pending and cancelled only)
             if (this.shouldAllowChat(p.sessionStatus)) {
               allConversations.push(p);
+              console.log('✅ ADDED potential conversation:', p.bookingId);
+            } else {
+              console.log('🚫 FILTERING OUT potential conversation:', p.bookingId, 'status:', p.sessionStatus);
             }
+          } else {
+            console.log('⏭️ SKIPPED (already exists)');
           }
         });
 
@@ -196,10 +238,7 @@ export class ChatService {
             self.findIndex((c) => c.bookingId === conversation.bookingId)
         );
 
-        console.log(
-          '📊 Final unique conversations:',
-          uniqueConversations.length
-        );
+        console.log('📊 Final unique conversations:', uniqueConversations.length);
 
         return uniqueConversations.sort(
           (a, b) =>
@@ -208,19 +247,26 @@ export class ChatService {
         );
       }),
       catchError((error) => {
-        console.error('Error in getAllConversations, trying fallback:', error);
-        // Fallback: try each endpoint separately
-        return this.getPotentialConversations().pipe(catchError(() => of([])));
+        console.error('Error in getAllConversations:', error);
+        return of([]);
       })
     );
   }
 
-  // Add helper method
+  // Simple filtering - only exclude pending and cancelled
   private shouldAllowChat(sessionStatus?: string): boolean {
     if (!sessionStatus) return true; // Allow if status unknown
 
-    const allowedStatuses = ['confirmed', 'inprogress', 'completed'];
-    return allowedStatuses.includes(sessionStatus.toLowerCase());
+    const normalizedStatus = sessionStatus.toLowerCase().trim();
+
+    // Only block these specific statuses
+    const blockedStatuses = ['pending', 'cancelled', 'canceled'];
+
+    const isBlocked = blockedStatuses.includes(normalizedStatus);
+
+    console.log(`🔍 Status: "${sessionStatus}" -> ${isBlocked ? 'BLOCKED' : 'ALLOWED'}`);
+
+    return !isBlocked; // Return true if NOT blocked
   }
 
   // 1. Upload voice message

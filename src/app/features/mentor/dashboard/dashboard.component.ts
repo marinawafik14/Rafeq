@@ -22,6 +22,12 @@ export class DashboardComponent implements OnInit {
   isLoading: boolean = true;
   error: string | null = null;
 
+  // Add pagination properties
+  currentPage: number = 1;
+  itemsPerPage: number = 5;
+  totalPages: number = 0;
+  paginatedTodaySessions: MentorBooking[] = [];
+
   constructor(
     private mentorService: MentorService,
     private authService: AuthService
@@ -36,11 +42,16 @@ export class DashboardComponent implements OnInit {
 
   loadDashboardData(): void {
     this.isLoading = true;
+    let pendingSessionsCount = 0;
 
     // Load earnings data first
     this.mentorService.getMentorEarnings().subscribe({
       next: (earnings) => {
         this.earnings = earnings;
+        console.log('Earnings data received:', earnings);
+        
+        // Add calculated pending sessions to earnings
+        this.earnings.pendingSessions = pendingSessionsCount;
       },
       error: (error) => {
         console.error('Error loading earnings data:', error);
@@ -51,11 +62,21 @@ export class DashboardComponent implements OnInit {
     this.mentorService.getTodaySessions(this.mentorId).subscribe({
       next: (sessions) => {
         this.todaySessions = sessions;
-        // Add this debug line
         console.log('Today sessions data:', sessions);
-        sessions.forEach(session => {
-          console.log(`Session ${session.bookingId}: status=${session.status}, googleMeetLink=${session.googleMeetLink}`);
-        });
+        
+        // Calculate pending sessions count
+        pendingSessionsCount = sessions.filter(session => 
+          session.status === 'Pending' || session.status === 'Confirmed'
+        ).length;
+        
+        // Update earnings with calculated pending sessions
+        if (this.earnings) {
+          this.earnings.pendingSessions = pendingSessionsCount;
+        }
+        
+        // Update pagination
+        this.updatePagination();
+        
         this.isLoading = false;
       },
       error: (error) => {
@@ -68,7 +89,7 @@ export class DashboardComponent implements OnInit {
     // Load upcoming sessions
     this.mentorService.getUpcomingBookings(this.mentorId).subscribe({
       next: (sessions) => {
-        this.upcomingSessions = sessions.slice(0, 5); // Only get the first 5 upcoming sessions
+        this.upcomingSessions = sessions.slice(0, 5);
       },
       error: (error) => {
         console.error('Error loading upcoming sessions:', error);
@@ -120,6 +141,11 @@ export class DashboardComponent implements OnInit {
 
   // Replace the canJoinSession method with proper business logic
   canJoinSession(session: MentorBooking): boolean {
+    // Must have meeting link
+    if (!session.googleMeetLink) {
+      return false;
+    }
+    
     const now = new Date();
     const sessionStart = new Date(session.startDateTime);
     const sessionEnd = new Date(session.endDateTime);
@@ -140,17 +166,10 @@ export class DashboardComponent implements OnInit {
       return false;
     }
     
-    // 3. Time-based rules
+    // 3. Time-based rules - can join 15 minutes before to 30 minutes after end
     const canJoinByTime = 
       (minutesUntilStart <= 15 && minutesUntilStart > -30) || // 15 min before to 30 min after start
       (session.status === 'InProgress' && minutesSinceEnd <= 30); // In progress sessions up to 30 min after end
-    
-    console.log(`Session ${session.bookingId}: 
-      - Status: ${session.status}
-      - Payment: ${session.paymentStatus}
-      - Minutes until start: ${minutesUntilStart.toFixed(1)}
-      - Minutes since end: ${minutesSinceEnd.toFixed(1)}
-      - Can join: ${canJoinByTime}`);
     
     return canJoinByTime;
   }
@@ -161,21 +180,31 @@ export class DashboardComponent implements OnInit {
     const sessionStart = new Date(session.startDateTime);
     const minutesUntilStart = (sessionStart.getTime() - now.getTime()) / (1000 * 60);
     
-    // Payment not made
-    if (session.paymentStatus !== 'Paid') {
+    // No meeting link set
+    if (!session.googleMeetLink) {
       return {
-        type: 'payment',
-        label: 'Payment Required',
+        type: 'no-link',
+        label: 'Set Meeting Link',
         class: 'btn-warning',
         enabled: false
       };
     }
     
-    // Session not confirmed yet
-    if (session.status === 'Pending') {
+    // Payment not completed
+    if (session.paymentStatus !== 'Paid') {
       return {
-        type: 'pending',
-        label: 'Awaiting Confirmation',
+        type: 'payment',
+        label: 'Payment Required',
+        class: 'btn-secondary',
+        enabled: false
+      };
+    }
+    
+    // Session completed
+    if (session.status === 'Completed') {
+      return {
+        type: 'completed',
+        label: 'Completed',
         class: 'btn-secondary',
         enabled: false
       };
@@ -196,25 +225,15 @@ export class DashboardComponent implements OnInit {
       return {
         type: 'early',
         label: `Available in ${Math.ceil(minutesUntilStart - 15)} min`,
-        class: 'btn-outline-primary',
+        class: 'btn-secondary',
         enabled: false
       };
     }
     
-    // Session ended
-    if (session.status === 'Completed') {
-      return {
-        type: 'completed',
-        label: 'Session Completed',
-        class: 'btn-success',
-        enabled: false
-      };
-    }
-    
-    // Default - session ended or cancelled
+    // Default state
     return {
-      type: 'ended',
-      label: 'Session Ended',
+      type: 'default',
+      label: 'Not Available',
       class: 'btn-secondary',
       enabled: false
     };
@@ -259,5 +278,112 @@ export class DashboardComponent implements OnInit {
       default:
         return 'badge bg-secondary';
     }
+  }
+
+  // Add this method to your component for testing
+  testData(): void {
+    console.log('=== EARNINGS DEBUG ===');
+    console.log('Current earnings object:', this.earnings);
+    console.log('Earnings keys:', this.earnings ? Object.keys(this.earnings) : 'No earnings object');
+    console.log('Pending sessions value:', this.earnings?.pendingSessions); // Updated property name
+    console.log('Type of pending sessions:', typeof this.earnings?.pendingSessions);
+    
+    // Check all available properties
+    if (this.earnings) {
+      console.log('All earnings properties:');
+      console.log('  totalEarnings:', this.earnings.totalEarnings);
+      console.log('  thisMonthEarnings:', this.earnings.thisMonthEarnings);
+      console.log('  lastMonthEarnings:', this.earnings.lastMonthEarnings);
+      console.log('  completedSessions:', this.earnings.completedSessions);
+      console.log('  upcomingSessions:', this.earnings.upcomingSessions);
+      console.log('  pendingSessions:', (this.earnings as any).pendingSessions);
+    }
+    
+    console.log('=== END DEBUG ===');
+  }
+
+  // Add these methods to your DashboardComponent
+
+  updatePagination(): void {
+    this.totalPages = Math.ceil(this.todaySessions.length / this.itemsPerPage);
+    
+    // Ensure current page is valid
+    if (this.currentPage > this.totalPages) {
+      this.currentPage = 1;
+    }
+    
+    // Calculate start and end indices
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    
+    // Get paginated sessions
+    this.paginatedTodaySessions = this.todaySessions.slice(startIndex, endIndex);
+    
+    console.log(`Pagination: Page ${this.currentPage}/${this.totalPages}, Items: ${this.paginatedTodaySessions.length}`);
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.updatePagination();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.updatePagination();
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.updatePagination();
+    }
+  }
+
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxVisiblePages = 5;
+    
+    if (this.totalPages <= maxVisiblePages) {
+      // Show all pages
+      for (let i = 1; i <= this.totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Show first page, current page range, and last page
+      const currentPage = this.currentPage;
+      const startPage = Math.max(1, currentPage - 2);
+      const endPage = Math.min(this.totalPages, currentPage + 2);
+      
+      // Always show first page
+      if (startPage > 1) {
+        pages.push(1);
+        if (startPage > 2) {
+          pages.push(-1); // -1 represents "..."
+        }
+      }
+      
+      // Show current range
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+      
+      // Always show last page
+      if (endPage < this.totalPages) {
+        if (endPage < this.totalPages - 1) {
+          pages.push(-1); // -1 represents "..."
+        }
+        pages.push(this.totalPages);
+      }
+    }
+    
+    return pages;
+  }
+
+  trackByBookingId(index: number, session: MentorBooking): number {
+    return session.bookingId;
   }
 }

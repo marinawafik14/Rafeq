@@ -14,7 +14,7 @@
           </div>
         </div>
 
-        <!-- Stats Grid - 5 cards in one row -->
+        <!-- Stats Grid - 3 cards in one row -->
         <div class="stats-grid">
           <div class="stat-card" *ngFor="let stat of stats; trackBy: trackByStat" [class.loading]="isLoading">
             <div class="stat-icon-wrapper" [style.background]="stat.color">
@@ -60,13 +60,6 @@
               </div>
               
               <!-- Tabs -->
-              <button 
-                class="tab-btn" 
-                [class.active]="activeTab === 'pending'"
-                (click)="setActiveTab('pending')">
-                <i class="bi bi-clock-history me-2"></i>
-                Pending ({{pendingBookings.length}})
-              </button>
               <button 
                 class="tab-btn" 
                 [class.active]="activeTab === 'confirmed'"
@@ -151,7 +144,7 @@
                   View Details
                 </button>
                 
-                <!-- Cancel Button for pending bookings only (not in the past) -->
+                <!-- Cancel Button for bookings that can be cancelled -->
                 <button 
                   class="btn btn-outline-danger btn-sm"
                   *ngIf="canCancelBooking(booking)"
@@ -160,10 +153,10 @@
                   Cancel
                 </button>
                 
-                <!-- Past session indicator for pending bookings -->
+                <!-- Past session indicator -->
                 <span
                   class="join-info text-warning"
-                  *ngIf="booking.status?.toLowerCase() === 'pending' && isSessionInPast(booking)">
+                  *ngIf="isSessionInPast(booking)">
                   <i class="bi bi-clock-history me-1"></i>
                   In past
                 </span>
@@ -332,6 +325,34 @@
     <div class="modal-backdrop" 
          [class.show]="showCancelModal"
          [style.display]="showCancelModal ? 'block' : 'none'">
+    </div>
+
+    <!-- Toaster Notification -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;">
+      <div class="toast align-items-center text-white border-0" 
+           [class.show]="showToast"
+           [class.bg-success]="toastType === 'success'"
+           [class.bg-danger]="toastType === 'error'"
+           [class.bg-warning]="toastType === 'warning'"
+           [class.bg-info]="toastType === 'info'"
+           role="alert" 
+           aria-live="assertive" 
+           aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body">
+            <i class="bi" 
+               [class.bi-check-circle-fill]="toastType === 'success'"
+               [class.bi-x-circle-fill]="toastType === 'error'"
+               [class.bi-exclamation-triangle-fill]="toastType === 'warning'"
+               [class.bi-info-circle-fill]="toastType === 'info'"></i>
+            {{ toastMessage }}
+          </div>
+          <button type="button" 
+                  class="btn-close btn-close-white me-2 m-auto" 
+                  aria-label="Close"
+                  (click)="hideToaster()"></button>
+        </div>
+      </div>
     </div>
   </main>
 </div>
