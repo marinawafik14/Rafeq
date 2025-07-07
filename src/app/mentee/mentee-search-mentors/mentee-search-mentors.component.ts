@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { MentorCard, MenteeService } from '../../Services/Mentee.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../Services/auth.service';
+import { SemanticMentorResult } from '../../Models/SemanticMentorResult';
 
 @Component({
   selector: 'app-mentee-search-mentors',
@@ -50,6 +51,13 @@ export class MenteeSearchMentorsComponent implements OnInit {
   ];
   menteeId: number | null = null;
   allMentors: MentorCard[] = [];
+
+  aiSearchMode = false;
+  semanticQuery = '';
+  semanticMentors: SemanticMentorResult[] = [];
+  semanticLoading = false;
+  semanticTotal = 0;
+  semanticSearchTime = 0;
 
   constructor(
     private mentorSearchService: MentorSearchService,
@@ -448,6 +456,74 @@ export class MenteeSearchMentorsComponent implements OnInit {
     this.viewMode = mode;
   }
 
+  toggleSearchMode(mode: 'normal' | 'ai') {
+    this.aiSearchMode = (mode === 'ai');
+    this.clearAllFilters();
+    this.semanticQuery = '';
+    this.semanticMentors = [];
+    this.semanticTotal = 0;
+  }
+
+  onSemanticSearch() {
+    if (!this.semanticQuery.trim()) return;
+
+    // Debug: Log auth info
+    console.debug('isLoggedIn:', this.authService.isLoggedIn());
+    console.debug('userRole:', this.authService.getCurrentUserRole());
+
+    const isLoggedIn = this.authService.isLoggedIn();
+    const userRole = this.authService.getCurrentUserRole();
+    if (!isLoggedIn || userRole !== 'Mentee') {
+      console.warn('Semantic search is restricted to authenticated mentees only.');
+      this.semanticMentors = [];
+      this.semanticTotal = 0;
+      this.semanticLoading = false;
+      this.emptyState = true;
+      alert('You must be logged in as a mentee to use AI semantic search.');
+      return;
+    }
+
+    this.semanticLoading = true;
+    const skills = this.getSelectedSkills().map(s => s.Name);
+    const maxResults = 3; // Use current page size for maxResults
+
+    // Debug: Log request payload
+    console.debug('Semantic search request:', {
+      query: this.semanticQuery,
+      minRating: this.minRating || undefined,
+      maxHourlyRate: this.maxPrice || undefined,
+      skills,
+      maxResults
+    });
+
+    this.mentorSearchService.semanticMentorSearch(
+      this.semanticQuery,
+      this.minRating || undefined,
+      this.maxPrice || undefined,
+      skills,
+      maxResults
+    ).subscribe({
+      next: res => {
+        // Debug: Log response
+        console.debug('Semantic search response:', res);
+        this.semanticMentors = res.mentors;
+        this.semanticTotal = res.totalResults;
+        this.semanticSearchTime = res.searchTime;
+        this.semanticLoading = false;
+        this.emptyState = res.mentors.length === 0;
+      },
+      error: err => {
+        // Debug: Log error
+        console.error('Semantic search error:', err);
+        this.semanticMentors = [];
+        this.semanticTotal = 0;
+        this.semanticLoading = false;
+        this.emptyState = true;
+        // Do NOT fallback to normal search
+      }
+    });
+  }
+
   // TrackBy functions 
   trackBySkillId(index: number, skill: Skills): number {
     return skill.SkillId;
@@ -459,5 +535,9 @@ export class MenteeSearchMentorsComponent implements OnInit {
 
   trackBySkillName(index: number, skill: any): string {
     return skill.Name;
+  }
+
+  trackBySemanticMentorId(index: number, mentor: SemanticMentorResult): number {
+    return mentor.userId;
   }
 }
