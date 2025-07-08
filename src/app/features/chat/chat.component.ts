@@ -644,7 +644,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         type: audioFile.type,
         size: audioFile.size
       });
-      await this.chatService.uploadVoiceMessage(this.selectedConversation.bookingId, audioFile).toPromise();
+      const result = await this.chatService.uploadVoiceMessage(this.selectedConversation.bookingId, audioFile).toPromise();
+      console.log('✅ Uploaded voice message result:', result);
       await this.loadMessages();
     } catch (err) {
       Swal.fire('Error', 'Failed to send voice message.', 'error');
@@ -795,12 +796,17 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       const messages = await this.chatService.getChatHistory(this.selectedConversation.bookingId).toPromise() || [];
       await Promise.all(messages.map(async (msg) => {
         msg.reactions = await this.chatService.getMessageReactions(msg.messageId).toPromise();
-        
-        // For voice messages, the VoiceMessageComponent will handle loading voice info
-        // No need to manually set URLs here anymore
       }));
       this.messages = messages;
       this.shouldScrollToBottom = true;
+
+      // Debug: Log all transcripts for voice messages
+      console.log('🔊 Voice message transcripts:');
+      this.messages.forEach(msg => {
+        if (msg.isVoiceMessage) {
+          console.log(`Message ID: ${msg.messageId}, transcriptText:`, msg.transcriptText);
+        }
+      });
     } catch (error) {
       console.error('Error loading messages:', error);
     }
@@ -1186,5 +1192,10 @@ You should see: ${this.getUserName(conversation)}`);
     
     // Add onerror=null to prevent infinite error loop if default image also fails
     imgElement.onerror = null;
+  }
+
+  // Debugging: Log messages on every change
+  ngDoCheck() {
+    console.log('🟦 Message debug:', JSON.stringify(this.messages, null, 2));
   }
 }
