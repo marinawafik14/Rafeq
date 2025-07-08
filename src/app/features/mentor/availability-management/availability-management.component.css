@@ -343,10 +343,13 @@
 .modal-title {
   color: #0a2e65;
 }
-
+.fw-bold{
+  color: #0a2e65;
+}
 /* Loading States */
 .spinner-border {
   border-width: 0.2em;
+  color: #0a2e65;
 }
 
 /* Badge Styles */
