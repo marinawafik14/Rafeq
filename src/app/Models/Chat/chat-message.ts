@@ -19,4 +19,5 @@ export interface ChatMessage {
   editedAt?: Date;
   reactions?: MessageReaction[];
   isVoiceMessage?: boolean;
+  transcriptText?: string; 
 }

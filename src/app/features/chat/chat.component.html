@@ -205,6 +205,12 @@
                     [timestamp]="message.sentAt">
                   </app-voice-message>
 
+                  <!-- Transcript for Voice Message -->
+                  <div *ngIf="message.isVoiceMessage && message.transcriptText" class="voice-transcript mt-2 px-2 py-1 bg-light rounded">
+                    <i class="fas fa-closed-captioning me-1 text-primary"></i>
+                    <span class="text-muted">{{ message.transcriptText }}</span>
+                  </div>
+
                   <!-- Only show text if not a voice message -->
                   <div *ngIf="!message.isVoiceMessage && message.messageText" class="message-text">
                     {{ message.messageText }}
