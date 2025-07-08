@@ -15,12 +15,12 @@ import { ChatConversation } from '../../Models/Chat/chat-conversation';
 import { ConversationParticipants } from '../../Models/Chat/conversation-participants';
 import { SendMessageRequest } from '../../Models/Chat/send-message-request';
 import { VoiceMessageComponent } from '../../shared/components/voice-message/voice-message.component';
-import { MenteeLayoutComponent } from '../../mentee/mentee-layout.component';
-
+import { TokenResponseDto } from '../../Models/Auth/TokenResponseDto';
+import { Subject, takeUntil } from 'rxjs';
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule, VoiceMessageComponent, MenteeLayoutComponent],
+  imports: [CommonModule, FormsModule, VoiceMessageComponent],
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css']
 })
@@ -35,7 +35,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   selectedConversation: ChatConversation | null = null;
   participants: ConversationParticipants | null = null;
   currentUserId: number = 0;
-
+  currentUser: TokenResponseDto | null = null;
+    private destroy = new Subject<void>();
   // UI state
   isLoading = true;
   isLoadingMessages = false;
@@ -101,13 +102,33 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   ngOnInit(): void {
     this.initializeChat();
+    this.authService.currentUser
+      .pipe(takeUntil(this.destroy))
+      .subscribe(user => {
+        this.currentUser = user;
+      });
   }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.signalrService.stopConnection();
+    this.destroy.next();
+    this.destroy.complete();
   }
-
+ goToDashboard() {
+    if (!this.currentUser || !this.currentUser.role) return;
+    if (this.currentUser.role === 'Mentee') {
+      this.router.navigate(['/mentee/dashboard']);
+    } else if (this.currentUser.role === 'Mentor') {
+      this.router.navigate(['/mentor/dashboard']);
+    }else if (this.currentUser.role === 'Admin') {
+      this.router.navigate(['/admin/charts']);
+    }
+    
+    else {
+      this.router.navigate(['/home']);
+    }
+  }
   ngAfterViewChecked(): void {
     if (this.shouldScrollToBottom) {
       this.scrollToBottom();

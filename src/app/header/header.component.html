@@ -24,7 +24,7 @@
           </li>
           <li class="nav-item mx-2" *ngIf="currentUser?.role === 'Mentee'">
            <ul class="sub-menu blank">
-            <a class="nav-link rounded-pill px-3" [routerLink]="['/mentee', menteeId, 'search-mentors']">Find Mentors</a>
+            <a class="nav-link rounded-pill px-3" [routerLink]="['/mentee', 'search-mentors']">Find Mentors</a>
           </ul>
           </li>
           <li class="nav-item mx-2">
@@ -67,24 +67,24 @@
         
           </li>
         -->
-        <li class="nav-item mx-2" *ngIf="currentUser?.role === 'Mentee'">
+        <!-- <li class="nav-item mx-2" *ngIf="currentUser?.role === 'Mentee'">
   <a class="nav-link rounded-pill px-3" routerLink="/messages" routerLinkActive="active">
     <i class="fa-brands fa-rocketchat fa-xl"></i>
   </a>
 </li>
-
+ -->
 
 
           <!-- AI Assistant Link - Shown only for logged-in users -->
-          <li class="nav-item mx-2" *ngIf="currentUser">
+          <!-- <li class="nav-item mx-2" *ngIf="currentUser">
             <a class="nav-link rounded-pill px-3 ai-assistant-card" routerLink="/ai-chatbot" routerLinkActive="active">
 
               <i class="fas fa-robot ai-assistant-icon"></i>
               <span class="ai-assistant-text">AI Assistant</span>
             </a>
-          </li> 
+          </li>  -->
         </ul>
-        <div class="d-flex align-items-center gap-3">
+        <div class="d-flex flex-column flex-lg-row align-items-stretch align-items-lg-center gap-3 mt-2 mt-lg-0">
           <!-- Notification Badge - Show only for logged-in users -->
           <app-notification-badge *ngIf="currentUser"></app-notification-badge>
 

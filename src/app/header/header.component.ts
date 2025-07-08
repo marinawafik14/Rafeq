@@ -18,6 +18,7 @@ import { menteeBookingservice } from '../Services/menteeBooking.service';
 export class HeaderComponent implements OnInit, OnDestroy {
   currentUser: TokenResponseDto | null = null;
   private destroy = new Subject<void>();
+  isMenuOpen: boolean = false;
   role: string = '';
    @Input() menteeName: string = '';
   @Input() menteeId: number | null = null;
@@ -111,6 +112,8 @@ navigateTo(link: any) {
     this.destroy.complete();
   }
 
-  
+  toggleMenu() {
+    this.isMenuOpen = !this.isMenuOpen;
+  }
  
 }

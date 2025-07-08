@@ -95,3 +95,28 @@
     transform: scale(1.05);
   }
 }
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
+  .navbar-collapse {
+    background-color: #fff;
+    margin-top: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+  }
+
+  .navbar-nav .nav-item {
+    margin: 0.5rem 0;
+  }
+
+  .btn-login,
+  .btn-sign,
+  .btn-logout {
+    width: 100%;
+  }
+
+  .flex-column .d-flex {
+    flex-direction: column !important;
+  }
+}
