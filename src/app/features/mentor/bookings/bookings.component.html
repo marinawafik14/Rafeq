@@ -436,15 +436,7 @@
   </div>
 </div>
 
-<!-- Add this debug section temporarily -->
-<div class="debug-section" style="background: #f8f9fa; padding: 1rem; margin: 1rem 0; border-radius: 8px;">
-  <h6>Debug Info:</h6>
-  <p><strong>Form Values:</strong> {{ searchForm.value | json }}</p>
-  <p><strong>Active Tab:</strong> {{ activeTab }}</p>
-  <p><strong>Total Bookings:</strong> {{ allBookings.length }}</p>
-  <p><strong>Filtered Bookings:</strong> {{ filteredBookings.length }}</p>
-  <button class="btn btn-sm btn-info" (click)="debugBookingData()">Debug Data</button>
-</div>
+
 
 <!-- Booking Details Modal -->
 <div *ngIf="showDetailsModal && selectedBooking" class="modal d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5)">
