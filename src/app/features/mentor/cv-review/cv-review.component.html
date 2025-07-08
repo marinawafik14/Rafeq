@@ -4,7 +4,7 @@
     <div class="container">
       <div class="row align-items-center">
         <div class="col-md-8">
-          <h1 class="display-5 fw-bold mb-2">CV Review Center</h1>
+          <h1 class="display-5 fw-bold mb-2" style="color: white;">CV Review Center</h1>
           <p class="lead mb-0">Review and provide feedback on mentee CVs</p>
         </div>
         <div class="col-md-4 text-md-end">
@@ -27,7 +27,7 @@
 
     <!-- Loading State -->
     <div *ngIf="isLoading" class="text-center py-5">
-      <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+      <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
         <span class="visually-hidden">Loading...</span>
       </div>
       <p class="mt-3 text-muted">Loading CVs...</p>
@@ -40,7 +40,7 @@
         <div class="cv-list-card">
           <div class="card-header">
             <h5 class="mb-0 fw-bold">
-              <i class="fas fa-list me-2 text-primary"></i>CVs to Review
+              <i class="fas fa-list me-2"></i>CVs to Review
             </h5>
           </div>
           <div class="card-body p-0">
@@ -60,20 +60,20 @@
                 </div>
                 <div class="flex-grow-1">
                   <h6 class="mb-1 fw-semibold">{{ cv.fileName }}</h6>
-                  <small class="text-primary fw-bold">
+                  <small class=" fw-bold">
                     <i class="fas fa-user me-1"></i>
                     {{ cv.userFullName }}
                   </small>
                   <br>
-                  <small class="text-muted">
+                  <!-- <small class="text-muted">
                     <i class="fas fa-clock me-1"></i>
                     {{ formatDate(cv.uploadDate) }}
-                  </small>
+                  </small> -->
                   <br>
-                  <small class="text-muted">
+                  <!-- <small class="text-muted">
                     <i class="fas fa-circle me-1" [class.text-success]="cv.isActive" [class.text-secondary]="!cv.isActive"></i>
                     {{ cv.isActive ? 'Active CV' : 'Inactive CV' }}
-                  </small>
+                  </small> -->
                 </div>
               </div>
             </div>
@@ -152,7 +152,7 @@
             <div class="comments-card">
               <div class="card-header">
                 <h5 class="mb-0 fw-bold">
-                  <i class="fas fa-comments me-2 text-primary"></i>
+                  <i class="fas fa-comments me-2"></i>
                   Feedback & Comments
                 </h5>
               </div>
@@ -179,7 +179,7 @@
                 <!-- Comments List -->
                 <div class="comments-list">
                   <div *ngIf="isLoadingComments" class="text-center py-3">
-                    <div class="spinner-border spinner-border-sm text-primary"></div>
+                    <div class="spinner-border spinner-border-sm"></div>
                     <p class="text-muted small mt-2">Loading comments...</p>
                   </div>
 
@@ -194,7 +194,7 @@
                       <div class="comment-header d-flex justify-content-between align-items-start mb-2">
                         <div class="d-flex align-items-center">
                           <div class="avatar me-2">
-                            <i class="fas fa-user-circle fa-lg text-primary"></i>
+                            <i class="fas fa-user-circle fa-lg" style="color: #0a2e65;"></i>
                           </div>
                           <div>
                             <h6 class="mb-0 fw-semibold">{{ comment.mentorName }}</h6>

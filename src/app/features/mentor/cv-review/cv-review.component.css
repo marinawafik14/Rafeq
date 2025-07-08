@@ -1,11 +1,24 @@
+.spinner-border{
+  color: #0a2e65;
+}
+.fw-bold,
+.fw-semibold
+{
+  color: #0a2e65;
+}
 .cv-review-page {
   min-height: 100vh;
   background-color: #f8f9fa;
 }
 
 .cv-review-header {
-  background: linear-gradient(135deg, #0a2e65 0%, #1e5f8b 100%);
-  position: relative;
+  background: linear-gradient(135deg, #0a2e65 0%, #1b74e4 100%);;
+   position: relative;
+  overflow: hidden;
+  border-radius: 0; /* Remove border radius to match dashboard */
+  margin: 0; /* Remove margin to match dashboard */
+  padding: 3rem 0; /* Add padding like dashboard */
+  border: none; /* Remove border */
 }
 
 .cv-review-header::before {
@@ -22,6 +35,7 @@
 .cv-list-card,
 .cv-viewer-card,
 .comments-card {
+  padding: 1.5rem;
   background: white;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -70,7 +84,25 @@
   font-size: 0.9rem;
   font-weight: 500;
 }
+.btn-primary{
+  background-color: #0a2e65;
+  border-color: #0a2e65;
 
+  &:hover {
+    background-color: white;
+    border-color:#0a2e65;
+    color: #0a2e65;
+  }
+}
+.btn-outline-primary{
+  color: #0a2e65;
+  border-color: #0a2e65;
+
+  &:hover {
+    background-color: #0a2e65;
+    color: white;
+  }
+}
 /* Responsive adjustments */
 @media (max-width: 992px) {
   .cv-preview iframe {

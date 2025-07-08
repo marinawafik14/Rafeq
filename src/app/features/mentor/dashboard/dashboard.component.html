@@ -35,7 +35,7 @@
 
     <!-- Loading Spinner -->
     <div *ngIf="isLoading" class="text-center py-5">
-      <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+      <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
         <span class="visually-hidden">Loading...</span>
       </div>
       <p class="mt-3 text-muted">Loading your dashboard...</p>
@@ -48,7 +48,7 @@
         <!-- Loading State -->
         <div *ngIf="isLoading" class="col-12">
           <div class="text-center py-4">
-            <div class="spinner-border text-primary" role="status">
+            <div class="spinner-border" role="status">
               <span class="visually-hidden">Loading stats...</span>
             </div>
           </div>
@@ -113,8 +113,8 @@
       <!-- Quick Actions Section -->
       <div class="quick-actions-section mb-5">
         <div class="section-header mb-4">
-          <h3 class="fw-bold text-dark">
-            <i class="fas fa-bolt me-2 text-primary"></i>Quick Actions
+          <h3 class="fw-bold">
+            <i class="fas fa-bolt me-2"></i>Quick Actions
           </h3>
           <p class="text-muted mb-0">Access your most-used features instantly</p>
         </div>
@@ -127,7 +127,7 @@
                 <div class="quick-action-icon mb-3">
                   <i class="fas fa-comments"></i>
                 </div>
-                <h5 class="fw-bold mb-2 text-dark">Messages</h5>
+                <h5 class="fw-bold mb-2">Messages</h5>
                 <p class="text-muted mb-0 small">Chat with your mentees and manage conversations</p>
               </div>
             </a>
@@ -140,7 +140,7 @@
                 <div class="quick-action-icon mb-3">
                   <i class="fas fa-calendar-check"></i>
                 </div>
-                <h5 class="fw-bold mb-2 text-dark">All Bookings</h5>
+                <h5 class="fw-bold mb-2 ">All Bookings</h5>
                 <p class="text-muted mb-0 small">Manage all your sessions and appointments</p>
               </div>
             </a>
@@ -153,7 +153,7 @@
                 <div class="quick-action-icon mb-3">
                   <i class="fas fa-calendar-alt"></i>
                 </div>
-                <h5 class="fw-bold mb-2 text-dark">Availability</h5>
+                <h5 class="fw-bold mb-2">Availability</h5>
                 <p class="text-muted mb-0 small">Set up your schedule and time slots</p>
               </div>
             </a>
@@ -166,7 +166,7 @@
                 <div class="quick-action-icon mb-3">
                   <i class="fas fa-user-edit"></i>
                 </div>
-                <h5 class="fw-bold mb-2 text-dark">Profile</h5>
+                <h5 class="fw-bold mb-2">Profile</h5>
                 <p class="text-muted mb-0 small">Update your profile and information</p>
               </div>
             </a>
@@ -179,7 +179,7 @@
                 <div class="quick-action-icon mb-3">
                   <i class="fas fa-file-alt"></i>
                 </div>
-                <h5 class="fw-bold mb-2 text-dark">CV Review</h5>
+                <h5 class="fw-bold mb-2 ">CV Review</h5>
                 <p class="text-muted mb-0 small">Review and comment on mentee CVs</p>
               </div>
             </a>
@@ -191,7 +191,7 @@
       <div class="session-card mb-5">
         <div class="card-header d-flex justify-content-between align-items-center">
           <h4 class="mb-0">
-            <i class="fas fa-calendar-day me-2 text-primary"></i>
+            <i class="fas fa-calendar-day me-2"></i>
             Today's Sessions
             <span class="badge bg-primary ms-2">{{ todaySessions.length }}</span>
           </h4>
@@ -332,7 +332,7 @@
         <div class="card-header d-flex justify-content-between align-items-center">
           <div>
             <h5 class="mb-1 fw-bold">
-              <i class="fas fa-clock me-2 text-primary"></i>Upcoming Sessions
+              <i class="fas fa-clock me-2 "></i>Upcoming Sessions
             </h5>
             <p class="text-muted mb-0 small">Your next scheduled sessions</p>
           </div>
