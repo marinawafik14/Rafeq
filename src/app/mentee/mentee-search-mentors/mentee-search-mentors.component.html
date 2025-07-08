@@ -395,6 +395,17 @@
 
           <!-- Enhanced Results Section -->
           <div class="mentors-results-section">
+            <!-- Loading State -->
+            <div *ngIf="isLoading" class="loading-state-card">
+              <div class="loading-state-content text-center py-5">
+                <div class="spinner-border text-primary mb-3" role="status">
+                  <span class="visually-hidden">Loading mentors...</span>
+                </div>
+                <h5 class="loading-title">Loading mentors...</h5>
+                <p class="loading-message">Please wait while we fetch mentors for you.</p>
+              </div>
+            </div>
+
             <!-- Empty State -->
             <div *ngIf="emptyState && !isLoading" class="empty-state-card">
               <div class="empty-state-content">

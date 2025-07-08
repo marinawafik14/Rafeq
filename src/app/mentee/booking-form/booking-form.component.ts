@@ -38,6 +38,9 @@ export class BookingFormComponent implements OnDestroy {
   totalPages: number = 1;
   paginatedDates: string[] = [];
 
+  // Loading state for payment navigation
+  loadingPayment: boolean = false;
+
    getUtcSlot(date: string, hour: number, min: number): string {
   const d = new Date(`${date}T${hour.toString().padStart(2, '0')}:${min.toString().padStart(2, '0')}:00+02:00`);
   return d.toISOString().slice(0, 19) + 'Z';
@@ -356,7 +359,8 @@ export class BookingFormComponent implements OnDestroy {
       this.bookingError = 'You cannot create a new booking while you have a pending booking. Please complete or cancel your pending booking first.';
       return;
     }
-    
+    this.loadingPayment = true;
+
     // Check authentication
     const user = this.authService.currentUserValue;
     const menteeId = user && user.userId ? user.userId : this.menteeId;
@@ -524,9 +528,11 @@ export class BookingFormComponent implements OnDestroy {
             amount: this.calculatedPrice
           }
         });
+        this.loadingPayment = false;
         this.loadingSlots = false;
       },
       error: (error) => {
+        this.loadingPayment = false;
         this.loadingSlots = false;
         
         if (error.status === 409) {
