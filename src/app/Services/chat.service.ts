@@ -272,16 +272,29 @@ export class ChatService {
   // 1. Upload voice message
   uploadVoiceMessage(
     bookingId: number,
-    audioFile: File
+    audioFile: File,
+    messageText?: string
   ): Observable<ChatMessage> {
     const formData = new FormData();
-    formData.append('bookingId', bookingId.toString());
-    formData.append('audioFile', audioFile);
+    formData.append('BookingId', bookingId.toString());
+    formData.append('AudioFile', audioFile);
+    if (messageText) formData.append('MessageText', messageText);
 
-    return this.http.post<any>(
-      `${environment.apiUrl}/chat/voice-message`,
-      formData
-    );
+    return this.http
+      .post<{ success: boolean; data: ChatMessage }>(
+        `${this.apiUrl}/voice/upload-message`,
+        formData
+      )
+      .pipe(
+        map((response) => {
+          console.log('🟢 uploadVoiceMessage API response:', response);
+          return response.data;
+        }),
+        catchError((error) => {
+          console.error('Error uploading voice message:', error);
+          throw error;
+        })
+      );
   }
 
   // 2. Add reaction

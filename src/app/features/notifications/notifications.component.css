@@ -1,3 +1,38 @@
+h2 {
+  color: #0a2e65;
+}
+
+h2 i {
+  color: #0a2e65;
+}
+.btn-outline-primary{
+  color: #0a2e65;
+  border-color: #0a2e65;
+  background-color: transparent;
+
+  &:hover {
+    background-color: #0a2e65;
+    color: white;
+    border: 1px solid #0a2e65;
+  }
+
+}
+
+.btn-primary{
+  background-color: #0a2e65;
+  border-color: #0a2e65;
+  color: white;
+
+  &:hover {
+    background-color: white;
+    border-color: #0a2e65;
+    color:#0a2e65;
+  }
+}
+
+.spinner-border{
+  color: #0a2e65;
+}
 .notification-item {
   cursor: pointer;
   transition: all 0.3s ease;
@@ -11,7 +46,7 @@
 
 .notification-item.unread {
   background: linear-gradient(135deg, #f8f9ff 0%, #e3f2fd 100%);
-  border-left-color: #007bff;
+  border-left-color:#0a2e65;
 }
 
 .notification-icon {

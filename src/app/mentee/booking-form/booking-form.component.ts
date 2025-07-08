@@ -92,7 +92,38 @@ export class BookingFormComponent implements OnDestroy {
   }
 
   get calculatedPrice() {
-    return this.sessionType === 'interview' ? 100 : 60;
+    if (!this.mentor?.hourlyRate) {
+      return this.sessionType === 'interview' ? 100 : 60; // Fallback prices
+    }
+
+    // Calculate duration from selected slot
+    const sessionDuration = this.getSessionDuration();
+    return Math.round(this.mentor.hourlyRate * sessionDuration);
+  }
+
+  private getSessionDuration(): number {
+    if (!this.selectedFreeSlot) {
+      return 1; // Default 1 hour if no slot selected
+    }
+
+    const startTime = new Date(this.selectedFreeSlot.start);
+    const endTime = new Date(this.selectedFreeSlot.end);
+    const durationMs = endTime.getTime() - startTime.getTime();
+    const durationHours = durationMs / (1000 * 60 * 60);
+    
+    return Math.max(0.5, Math.round(durationHours * 2) / 2); // Round to nearest 0.5 hours
+  }
+
+  // Add method to display session duration
+  get sessionDurationDisplay(): string {
+    const duration = this.getSessionDuration();
+    if (duration === 1) {
+      return '1 hour';
+    } else if (duration < 1) {
+      return `${Math.round(duration * 60)} minutes`;
+    } else {
+      return `${duration} hours`;
+    }
   }
 
   nextStep() {

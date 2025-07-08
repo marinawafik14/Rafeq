@@ -1,11 +1,11 @@
-    <mentee-layout [menteeId]="menteeId"></mentee-layout>
+
 
 <div class="chat-page">
 
   <!-- Loading State -->
   <div *ngIf="isLoading" class="loading-container d-flex justify-content-center align-items-center">
     <div class="text-center">
-      <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+      <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
         <span class="visually-hidden">Loading...</span>
       </div>
       <p class="mt-3 text-muted">Loading your conversations...</p>
@@ -24,7 +24,7 @@
     <div class="conversations-sidebar">
       <div class="sidebar-header p-3 border-bottom">
         <h5 class="mb-3 fw-bold">
-          <i class="fas fa-comments me-2 text-primary"></i>
+          <i class="fas fa-comments me-2"></i>
           Messages
         </h5>
         
@@ -50,7 +50,7 @@
         </div>
 
         <div *ngFor="let conversation of filteredConversations" 
-             class="conversation-item p-3 border-bottom cursor-pointer"
+             class="conversation-item p-3 cursor-pointer"
              [class.active]="selectedConversation?.bookingId === conversation.bookingId"
              [class.new-conversation]="!conversation.lastMessage"
              (click)="selectConversation(conversation)">
@@ -68,7 +68,7 @@
               
               <!-- New conversation indicator -->
               <span *ngIf="!conversation.lastMessage" 
-                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-primary">
+                    class="position-absolute new-mess top-0 start-100 translate-middle badge rounded-pill ">
                 New
               </span>
             </div>
@@ -90,10 +90,10 @@
                   <span *ngIf="conversation.lastMessage">
                     {{ conversation.lastMessage.messageText }}
                   </span>
-                  <span *ngIf="!conversation.lastMessage" class="text-primary fst-italic fw-medium">
+                  <!-- <span *ngIf="!conversation.lastMessage" class="text-primary fst-italic fw-medium">
                     <i class="fas fa-comment-dots me-1"></i>
                     Start your {{ conversation.sessionType }} conversation...
-                  </span>
+                  </span> -->
                 </p>
                 
                 <!-- Badges -->
@@ -103,19 +103,19 @@
                     {{ conversation.sessionStatus }}
                   </span>
                   <span *ngIf="conversation.unreadCount > 0" 
-                        class="badge bg-primary rounded-pill">
+                        class="badge unread-count rounded-pill">
                     {{ conversation.unreadCount }}
                   </span>
                 </div>
               </div>
               
-              <small class="text-muted session-type">
+              <!-- <small class="text-muted session-type">
                 <i class="fas fa-calendar-alt me-1"></i>
                 {{ conversation.sessionType }} Session 
                 <span *ngIf="conversation.startDateTime">
                   • {{ formatMessageTime(conversation.startDateTime) }}
                 </span>
-              </small>
+              </small> -->
             </div>
           </div>
         </div>
@@ -164,7 +164,7 @@
           
           <!-- Loading Messages -->
           <div *ngIf="isLoadingMessages" class="text-center py-4">
-            <div class="spinner-border text-primary" role="status">
+            <div class="spinner-border" role="status">
               <span class="visually-hidden">Loading messages...</span>
             </div>
           </div>
@@ -204,6 +204,12 @@
                     [senderName]="message.senderName"
                     [timestamp]="message.sentAt">
                   </app-voice-message>
+
+                  <!-- Transcript for Voice Message -->
+                  <div *ngIf="message.isVoiceMessage && message.transcriptText" class="voice-transcript mt-2 px-2 py-1 bg-light rounded">
+                    <i class="fas fa-closed-captioning me-1 text-primary"></i>
+                    <span class="text-muted">{{ message.transcriptText }}</span>
+                  </div>
 
                   <!-- Only show text if not a voice message -->
                   <div *ngIf="!message.isVoiceMessage && message.messageText" class="message-text">
@@ -411,3 +417,14 @@
     </div>
   </div>
 </div>
+<!-- Floating Action Buttons (only show when user is logged in) -->
+<ng-container *ngIf="currentUser">
+  <div class="floating-actions">
+    
+    <!-- Dashboard Button -->
+    <div class="dashboard-popup" (click)="goToDashboard()" title="Go to Dashboard">
+      <i class="fas fa-tachometer-alt"></i>
+      <span class="floating-tooltip">Dashboard</span>
+    </div>
+  </div>
+</ng-container>

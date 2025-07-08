@@ -213,7 +213,15 @@
   font-weight: 500;
   color: #0a2e65;
 }
+.btn-outline-secondary{
+  color: #0a2e65;
+  border-color: #0a2e65;
 
+  &:hover {
+    background: rgba(10, 46, 101, 0.1);
+    color: #0a2e65;
+  }
+}
 /* Bookings Grid */
 .bookings-grid {
   display: grid;
@@ -424,12 +432,12 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0a2e65, #1b74e4);;
   border-radius: 20px 20px 0 0;
 }
 
 .modal-title {
-  color: #1e293b;
+  color: #0a2e65;
   font-weight: 700;
 }
 
@@ -463,7 +471,7 @@
   left: 0;
   width: 50px;
   height: 2px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0a2e65, #1b74e4);;
 }
 
 .detail-item {
@@ -480,7 +488,7 @@
 }
 
 .detail-value {
-  color: #1e293b;
+  color: #0a2e65;
   font-weight: 600;
   font-size: 1.1rem;
 }
@@ -506,7 +514,7 @@
 
 .google-meet-section .btn {
   border-left: none;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0a2e65, #1b74e4);;
   color: white;
 }
 
@@ -535,11 +543,12 @@
 
 .form-control:focus.rounded-pill {
   box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.15);
-  border-color: #667eea;
+  border-color: #0a2e65;
 }
 
 /* Loading States */
 .spinner-border {
+  color: #0a2e65;
   border-width: 0.2em;
 }
 
@@ -582,6 +591,50 @@
 .link-exists-container {
   background: rgba(40, 167, 69, 0.05);
   border-color: rgba(40, 167, 69, 0.2);
+}
+.pagination-nav {
+  margin-top: 2rem;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.25rem;
+}
+
+.page-item {
+  display: inline-block;
+}
+
+.page-link {
+  color: #0a2e65;
+  border: 1px solid #0a2e65;
+  background-color: #ffffff;
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
+  font-weight: 500;
+  box-shadow:none;
+
+}
+
+.page-link:hover {
+  background-color: #0a2e65;
+  color: #ffffff;
+  box-shadow:none;
+}
+
+.page-item.active .page-link {
+  background-color: #0a2e65;
+  color: #ffffff;
+  border-color: #0a2e65;
+  box-shadow:none;
+}
+
+.page-item.disabled .page-link {
+  background-color: #e9ecef;
+  color: #6c757d;
+  pointer-events: none;
+  border-color: #dee2e6;
 }
 
 /* Responsive Design */

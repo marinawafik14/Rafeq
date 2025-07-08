@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   selector: 'app-payment-confirmation',
   templateUrl: './payment-confirmation.component.html'
+  , styleUrls: ['./payment-confirmation.component.css'],
 })
 export class PaymentConfirmationComponent implements OnInit {
   bookingDetails: any;

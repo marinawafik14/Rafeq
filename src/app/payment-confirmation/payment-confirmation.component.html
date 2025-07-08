@@ -1,11 +1,11 @@
 <div class="container text-center my-5">
   <i class="fas fa-check-circle fa-5x text-success mb-3"></i>
-  <h1 class="display-5 fw-bold mb-4">Payment Successful!</h1>
+  <h1 class="display-5 fw-bold mb-4 payment-succ">Payment Successful!</h1>
   <p class="lead text-muted mb-4">Your session has been confirmed.</p>
 
   <!-- Booking Details -->
   <div class="card shadow-sm border-0 rounded-4 p-4 mx-auto" style="max-width: 500px;">
-    <h5 class="fw-bold mb-3">Session Details</h5>
+    <h5 class="fw-bold mb-3 session-det">Session Details</h5>
     <ul class="list-unstyled text-start">
       <li class="mb-2"><strong>Mentor:</strong> {{ bookingDetails.mentorName }}</li>
       <li class="mb-2"><strong>Time:</strong> {{ bookingDetails.sessionDateTime | date:'full' }}</li>
@@ -22,18 +22,18 @@
     </div>
 
     <!-- Calendar Button -->
-    <div class="d-grid gap-2 mt-4">
+    <!-- <div class="d-grid gap-2 mt-4">
       <button class="btn btn-primary rounded-pill py-2" >
         <i class="fas fa-calendar-plus me-2"></i>Add to Google Calendar
       </button>
       <button class="btn btn-outline-secondary rounded-pill py-2" >
         <i class="far fa-calendar-check me-2"></i>Add to Outlook
       </button>
-    </div>
+    </div> -->
 
     <!-- Back to Home -->
     <div class="mt-5">
-      <a href="/home" class="btn btn-link text-primary">Back to Home</a>
+      <a href="/home" class="btn btn-link">Back to Home</a>
     </div>
   </div>
 </div>

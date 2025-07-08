@@ -2,7 +2,20 @@
   position: relative;
   cursor: pointer;
 }
+.btn-primary{
+  background-color: #0a2e65;
+  border-color: #0a2e65;
+  color: white;
 
+  &:hover {
+    background-color: white;
+    border-color: #0a2e65;
+    color:#0a2e65;
+
+  }
+
+
+}
 .notification-bell {
   position: relative;
   padding: 8px;
@@ -18,7 +31,7 @@
 }
 
 .notification-bell.has-notifications i {
-  color: #007bff;
+  color: #0a2e65;
   animation: bellRing 2s ease-in-out infinite;
 }
 

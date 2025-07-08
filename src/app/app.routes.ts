@@ -34,7 +34,7 @@ import { MenteeLayoutComponent } from './mentee/mentee-layout.component';
 import { ArticleDetailComponent } from './Auth/article-detail/article-detail.component';
 import { authGuardGuard } from './guards/auth-guard.guard';
 import { AdminDashboardComponent } from './Components/Admin/admin-dashboard/admin-dashboard.component';
-import { NotificationsComponent } from './features/notifications/notifications.component'; // Add this import
+import { NotificationsComponent } from './features/notifications/notifications.component'; 
 import { AdminArticleListComponent } from './Auth/admin-article-list/admin-article-list.component';
 import { ArticleFormComponent } from './Auth/article-form/article-form.component';
 import { AdminFaqListComponent } from './Auth/admin-faq-list/admin-faq-list.component';

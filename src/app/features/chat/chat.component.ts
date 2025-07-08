@@ -15,12 +15,12 @@ import { ChatConversation } from '../../Models/Chat/chat-conversation';
 import { ConversationParticipants } from '../../Models/Chat/conversation-participants';
 import { SendMessageRequest } from '../../Models/Chat/send-message-request';
 import { VoiceMessageComponent } from '../../shared/components/voice-message/voice-message.component';
-import { MenteeLayoutComponent } from '../../mentee/mentee-layout.component';
-
+import { TokenResponseDto } from '../../Models/Auth/TokenResponseDto';
+import { Subject, takeUntil } from 'rxjs';
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule, VoiceMessageComponent, MenteeLayoutComponent],
+  imports: [CommonModule, FormsModule, VoiceMessageComponent],
   templateUrl: './chat.component.html',
   styleUrls: ['./chat.component.css']
 })
@@ -35,7 +35,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   selectedConversation: ChatConversation | null = null;
   participants: ConversationParticipants | null = null;
   currentUserId: number = 0;
-
+  currentUser: TokenResponseDto | null = null;
+    private destroy = new Subject<void>();
   // UI state
   isLoading = true;
   isLoadingMessages = false;
@@ -101,13 +102,33 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   ngOnInit(): void {
     this.initializeChat();
+    this.authService.currentUser
+      .pipe(takeUntil(this.destroy))
+      .subscribe(user => {
+        this.currentUser = user;
+      });
   }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.signalrService.stopConnection();
+    this.destroy.next();
+    this.destroy.complete();
   }
-
+ goToDashboard() {
+    if (!this.currentUser || !this.currentUser.role) return;
+    if (this.currentUser.role === 'Mentee') {
+      this.router.navigate(['/mentee/dashboard']);
+    } else if (this.currentUser.role === 'Mentor') {
+      this.router.navigate(['/mentor/dashboard']);
+    }else if (this.currentUser.role === 'Admin') {
+      this.router.navigate(['/admin/charts']);
+    }
+    
+    else {
+      this.router.navigate(['/home']);
+    }
+  }
   ngAfterViewChecked(): void {
     if (this.shouldScrollToBottom) {
       this.scrollToBottom();
@@ -644,7 +665,8 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         type: audioFile.type,
         size: audioFile.size
       });
-      await this.chatService.uploadVoiceMessage(this.selectedConversation.bookingId, audioFile).toPromise();
+      const result = await this.chatService.uploadVoiceMessage(this.selectedConversation.bookingId, audioFile).toPromise();
+      console.log('✅ Uploaded voice message result:', result);
       await this.loadMessages();
     } catch (err) {
       Swal.fire('Error', 'Failed to send voice message.', 'error');
@@ -795,12 +817,17 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       const messages = await this.chatService.getChatHistory(this.selectedConversation.bookingId).toPromise() || [];
       await Promise.all(messages.map(async (msg) => {
         msg.reactions = await this.chatService.getMessageReactions(msg.messageId).toPromise();
-        
-        // For voice messages, the VoiceMessageComponent will handle loading voice info
-        // No need to manually set URLs here anymore
       }));
       this.messages = messages;
       this.shouldScrollToBottom = true;
+
+      // Debug: Log all transcripts for voice messages
+      console.log('🔊 Voice message transcripts:');
+      this.messages.forEach(msg => {
+        if (msg.isVoiceMessage) {
+          console.log(`Message ID: ${msg.messageId}, transcriptText:`, msg.transcriptText);
+        }
+      });
     } catch (error) {
       console.error('Error loading messages:', error);
     }
@@ -1186,5 +1213,10 @@ You should see: ${this.getUserName(conversation)}`);
     
     // Add onerror=null to prevent infinite error loop if default image also fails
     imgElement.onerror = null;
+  }
+
+  // Debugging: Log messages on every change
+  ngDoCheck() {
+    console.log('🟦 Message debug:', JSON.stringify(this.messages, null, 2));
   }
 }
