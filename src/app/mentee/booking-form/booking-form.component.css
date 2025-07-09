@@ -1,3 +1,28 @@
+/* Payment Loading Overlay Styles */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.85);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+}
+
+.loading-overlay .spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+
+.loading-overlay .mt-3 {
+  font-size: 1.2rem;
+  font-weight: 500;
+}
 .spinner-border{
   color: #0a2e65;
 }

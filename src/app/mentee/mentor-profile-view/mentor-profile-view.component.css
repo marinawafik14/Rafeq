@@ -1,5 +1,5 @@
 /* Enhanced Mentor Profile Styles */
-/* :host {
+:host {
   --primary-color: #4f46e5;
   --primary-light: #6366f1;
   --primary-dark: #3730a3;
@@ -18,7 +18,7 @@
   --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
   --gradient-accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-} */
+}
 
 .main-content {
   background: var(--bg-secondary);
