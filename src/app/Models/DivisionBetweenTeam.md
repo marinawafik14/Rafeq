@@ -1087,6 +1087,254 @@ public class ConfigController : ControllerBase
 - API keys stored in database configuration
 - File uploads validated and secured
 - Audio files cached for performance
-- Rate limiting on AI API calls
+- Rate limiting on AI API calls       
 
 This plan gives you **3 powerful AI features** with minimal database changes and zero disruption to existing functionality!
+
+
+Certainly! Here’s a **detailed plan for a Mentor/Mentee Community Forum** feature, **without moderation**, including:
+
+- Table creation queries (non-breaking, won’t affect your current schema)
+- Detailed page content
+- All required endpoints
+- Clear division of work between you and Hamdi
+
+---
+
+## 🗂️ 1. Database Schema (Forum Tables Only)
+
+**Run these queries to add forum support:**
+
+````sql
+-- Forum Categories Table
+CREATE TABLE ForumCategories (
+    CategoryId INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(100) NOT NULL,
+    Description NVARCHAR(255),
+    CreatedAt DATETIME DEFAULT GETDATE()
+);
+
+-- Forum Posts Table
+CREATE TABLE ForumPosts (
+    PostId INT PRIMARY KEY IDENTITY(1,1),
+    UserId INT FOREIGN KEY REFERENCES Users(UserId),
+    CategoryId INT FOREIGN KEY REFERENCES ForumCategories(CategoryId),
+    Title NVARCHAR(200) NOT NULL,
+    Content NVARCHAR(MAX) NOT NULL,
+    IsSolved BIT DEFAULT 0,
+    Upvotes INT DEFAULT 0,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    UpdatedAt DATETIME NULL,
+    IsDeleted BIT DEFAULT 0
+);
+
+-- Forum Comments Table
+CREATE TABLE ForumComments (
+    CommentId INT PRIMARY KEY IDENTITY(1,1),
+    PostId INT FOREIGN KEY REFERENCES ForumPosts(PostId),
+    UserId INT FOREIGN KEY REFERENCES Users(UserId),
+    Content NVARCHAR(MAX) NOT NULL,
+    IsAnswer BIT DEFAULT 0,
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    IsDeleted BIT DEFAULT 0
+);
+
+-- Forum Post Upvotes Table
+CREATE TABLE ForumPostUpvotes (
+    UpvoteId INT PRIMARY KEY IDENTITY(1,1),
+    PostId INT FOREIGN KEY REFERENCES ForumPosts(PostId),
+    UserId INT FOREIGN KEY REFERENCES Users(UserId),
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    CONSTRAINT UQ_ForumPostUpvotes UNIQUE(PostId, UserId)
+);
+````
+
+---
+
+## 🖥️ 2. Pages & Their Content
+
+### **A. Forum Home Page**
+- List all categories (with name, description, post count)
+- Show recent posts (title, author, category, upvotes, solved status)
+- Show most upvoted posts
+- Button: “Create New Post”
+
+### **B. Category Page**
+- List all posts in the selected category
+- Filters: most recent, most upvoted, unsolved/solved
+- Each post: title, author, upvotes, solved status, date
+- Button: “Create New Post” (pre-selects this category)
+
+### **C. Post Detail Page**
+- Show post title, content, author, date, upvotes, solved status
+- List all comments (content, author, date)
+- Upvote button for post
+- “Mark as Solved” button (visible to post owner)
+- Add comment form (textarea + submit)
+
+### **D. Create/Edit Post Page**
+- Form: title, content (rich text), category dropdown
+- Submit/cancel buttons
+
+### **E. My Posts Page**
+- List all posts created by the logged-in user
+- Edit/delete buttons for own posts
+
+---
+
+## 🔗 3. API Endpoints
+
+### **Categories**
+- `GET /api/forum/categories`  
+  List all categories.
+
+### **Posts**
+- `GET /api/forum/posts`  
+  List all posts (with optional filters: categoryId, search, sort).
+- `GET /api/forum/posts/{postId}`  
+  Get a single post with all comments.
+- `POST /api/forum/posts`  
+  Create a new post.
+- `PUT /api/forum/posts/{postId}`  
+  Edit a post (if owner).
+- `DELETE /api/forum/posts/{postId}`  
+  Delete a post (if owner).
+- `POST /api/forum/posts/{postId}/upvote`  
+  Upvote a post (toggle).
+- `DELETE /api/forum/posts/{postId}/upvote`  
+  Remove upvote.
+- `POST /api/forum/posts/{postId}/solve`  
+  Mark a post as solved (by post owner).
+
+### **Comments**
+- `POST /api/forum/posts/{postId}/comments`  
+  Add a comment to a post.
+- `PUT /api/forum/comments/{commentId}`  
+  Edit a comment (if owner).
+- `DELETE /api/forum/comments/{commentId}`  
+  Delete a comment (if owner).
+
+### **User Posts**
+- `GET /api/forum/users/{userId}/posts`  
+  List all posts by a user.
+
+---
+
+
+
+## 📝 **Summary**
+
+- **Both mentors and mentees** can create posts and comments.
+- “Mark as solved” lets the post owner indicate their question was answered.
+- No moderation or admin tools included.
+- New tables and endpoints are fully independent—**no impact on your current schema or endpoints**.
+- Clear backend/frontend division for efficient teamwork.
+
+If you need sample endpoint code or UI wireframes, just ask!
+
+
+Absolutely! Here’s a **clear division** for the Community Forum feature so you and Hamdi can work in parallel, with no conflicts—each of you handles separate backend controllers and frontend components.
+
+---
+
+## 🗂️ Database Tables (for reference)
+
+(Use the SQL from the previous answer to create: `ForumCategories`, `ForumPosts`, `ForumComments`, `ForumPostUpvotes`.)
+
+---
+
+## 🛠️ Backend Division
+
+### **You:**  
+**Forum Category & Post Management**
+
+- **Controllers:**
+  - `ForumCategoryController` (CRUD for categories)
+  - `ForumPostController` (CRUD for posts, upvote, mark as solved, get posts by category, get user’s posts)
+
+- **Endpoints you implement:**
+  - `GET /api/forum/categories`
+  - `POST /api/forum/categories`
+  - `GET /api/forum/posts`
+  - `GET /api/forum/posts/{postId}`
+  - `POST /api/forum/posts`
+  - `PUT /api/forum/posts/{postId}`
+  - `DELETE /api/forum/posts/{postId}`
+  - `POST /api/forum/posts/{postId}/upvote`
+  - `DELETE /api/forum/posts/{postId}/upvote`
+  - `POST /api/forum/posts/{postId}/solve`
+  - `GET /api/forum/users/{userId}/posts`
+
+---
+
+### **Hamdi:**  
+**Forum Comment Management**
+
+- **Controller:**
+  - `ForumCommentController` (CRUD for comments/replies)
+
+- **Endpoints Hamdi implements:**
+  - `POST /api/forum/posts/{postId}/comments`
+  - `PUT /api/forum/comments/{commentId}`
+  - `DELETE /api/forum/comments/{commentId}`
+
+---
+
+## 🖥️ Frontend Division
+
+### **You:**  
+**Forum Structure & Post Management**
+
+- **Components you build:**
+  - `ForumHomeComponent` (list categories, recent/popular posts)
+  - `ForumCategoryComponent` (list posts in a category)
+  - `ForumCreateEditPostComponent` (create/edit post form)
+  - `MyForumPostsComponent` (user’s own posts)
+
+---
+
+### **Hamdi:**  
+**Post Detail & Comment Management**
+
+- **Components Hamdi builds:**
+  - `ForumPostDetailComponent` (view post, list/add/edit/delete comments, upvote, mark as solved)
+  - `ForumCommentFormComponent` (add/edit comment form)
+
+---
+
+## 📄 Page Content Details
+
+### **Forum Home**
+- List all categories (name, description, post count)
+- Recent posts (title, author, upvotes, solved status)
+- Most upvoted posts
+- “Create New Post” button
+
+### **Category Page**
+- List posts in selected category
+- Filters: recent, upvoted, solved/unsolved
+- “Create New Post” button
+
+### **Post Detail Page**
+- Post title, content, author, upvotes, solved status
+- List of comments (content, author, date)
+- Upvote button
+- “Mark as Solved” button (if owner)
+- Add comment form
+
+### **Create/Edit Post Page**
+- Form: title, content, category dropdown
+
+### **My Posts Page**
+- List all posts by logged-in user
+- Edit/delete buttons
+
+---
+
+## 📝 Summary
+
+- **You:** Categories, posts, upvotes, solved status (backend & related frontend)
+- **Hamdi:** Comments/replies (backend & related frontend)
+- **No overlap**—work in parallel, no merge conflicts!
+
+If you need sample controller/component code, just ask!
