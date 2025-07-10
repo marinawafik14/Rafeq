@@ -48,6 +48,18 @@ export class MenteeBookingsComponent implements OnInit {
   searchTerm: string = '';
   sortBy: string = 'date-desc';
 
+  selectedDate: string = '';
+  onDateChange(event: any) {
+    this.selectedDate = event.target.value;
+    this.filterAndSortBookings();
+    this.currentPage = 1;
+  }
+
+  clearDateFilter() {
+    this.selectedDate = '';
+    this.filterAndSortBookings();
+  }
+
   constructor(
     private authService: AuthService,
     private router: Router,
@@ -401,8 +413,18 @@ export class MenteeBookingsComponent implements OnInit {
       default:
         tabFilteredBookings = this.confirmedBookings;
     }
-    
-    const searchFilteredBookings = this.applySearch(tabFilteredBookings);
+
+    let dateFilteredBookings = tabFilteredBookings;
+    if (this.selectedDate) {
+      dateFilteredBookings = tabFilteredBookings.filter(booking => {
+        if (!booking.startDateTime) return false;
+        const bookingDate = new Date(booking.startDateTime);
+       const bookingDateStr = bookingDate.toISOString().slice(0, 10);
+        return bookingDateStr === this.selectedDate;
+      });
+    }
+
+    const searchFilteredBookings = this.applySearch(dateFilteredBookings);
     this.filteredBookings = this.applySorting(searchFilteredBookings);
     this.totalItems = this.filteredBookings.length;
     this.totalPages = Math.ceil(this.totalItems / this.pageSize);

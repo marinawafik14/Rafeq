@@ -99,7 +99,6 @@ export class BookingDetailsComponent implements OnInit {
 
     this.loadingReview = true;
     
-    // First try to fetch review by booking ID directly
     this.http.get<any>(`https://localhost:7001/api/mentee-reviews/booking/${bookingId}`).subscribe({
       next: (review) => {
         if (review) {
@@ -115,7 +114,6 @@ export class BookingDetailsComponent implements OnInit {
         this.loadingReview = false;
       },
       error: (err) => {
-        // Fallback: fetch all reviews for this mentee and find the one for this booking
         this.http.get<any[]>(`https://localhost:7001/api/mentee-reviews/mentee/${menteeId}`).subscribe({
           next: (reviews) => {
             const bookingReview = reviews.find(review => review.bookingId === bookingId);
@@ -369,14 +367,6 @@ export class BookingDetailsComponent implements OnInit {
     
     return !this.hasReview();
   }
-
-  // getStarArray(rating: number): boolean[] {
-  //   const stars = [];
-  //   for (let i = 1; i <= 5; i++) {
-  //     stars.push(i <= Math.floor(rating));
-  //   }
-  //   return stars;
-  // }
 
   formatReviewDate(dateString: string): string {
     if (!dateString) return 'No date';

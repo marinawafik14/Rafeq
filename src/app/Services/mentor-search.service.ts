@@ -26,6 +26,13 @@ export class MentorSearchService {
 
   constructor(private http: HttpClient) {}
 
+  /**
+   * Get a mentor by their user ID
+   */
+  getMentorById(mentorId: number): Observable<Users> {
+    return this.http.get<Users>(`/api/users/${mentorId}`);
+  }
+
   searchMentors(filters: MentorSearchFilters): Observable<MentorSearchResult> {
     let params = new HttpParams();
     if (filters.skills) params = params.set('skills', filters.skills.join(','));

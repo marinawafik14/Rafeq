@@ -100,37 +100,13 @@ export class MentorProfileViewComponent implements OnInit {
     this.http.get<any[]>(`https://localhost:7001/api/mentee-reviews/mentor/${this.mentorId}`).subscribe({
       next: async (reviews) => {
         this.reviews = reviews;
-        
-        const reviewPromises = this.reviews.map(async (review) => {
+        this.reviews.forEach((review) => {
           if (review.reviewerId && !review.menteeName) {
-            try {
-              let menteeData;
-              
-              try {
-                menteeData = await this.http.get<any>(`https://localhost:7001/api/mentees/details/${review.reviewerId}`).toPromise();
-              } catch (error) {
-                try {
-                  menteeData = await this.http.get<any>(`https://localhost:7001/api/mentees/profile/${review.reviewerId}`).toPromise();
-                } catch (error2) {
-                  menteeData = await this.http.get<any>(`https://localhost:7001/api/mentees/${review.reviewerId}`).toPromise();
-                }
-              }
-              
-              if (menteeData) {
-                review.menteeName = menteeData.fullName || menteeData.name || menteeData.firstName + ' ' + (menteeData.lastName || '').trim() || 'Mentee';
-              } else {
-                review.menteeName = `Mentee #${review.reviewerId}`;
-              }
-            } catch (error) {
-              review.menteeName = `Mentee #${review.reviewerId}`;
-            }
+            review.menteeName = `Mentee #${review.reviewerId}`;
           } else if (!review.menteeName) {
             review.menteeName = 'Anonymous';
           }
-          return review;
         });
-        
-        await Promise.all(reviewPromises);
       },
       error: (reviewError) => {
         this.reviews = [];

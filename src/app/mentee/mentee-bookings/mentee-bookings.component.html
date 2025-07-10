@@ -3,7 +3,6 @@
   <main class="main-content flex-grow-1">
     <div class="dashboard-page">
       <div class="container-fluid py-4">
-        <!-- Hero Section -->
         <div class="hero-section">
           <div class="hero-content">
             <div class="hero-text">
@@ -14,7 +13,6 @@
           </div>
         </div>
 
-        <!-- Stats Grid - 3 cards in one row -->
         <div class="stats-grid">
           <div class="stat-card" *ngFor="let stat of stats; trackBy: trackByStat" [class.loading]="isLoading">
             <div class="stat-icon-wrapper" [style.background]="stat.color">
@@ -27,19 +25,17 @@
           </div>
         </div>
 
-        <!-- Tabs for different booking categories -->
         <div class="tabs-section">
           <div class="tabs-header">
             <h2 class="section-title">Your Bookings</h2>
             <div class="tabs-nav">
-              <!-- Search bar and sorting dropdown -->
-              <div class="search-sort-container d-flex">
+              <div class="search-sort-container d-flex align-items-center flex-wrap gap-2">
                 <div class="search-box">
                   <i class="bi bi-search search-icon"></i>
                   <input 
                     type="text" 
                     class="form-control search-input" 
-                    placeholder="Search bookings..."
+                    placeholder="Search bookings by Mentor Name or Date..."
                     [(ngModel)]="searchTerm" 
                     (input)="onSearchChange($event)">
                   <button 
@@ -49,7 +45,21 @@
                     <i class="bi bi-x"></i>
                   </button>
                 </div>
-                <div class="sort-dropdown">
+                <div class="date-filter ms-2">
+                  <input 
+                    type="date" 
+                    class="form-control" 
+                    [(ngModel)]="selectedDate" 
+                    (change)="onDateChange($event)"
+                    placeholder="Choose date">
+                  <button 
+                    *ngIf="selectedDate" 
+                    class="btn-clear ms-1" 
+                    (click)="clearDateFilter()">
+                    <i class="bi bi-x"></i>
+                  </button>
+                </div>
+                <div class="sort-dropdown ms-2">
                   <select class="form-select" [(ngModel)]="sortBy" (change)="changeSorting(sortBy)">
                     <option value="date-desc">Newest first</option>
                     <option value="date-asc">Oldest first</option>
@@ -59,7 +69,6 @@
                 </div>
               </div>
               
-              <!-- Tabs -->
               <button 
                 class="tab-btn" 
                 [class.active]="activeTab === 'confirmed'"
@@ -84,7 +93,6 @@
             </div>
           </div>
 
-          <!-- Booking Cards Grid -->
           <div class="bookings-grid" *ngIf="!isLoading; else loadingBookings">
             <div 
               class="booking-card" 
@@ -94,7 +102,6 @@
               <div class="booking-header">
                 <div class="booking-info">
                   <h3 class="mentor-name">{{booking.mentorName || 'Unknown Mentor'}}</h3>
-                  <!-- <span class="booking-id">#{{booking.bookingId}}</span> -->
                 </div>
                 <div class="status-badge" [ngClass]="getStatusBadgeClass(booking.status)">
                   {{booking.status || 'Unknown'}}
@@ -110,24 +117,9 @@
                   <i class="bi bi-clock"></i>
                   <span>{{formatTime(booking.startDateTime)}} - {{formatTime(booking.endDateTime)}}</span>
                 </div>
-                <!-- <div class="detail-item" *ngIf="booking.sessionType">
-                  <i class="bi bi-tag"></i>
-                  <span>{{booking.sessionType}}</span>
-                </div> -->
-                <!-- <div class="detail-item" *ngIf="booking.totalAmount">
-                  <i class="bi bi-currency-dollar"></i>
-                  <span>${{booking.totalAmount}}</span>
-                </div> -->
-                <!-- <div class="detail-item">
-                  <i class="bi bi-credit-card"></i>
-                  <span class="payment-status" [ngClass]="booking.paymentStatus?.toLowerCase()">
-                    {{booking.paymentStatus || 'Unpaid'}}
-                  </span>
-                </div> -->
               </div>
 
               <div class="booking-actions">
-                <!-- Join Session Button for confirmed bookings -->
                 <button 
                   class="btn btn-join"
                   *ngIf="booking.status?.toLowerCase() === 'confirmed' && canJoinSession(booking)"
@@ -136,7 +128,6 @@
                   Join Session
                 </button>
                 
-                <!-- View Details Button -->
                 <button 
                   class="btn btn-outline-primary btn-sm"
                   (click)="viewBookingDetails(booking)">
@@ -144,7 +135,6 @@
                   View Details
                 </button>
                 
-                <!-- Cancel Button for bookings that can be cancelled -->
                 <button 
                   class="btn btn-outline-danger btn-sm"
                   *ngIf="canCancelBooking(booking)"
@@ -153,7 +143,6 @@
                   Cancel
                 </button>
                 
-                <!-- Past session indicator -->
                 <span
                   class="join-info text-warning"
                   *ngIf="isSessionInPast(booking)">
@@ -161,7 +150,6 @@
                   In past
                 </span>
                 
-                <!-- Join info messages -->
                 <span 
                   class="join-info"
                   *ngIf="booking.status?.toLowerCase() === 'confirmed' && !canJoinSession(booking) && booking.googleMeetLink && booking.googleMeetLink.trim()">
@@ -177,7 +165,6 @@
               </div>
             </div>
 
-            <!-- Empty state -->
             <div class="empty-state" *ngIf="getCurrentBookings().length === 0">
               <div class="empty-icon">
                 <i class="bi" [ngClass]="searchTerm ? 'bi-search' : 'bi-calendar-x'"></i>
@@ -204,7 +191,6 @@
             </div>
           </div>
 
-          <!-- Loading state -->
           <ng-template #loadingBookings>
             <div class="loading-grid">
               <div class="booking-card loading-card" *ngFor="let item of [1,2,3,4,5,6]">
@@ -217,49 +203,47 @@
             </div>
           </ng-template>
 
-          <!-- Pagination -->
-          <div class="pagination-section" *ngIf="totalPages > 1 && !isLoading">
-  <div class="pagination-info">
-    <span *ngIf="searchTerm">
-      Found {{ totalItems }} result<span *ngIf="totalItems !== 1">s</span> for "{{ searchTerm }}"
-    </span>
-    <span *ngIf="!searchTerm">
-      Showing {{ startItem }} to {{ endItem }} of {{ totalItems }} bookings
-    </span>
-  </div>
+         <div class="pagination-section" *ngIf="totalPages > 1 && !isLoading">
+          <div class="pagination-info">
+            <span *ngIf="searchTerm">
+              Found {{ totalItems }} result<span *ngIf="totalItems !== 1">s</span> for "{{ searchTerm }}"
+            </span>
+            <span *ngIf="!searchTerm">
+              Showing {{ startItem }} to {{ endItem }} of {{ totalItems }} bookings
+            </span>
+          </div>
 
-  <div class="pagination-controls">
-    <ul class="pagination">
-      <li class="page-item" [class.disabled]="currentPage === 1">
-        <button class="page-link" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
-          <i class="bi bi-chevron-left me-1"></i> Previous
-        </button>
-      </li>
+        <div class="pagination-controls">
+          <ul class="pagination">
+            <li class="page-item" [class.disabled]="currentPage === 1">
+              <button class="page-link" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">
+                <i class="bi bi-chevron-left me-1"></i> Previous
+              </button>
+            </li>
 
-      <li
-        class="page-item"
-        *ngFor="let page of getPaginationRange()"
-        [class.active]="page === currentPage"
-      >
-        <button class="page-link" (click)="goToPage(page)">
-          {{ page }}
-        </button>
-      </li>
+            <li
+              class="page-item"
+              *ngFor="let page of getPaginationRange()"
+              [class.active]="page === currentPage"
+            >
+              <button class="page-link" (click)="goToPage(page)">
+                {{ page }}
+              </button>
+            </li>
 
-      <li class="page-item" [class.disabled]="currentPage === totalPages">
-        <button class="page-link" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
-          Next <i class="bi bi-chevron-right ms-1"></i>
-        </button>
-      </li>
-    </ul>
-  </div>
+            <li class="page-item" [class.disabled]="currentPage === totalPages">
+              <button class="page-link" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">
+                Next <i class="bi bi-chevron-right ms-1"></i>
+              </button>
+            </li>
+          </ul>
+        </div>
 </div>
 
         </div>
       </div>
     </div>
 
-    <!-- Cancel Confirmation Modal -->
     <div class="modal" [class.show]="showCancelModal" [style.display]="showCancelModal ? 'block' : 'none'" id="cancelModal" tabindex="-1">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -325,13 +309,11 @@
       </div>
     </div>
 
-    <!-- Modal backdrop -->
     <div class="modal-backdrop" 
          [class.show]="showCancelModal"
          [style.display]="showCancelModal ? 'block' : 'none'">
     </div>
 
-    <!-- Toaster Notification -->
     <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;">
       <div class="toast align-items-center text-white border-0" 
            [class.show]="showToast"

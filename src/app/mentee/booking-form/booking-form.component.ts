@@ -32,13 +32,11 @@ export class BookingFormComponent implements OnDestroy {
   bookingError: string|null = null;
   private cleanupTimeoutId: any = null;
 
-  // Pagination properties
-  itemsPerPage: number = 7; // Number of dates to show per page
+  itemsPerPage: number = 7; 
   currentPage: number = 1;
   totalPages: number = 1;
   paginatedDates: string[] = [];
 
-  // Loading state for payment navigation
   loadingPayment: boolean = false;
 
    getUtcSlot(date: string, hour: number, min: number): string {
@@ -68,7 +66,6 @@ export class BookingFormComponent implements OnDestroy {
             const payload = JSON.parse(atob(token.split('.')[1]));
             this.menteeId = payload.menteeId || payload.userId || null;
           } catch (e) {
-            // Failed to parse token
           }
         }
       }
@@ -99,14 +96,13 @@ export class BookingFormComponent implements OnDestroy {
       return this.sessionType === 'interview' ? 100 : 60; // Fallback prices
     }
 
-    // Calculate duration from selected slot
     const sessionDuration = this.getSessionDuration();
     return Math.round(this.mentor.hourlyRate * sessionDuration);
   }
 
   private getSessionDuration(): number {
     if (!this.selectedFreeSlot) {
-      return 1; // Default 1 hour if no slot selected
+      return 1; 
     }
 
     const startTime = new Date(this.selectedFreeSlot.start);
@@ -114,10 +110,9 @@ export class BookingFormComponent implements OnDestroy {
     const durationMs = endTime.getTime() - startTime.getTime();
     const durationHours = durationMs / (1000 * 60 * 60);
     
-    return Math.max(0.5, Math.round(durationHours * 2) / 2); // Round to nearest 0.5 hours
+    return Math.max(0.5, Math.round(durationHours * 2) / 2); 
   }
 
-  // Add method to display session duration
   get sessionDurationDisplay(): string {
     const duration = this.getSessionDuration();
     if (duration === 1) {
@@ -319,7 +314,7 @@ export class BookingFormComponent implements OnDestroy {
         
         this.freeSlots = this.filterFutureSlots(availableSlots);
         this.availableDates = this.getAvailableDatesFromFreeSlots();
-        this.initializePagination(); // Initialize pagination after dates are loaded
+        this.initializePagination(); 
         this.slotsLoaded = true;
         this.loadingSlots = false;
       },
@@ -361,7 +356,6 @@ export class BookingFormComponent implements OnDestroy {
     }
     this.loadingPayment = true;
 
-    // Check authentication
     const user = this.authService.currentUserValue;
     const menteeId = user && user.userId ? user.userId : this.menteeId;
     if (!menteeId) {
@@ -519,7 +513,6 @@ export class BookingFormComponent implements OnDestroy {
         };
         sessionStorage.setItem('pendingBooking', JSON.stringify(pendingBooking));
         
-        // Set up a cleanup timeout (5 minutes)
         this.setupBookingCleanupTimeout(bookingId);
         
         this.router.navigate(['/mentee', 'payment'], {
