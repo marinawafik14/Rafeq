@@ -1,0 +1,23 @@
+<form (ngSubmit)="submit()" class="mb-3">
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+  <div class="input-group">
+    <textarea
+      class="form-control"
+      [(ngModel)]="content"
+      name="content"
+      rows="3"
+      maxlength="1000"
+      placeholder="Add a comment..."
+      [disabled]="isLoading"
+      required
+    ></textarea>
+  </div>
+  <div class="mt-2 d-flex gap-2">
+    <button type="submit" class="btn btn-primary btn-sm" [disabled]="isLoading">
+      {{ editingComment ? 'Update' : 'Comment' }}
+    </button>
+    <button *ngIf="editingComment" type="button" class="btn btn-outline-secondary btn-sm" (click)="cancelEdit()" [disabled]="isLoading">
+      Cancel
+    </button>
+  </div>
+</form>
