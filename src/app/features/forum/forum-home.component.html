@@ -1,0 +1,160 @@
+<div class="forum-home container py-4">
+  <!-- Forum Categories -->
+  <div class="row mb-5">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+      <h2 class="fw-bold mb-4" style="color:#0a2e65;">
+        <i class="fas fa-layer-group me-2"></i> Forum Categories
+      </h2>
+      <a class="btn btn-outline-primary" [routerLink]="['/forum/my-posts']">
+        <i class="fas fa-user"></i> My Posts
+      </a>
+    </div>
+    <div *ngIf="isLoading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+    </div>
+    <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+    <ng-container *ngIf="!isLoading && categories.length">
+      <div class="col-md-4 mb-4" *ngFor="let cat of categories">
+        <div class="card shadow-sm rounded-4 border-0 h-100 hover-scale" style="transition: transform 0.3s; cursor:pointer"
+             [routerLink]="['/forum/category', cat.categoryId]">
+          <div class="card-body text-center">
+            <div class="category-icon bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+              <i class="fas fa-folder-open fs-3"></i>
+            </div>
+            <h5 class="fw-bold" style="color:#0a2e65;">{{ cat.name }}</h5>
+            <p class="text-muted small mt-2">{{ cat.description }}</p>
+            <span class="badge bg-gradient badge-primary px-3 py-2 mt-2" style="font-size:0.95rem;">
+              <i class="fas fa-comments me-1"></i> {{ cat.postCount }} posts
+            </span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="!isLoading && !categories.length">
+      <div class="col-12 text-center text-muted py-5">
+        <i class="fas fa-inbox fa-2x mb-2"></i>
+        <div>No categories found.</div>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- Recent Posts -->
+  <div class="mb-5">
+    <h3 class="fw-bold mb-3" style="color:#0a2e65;">
+      <i class="fas fa-clock me-2"></i> Recent Posts
+    </h3>
+    <div *ngIf="paginatedRecentPosts.length; else noRecent" class="list-group">
+      <a *ngFor="let post of paginatedRecentPosts"
+         class="list-group-item list-group-item-action rounded-3 mb-3 shadow-sm border-0"
+         style="transition: box-shadow 0.2s;"
+         [routerLink]="['/forum/post', post.postId]">
+        <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-gradient badge-primary me-2" style="font-size:0.8rem;">
+              <i class="fas fa-folder"></i> {{ post.categoryName }}
+            </span>
+            <h5 class="mb-0 fw-bold" style="color:#0a2e65;">{{ post.title }}</h5>
+            <span *ngIf="post.isSolved" class="badge bg-success ms-2"><i class="fas fa-check-circle"></i> Solved</span>
+          </div>
+          <small class="text-muted"><i class="far fa-clock me-1"></i>{{ post.createdAt | date:'short' }}</small>
+        </div>
+        <p class="mb-1 text-truncate text-muted">{{ post.content }}</p>
+        <div class="d-flex justify-content-between align-items-center mt-2">
+          <small class="text-secondary">
+            <i class="fas fa-user-circle me-1"></i> {{ post.userFullName }}
+          </small>
+          <span class="badge bg-gradient badge-success" style="font-size:0.85rem;">
+            <i class="fas fa-arrow-up"></i> {{ post.upvotes }}
+          </span>
+        </div>
+      </a>
+    </div>
+    <ng-template #noRecent>
+      <div class="text-center text-muted py-4">
+        <i class="fas fa-inbox fa-2x mb-2"></i>
+        <div>No recent posts yet.</div>
+      </div>
+    </ng-template>
+
+    <!-- Pagination Controls -->
+    <nav *ngIf="recentTotalPages > 1" class="mt-3">
+      <ul class="pagination justify-content-center">
+        <li class="page-item" [class.disabled]="recentPage === 1">
+          <button class="page-link" (click)="setRecentPage(recentPage - 1)" [disabled]="recentPage === 1">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+        </li>
+        <li class="page-item"
+            *ngFor="let page of [].constructor(recentTotalPages); let i = index"
+            [class.active]="recentPage === i + 1">
+          <button class="page-link" (click)="setRecentPage(i + 1)">{{ i + 1 }}</button>
+        </li>
+        <li class="page-item" [class.disabled]="recentPage === recentTotalPages">
+          <button class="page-link" (click)="setRecentPage(recentPage + 1)" [disabled]="recentPage === recentTotalPages">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+  <!-- Popular Posts -->
+  <div>
+    <h3 class="fw-bold mb-3" style="color:#0a2e65;">
+      <i class="fas fa-fire me-2"></i> Popular Posts
+    </h3>
+    <div *ngIf="paginatedPopularPosts.length; else noPopular" class="list-group">
+      <a *ngFor="let post of paginatedPopularPosts"
+         class="list-group-item list-group-item-action rounded-3 mb-3 shadow-sm border-0"
+         style="transition: box-shadow 0.2s;"
+         [routerLink]="['/forum/post', post.postId]">
+        <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-gradient badge-primary me-2" style="font-size:0.8rem;">
+              <i class="fas fa-folder"></i> {{ post.categoryName }}
+            </span>
+            <h5 class="mb-0 fw-bold" style="color:#0a2e65;">{{ post.title }}</h5>
+            <span *ngIf="post.isSolved" class="badge bg-success ms-2"><i class="fas fa-check-circle"></i> Solved</span>
+          </div>
+          <span class="badge bg-gradient badge-success" style="font-size:0.85rem;">
+            <i class="fas fa-arrow-up"></i> {{ post.upvotes }}
+          </span>
+        </div>
+        <p class="mb-1 text-truncate text-muted">{{ post.content }}</p>
+        <div class="d-flex justify-content-between align-items-center mt-2">
+          <small class="text-secondary">
+            <i class="fas fa-user-circle me-1"></i> {{ post.userFullName }}
+          </small>
+          <small class="text-muted"><i class="far fa-clock me-1"></i>{{ post.createdAt | date:'short' }}</small>
+        </div>
+      </a>
+    </div>
+    <ng-template #noPopular>
+      <div class="text-center text-muted py-4">
+        <i class="fas fa-inbox fa-2x mb-2"></i>
+        <div>No popular posts yet.</div>
+      </div>
+    </ng-template>
+
+    <!-- Pagination Controls for Popular Posts -->
+    <nav *ngIf="popularTotalPages > 1" class="mt-3">
+      <ul class="pagination justify-content-center">
+        <li class="page-item" [class.disabled]="popularPage === 1">
+          <button class="page-link" (click)="setPopularPage(popularPage - 1)" [disabled]="popularPage === 1">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+        </li>
+        <li class="page-item"
+            *ngFor="let page of [].constructor(popularTotalPages); let i = index"
+            [class.active]="popularPage === i + 1">
+          <button class="page-link" (click)="setPopularPage(i + 1)">{{ i + 1 }}</button>
+        </li>
+        <li class="page-item" [class.disabled]="popularPage === popularTotalPages">
+          <button class="page-link" (click)="setPopularPage(popularPage + 1)" [disabled]="popularPage === popularTotalPages">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
