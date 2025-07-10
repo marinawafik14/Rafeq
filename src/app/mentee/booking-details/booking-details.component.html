@@ -12,7 +12,6 @@
         <div class="alert alert-danger text-center">{{ error }}</div>
       </ng-container>
       <ng-container *ngIf="!loading && booking">
-        <!-- Status Banner -->
         <div class="status-banner-container">
           <div *ngIf="booking.status?.toLowerCase() === 'pending' || booking.status?.toLowerCase() === 'upcoming' || booking.status?.toLowerCase() === 'scheduled'" 
                class="alert alert-primary text-center fw-bold">
@@ -36,10 +35,8 @@
           </div>
         </div>
         
-        <!-- Centered Content Container -->
         <div class="content-wrapper">
           <div class="booking-details-content">
-            <!-- Mentor & Session Details -->
             <div class="details-section">
               <div class="card mb-4">
               <div class="card-body d-flex align-items-center">
@@ -60,7 +57,6 @@
                   <div class="fw-bold mb-1">Google Meet</div>
                   <div class="text-muted small mb-2">Join your session at the scheduled time.</div>
                   
-                  <!-- Join Session Button (shown for all confirmed sessions) -->
                   <button 
                     *ngIf="booking.status?.toLowerCase() === 'confirmed' || booking.status?.toLowerCase() === 'upcoming' || booking.status?.toLowerCase() === 'scheduled'"
                     [disabled]="!canJoinSession(booking)"
@@ -78,15 +74,14 @@
                         <i class="bi bi-x-circle me-1"></i>
                         Cancel Booking
                       </button>
-                  <!-- Meeting link display -->
                   <div *ngIf="booking.status?.toLowerCase() === 'confirmed' || booking.status?.toLowerCase() === 'upcoming' || booking.status?.toLowerCase() === 'scheduled'" 
                        class="mt-2 small">
                     <div *ngIf="booking.meetUrl && booking.meetUrl.trim()" class="google-meet-info">
-                      <span class="d-block">Meeting link: <span class="meet-url">{{booking.meetUrl}}</span></span>
-                      <span *ngIf="!canJoinSession(booking)" class="badge bg-warning mt-1 text-dark">
-                        <i class="bi bi-clock-history me-1"></i>
-                        Join available {{getJoinTimeMessage(booking)}}
-                      </span>
+                      <!-- <span class="d-block">Meeting link: <span class="meet-url">{{booking.meetUrl}}</span></span> -->
+                      <div *ngIf="!canJoinSession(booking)" class="alert alert-warning d-inline-flex align-items-center gap-2 py-1 px-3 mt-1 mb-0 border-0 shadow-sm" style="border-radius: 1rem; font-size: 1rem;">
+                        <i class="bi bi-clock-history me-1" style="font-size: 1.3rem;"></i>
+                        <span class="fw-semibold">Join available {{getJoinTimeMessage(booking)}}</span>
+                      </div>
                     </div>
                     <div *ngIf="!booking.meetUrl || !booking.meetUrl.trim()" class="mt-2">
                       <span class="badge bg-secondary">
@@ -97,7 +92,6 @@
 
                   </div>
                   
-                  <!-- Past/completed/cancelled session message -->
                   <span *ngIf="booking.status?.toLowerCase() === 'completed' || booking.status?.toLowerCase() === 'cancelled'" 
                         class="badge bg-secondary">
                     <i class="bi bi-check-circle me-1"></i>
@@ -141,16 +135,6 @@
                 
                 <div *ngIf="!loadingReview && bookingReview" class="review-content">
                   <div class="d-flex align-items-center mb-3">
-                    <!-- <div class="star-rating me-3">
-                      <span *ngFor="let star of getStarArray(bookingReview.rating)" 
-                            class="star"
-                            [class.filled]="star">
-                        <i class="bi" [class.bi-star-fill]="star" [class.bi-star]="!star"></i>
-                      </span>
-                    </div> -->
-                    <!-- <div class="rating-text">
-                      <span class="fw-bold">{{bookingReview.rating}}/5</span>
-                    </div> -->
                     <div class="ms-auto">
                       <small class="text-muted">{{formatReviewDate(bookingReview.createdAt)}}</small>
                     </div>
@@ -178,7 +162,6 @@
   </main>
 </div>
 
-<!-- Cancel Confirmation Modal -->
 <div class="modal" [class.show]="showCancelModal" [style.display]="showCancelModal ? 'block' : 'none'" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -235,13 +218,11 @@
   </div>
 </div>
 
-<!-- Modal backdrop -->
 <div class="modal-backdrop" 
      [class.show]="showCancelModal"
      [style.display]="showCancelModal ? 'block' : 'none'">
 </div>
 
-<!-- Toaster Notification -->
 <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100;">
   <div class="toast align-items-center text-white border-0" 
        [class.show]="showToast"
