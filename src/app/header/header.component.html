@@ -46,7 +46,13 @@
             </a>
           </li>
 
-          
+          <!-- Add this inside your <ul class="navbar-nav mb-2 mb-lg-0"> -->
+          <li class="nav-item mx-2">
+            <a class="nav-link rounded-pill px-3" routerLink="/forum" routerLinkActive="active">
+              Forum
+            </a>
+          </li>
+
           <!-- Messages - Mentee Only (FIXED ROUTE) -->
           <!-- <li class="nav-item mx-2" *ngIf="currentUser?.role === 'Mentee'">
             <a class="nav-link rounded-pill px-3" routerLink="/mentee/messages" routerLinkActive="active">

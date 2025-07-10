@@ -1,0 +1,69 @@
+.forum-post-detail {
+  background: #f8faff;
+  min-height: 100vh;
+  padding-bottom: 2rem;
+}
+
+.post-card {
+  background: #fff;
+  border-radius: 1.25rem;
+  box-shadow: 0 4px 16px rgba(10,46,101,0.08);
+  border: none;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.comment-list {
+  margin-top: 2rem;
+}
+
+.comment-card {
+  background: #f8faff;
+  border-radius: 1rem;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(10,46,101,0.05);
+}
+
+.comment-author {
+  color: #0a2e65;
+  font-weight: 600;
+}
+
+.comment-date {
+  color: #6c757d;
+  font-size: 0.85rem;
+}
+
+.badge-success {
+  background: linear-gradient(135deg, #28a745, #20c997) !important;
+  color: #fff !important;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.85rem;
+}
+
+.empty-state, .no-comments {
+  text-align: center;
+  color: #9ca3af;
+  font-size: 1.1rem;
+  margin: 2rem 0;
+}
+
+.empty-state i, .no-comments i {
+  font-size: 2.5rem;
+  color: #e0e7ef;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .forum-post-detail {
+    padding: 0.5rem;
+  }
+  .post-card {
+    border-radius: 0.75rem;
+    padding: 1rem;
+  }
+}
