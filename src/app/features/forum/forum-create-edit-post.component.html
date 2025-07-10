@@ -1,0 +1,79 @@
+<div class="forum-create-edit-post container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-sm rounded-4 border-0 p-4">
+        <h2 class="fw-bold mb-4" style="color:#0a2e65;">
+          <i class="fas fa-pen-nib me-2"></i>
+          {{ isEditMode ? 'Edit Post' : 'Create New Post' }}
+        </h2>
+
+        <form (ngSubmit)="onSubmit()" autocomplete="off">
+          <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+          <div *ngIf="success" class="alert alert-success">{{ success }}</div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="title">Title <span class="text-danger">*</span></label>
+            <input
+              id="title"
+              class="form-control"
+              [(ngModel)]="post.title"
+              name="title"
+              maxlength="120"
+              required
+              placeholder="Enter a clear, descriptive title"
+            />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="category">Category <span class="text-danger">*</span></label>
+            <select
+              id="category"
+              class="form-select"
+              [(ngModel)]="post.categoryId"
+              name="categoryId"
+              required
+            >
+              <option value="" disabled selected>Select a category</option>
+              <option *ngFor="let cat of categories" [value]="cat.categoryId">
+                {{ cat.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold" for="content">Content <span class="text-danger">*</span></label>
+            <textarea
+              id="content"
+              class="form-control"
+              [(ngModel)]="post.content"
+              name="content"
+              rows="7"
+              required
+              maxlength="3000"
+              placeholder="Describe your question or topic in detail..."
+            ></textarea>
+          </div>
+
+          <div class="d-flex justify-content-end gap-2">
+            <button
+              type="submit"
+              class="btn btn-primary px-4"
+              [disabled]="isLoading"
+            >
+              <i class="fas" [class.fa-save]="isEditMode" [class.fa-plus]="!isEditMode"></i>
+              {{ isEditMode ? 'Update Post' : 'Create Post' }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              (click)="cancel()"
+              [disabled]="isLoading"
+            >
+              <i class="fas fa-times"></i> Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

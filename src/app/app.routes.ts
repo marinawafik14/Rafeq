@@ -39,6 +39,11 @@ import { AdminArticleListComponent } from './Auth/admin-article-list/admin-artic
 import { ArticleFormComponent } from './Auth/article-form/article-form.component';
 import { AdminFaqListComponent } from './Auth/admin-faq-list/admin-faq-list.component';
 import { FaqFormComponent } from './Auth/faq-form/faq-form.component';
+import { ForumHomeComponent } from './features/forum/forum-home.component';
+import { ForumCategoryComponent } from './features/forum/forum-category.component';
+import { ForumCreateEditPostComponent } from './features/forum/forum-create-edit-post.component';
+import { MyForumPostsComponent } from './features/forum/my-forum-posts.component';
+import { ForumPostDetailComponent } from './features/forum/forum-post-detail.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -56,6 +61,12 @@ export const routes: Routes = [
   { path: 'faq', component: FaqComponent },
   { path: 'chat', component: ChatComponent },
   { path: 'chat/:bookingId', component: ChatComponent },
+  { path: 'forum', component: ForumHomeComponent },
+  { path: 'forum/category/:categoryId', component: ForumCategoryComponent },
+  { path: 'forum/create', component: ForumCreateEditPostComponent },
+  { path: 'forum/edit/:postId', component: ForumCreateEditPostComponent },
+  { path: 'forum/my-posts', component: MyForumPostsComponent },
+  { path: 'forum/post/:postId', component: ForumPostDetailComponent },
 
 
   {
