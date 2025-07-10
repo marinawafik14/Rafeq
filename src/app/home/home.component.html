@@ -140,7 +140,7 @@
 <br>
 <!-- Quick Actions (Visible only to logged-in users) -->
 <div class="quick-actions my-5">
-  <div *ngIf="currentUser; else guestActions">
+  <div *ngIf="currentUser">
     <ng-container [ngSwitch]="currentUser.role">
       <!-- Mentee Actions -->
       <div *ngSwitchCase="'Mentee'" class="d-flex flex-wrap gap-3 justify-content-center">
@@ -168,13 +168,6 @@
       </div>
     </ng-container>
   </div>
-  <ng-template #guestActions>
-    <div class="d-flex flex-wrap gap-3 justify-content-center">
-      <a routerLink="/register" class="btn btn-primary btn-lg rounded-pill">Join as Mentee</a>
-      <a routerLink="/register" class="btn btn-outline-primary btn-lg rounded-pill">Become a Mentor</a>
-      <a routerLink="/forum" class="btn btn-outline-primary btn-lg rounded-pill">Browse Forum</a>
-    </div>
-  </ng-template>
 </div>
 
 <!-- Floating Action Buttons (only show when user is logged in) -->
