@@ -7,7 +7,6 @@ import Swal from 'sweetalert2';
 import { NotificationService } from '../../Services/notification.service';
 import { BookingService } from '../../Services/booking.service';
 import { UserService } from '../../Services/user.service';
-import { MentorSearchService } from '../../Services/mentor-search.service';
 import { NotificationDto } from '../../Models/Notification/notification.model';
 import { NotificationType, NotificationTypeLabels } from '../../Models/Notification/notification-type.enum';
 
@@ -41,8 +40,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     private notificationService: NotificationService,
     private router: Router,
     private bookingService: BookingService,
-    private userService: UserService,
-    private mentorSearchService: MentorSearchService
+    private userService: UserService
   ) {}
 
   async ngOnInit() {
@@ -133,20 +131,6 @@ getMentorNameForNotification(notification: NotificationDto): string {
       const booking = bookings.find((b: any) => b.bookingId === notification.relatedEntityId);
       if (booking && booking.mentorName) {
         this.bookingMentorNameMap[notification.relatedEntityId!] = booking.mentorName;
-        this.applyFilters();
-      } else if (booking && booking.MentorId) {
-        // Try MentorSearchService if mentorName is not present
-        this.mentorSearchService.getMentorById(booking.MentorId).subscribe(mentor => {
-          if (mentor && mentor.fullName) {
-            this.bookingMentorNameMap[notification.relatedEntityId!] = mentor.fullName;
-          } else {
-            this.bookingMentorNameMap[notification.relatedEntityId!] = `Mentor #${booking.MentorId}`;
-          }
-          this.applyFilters();
-        }, _err => {
-          this.bookingMentorNameMap[notification.relatedEntityId!] = `Mentor #${booking.MentorId}`;
-          this.applyFilters();
-        });
       }
     });
     return '';
