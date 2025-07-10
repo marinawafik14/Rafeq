@@ -41,7 +41,6 @@ export class CvManagementComponent implements OnInit, OnDestroy {
   showDeleteConfirm = false;
   cvToDelete: CV | null = null;
 
-  // Base URL for API calls
   private apiBaseUrl = 'https://localhost:7001/api';
   private maxFileSize = 2 * 1024 * 1024; // 2MB in bytes
 
@@ -157,7 +156,6 @@ export class CvManagementComponent implements OnInit, OnDestroy {
   private validateFile(file: File): boolean {
     this.fileError = null;
     
-    // Check file size
     if (file.size > this.maxFileSize) {
       this.toastr.error('File is too large. Maximum size is 2MB.', 'Invalid File');
       return false;

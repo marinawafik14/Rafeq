@@ -46,7 +46,6 @@
                   <p class="step-description">Choose the type of session you'd like to book</p>
                 </div>
 
-                <!-- Loading State for session types -->
                 <div *ngIf="!mentor || (mentor && !showMentorship && !showInterview)" class="text-center my-4">
                   <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading session types...</span>
@@ -54,7 +53,6 @@
                   <p class="mt-2 text-muted">Loading session types...</p>
                 </div>
 
-                <!-- Pending Booking Notification -->
                 <div *ngIf="hasPendingBooking" class="alert alert-info mb-4">
                   <div class="d-flex align-items-center">
                     <i class="bi bi-info-circle me-2"></i>
@@ -114,39 +112,35 @@
                 </div>
               </div>
 
-             <!-- Step 2:  Date & Time Selection with Pagination -->
-<div class="step-content" *ngIf="step === 2">
-  <div class="step-header">
-    <h3><i class="bi bi-calendar-event me-2"></i>Select Date & Time</h3>
-    <p class="step-description">Choose your preferred date and time slot</p>
-  </div>
+              <div class="step-content" *ngIf="step === 2">
+                <div class="step-header">
+                  <h3><i class="bi bi-calendar-event me-2"></i>Select Date & Time</h3>
+                  <p class="step-description">Choose your preferred date and time slot</p>
+                </div>
 
-  <!-- Loading State -->
-  <div class="text-center my-4" *ngIf="loadingSlots">
-    <div class="spinner-border" role="status">
-      <span class="visually-hidden">Loading available dates...</span>
-    </div>
-    <p class="mt-2 text-muted">Loading available dates...</p>
-  </div>
+                <div class="text-center my-4" *ngIf="loadingSlots">
+                  <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Loading available dates...</span>
+                  </div>
+                  <p class="mt-2 text-muted">Loading available dates...</p>
+                </div>
 
-  <!-- Available Days with Time Slots -->
-  <div class="availability-section" *ngIf="!loadingSlots && availableDates.length > 0">
-    <h5 class="mb-3">Select Date</h5>
-    
-    <!-- Pagination Controls - Top -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <button class="btn btn-outline-secondary btn-sm" 
-              [disabled]="currentPage === 1" 
-              (click)="previousPage()">
-        <i class="bi bi-chevron-left"></i> Previous
-      </button>
-      <span class="text-muted">Page {{currentPage}} of {{totalPages}}</span>
-      <button class="btn btn-outline-secondary btn-sm" 
-              [disabled]="currentPage === totalPages" 
-              (click)="nextPage()">
-        Next <i class="bi bi-chevron-right"></i>
-      </button>
-    </div>
+                <div class="availability-section" *ngIf="!loadingSlots && availableDates.length > 0">
+                  <h5 class="mb-3">Select Date</h5>
+                  
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <button class="btn btn-outline-secondary btn-sm" 
+                            [disabled]="currentPage === 1" 
+                            (click)="previousPage()">
+                      <i class="bi bi-chevron-left"></i> Previous
+                    </button>
+                    <span class="text-muted">Page {{currentPage}} of {{totalPages}}</span>
+                    <button class="btn btn-outline-secondary btn-sm" 
+                            [disabled]="currentPage === totalPages" 
+                            (click)="nextPage()">
+                      Next <i class="bi bi-chevron-right"></i>
+                    </button>
+                  </div>
     
     <div class="available-days-horizontal d-flex flex-wrap gap-3 justify-content-start">
       <div class="day-availability-card flex-shrink-0" 
@@ -174,7 +168,6 @@
 
   </div>
 
-  <!-- Time Slots Grid -->
   <div class="time-slots-section mt-4" *ngIf="selectedDate && availableSlots.length > 0">
     <h5 class="mb-3">Select Time Slot for {{selectedDate | date:'EEEE, MMMM d'}}</h5>
     <div class="time-slots-grid">
@@ -189,7 +182,6 @@
     </div>
   </div>
 
-  <!-- No Availability State -->
   <div class="no-availability-state" *ngIf="!loadingSlots && availableDates.length === 0">
     <div class="no-availability-content">
       <i class="bi bi-calendar-x"></i>
@@ -210,7 +202,6 @@
   </div>
 </div>
 
-              <!-- Step 3: Payment Summary & Booking -->
               <div class="step-content" *ngIf="step === 3">
                 <div class="step-header">
                   <h3><i class="bi bi-clipboard-check me-2"></i>Booking Summary</h3>
@@ -219,7 +210,6 @@
 
                 <div class="booking-summary">
                   <div class="summary-card">
-                    <!-- Session Type (FIXED) -->
                     <div class="summary-item">
                       <div class="summary-label">
                         <i class="bi bi-person-video2"></i>
@@ -231,7 +221,6 @@
                       </div>
                     </div>
 
-                    <!-- Date & Time (FIXED) -->
                     <div class="summary-item">
                       <div class="summary-label">
                         <i class="bi bi-calendar-event"></i>
@@ -243,7 +232,6 @@
                       </div>
                     </div>
 
-                    <!-- Mentor (FIXED) -->
                     <div class="summary-item">
                       <div class="summary-label">
                         <i class="bi bi-person"></i>
@@ -255,7 +243,6 @@
                       </div>
                     </div>
 
-                    <!-- Pricing Breakdown (NEW) -->
                     <div class="summary-item">
                       <div class="summary-label">
                         <i class="bi bi-calculator"></i>
@@ -270,7 +257,6 @@
                       </div>
                     </div>
 
-                    <!-- Total Price (FIXED) -->
                     <div class="summary-item total-price">
                       <div class="summary-label">
                         <i class="bi bi-currency-dollar"></i>
@@ -283,12 +269,6 @@
                   </div>
                 </div>
 
-                <!-- <div class="form-check mb-3 mt-4">
-                  <input class="form-check-input" type="checkbox" id="terms" [(ngModel)]="termsAccepted">
-                  <label class="form-check-label" for="terms">
-                    I accept the <a href="#" target="_blank">terms and conditions</a>.
-                  </label>
-                </div> -->
 
                 <div class="step-actions">
                   <button class="btn btn-outline-secondary me-2" (click)="prevStep()">
@@ -301,7 +281,6 @@
                   </button>
                 </div>
 
-                <!-- Payment Loading State -->
                 <div *ngIf="loadingPayment" class="text-center my-4">
                    <div class="spinner-border" role="status">
                       <span class="visually-hidden">Processing payment...</span>
@@ -310,7 +289,6 @@
                   </div>
               </div>
 
-              <!-- Error Display -->
               <div *ngIf="bookingError" class="alert booking-error mt-4" 
                    [class.alert-warning]="bookingError.includes('pending booking')"
                    [class.alert-danger]="!bookingError.includes('pending booking')">

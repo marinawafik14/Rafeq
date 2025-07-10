@@ -135,7 +135,36 @@
               <div class="d-flex justify-content-between align-items-start mb-2">
                 <h6 class="notification-message mb-0" 
                     [class.fw-bold]="!notification.isRead">
-                  {{ notification.message }}
+                  <span *ngIf="notification.type === 'NewBooking'">
+                    Your mentorship session with <span class="text-primary">{{ getMentorNameForNotification(notification) || 'the mentor' }}</span> has been confirmed.
+                  </span>
+                  <span *ngIf="notification.type === 'SessionReminder'">
+                    Reminder: You have a session with <span class="text-primary">{{ getMentorNameForNotification(notification) }}</span> soon.
+                  </span>
+                  <span *ngIf="notification.type === 'BookingCancelled'">
+                    Your session with <span class="text-primary">{{ getMentorNameForNotification(notification) }}</span> has been cancelled.
+                  </span>
+                  <span *ngIf="notification.type === 'PaymentConfirmed'">
+                    <ng-container *ngIf="notification.relatedEntityId">
+                      <ng-container *ngIf="getMentorNameForNotification(notification); else paymentNoMentor">
+                        Your payment for booking #{{ notification.relatedEntityId }} was successful with mentor: <span class="text-primary">{{ getMentorNameForNotification(notification) }}</span>.
+                      </ng-container>
+                      <ng-template #paymentNoMentor>
+                        Your payment for booking #{{ notification.relatedEntityId }} was successful.
+                      </ng-template>
+                    </ng-container>
+                  </span>
+                  <span *ngIf="notification.type === 'NewMessage'">
+                    You have a new message from <span class="text-primary">{{ getMentorNameForNotification(notification) }}</span>.
+                  </span>
+                  <span  *ngIf="notification.type !== 'NewBooking' && notification.type !== 'SessionReminder' && notification.type !== 'BookingCancelled' && notification.type !== 'PaymentConfirmed' && notification.type !== 'NewMessage'">
+                    <ng-container *ngIf="notification.message.includes('[Mentor Name]')">
+                      <span [innerHTML]="notification.message.replace('[Mentor Name]', '<span class=\'text-primary\'>' + (getMentorNameForNotification(notification) || 'the mentor') + '</span>')"></span>
+                    </ng-container>
+                    <ng-container *ngIf="!notification.message.includes('[Mentor Name]')">
+                      {{ notification.message }}
+                    </ng-container>
+                  </span>
                 </h6>
                 
                 <!-- Unread Indicator -->
@@ -155,7 +184,11 @@
                 </div>
                 
                 <div *ngIf="notification.relatedEntityId" class="text-muted">
-                  <i class="fas fa-external-link-alt"></i>
+                  <span class="small">
+                    <i class="bi bi-hash me-1"></i>
+                    Booking #{{ notification.relatedEntityId }}
+                  </span>
+                  <i class="fas fa-external-link-alt ms-2"></i>
                 </div>
               </div>
             </div>

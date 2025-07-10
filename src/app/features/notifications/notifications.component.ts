@@ -5,6 +5,9 @@ import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 import { NotificationService } from '../../Services/notification.service';
+import { BookingService } from '../../Services/booking.service';
+import { UserService } from '../../Services/user.service';
+import { MentorSearchService } from '../../Services/mentor-search.service';
 import { NotificationDto } from '../../Models/Notification/notification.model';
 import { NotificationType, NotificationTypeLabels } from '../../Models/Notification/notification-type.enum';
 
@@ -29,16 +32,25 @@ export class NotificationsComponent implements OnInit, OnDestroy {
 
   private subscriptions: Subscription = new Subscription();
 
+
+  // Booking and mentor name cache
+  private bookingMentorNameMap: { [bookingId: number]: string } = {};
+  private mentorNameMap: { [mentorId: number]: string } = {};
+
   constructor(
     private notificationService: NotificationService,
-    private router: Router
+    private router: Router,
+    private bookingService: BookingService,
+    private userService: UserService,
+    private mentorSearchService: MentorSearchService
   ) {}
 
   async ngOnInit() {
     // Subscribe to notifications stream
     this.subscriptions.add(
-      this.notificationService.notifications$.subscribe(notifications => {
+      this.notificationService.notifications$.subscribe(async notifications => {
         this.notifications = notifications;
+        await this.enrichNotificationsWithMentorNames();
         this.applyFilters();
         this.isLoading = false;
       })
@@ -54,6 +66,94 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     // Load initial notifications
     await this.loadNotifications();
   }
+
+  // Enrich notifications with mentor names for booking-related notifications
+async enrichNotificationsWithMentorNames() {
+  const bookingIds: number[] = this.notifications
+    .filter(n => n.relatedEntityId && 
+           ['SessionReminder', 'NewBooking', 'BookingCancelled', 'PaymentConfirmed', 'NewMessage'].includes(n.type))
+    .map(n => n.relatedEntityId!);
+    // Remove duplicates
+    const uniqueBookingIds = Array.from(new Set(bookingIds));
+
+    for (const bookingId of uniqueBookingIds) {
+      if (!this.bookingMentorNameMap[bookingId]) {
+        try {
+          const bookings = await this.bookingService.getAllBookings().toPromise();
+          if (Array.isArray(bookings)) {
+            const booking = bookings.find((b: any) => b.bookingId === bookingId);
+            if (booking) {
+              // If mentorName is missing, fetch mentor by MentorId
+              if (booking.mentorName) {
+                this.bookingMentorNameMap[bookingId] = booking.mentorName;
+              } else if (booking.MentorId) {
+                // Try to get mentor name from cache first
+                if (this.mentorNameMap[booking.MentorId]) {
+                  this.bookingMentorNameMap[bookingId] = this.mentorNameMap[booking.MentorId];
+                } else {
+                  // Fetch mentor user by id
+                  try {
+                    const mentorUser = await this.userService.getUserById(booking.MentorId).toPromise();
+                    if (mentorUser && mentorUser.fullName) {
+                      this.mentorNameMap[booking.MentorId] = mentorUser.fullName;
+                      this.bookingMentorNameMap[bookingId] = mentorUser.fullName;
+                    } else {
+                      this.bookingMentorNameMap[bookingId] = `Mentor #${booking.MentorId}`;
+                    }
+                  } catch {
+                    this.bookingMentorNameMap[bookingId] = `Mentor #${booking.MentorId}`;
+                  }
+                }
+              } else {
+                this.bookingMentorNameMap[bookingId] = `Mentor`;
+              }
+            }
+          }
+        } catch (e) {
+          // fallback: just show id
+          this.bookingMentorNameMap[bookingId] = `Mentor`;
+        }
+      }
+    }
+  }
+
+  // Helper to get mentor name for a booking notification
+//  getMentorNameForNotification(notification: NotificationDto): string {
+//   if (notification.relatedEntityId) {
+//     return this.bookingMentorNameMap[notification.relatedEntityId] || '';
+//   }
+//   return '';
+// }
+getMentorNameForNotification(notification: NotificationDto): string {
+  if (!notification.relatedEntityId) return '';
+  let rawName = this.bookingMentorNameMap[notification.relatedEntityId];
+  if (!rawName) {
+    // Try to fetch booking data if not cached
+    this.bookingService.getAllBookings().subscribe(bookings => {
+      const booking = bookings.find((b: any) => b.bookingId === notification.relatedEntityId);
+      if (booking && booking.mentorName) {
+        this.bookingMentorNameMap[notification.relatedEntityId!] = booking.mentorName;
+        this.applyFilters();
+      } else if (booking && booking.MentorId) {
+        // Try MentorSearchService if mentorName is not present
+        this.mentorSearchService.getMentorById(booking.MentorId).subscribe(mentor => {
+          if (mentor && mentor.fullName) {
+            this.bookingMentorNameMap[notification.relatedEntityId!] = mentor.fullName;
+          } else {
+            this.bookingMentorNameMap[notification.relatedEntityId!] = `Mentor #${booking.MentorId}`;
+          }
+          this.applyFilters();
+        }, _err => {
+          this.bookingMentorNameMap[notification.relatedEntityId!] = `Mentor #${booking.MentorId}`;
+          this.applyFilters();
+        });
+      }
+    });
+    return '';
+  }
+  // Remove "Mentor" suffix if it exists and trim whitespace
+  return rawName.replace(/\s*Mentor$/, '').trim();
+}
 
   ngOnDestroy() {
     this.subscriptions.unsubscribe();
@@ -235,4 +335,5 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   trackByNotificationId(index: number, notification: NotificationDto): number {
     return notification.notificationId;
   }
+  
 }
