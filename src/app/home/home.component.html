@@ -62,117 +62,7 @@
 <br>
 <br>
 <!-- Mentor Categories -->
-<section class="categories-section py-5 bg-white">
-  <div class="container">
-    <h2 class="mb-5 text-center">Explore Mentor Categories</h2>
 
-    <div class="row g-4 justify-content-center">
-      <!-- Category Card -->
-      <div class="col-md-3 col-sm-6">
-        <div class="card shadow-sm rounded-4 border-0 text-center p-4 hover-scale" style="transition: transform 0.3s;">
-          <div class="category-icon bg-primary bg-opacity-10  rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
-            <i class="fas fa-briefcase fs-3"></i>
-          </div>
-          <h5 class="fw-bold">Business</h5>
-          <p class="text-muted small mt-2">
-            Get guidance in strategy, management, finance.
-          </p>
-        </div>
-      </div>
-
-      <!-- Technology -->
-      <div class="col-md-3 col-sm-6">
-        <div class="card shadow-sm rounded-4 border-0 text-center p-4 hover-scale" style="transition: transform 0.3s;">
-          <div class="category-icon bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
-            <i class="fas fa-laptop fs-3"></i>
-          </div>
-          <h5 class="fw-bold">Technology</h5>
-          <p class="text-muted small mt-2">
-            From software to AI, find mentors in tech fields across Egypt.
-          </p>
-        </div>
-      </div>
-
-      <!-- Design -->
-      <div class="col-md-3 col-sm-6">
-        <div class="card shadow-sm rounded-4 border-0 text-center p-4 hover-scale" style="transition: transform 0.3s;">
-          <div class="category-icon bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
-            <i class="fas fa-paint-brush fs-3"></i>
-          </div>
-          <h5 class="fw-bold">Design</h5>
-          <p class="text-muted small mt-2">
-            UI/UX, graphic design, product design mentorship options.
-          </p>
-        </div>
-      </div>
-
-      <!-- Marketing -->
-      <div class="col-md-3 col-sm-6">
-        <div class="card shadow-sm rounded-4 border-0 text-center p-4 hover-scale" style="transition: transform 0.3s;">
-          <div class="category-icon bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
-            <i class="fas fa-chart-line fs-3"></i>
-          </div>
-          <h5 class="fw-bold">Marketing</h5>
-          <p class="text-muted small mt-2">
-            Digital marketing, brand strategy, content creation mentors.
-          </p>
-        </div>
-      </div>
-
-      <!-- Finance -->
-      <div class="col-md-3 col-sm-6">
-        <div class="card shadow-sm rounded-4 border-0 text-center p-4 hover-scale" style="transition: transform 0.3s;">
-          <div class="category-icon bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
-            <i class="fas fa-coins fs-3"></i>
-          </div>
-          <h5 class="fw-bold">Finance</h5>
-          <p class="text-muted small mt-2">
-            Banking, accounting, investment, and personal finance experts.
-          </p>
-        </div>
-      </div>
-
-      <!-- Education -->
-      <div class="col-md-3 col-sm-6">
-        <div class="card shadow-sm rounded-4 border-0 text-center p-4 hover-scale" style="transition: transform 0.3s;">
-          <div class="category-icon bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
-            <i class="fas fa-graduation-cap fs-3"></i>
-          </div>
-          <h5 class="fw-bold">Education</h5>
-          <p class="text-muted small mt-2">
-            Guidance for students, career changers, and academic growth.
-          </p>
-        </div>
-      </div>
-
-      <!-- Healthcare -->
-      <div class="col-md-3 col-sm-6">
-        <div class="card shadow-sm rounded-4 border-0 text-center p-4 hover-scale" style="transition: transform 0.3s;">
-          <div class="category-icon bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
-            <i class="fas fa-user-md fs-3"></i>
-          </div>
-          <h5 class="fw-bold">Healthcare</h5>
-          <p class="text-muted small mt-2">
-            Connect with professionals in medicine, nursing, roles.
-          </p>
-        </div>
-      </div>
-
-      <!-- Engineering -->
-      <div class="col-md-3 col-sm-6">
-        <div class="card shadow-sm rounded-4 border-0 text-center p-4 hover-scale" style="transition: transform 0.3s;">
-          <div class="category-icon bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
-            <i class="fas fa-tools fs-3"></i>
-          </div>
-          <h5 class="fw-bold">Engineering</h5>
-          <p class="text-muted small mt-2">
-            Find mentors in civil, mechanical, electrical, and software engineering.
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 <br>
 <br>
 
@@ -248,6 +138,45 @@
 </section>
 <br>
 <br>
+<!-- Quick Actions (Visible only to logged-in users) -->
+<div class="quick-actions my-5">
+  <div *ngIf="currentUser; else guestActions">
+    <ng-container [ngSwitch]="currentUser.role">
+      <!-- Mentee Actions -->
+      <div *ngSwitchCase="'Mentee'" class="d-flex flex-wrap gap-3 justify-content-center">
+        <a routerLink="/mentee/dashboard" class="btn btn-primary btn-lg rounded-pill">Mentee Dashboard</a>
+        <a routerLink="/mentee/bookings" class="btn btn-outline-primary btn-lg rounded-pill">My Bookings</a>
+        <a routerLink="/forum" class="btn btn-outline-primary btn-lg rounded-pill">Forum</a>
+        <a routerLink="/mentee/search-mentors" class="btn btn-outline-primary btn-lg rounded-pill">Find Mentors</a>
+        <a routerLink="/mentee/ai-chatbot" class="btn btn-outline-primary btn-lg rounded-pill">AI Assistant</a>
+      </div>
+      <!-- Mentor Actions -->
+      <div *ngSwitchCase="'Mentor'" class="d-flex flex-wrap gap-3 justify-content-center">
+        <a routerLink="/mentor/dashboard" class="btn btn-primary btn-lg rounded-pill">Mentor Dashboard</a>
+        <a routerLink="/mentor/bookings" class="btn btn-outline-primary btn-lg rounded-pill">My Sessions</a>
+        <a routerLink="/forum" class="btn btn-outline-primary btn-lg rounded-pill">Forum</a>
+        <a routerLink="/mentor/availability" class="btn btn-outline-primary btn-lg rounded-pill">Manage Availability</a>
+        <a routerLink="/mentor/cv-review" class="btn btn-outline-primary btn-lg rounded-pill">CV Reviews</a>
+      </div>
+      <!-- Admin Actions -->
+      <div *ngSwitchCase="'Admin'" class="d-flex flex-wrap gap-3 justify-content-center">
+        <a routerLink="/admin/charts" class="btn btn-primary btn-lg rounded-pill">Admin Dashboard</a>
+        <a routerLink="/admin/users" class="btn btn-outline-primary btn-lg rounded-pill">Manage Users</a>
+        <a routerLink="/admin/bookings" class="btn btn-outline-primary btn-lg rounded-pill">Manage Bookings</a>
+        <a routerLink="/admin/skills" class="btn btn-outline-primary btn-lg rounded-pill">Skills</a>
+        <a routerLink="/forum" class="btn btn-outline-primary btn-lg rounded-pill">Forum</a>
+      </div>
+    </ng-container>
+  </div>
+  <ng-template #guestActions>
+    <div class="d-flex flex-wrap gap-3 justify-content-center">
+      <a routerLink="/register" class="btn btn-primary btn-lg rounded-pill">Join as Mentee</a>
+      <a routerLink="/register" class="btn btn-outline-primary btn-lg rounded-pill">Become a Mentor</a>
+      <a routerLink="/forum" class="btn btn-outline-primary btn-lg rounded-pill">Browse Forum</a>
+    </div>
+  </ng-template>
+</div>
+
 <!-- Floating Action Buttons (only show when user is logged in) -->
 <ng-container *ngIf="currentUser">
   <div class="floating-actions">
@@ -264,3 +193,164 @@
     </div>
   </div>
 </ng-container>
+
+<!-- Main Navigation Cards Section -->
+<section class="main-actions-section py-5 bg-white">
+  <div class="container">
+    <h2 class="mb-5 text-center">
+      {{ currentUser ? 'Quick Actions' : 'Explore Rafeeq Features' }}
+    </h2>
+    <div *ngIf="currentUser; else guestCards">
+      <ng-container [ngSwitch]="currentUser.role">
+        <!-- Mentee -->
+        <div *ngSwitchCase="'Mentee'" class="row g-4 justify-content-center">
+          <div class="col-md-3 col-sm-6">
+            <a routerLink="/mentee/search-mentors" class="card shadow-sm rounded-4 border-0 text-center p-4 hover-scale text-decoration-none">
+              <div class="category-icon bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                <i class="fas fa-search fs-3"></i>
+              </div>
+              <h5 class="fw-bold">Find Mentors</h5>
+              <p class="text-muted small mt-2">Discover and connect with expert mentors</p>
+            </a>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <a routerLink="/mentee/bookings" class="card shadow-sm rounded-4 border-0 text-center p-4 hover-scale text-decoration-none">
+              <div class="category-icon bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                <i class="fas fa-calendar-alt fs-3"></i>
+              </div>
+              <h5 class="fw-bold">My Bookings</h5>
+              <p class="text-muted small mt-2">View and manage your sessions</p>
+            </a>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <a routerLink="/forum" class="card shadow-sm rounded-4 border-0 text-center p-4 hover-scale text-decoration-none">
+              <div class="category-icon bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                <i class="fas fa-comments fs-3"></i>
+              </div>
+              <h5 class="fw-bold">Forum</h5>
+              <p class="text-muted small mt-2">Ask questions and get help</p>
+            </a>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <a routerLink="/mentee/ai-chatbot" class="card shadow-sm rounded-4 border-0 text-center p-4 hover-scale text-decoration-none">
+              <div class="category-icon bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                <i class="fas fa-robot fs-3"></i>
+              </div>
+              <h5 class="fw-bold">AI Career Assistant</h5>
+              <p class="text-muted small mt-2">Get instant career advice</p>
+            </a>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <a routerLink="/mentee/cv-management" class="card shadow-sm rounded-4 border-0 text-center p-4 hover-scale text-decoration-none">
+              <div class="category-icon bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                <i class="fas fa-file-alt fs-3"></i>
+              </div>
+              <h5 class="fw-bold">CV Management</h5>
+              <p class="text-muted small mt-2">Upload and manage your CV</p>
+            </a>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <a routerLink="/chat" class="card shadow-sm rounded-4 border-0 text-center p-4 hover-scale text-decoration-none">
+              <div class="category-icon bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                <i class="fas fa-comments fs-3"></i>
+              </div>
+              <h5 class="fw-bold">Chat</h5>
+              <p class="text-muted small mt-2">Message mentors and manage conversations</p>
+            </a>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <a routerLink="/notifications" class="card shadow-sm rounded-4 border-0 text-center p-4 hover-scale text-decoration-none">
+              <div class="category-icon bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                <i class="fas fa-bell fs-3"></i>
+              </div>
+              <h5 class="fw-bold">Notifications</h5>
+              <p class="text-muted small mt-2">Stay updated with alerts</p>
+            </a>
+          </div>
+        </div>
+        <!-- Mentor -->
+        <div *ngSwitchCase="'Mentor'" class="row g-4 justify-content-center">
+          <div class="col-md-3 col-sm-6">
+            <a routerLink="/mentor/dashboard" class="card shadow-sm rounded-4 border-0 text-center p-4 hover-scale text-decoration-none">
+              <div class="category-icon bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                <i class="fas fa-tachometer-alt fs-3"></i>
+              </div>
+              <h5 class="fw-bold">Mentor Dashboard</h5>
+              <p class="text-muted small mt-2">Overview of your mentoring</p>
+            </a>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <a routerLink="/mentor/bookings" class="card shadow-sm rounded-4 border-0 text-center p-4 hover-scale text-decoration-none">
+              <div class="category-icon bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                <i class="fas fa-calendar-check fs-3"></i>
+              </div>
+              <h5 class="fw-bold">My Sessions</h5>
+              <p class="text-muted small mt-2">Manage your booked sessions</p>
+            </a>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <a routerLink="/forum" class="card shadow-sm rounded-4 border-0 text-center p-4 hover-scale text-decoration-none">
+              <div class="category-icon bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                <i class="fas fa-comments fs-3"></i>
+              </div>
+              <h5 class="fw-bold">Forum</h5>
+              <p class="text-muted small mt-2">Help mentees in the forum</p>
+            </a>
+          </div>
+        </div>
+        <!-- Admin -->
+        <div *ngSwitchCase="'Admin'" class="row g-4 justify-content-center">
+          <div class="col-md-3 col-sm-6">
+            <a routerLink="/admin/charts" class="card shadow-sm rounded-4 border-0 text-center p-4 hover-scale text-decoration-none">
+              <div class="category-icon bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                <i class="fas fa-chart-bar fs-3"></i>
+              </div>
+              <h5 class="fw-bold">Admin Dashboard</h5>
+              <p class="text-muted small mt-2">Platform analytics and management</p>
+            </a>
+          </div>
+          <div class="col-md-3 col-sm-6">
+            <a routerLink="/forum" class="card shadow-sm rounded-4 border-0 text-center p-4 hover-scale text-decoration-none">
+              <div class="category-icon bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+                <i class="fas fa-comments fs-3"></i>
+              </div>
+              <h5 class="fw-bold">Forum</h5>
+              <p class="text-muted small mt-2">Moderate forum discussions</p>
+            </a>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+    <ng-template #guestCards>
+      <div class="row g-4 justify-content-center">
+        <div class="col-md-3 col-sm-6">
+          <a routerLink="/register" class="card shadow-sm rounded-4 border-0 text-center p-4 hover-scale text-decoration-none">
+            <div class="category-icon bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+              <i class="fas fa-user-plus fs-3"></i>
+            </div>
+            <h5 class="fw-bold">Join as Mentee</h5>
+            <p class="text-muted small mt-2">Sign up to find mentors</p>
+          </a>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <a routerLink="/register" class="card shadow-sm rounded-4 border-0 text-center p-4 hover-scale text-decoration-none">
+            <div class="category-icon bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+              <i class="fas fa-chalkboard-teacher fs-3"></i>
+            </div>
+            <h5 class="fw-bold">Become a Mentor</h5>
+            <p class="text-muted small mt-2">Share your expertise</p>
+          </a>
+        </div>
+        <div class="col-md-3 col-sm-6">
+          <a routerLink="/forum" class="card shadow-sm rounded-4 border-0 text-center p-4 hover-scale text-decoration-none">
+            <div class="category-icon bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 60px; height: 60px;">
+              <i class="fas fa-comments fs-3"></i>
+            </div>
+            <h5 class="fw-bold">Browse Forum</h5>
+            <p class="text-muted small mt-2">See community discussions</p>
+          </a>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+</section>

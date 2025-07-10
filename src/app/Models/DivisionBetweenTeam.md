@@ -753,13 +753,12 @@ Collecting workspace information# 🎯 **Minimal AI Enhancement Plan for Rafeq P
 - Combine regular search results with AI-powered semantic matching for better mentor discovery
 
 ### **2. Voice Messages in Chat System**
-### **2. Voice Messages in Chat System**
 - Voice message recording and playback already available in chat interface
 - **Enhancement:** Automatically transcribe voice messages using Whisper API for searchability and accessibility
 - **Enhancement:** Display each voice message with an audio player, transcript (speech-to-text), and audio duration
 - **Enhancement:** Allow users to search chat history by transcribed voice message content
 - **Enhancement:** (Optional) Show waveform visualization and playback speed controls for voice messages
-- Users can send voice messages when typing is inconvenient or on mobile
+
 
 ### **3. AI Chatbot Voice Output**
 - Add text-to-speech capability to existing AI chatbot responses
@@ -827,7 +826,7 @@ INSERT INTO AIConfiguration (ConfigKey, ConfigValue, ConfigType) VALUES
 ('tts_cache_enabled', 'true', 'tts');
 
 -- 7. Create performance indexes
-CREATE INDEX IX_MentorEmbeddings_UserId ON MentorEmbeddings(UserId);
+
 CREATE INDEX IX_AIConfiguration_ConfigKey ON AIConfiguration(ConfigKey);
 CREATE INDEX IX_TTSCache_TextHash ON TTSCache(TextHash);
 CREATE INDEX IX_ChatMessages_AudioFilePath ON ChatMessages(AudioFilePath);
@@ -1087,19 +1086,9 @@ public class ConfigController : ControllerBase
 - API keys stored in database configuration
 - File uploads validated and secured
 - Audio files cached for performance
-- Rate limiting on AI API calls       
+- Rate limiting on AI API calls
 
 This plan gives you **3 powerful AI features** with minimal database changes and zero disruption to existing functionality!
-
-
-Certainly! Here’s a **detailed plan for a Mentor/Mentee Community Forum** feature, **without moderation**, including:
-
-- Table creation queries (non-breaking, won’t affect your current schema)
-- Detailed page content
-- All required endpoints
-- Clear division of work between you and Hamdi
-
----
 
 ## 🗂️ 1. Database Schema (Forum Tables Only)
 
@@ -1338,3 +1327,118 @@ Absolutely! Here’s a **clear division** for the Community Forum feature so you
 - **No overlap**—work in parallel, no merge conflicts!
 
 If you need sample controller/component code, just ask!
+
+# A. Add Pinning Support 
+  ALTER TABLE ForumPosts ADD IsPinned BIT DEFAULT 0;
+
+  # B. Add Reporting Support
+ CREATE TABLE ForumPostReports (
+    ReportId INT PRIMARY KEY IDENTITY(1,1),
+    PostId INT FOREIGN KEY REFERENCES ForumPosts(PostId),
+    ReportedByUserId INT FOREIGN KEY REFERENCES Users(UserId),
+    Reason NVARCHAR(255),
+    CreatedAt DATETIME DEFAULT GETDATE(),
+    Status NVARCHAR(50) DEFAULT 'Pending', -- e.g. Pending, Resolved, Ignored
+    AdminNote NVARCHAR(255) NULL
+);
+
+Certainly! Here is the *API documentation for the admin-only forum endpoints* (moderation, pinning, and report management):
+
+---
+
+# Forum Admin API Documentation
+
+## 1. Get All Forum Reports
+
+*GET* /api/admin/forum/reports  
+*Authorization:* Admin only
+
+*Description:*  
+Returns a list of all reported forum posts, including report details, post info, and reporter/admin info.
+
+*Response Example:*
+
+json
+[
+  {
+    "reportId": 1,
+    "postId": 42,
+    "reportedByUserId": 7,
+    "reason": "Spam or inappropriate content",
+    "createdAt": "2024-06-01T15:00:00Z",
+    "status": "Pending",
+    "adminNote": null,
+    "postTitle": "How to use .NET 9?",
+    "postOwnerName": "Alice",
+    "reportedByUserName": "Bob"
+  }
+]
+
+
+
+---
+
+## 2. Take Action on a Forum Report
+
+*PUT* /api/admin/forum/reports/{reportId}/action  
+*Authorization:* Admin only
+
+*Description:*  
+Take action on a reported post.  
+- "delete": Soft deletes the post and marks the report as resolved.
+- "ignore": Marks the report as ignored, no change to the post.
+
+*Request Body Example:*
+
+json
+{
+  "action": "delete", // or "ignore"
+  "adminNote": "Post contains spam links."
+}
+
+
+
+*Response:*  
+200 OK on success  
+400 Bad Request if invalid action or report not found
+
+---
+
+## 3. Pin a Forum Post
+
+*POST* /api/forum/posts/{postId}/pin  
+*Authorization:* Admin only
+
+*Description:*  
+Pins a post so it appears at the top of forum lists.
+
+*Response:*  
+200 OK on success  
+404 Not Found if post does not exist
+
+---
+
+## 4. Unpin a Forum Post
+
+*POST* /api/forum/posts/{postId}/unpin  
+*Authorization:* Admin only
+
+*Description:*  
+Removes the pinned status from a post.
+
+*Response:*  
+200 OK on success  
+404 Not Found if post does not exist
+
+---
+
+## Notes
+
+- All endpoints require a valid admin JWT token.
+- All actions are *soft* (no hard deletes).
+- Pin/unpin endpoints are for post visibility management.
+- Report moderation allows admins to keep the forum clean and safe.
+
+---
+
+If you need OpenAPI/Swagger format or more details for a specific admin endpoint, let me know!
