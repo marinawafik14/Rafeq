@@ -43,8 +43,8 @@
     <h3 class="fw-bold mb-3" style="color:#0a2e65;">
       <i class="fas fa-clock me-2"></i> Recent Posts
     </h3>
-    <div *ngIf="recentPosts.length; else noRecent" class="list-group">
-      <a *ngFor="let post of recentPosts"
+    <div *ngIf="paginatedRecentPosts.length; else noRecent" class="list-group">
+      <a *ngFor="let post of paginatedRecentPosts"
          class="list-group-item list-group-item-action rounded-3 mb-3 shadow-sm border-0"
          style="transition: box-shadow 0.2s;"
          [routerLink]="['/forum/post', post.postId]">
@@ -75,6 +75,27 @@
         <div>No recent posts yet.</div>
       </div>
     </ng-template>
+
+    <!-- Pagination Controls -->
+    <nav *ngIf="recentTotalPages > 1" class="mt-3">
+      <ul class="pagination justify-content-center">
+        <li class="page-item" [class.disabled]="recentPage === 1">
+          <button class="page-link" (click)="setRecentPage(recentPage - 1)" [disabled]="recentPage === 1">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+        </li>
+        <li class="page-item"
+            *ngFor="let page of [].constructor(recentTotalPages); let i = index"
+            [class.active]="recentPage === i + 1">
+          <button class="page-link" (click)="setRecentPage(i + 1)">{{ i + 1 }}</button>
+        </li>
+        <li class="page-item" [class.disabled]="recentPage === recentTotalPages">
+          <button class="page-link" (click)="setRecentPage(recentPage + 1)" [disabled]="recentPage === recentTotalPages">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </li>
+      </ul>
+    </nav>
   </div>
 
   <!-- Popular Posts -->
@@ -82,8 +103,8 @@
     <h3 class="fw-bold mb-3" style="color:#0a2e65;">
       <i class="fas fa-fire me-2"></i> Popular Posts
     </h3>
-    <div *ngIf="popularPosts.length; else noPopular" class="list-group">
-      <a *ngFor="let post of popularPosts"
+    <div *ngIf="paginatedPopularPosts.length; else noPopular" class="list-group">
+      <a *ngFor="let post of paginatedPopularPosts"
          class="list-group-item list-group-item-action rounded-3 mb-3 shadow-sm border-0"
          style="transition: box-shadow 0.2s;"
          [routerLink]="['/forum/post', post.postId]">
@@ -114,5 +135,26 @@
         <div>No popular posts yet.</div>
       </div>
     </ng-template>
+
+    <!-- Pagination Controls for Popular Posts -->
+    <nav *ngIf="popularTotalPages > 1" class="mt-3">
+      <ul class="pagination justify-content-center">
+        <li class="page-item" [class.disabled]="popularPage === 1">
+          <button class="page-link" (click)="setPopularPage(popularPage - 1)" [disabled]="popularPage === 1">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+        </li>
+        <li class="page-item"
+            *ngFor="let page of [].constructor(popularTotalPages); let i = index"
+            [class.active]="popularPage === i + 1">
+          <button class="page-link" (click)="setPopularPage(i + 1)">{{ i + 1 }}</button>
+        </li>
+        <li class="page-item" [class.disabled]="popularPage === popularTotalPages">
+          <button class="page-link" (click)="setPopularPage(popularPage + 1)" [disabled]="popularPage === popularTotalPages">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </li>
+      </ul>
+    </nav>
   </div>
 </div>

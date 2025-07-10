@@ -19,6 +19,38 @@ export class ForumHomeComponent implements OnInit {
   isLoading = true;
   error: string | null = null;
 
+  // Pagination for recent posts
+  recentPage = 1;
+  recentPageSize = 5;
+  get recentTotalPages(): number {
+    return Math.ceil(this.recentPosts.length / this.recentPageSize);
+  }
+  get paginatedRecentPosts(): ForumPost[] {
+    const start = (this.recentPage - 1) * this.recentPageSize;
+    return this.recentPosts.slice(start, start + this.recentPageSize);
+  }
+  setRecentPage(page: number) {
+    if (page >= 1 && page <= this.recentTotalPages) {
+      this.recentPage = page;
+    }
+  }
+
+  // Pagination for popular posts
+  popularPage = 1;
+  popularPageSize = 5;
+  get popularTotalPages(): number {
+    return Math.ceil(this.popularPosts.length / this.popularPageSize);
+  }
+  get paginatedPopularPosts(): ForumPost[] {
+    const start = (this.popularPage - 1) * this.popularPageSize;
+    return this.popularPosts.slice(start, start + this.popularPageSize);
+  }
+  setPopularPage(page: number) {
+    if (page >= 1 && page <= this.popularTotalPages) {
+      this.popularPage = page;
+    }
+  }
+
   constructor(private forumService: ForumService) {}
 
   ngOnInit(): void {

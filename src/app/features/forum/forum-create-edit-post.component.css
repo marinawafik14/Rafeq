@@ -1,0 +1,59 @@
+.create-edit-post-container {
+  background: #f8faff;
+  min-height: 100vh;
+  padding-bottom: 2rem;
+}
+
+.card {
+  background: #fff;
+  border-radius: 1.25rem;
+  box-shadow: 0 4px 16px rgba(10,46,101,0.08);
+  border: none;
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.form-label {
+  color: #0a2e65;
+  font-weight: 600;
+}
+
+.form-control, .form-select {
+  border-radius: 0.75rem;
+  border: 1.5px solid #e9ecef;
+  font-weight: 500;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #0a2e65;
+  box-shadow: 0 0 0 3px rgba(10,46,101,0.08);
+}
+
+.btn-primary {
+  background: linear-gradient(45deg, #0a2e65, #1b74e4);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(45deg, #1b74e4, #0a2e65);
+}
+
+.btn-outline-secondary {
+  border-radius: 0.75rem;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .create-edit-post-container {
+    padding: 0.5rem;
+  }
+  .card {
+    border-radius: 0.75rem;
+    padding: 1rem;
+  }
+}
