@@ -16,11 +16,65 @@ export class AiMessageComponent implements OnInit {
 
  
   showMetadata = false;
+  // TTS audio playback state
+  audio: HTMLAudioElement | null = null;
+  isPlaying = false;
+  audioProgress = 0;
+  audioDuration = 0;
+  audioError: string | null = null;
 
   ngOnInit(): void {
     if (!this.message) {
       console.error('AiMessageComponent: message input is required');
     }
+  }
+
+  get ttsAudioUrl(): string | null {
+    return (this.message?.metadata && (this.message.metadata as any).ttsAudioUrl) || null;
+  }
+
+  playAudio(): void {
+    if (!this.ttsAudioUrl) return;
+    if (!this.audio) {
+      this.audio = new Audio(this.ttsAudioUrl);
+      this.audio.addEventListener('ended', () => this.isPlaying = false);
+      this.audio.addEventListener('timeupdate', () => {
+        if (this.audio) {
+          this.audioProgress = this.audio.currentTime;
+          this.audioDuration = this.audio.duration;
+        }
+      });
+      this.audio.addEventListener('error', () => {
+        this.audioError = 'Failed to play audio.';
+        this.isPlaying = false;
+      });
+    }
+    this.audio.play().then(() => {
+      this.isPlaying = true;
+    }).catch(err => {
+      this.audioError = 'Failed to play audio.';
+      this.isPlaying = false;
+    });
+  }
+
+  pauseAudio(): void {
+    if (this.audio) {
+      this.audio.pause();
+      this.isPlaying = false;
+    }
+  }
+
+  toggleAudio(): void {
+    if (this.isPlaying) {
+      this.pauseAudio();
+    } else {
+      this.playAudio();
+    }
+  }
+
+  get audioProgressPercent(): number {
+    if (!this.audioDuration) return 0;
+    return (this.audioProgress / this.audioDuration) * 100;
   }
 
   // Format message content for display
