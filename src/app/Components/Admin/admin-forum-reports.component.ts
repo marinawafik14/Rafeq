@@ -4,6 +4,7 @@ import { ForumService } from '../../Services/forum.service';
 import { ForumReport } from '../../Models/Forum/forum-report.model';
 import { ForumPost } from '../../Models/Forum/forum-post.model';
 import { ForumComment } from '../../Models/Forum/forum-comment.model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-admin-forum-reports',
@@ -80,9 +81,19 @@ export class AdminForumReportsComponent implements OnInit {
       },
       error: (err) => {
         if (err.status === 404) {
-          alert('Post not found or has been deleted.');
+          Swal.fire({
+            icon: 'error',
+            title: 'Post Not Found',
+            text: 'This post has been deleted or does not exist.',
+            confirmButtonColor: '#3085d6'
+          });
         } else {
-          alert('Failed to load post details.');
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to load post details.',
+            confirmButtonColor: '#3085d6'
+          });
         }
       }
     });
