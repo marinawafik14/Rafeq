@@ -115,16 +115,6 @@
         <p><strong>Author:</strong> {{ selectedPost.userFullName }}</p>
         <p><strong>Content:</strong></p>
         <div style="background:#f8f9fa;padding:0.75rem;border-radius:4px;">{{ selectedPost.content }}</div>
-        <hr>
-        <h6>Comments:</h6>
-        <div *ngIf="selectedPost.comments?.length; else noComments">
-          <div *ngFor="let comment of selectedPost.comments" style="margin-bottom:0.5rem;">
-            <strong>{{ comment.userName }}:</strong> {{ comment.content }}
-          </div>
-        </div>
-        <ng-template #noComments>
-          <div class="text-muted">No comments.</div>
-        </ng-template>
       </div>
     </div>
     <div class="modal-footer" style="padding:1rem;border-top:1px solid #eee;text-align:right;">

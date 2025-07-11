@@ -21,6 +21,8 @@ export class ForumCreateEditPostComponent implements OnInit {
   isLoading = false;
   error: string | null = null;
   success: string | null = null;
+  posts: ForumPost[] = [];
+  categoryId: number | null = null;
 
   constructor(
     private forumService: ForumService,
@@ -36,7 +38,7 @@ export class ForumCreateEditPostComponent implements OnInit {
     });
 
     const postId = this.route.snapshot.paramMap.get('postId');
-    const categoryId = this.route.snapshot.queryParamMap.get('categoryId');
+    this.categoryId = +this.route.snapshot.queryParamMap.get('categoryId')!;
     if (postId) {
       this.isEditMode = true;
       this.isLoading = true;
@@ -50,8 +52,11 @@ export class ForumCreateEditPostComponent implements OnInit {
           this.isLoading = false;
         }
       });
-    } else if (categoryId) {
-      this.post.categoryId = +categoryId;
+    } else if (this.categoryId) {
+      this.post.categoryId = this.categoryId;
+      this.forumService.getPostsByCategory(this.categoryId, 'recent').subscribe(posts => {
+        this.posts = posts;
+      });
     }
   }
 

@@ -50,6 +50,7 @@ export class ForumPostDetailComponent implements OnInit {
     this.forumService.getPostById(this.postId).subscribe({
       next: (post) => {
         this.post = post;
+        this.isUpvoted = !!post.hasUpvoted; // <-- Add this line
         this.forumService.getCommentsForPost(this.postId).subscribe({
           next: (comments) => {
             this.comments = comments;
@@ -81,7 +82,11 @@ export class ForumPostDetailComponent implements OnInit {
         this.loadPost();
       },
       error: (err) => {
-        this.error = err.message || 'Failed to update upvote';
+        if (err.status === 400) {
+          this.error = 'You have already upvoted this post or the post does not exist.';
+        } else {
+          this.error = err.message || 'Failed to update upvote';
+        }
         this.isLoading = false;
       }
     });
