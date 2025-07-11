@@ -166,29 +166,11 @@ export class BookingFormComponent implements OnDestroy {
 
   getSlotsForDate(date: string): string[] {
     if (!date || !this.freeSlots?.length) return [];
-    
+    // Only filter by date, as in mentor-profile-view
     const selectedDateSlots = this.freeSlots.filter(slot => {
       const slotDate = new Date(slot.start).toISOString().slice(0, 10);
-      const timeRange = slot.formatted.split('•')[1]?.trim() || slot.formatted;
-      const startTime = new Date(slot.start);
-      const endTime = new Date(slot.end);
-
-      if (slotDate !== date) return false;
-      const isBackendTimeValid = endTime > startTime;      
-      const isCrossMidnightFromFormat = this.isCrossMidnightTimeRange(timeRange);
-      if (!isBackendTimeValid && isCrossMidnightFromFormat) {
-        const parsedTimes = this.parseTimeRange(timeRange, date);
-        if (!parsedTimes || parsedTimes.end <= parsedTimes.start) {
-          return false;
-        }
-        return true;
-      }
-      if (!isBackendTimeValid) return false;
-      const isValidAMPM = this.isValidAMPMTimeRange(timeRange);
-      
-      return isValidAMPM;
+      return slotDate === date;
     });
-    
     return selectedDateSlots
       .map(slot => {
         const timePart = slot.formatted.split('•')[1]?.trim();
@@ -292,29 +274,31 @@ export class BookingFormComponent implements OnDestroy {
     this.loadingSlots = true;
     this.http.get<any[]>(`https://localhost:7001/api/mentors/mentors/${this.mentorId}/free-slots`).subscribe({
       next: (slots) => {
+        let myPendingBookingId: number | null = null;
+        const pendingBooking = sessionStorage.getItem('pendingBooking');
+        if (pendingBooking) {
+          try {
+            const booking = JSON.parse(pendingBooking);
+            myPendingBookingId = booking.bookingId;
+          } catch {}
+        }
+
         const availableSlots = slots.filter(slot => {
           if (slot.status === 'pending_payment') {
-            const pendingBooking = sessionStorage.getItem('pendingBooking');
-            if (pendingBooking) {
-              const booking = JSON.parse(pendingBooking);
-              return slot.bookingId === booking.bookingId;
-            }
-            return false;
+            return myPendingBookingId && slot.bookingId === myPendingBookingId;
           }
           const startTime = new Date(slot.start);
           const endTime = new Date(slot.end);
           const timeRange = slot.formatted.split('•')[1]?.trim() || slot.formatted;
-          
           if (endTime <= startTime && this.isCrossMidnightTimeRange(timeRange)) {
             return false;
           }
-          
           return true;
         });
-        
+
         this.freeSlots = this.filterFutureSlots(availableSlots);
         this.availableDates = this.getAvailableDatesFromFreeSlots();
-        this.initializePagination(); 
+        this.initializePagination();
         this.slotsLoaded = true;
         this.loadingSlots = false;
       },
@@ -338,14 +322,21 @@ export class BookingFormComponent implements OnDestroy {
 
   private getAvailableDatesFromFreeSlots(): string[] {
     if (!this.freeSlots?.length) return [];
-    
-    const dates = new Set<string>();
+    const now = new Date();
+    const dateMap = new Map<string, boolean>();
     this.freeSlots.forEach(slot => {
       const slotDate = new Date(slot.start).toISOString().slice(0, 10);
-      dates.add(slotDate);
+      const slotStart = new Date(slot.start);
+      if (slotStart > now) {
+        dateMap.set(slotDate, true);
+      } else if (!dateMap.has(slotDate)) {
+        dateMap.set(slotDate, false);
+      }
     });
-    
-    const sortedDates = Array.from(dates).sort();
+    const sortedDates = Array.from(dateMap.entries())
+      .filter(([date, hasFuture]) => hasFuture)
+      .map(([date]) => date)
+      .sort();
     return sortedDates;
   }
 
