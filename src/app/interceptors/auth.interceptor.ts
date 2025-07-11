@@ -74,7 +74,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   // Skip auth for OpenAI API requests
   if (req.context.has('skipAuth' as any) || 
       req.url.includes('openai.com') || 
-      req.url.includes('api.openai.com')) {
+      req.url.includes('api.openai.com') ||
+      req.url.includes('generativelanguage.googleapis.com')) {
     return next(req);
   }
 

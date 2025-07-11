@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
+import { HttpClient } from '@angular/common/http';
 
 import { AuthService } from '../../Services/auth.service';
 import { OpenaiService } from '../../Services/ai/openai.service';
@@ -54,6 +55,16 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   // Track if user is at the bottom of the messages container
   isUserAtBottom: boolean = true;
 
+  // Voice output state
+  voiceOutputEnabled: boolean = false;
+  ttsVoice: string = 'alloy'; // default voice
+  private ttsAudioCache: { [messageId: string]: string } = {};
+
+  // Gemini API fallback configuration
+  private geminiApiKey = 'AIzaSyCXCEVKyungnaXWR0edBNCjALQ0eQqHpcs';
+  private geminiApiUrl = 'https://generativelanguage.googleapis.com/v1beta/models';
+  private geminiModels = ['gemini-2.5-flash', 'gemini-2.0-flash']; // Try 2.5 first, then 2.0
+
   // Subscriptions
   private subscriptions: Subscription[] = [];
 
@@ -63,11 +74,15 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     private storageService: AiStorageService,
     private fileProcessingService: FileProcessingService,
     private ragService: RagService,
-    private router: Router
+    private router: Router,
+    private http: HttpClient // <-- Add HttpClient for TTS API
   ) {}
 
   ngOnInit(): void {
     this.initializeComponent();
+    // Load voice output preference from localStorage
+    const stored = localStorage.getItem('ai_voice_output');
+    this.voiceOutputEnabled = stored === 'true';
   }
 
   ngOnDestroy(): void {
@@ -280,6 +295,9 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
         content,
         role: 'user'
       });
+      if (this.isUserAtBottom) {
+        setTimeout(() => this.scrollToBottom(), 0);
+      }
 
       // Generate AI response based on conversation mode
       let aiResponse: string;
@@ -295,7 +313,7 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
       }
 
       // Add AI response
-      this.storageService.addMessage(this.selectedConversation.id, {
+      const aiMsg = this.storageService.addMessage(this.selectedConversation.id, {
         content: aiResponse,
         role: 'assistant',
         metadata: {
@@ -303,6 +321,13 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
           processingTime: Date.now()
         }
       });
+      if (this.isUserAtBottom) {
+        setTimeout(() => this.scrollToBottom(), 0);
+      }
+      // TTS: If enabled, call TTS API and cache audio URL
+      if (this.voiceOutputEnabled && aiMsg && aiMsg.id && aiResponse) {
+        await this.generateTtsForMessage(aiMsg.id, aiResponse);
+      }
 
       console.log('✅ Message processed successfully');
 
@@ -371,6 +396,11 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   toggleSuggestions(): void {
     this.showSuggestions = !this.showSuggestions;
+  }
+
+  toggleVoiceOutput(): void {
+    this.voiceOutputEnabled = !this.voiceOutputEnabled;
+    localStorage.setItem('ai_voice_output', this.voiceOutputEnabled ? 'true' : 'false');
   }
 
   /**
@@ -475,7 +505,8 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
       return response || 'Unable to process your request.';
     } catch (error) {
       console.error('Error in general message handling:', error);
-      throw error;
+      // Try Gemini fallback
+      return await this.tryGeminiFallback(content, 'general');
     }
   }
 
@@ -484,7 +515,8 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
       return await this.ragService.getContextualCareerAdvice(content);
     } catch (error) {
       console.error('Error in career advice handling:', error);
-      throw error;
+      // Try Gemini fallback
+      return await this.tryGeminiFallback(content, 'career-advice');
     }
   }
 
@@ -494,7 +526,8 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
       return response || 'Unable to analyze the CV content.';
     } catch (error) {
       console.error('Error in CV analysis handling:', error);
-      throw error;
+      // Try Gemini fallback
+      return await this.tryGeminiFallback(content, 'cv-analysis');
     }
   }
 
@@ -577,5 +610,82 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   get documentStats() {
     return this.ragService.getUserDocumentStats();
+  }
+
+  // Generate TTS audio for a message and cache the URL
+  async generateTtsForMessage(messageId: string, text: string): Promise<void> {
+    if (this.ttsAudioCache[messageId]) return; // Already cached
+    try {
+      const ttsRes: any = await this.http.post('/api/tts/generate', {
+        text,
+        voice: this.ttsVoice
+      }).toPromise();
+      if (ttsRes && ttsRes.audioUrl) {
+        this.ttsAudioCache[messageId] = ttsRes.audioUrl;
+        // Optionally, store in message metadata for access in ai-message.component
+        const msg = this.selectedConversation?.messages.find(m => m.id === messageId);
+        if (msg) {
+          msg.metadata = msg.metadata || {};
+          (msg.metadata as any).ttsAudioUrl = ttsRes.audioUrl; // Cast to any to avoid linter error
+        }
+      }
+    } catch (err) {
+      console.error('TTS generation failed:', err);
+    }
+  }
+
+  // Gemini API fallback method
+  private async tryGeminiFallback(content: string, mode: string): Promise<string> {
+    const systemPrompt = this.getSystemPromptForMode(mode);
+    
+    for (const model of this.geminiModels) {
+      try {
+        console.log(`🔄 Trying Gemini fallback with model: ${model}`);
+        
+        const response = await this.http.post(
+          `${this.geminiApiUrl}/${model}:generateContent?key=${this.geminiApiKey}`,
+          {
+            contents: [
+              {
+                parts: [
+                  { text: systemPrompt },
+                  { text: content }
+                ]
+              }
+            ],
+            generationConfig: {
+              temperature: 0.7,
+              topK: 40,
+              topP: 0.95,
+              maxOutputTokens: 2048,
+            }
+          }
+        ).toPromise() as any;
+
+        if (response?.candidates?.[0]?.content?.parts?.[0]?.text) {
+          console.log(`✅ Gemini fallback successful with ${model}`);
+          return response.candidates[0].content.parts[0].text;
+        }
+      } catch (error) {
+        console.error(`❌ Gemini fallback failed with ${model}:`, error);
+        continue; // Try next model
+      }
+    }
+    
+    // If all Gemini models fail, return a generic error message
+    console.error('❌ All AI services failed');
+    return 'I apologize, but I\'m currently experiencing technical difficulties. Please try again later.';
+  }
+
+  // Get appropriate system prompt based on mode
+  private getSystemPromptForMode(mode: string): string {
+    switch (mode) {
+      case 'cv-analysis':
+        return 'You are an expert CV/resume reviewer and career advisor. Analyze the provided CV content and provide detailed, constructive feedback on format, content, strengths, weaknesses, and suggestions for improvement. Be specific and actionable in your recommendations.';
+      case 'career-advice':
+        return 'You are a professional career advisor with extensive experience in career development, job searching, and professional growth. Provide personalized, practical career advice based on the user\'s query. Focus on actionable steps and industry best practices.';
+      default:
+        return 'You are a helpful AI assistant specializing in career guidance and professional development. Provide informative, supportive, and practical advice to help users advance their careers and achieve their professional goals.';
+    }
   }
 }
