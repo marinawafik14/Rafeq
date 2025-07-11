@@ -29,12 +29,13 @@ export class MenteeContactChatComponent implements OnInit, AfterViewChecked {
   constructor(private contactService: ContactService) {}
 
   ngOnInit(): void {
-    const userData = localStorage.getItem('currentUser');
+    const userData = sessionStorage.getItem('currentUser');
 
     if (userData) {
       const parsedUser = JSON.parse(userData);
       this.email = parsedUser.email;
       this.name = parsedUser.fullName || parsedUser.name || '';
+        console.log(this.email);
 
       if (this.email) {
         this.pollMessages(); 
@@ -70,7 +71,7 @@ export class MenteeContactChatComponent implements OnInit, AfterViewChecked {
 
           if (replyTime.getTime() > this.lastAdminMessageTime) {
             this.playNotificationSound();
-            this.showToast('📩 You Have A New Message From Admin');
+            this.showToast(' You Have A New Message From Admin');
             this.lastAdminMessageTime = replyTime.getTime(); 
           }
         });

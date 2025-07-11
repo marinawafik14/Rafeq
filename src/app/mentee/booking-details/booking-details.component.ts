@@ -9,7 +9,7 @@ import { AuthService } from '../../Services/auth.service';
 @Component({
   selector: 'app-booking-details',
   standalone: true,
-  imports: [CommonModule, MenteeLayoutComponent, RouterModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './booking-details.component.html',
   styleUrls: ['./booking-details.component.css']
 })
