@@ -1,0 +1,82 @@
+<div class="forum-category container py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold" style="color:#0a2e65;">
+      <i class="fas fa-folder-open me-2"></i> Category Posts
+    </h2>
+    <button class="btn btn-primary" (click)="goToCreatePost()">
+      <i class="fas fa-plus"></i> Create New Post
+    </button>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-md-4">
+      <label class="form-label">Sort By</label>
+      <select class="form-select" [(ngModel)]="sortBy" (change)="onSortChange(sortBy)">
+        <option value="recent">Most Recent</option>
+        <option value="upvotes">Most Upvoted</option>
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Solved Status</label>
+      <select #solvedSelect class="form-select" [(ngModel)]="isSolved" (change)="onSolvedFilterChange(solvedSelect.value)">
+        <option value="">All</option>
+        <option value="false">Unsolved</option>
+        <option value="true">Solved</option>
+      </select>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status"></div>
+  </div>
+  <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+
+  <!-- Pinned Posts Section -->
+  <div *ngIf="pinnedPosts.length" class="mb-4">
+    <div *ngFor="let post of pinnedPosts" class="list-group-item pinned-post">
+      <span class="badge bg-warning text-dark me-2"><i class="fas fa-thumbtack"></i> Pinned</span>
+      <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+        <h5 class="mb-0 fw-bold" style="color:#0a2e65;">{{ post.title }}</h5>
+        <span *ngIf="post.isSolved" class="badge bg-success ms-2"><i class="fas fa-check-circle"></i> Solved</span>
+      </div>
+      <p class="mb-1 text-truncate text-muted">{{ post.content }}</p>
+      <div class="d-flex justify-content-between align-items-center mt-2">
+        <small class="text-secondary">
+          <i class="fas fa-user-circle me-1"></i> {{ post.userFullName }}
+        </small>
+        <span class="badge bg-gradient badge-success" style="font-size:0.85rem;">
+          <i class="fas fa-arrow-up"></i> {{ post.upvotes }}
+        </span>
+        <small class="text-muted"><i class="far fa-clock me-1"></i>{{ post.createdAt | date:'short' }}</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Regular Posts Section -->
+  <div *ngIf="!isLoading && posts.length" class="list-group">
+    <a *ngFor="let post of posts"
+       class="list-group-item list-group-item-action rounded-3 mb-3 shadow-sm border-0"
+       [routerLink]="['/forum/post', post.postId]">
+      <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+        <h5 class="mb-0 fw-bold" style="color:#0a2e65;">{{ post.title }}</h5>
+        <span *ngIf="post.isSolved" class="badge bg-success ms-2"><i class="fas fa-check-circle"></i> Solved</span>
+      </div>
+      <p class="mb-1 text-truncate text-muted">{{ post.content }}</p>
+      <div class="d-flex justify-content-between align-items-center mt-2">
+        <small class="text-secondary">
+          <i class="fas fa-user-circle me-1"></i> {{ post.userFullName }}
+        </small>
+        <span class="badge bg-gradient badge-success" style="font-size:0.85rem;">
+          <i class="fas fa-arrow-up"></i> {{ post.upvotes }}
+        </span>
+        <small class="text-muted"><i class="far fa-clock me-1"></i>{{ post.createdAt | date:'short' }}</small>
+      </div>
+    </a>
+  </div>
+  <div *ngIf="!isLoading && !posts.length" class="text-center text-muted py-4">
+    <i class="fas fa-inbox fa-2x mb-2"></i>
+    <div>No posts found in this category.</div>
+  </div>
+</div>
+
+

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { Users } from '../../../Models/Users';
+import { EditUser, Users } from '../../../Models/Users';
 import { UserService } from '../../../Services/user.service';
 import { CommonModule, DatePipe } from '@angular/common';
 import { AddUserComponent } from "../add-user/add-user.component";
@@ -80,19 +80,32 @@ deleteUser(userId: number): void {
   });
 }
 
+
 // edit user
 editUser(user: Users): void {
-    this._userService.updateUser(user.id, user).subscribe({
-      next: (updatedUser) => {
-        const index = this.users.findIndex(u => u.id === user.id);
-        if (index !== -1) {
-          this.users[index] = updatedUser;
-          this.loadUsers();
-        }
-      },
-      error: (err) => console.error('Failed to update user:', err)
-    });
-  } 
+  
+  const userDto: EditUser = {
+    fullName: user.fullName,
+    email: user.email,
+    profilePicture: user.profilePicture,
+    bio: user.bio,
+    role: user.role,
+    isMentor: user.isMentor,
+    isInterviewer: user.isInterviewer,
+    hourlyRate: user.hourlyRate
+  };
+
+  this._userService.updateUser(user.id, userDto).subscribe({
+    next: (updatedUser) => {
+      const index = this.users.findIndex(u => u.id === user.id);
+      if (index !== -1) {
+        this.users[index] = { ...this.users[index], ...updatedUser };
+        this.loadUsers();
+      }
+    },
+    error: (err) => console.error('Failed to update user:', err)
+  });
+}
 
 
 

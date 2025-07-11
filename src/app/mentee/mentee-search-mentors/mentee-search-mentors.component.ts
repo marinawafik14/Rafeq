@@ -75,11 +75,6 @@ export class MenteeSearchMentorsComponent implements OnInit {
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
       this.menteeId = this.authService.getCurrentUserId();
-      
-      if (!this.menteeId) {
-        console.warn('No menteeId available');
-      }
-
       this.loadSkills();
       this.fetchAllMentors();
     });
@@ -98,17 +93,12 @@ export class MenteeSearchMentorsComponent implements OnInit {
   }
 
   loadSkills() {
-    console.log('Loading skills from API...');
     this.skillService.getAllSkillsForMentee().subscribe({
       next: (skills) => {
-        console.log('Skills loaded successfully:', skills);
         this.skills = skills;
         this.filteredSkills = [...skills];
-        console.log('Skills array length:', this.skills.length);
-        console.log('Filtered skills array length:', this.filteredSkills.length);
       },
       error: (error) => {
-        console.error('Error loading skills:', error);
         this.skills = [];
         this.filteredSkills = [];
       }
@@ -238,7 +228,6 @@ export class MenteeSearchMentorsComponent implements OnInit {
     this.fetchAllMentors();
   }
 
-  // Pagination computed properties
   get totalItems(): number {
     return this.total;
   }
@@ -305,39 +294,32 @@ export class MenteeSearchMentorsComponent implements OnInit {
 
   fetchAllMentors() {
     this.isLoading = true;
-    console.log('Fetching all mentors from API...');
     this.menteeService.getAllMentors().subscribe({
       next: (mentors: any[]) => {
-        console.log('Raw mentor data from API:', mentors);
-        this.allMentors = mentors.map(m => {
-          console.log('Processing mentor:', m.fullName, 'mentorSkills:', m.mentorSkills, 'skills:', m.skills);
-          return {
-            id: m.id,
-            userId: m.userId,
-            fullName: m.fullName,
-            email: m.email,
-            role: m.role || null,
-            profilePicture: m.profilePicture,
-            bio: m.bio,
-            hourlyRate: m.hourlyRate,
-            skills: (m.mentorSkills || []).map((skill: any) => ({
-              Name: skill.name,
-              id: skill.id
-            })),
-            mentorSkills: m.mentorSkills || [],
-            skillsArray: m.skills || [],
-            availabilities: m.availabilities || [],
-            rating: m.rating ?? null,
-            isMentor: m.isMentor ?? true,
-            isInterviewer: m.isInterviewer ?? false
-          };
-        });
-        console.log('Processed mentors:', this.allMentors);
+        this.allMentors = mentors.map(m => ({
+          id: m.id,
+          userId: m.userId,
+          fullName: m.fullName,
+          email: m.email,
+          role: m.role || null,
+          profilePicture: m.profilePicture,
+          bio: m.bio,
+          hourlyRate: m.hourlyRate,
+          skills: (m.mentorSkills || []).map((skill: any) => ({
+            Name: skill.name,
+            id: skill.id
+          })),
+          mentorSkills: m.mentorSkills || [],
+          skillsArray: m.skills || [],
+          availabilities: m.availabilities || [],
+          rating: m.rating ?? null,
+          isMentor: m.isMentor ?? true,
+          isInterviewer: m.isInterviewer ?? false
+        }));
         this.applyFilters();
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Error fetching mentors:', error);
         this.allMentors = [];
         this.mentors = [];
         this.total = 0;
@@ -350,23 +332,19 @@ export class MenteeSearchMentorsComponent implements OnInit {
   applyFilters() {
     let filtered = [...this.allMentors];
 
-    // Name search filter
     if (this.searchName && this.searchName.trim()) {
       filtered = filtered.filter(m =>
         m.fullName.toLowerCase().includes(this.searchName.toLowerCase())
       );
     }
 
-    // Skills filter
     if (this.filters.skills && this.filters.skills.length > 0) {
-      // Get selected skill names from the Skills list
       const selectedSkillNames = this.skills
         .filter(skill => this.filters.skills!.includes(skill.SkillId))
         .map(skill => skill.Name);
       filtered = filtered.filter(m => m.skills.some(s => selectedSkillNames.includes(s.Name)));
     }
 
-    // Price filter
     if (this.minPrice !== null && this.minPrice !== undefined) {
       filtered = filtered.filter(m => m.hourlyRate >= this.minPrice!);
     }
@@ -374,12 +352,10 @@ export class MenteeSearchMentorsComponent implements OnInit {
       filtered = filtered.filter(m => m.hourlyRate <= this.maxPrice!);
     }
 
-    // Rating filter
     if (this.minRating !== null && this.minRating !== undefined) {
       filtered = filtered.filter(m => (m.rating ?? 0) >= this.minRating!);
     }
 
-    // Sort
     if (this.sortBy === 'price') {
       filtered = filtered.sort((a, b) => (this.filters.sortOrder === 'asc' ? a.hourlyRate - b.hourlyRate : b.hourlyRate - a.hourlyRate));
     } else if (this.sortBy === 'rating') {
@@ -467,14 +443,9 @@ export class MenteeSearchMentorsComponent implements OnInit {
   onSemanticSearch() {
     if (!this.semanticQuery.trim()) return;
 
-    // Debug: Log auth info
-    console.debug('isLoggedIn:', this.authService.isLoggedIn());
-    console.debug('userRole:', this.authService.getCurrentUserRole());
-
     const isLoggedIn = this.authService.isLoggedIn();
     const userRole = this.authService.getCurrentUserRole();
     if (!isLoggedIn || userRole !== 'Mentee') {
-      console.warn('Semantic search is restricted to authenticated mentees only.');
       this.semanticMentors = [];
       this.semanticTotal = 0;
       this.semanticLoading = false;
@@ -487,15 +458,6 @@ export class MenteeSearchMentorsComponent implements OnInit {
     const skills = this.getSelectedSkills().map(s => s.Name);
     const maxResults = 3; // Use current page size for maxResults
 
-    // Debug: Log request payload
-    console.debug('Semantic search request:', {
-      query: this.semanticQuery,
-      minRating: this.minRating || undefined,
-      maxHourlyRate: this.maxPrice || undefined,
-      skills,
-      maxResults
-    });
-
     this.mentorSearchService.semanticMentorSearch(
       this.semanticQuery,
       this.minRating || undefined,
@@ -504,8 +466,6 @@ export class MenteeSearchMentorsComponent implements OnInit {
       maxResults
     ).subscribe({
       next: res => {
-        // Debug: Log response
-        console.debug('Semantic search response:', res);
         this.semanticMentors = res.mentors;
         this.semanticTotal = res.totalResults;
         this.semanticSearchTime = res.searchTime;
@@ -513,18 +473,14 @@ export class MenteeSearchMentorsComponent implements OnInit {
         this.emptyState = res.mentors.length === 0;
       },
       error: err => {
-        // Debug: Log error
-        console.error('Semantic search error:', err);
         this.semanticMentors = [];
         this.semanticTotal = 0;
         this.semanticLoading = false;
         this.emptyState = true;
-        // Do NOT fallback to normal search
       }
     });
   }
 
-  // TrackBy functions 
   trackBySkillId(index: number, skill: Skills): number {
     return skill.SkillId;
   }

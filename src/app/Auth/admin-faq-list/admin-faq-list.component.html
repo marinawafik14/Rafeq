@@ -4,21 +4,13 @@
   <div class="controls">
     <div class="search-container">
       <i class="fas fa-search search-icon"></i>
-      <input
-        type="text"
-        [(ngModel)]="searchQuery"
-        (input)="onSearchInput($event)"
-        placeholder=" Search questions "
+      <input type="text" [(ngModel)]="searchQuery" (input)="onSearchInput($event)" placeholder=" Search questions "
         class="search-input">
     </div>
 
     <div class="filter-container">
       <i class="fas fa-filter filter-icon"></i>
-      <input
-        type="text"
-        [(ngModel)]="category"
-        (input)="onCategoryInput($event)"
-        placeholder=" Filter by category..."
+      <input type="text" [(ngModel)]="category" (input)="onCategoryInput($event)" placeholder=" Filter by category..."
         class="filter-input">
     </div>
 
@@ -45,7 +37,7 @@
   <table class="data-table" *ngIf="!loading && faqs.length > 0">
     <thead>
       <tr>
-        <th>ID</th>
+
         <th>Question</th>
         <th>Category</th>
         <th>Active</th>
@@ -58,7 +50,6 @@
     </thead>
     <tbody>
       <tr *ngFor="let faq of faqs">
-        <td>{{ faq.faqId }}</td>
         <td>{{ faq.question }}</td>
         <td>{{ faq.category || 'N/A' }}</td>
         <td>
@@ -70,9 +61,12 @@
         <td>{{ faq.viewCount }}</td>
         <td>{{ faq.helpfulCount }}</td>
         <td>{{ faq.notHelpfulCount }}</td>
-        <td class="action-buttons">
-          <button class="btn btn-info btn-sm" routerLink="edit/{{ faq.faqId }}">Edit</button>
-          <button class="btn btn-danger btn-sm" (click)="deleteFaq(faq.faqId)">Delete</button>
+        <td class="action-cell d-flex ">
+          <div class="d-flex justify-content-between align-items-center w-100">
+          <span><button class="btn btn-info btn-sm " routerLink="edit/{{ faq.faqId }}"><i class="fas fa-edit"></i></button>
+          </span>
+          <span><button class="btn btn-danger btn-sm" (click)="deleteFaq(faq.faqId)"><i class="fas fa-trash"></i></button></span>
+          </div>
         </td>
       </tr>
     </tbody>
@@ -85,13 +79,13 @@
   <nav *ngIf="pagedResult && pagedResult.totalPages > 1" class="pagination-controls">
     <ul class="pagination">
       <li class="page-item" [class.disabled]="pageNumber === 1">
-        <a class="page-link" (click)="onPageChange(pageNumber - 1)">Previous</a>
+        <a class="page-link" (click)="onPageChange(pageNumber - 1)"><<</a>
       </li>
       <li class="page-item" *ngFor="let page of totalPagesArray" [class.active]="page === pageNumber">
         <a class="page-link" (click)="onPageChange(page)">{{ page }}</a>
       </li>
       <li class="page-item" [class.disabled]="pageNumber === pagedResult.totalPages">
-        <a class="page-link" (click)="onPageChange(pageNumber + 1)">Next</a>
+        <a class="page-link" (click)="onPageChange(pageNumber + 1)">>></a>
       </li>
     </ul>
     <span class="pagination-info">Page {{ pageNumber }} of {{ pagedResult.totalPages }}</span>

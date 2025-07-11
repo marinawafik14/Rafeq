@@ -1,14 +1,14 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Users } from '../Models/Users';
+import { EditUser, Users } from '../Models/Users';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
 private usersUrl = "https://localhost:7001/api/admin/users"; 
-private userIdUrl = "https://localhost:7001/api/users";
+private userIdUrl = "https://localhost:7001/api/admin";
   constructor(private http : HttpClient) { }
   // get all users
   getAllUsers():Observable<Users[]> {
@@ -22,8 +22,8 @@ private userIdUrl = "https://localhost:7001/api/users";
   }
 
 // update user
-  updateUser(userId: number, userData: Users) :Observable<Users> {
-    return this.http.put<Users>(`${this.usersUrl}/${userId}`, userData);
+  updateUser(userId: number, userData: EditUser) :Observable<EditUser> {
+    return this.http.put<EditUser>(`${this.usersUrl}/${userId}`, userData);
   }
   // delete user
   deleteUser(userId: number) :Observable<void> {

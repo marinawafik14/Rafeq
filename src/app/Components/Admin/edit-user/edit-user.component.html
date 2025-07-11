@@ -11,10 +11,6 @@
       <input class="form-control" type="email" [(ngModel)]="user.email" name="email" required>
     </div>
 
-    <div class="mb-2">
-      <label>Password</label>
-      <input class="form-control" type="password" [(ngModel)]="user.PasswordHash" name="password" required>
-    </div>
 
     <div class="mb-2">
       <label>Profile Picture URL</label>
@@ -23,15 +19,15 @@
 
     <div class="mb-2">
       <label>Bio</label>
-      <textarea class="form-control" [(ngModel)]="user.Bio" name="bio" rows="3"></textarea>
+      <textarea class="form-control" [(ngModel)]="user.bio" name="bio" rows="3"></textarea>
     </div>
 
     <div class="mb-2">
       <label>Role</label>
-      <select class="form-select" [(ngModel)]="user.role" name="roleName" required>
-        <option value="admin">Admin</option>
-        <option value="mentor">Mentor</option>
-        <option value="mentee">Mentee</option>
+      <select class="form-select" [(ngModel)]="user.role" name="role" required>
+        <option value="Admin">Admin</option>
+        <option value="Mentor">Mentor</option>
+        <option value="Mentee">Mentee</option>
       </select>
     </div>
 
@@ -46,10 +42,10 @@
 
     <div class="mb-2">
       <label>Hourly Rate</label>
-      <input class="form-control" type="number" step="0.01" [(ngModel)]="user.HourlyRate" name="hourlyRate">
+      <input class="form-control" type="number" step="0.01" [(ngModel)]="user.hourlyRate" name="hourlyRate">
     </div>
 
-    <button type="submit" class="btn btn-primary me-2" [disabled]="userForm.invalid">Save</button>
+    <button type="submit" class="btn btn-primary me-2" >Save</button>
     <a class="btn btn-secondary" [routerLink]="['/admin/users']">Cancel</a>
   </form>
 </div>

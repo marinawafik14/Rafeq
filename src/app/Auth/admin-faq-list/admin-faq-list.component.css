@@ -305,6 +305,7 @@
 
 .data-table tbody tr {
   transition: all 0.3s ease;
+ 
 }
 
 
@@ -312,6 +313,8 @@
   color: #2d3748;
   font-weight: 500;
   vertical-align: middle;
+  font-size: 0.9rem;
+
 }
 
 /* Cell Specific Styles */

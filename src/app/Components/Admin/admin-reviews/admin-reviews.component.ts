@@ -42,7 +42,7 @@ export class AdminReviewsComponent implements OnInit {
       next: (data) => {
         this.reviewsList = data.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         this.loading = false;
-        console.log("Reviews loaded:", data);
+        //console.log("Reviews loaded:", data);
         
         if (this.reviewsList.length === 0) {
           console.log('No reviews found.');
@@ -175,7 +175,7 @@ export class AdminReviewsComponent implements OnInit {
 
   exportReviews(): void {
     // Add export functionality
-    console.log('Exporting reviews...');
+   // console.log('Exporting reviews...');
     
     // Simple CSV export
     const csvData = this.reviewsList.map(review => ({
