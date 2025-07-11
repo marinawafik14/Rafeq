@@ -51,6 +51,9 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   showCvAnalysis = false;
   public showSuggestions = true; 
 
+  // Track if user is at the bottom of the messages container
+  isUserAtBottom: boolean = true;
+
   // Subscriptions
   private subscriptions: Subscription[] = [];
 
@@ -72,7 +75,19 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   ngAfterViewChecked(): void {
-    this.scrollToBottom();
+    // Only scroll to bottom if user is at the bottom
+    if (this.isUserAtBottom) {
+      this.scrollToBottom();
+    }
+  }
+
+  // Add a scroll event handler for the messages container
+  onMessagesScroll(): void {
+    if (!this.messagesContainer) return;
+    const element = this.messagesContainer.nativeElement;
+    // Allow a small threshold for 'at bottom' (e.g., 20px)
+    const threshold = 20;
+    this.isUserAtBottom = (element.scrollHeight - element.scrollTop - element.clientHeight) < threshold;
   }
 
   private initializeComponent(): void {
@@ -321,6 +336,9 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
         role: 'user',
         attachments: [file]
       });
+      if (this.isUserAtBottom) {
+        setTimeout(() => this.scrollToBottom(), 0);
+      }
 
       // Process file based on type
       if (file.fileType === 'application/pdf' && file.content) {

@@ -3,7 +3,7 @@ export const environment = {
   apiUrl: 'https://localhost:7001/api',
   // AI Configuration with updated API key
   openai: {
-    apiKey: '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',
+    apiKey: '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',
     chatApiUrl: 'https://api.openai.com/v1/chat/completions',
     embeddingApiUrl: 'https://api.openai.com/v1/embeddings',
     chatModel: 'gpt-4o-mini',

@@ -176,12 +176,12 @@ export class MentorProfileViewComponent implements OnInit {
 
   getGroupedFreeSlots(): any[] {
     if (!this.freeSlots || this.freeSlots.length === 0) return [];
-    
+    const now = new Date();
     const dateGroups = new Map<string, any>();
-    
     this.freeSlots.forEach(slot => {
-      const slotDate = new Date(slot.start).toISOString().slice(0, 10);
-      
+      const slotStart = new Date(slot.start);
+      if (slotStart <= now) return; // skip past slots
+      const slotDate = slotStart.toISOString().slice(0, 10);
       if (!dateGroups.has(slotDate)) {
         const date = new Date(slotDate);
         dateGroups.set(slotDate, {
@@ -194,10 +194,8 @@ export class MentorProfileViewComponent implements OnInit {
           slots: []
         });
       }
-      
       const timeRange = slot.formatted.split('•')[1]?.trim() || slot.formatted;
       const group = dateGroups.get(slotDate);
-      
       if (!group.slots.some((s: any) => s.timeRange === timeRange)) {
         group.slots.push({
           timeRange: timeRange,
@@ -207,16 +205,13 @@ export class MentorProfileViewComponent implements OnInit {
         });
       }
     });
-
     const allGroupedSlots = Array.from(dateGroups.values()).sort((a, b) => 
       a.date.getTime() - b.date.getTime()
     );
-
     if (!this.showAllAvailability) {
       const startIndex = this.currentAvailabilityPage * this.availabilityPerPage;
       return allGroupedSlots.slice(startIndex, startIndex + this.availabilityPerPage);
     }
-
     return allGroupedSlots;
   }
 
@@ -291,7 +286,6 @@ export class MentorProfileViewComponent implements OnInit {
     return this.getGroupedFreeSlots();
   }
 
-  // Availability pagination methods
   canShowNextAvailability(): boolean {
     const allSlots = this.getAllGroupedFreeSlots();
     return (this.currentAvailabilityPage + 1) * this.availabilityPerPage < allSlots.length;
@@ -335,7 +329,6 @@ export class MentorProfileViewComponent implements OnInit {
     return `${startIndex}-${endIndex} of ${allSlots.length}`;
   }
 
-  // Image error handler
   onImageError(event: any) {
     event.target.src = '/images/default-avatar.png';
   }
