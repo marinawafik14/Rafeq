@@ -211,7 +211,7 @@
         </div>
 
         <!-- Messages Container -->
-        <div class="messages-container" #messagesContainer>
+        <div class="messages-container" #messagesContainer (scroll)="onMessagesScroll()">
           <div class="messages-content">
             <!-- Welcome Message for Empty Conversations -->
             <div

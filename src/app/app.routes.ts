@@ -232,7 +232,7 @@ export const routes: Routes = [
           import('./features/ai-chatbot/ai-chatbot.component').then(
             (m) => m.AiChatbotComponent
           ),
-        data: { roles: ['Mentor'] },
+        data: { roles: ['Mentee', 'Mentor'] },
       },
       // User Profiles
       { path: 'user-profile', component: ProfileRedirectComponent },
