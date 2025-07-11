@@ -29,7 +29,6 @@ export class BookingsComponent implements OnInit {
   tabs = [
     { id: 'all', label: 'All Bookings', count: 0 },
     { id: 'upcoming', label: 'Upcoming', count: 0 },
-    { id: 'pending', label: 'Pending', count: 0 },
     { id: 'completed', label: 'Completed', count: 0 },
     { id: 'cancelled', label: 'Cancelled', count: 0 }
   ];
@@ -161,9 +160,8 @@ export class BookingsComponent implements OnInit {
       return (b.status === 'Confirmed' || b.status === 'Pending' || b.status === 'InProgress') && 
              now < sessionEnd;
     }).length; // Upcoming
-    this.tabs[2].count = this.allBookings.filter(b => b.status === 'Pending').length; // Pending
-    this.tabs[3].count = this.allBookings.filter(b => b.status === 'Completed').length; // Completed
-    this.tabs[4].count = this.allBookings.filter(b => b.status === 'Cancelled').length; // Cancelled
+    this.tabs[2].count = this.allBookings.filter(b => b.status === 'Completed').length; // Completed
+    this.tabs[3].count = this.allBookings.filter(b => b.status === 'Cancelled').length; // Cancelled
   }
 
   setActiveTab(tabId: string): void {

@@ -1,0 +1,67 @@
+<div class="page">
+  <!-- Header Section -->
+  <div class="admin-header">
+    <div class="container">
+      <h1><i class="fas fa-thumbtack"></i> Pin/Unpin Forum Posts</h1>
+      <p>Manage which posts are pinned at the top of the forum.</p>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-section">
+    <div class="stats-grid">
+      <div class="stats-card">
+        <div class="stats-icon bg-primary"><i class="fas fa-thumbtack"></i></div>
+        <div class="stats-number">{{ pinnedCount }}</div>
+        <div class="stats-label">Pinned Posts</div>
+      </div>
+      <div class="stats-card">
+        <div class="stats-icon bg-secondary"><i class="fas fa-list"></i></div>
+        <div class="stats-number">{{ totalCount }}</div>
+        <div class="stats-label">Total Posts</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <div *ngIf="isLoading" class="text-center py-5">
+      <div class="spinner-border text-primary" role="status"></div>
+    </div>
+    <div *ngIf="error" class="alert alert-danger">{{ error }}</div>
+    <div class="table-container" *ngIf="!isLoading && posts.length">
+      <table class="table data-table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Pinned</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let post of posts">
+            <td>{{ post.title }}</td>
+            <td>{{ post.userFullName }}</td>
+            <td>
+              <span class="badge" [ngClass]="post.isPinned ? 'badge-success' : 'badge-light'">
+                {{ post.isPinned ? 'Pinned' : 'Not Pinned' }}
+              </span>
+            </td>
+            <td>
+              <button *ngIf="!post.isPinned" class="btn btn-outline-primary btn-sm" (click)="pin(post)">
+                <i class="fas fa-thumbtack"></i> Pin
+              </button>
+              <button *ngIf="post.isPinned" class="btn btn-outline-danger btn-sm" (click)="unpin(post)">
+                <i class="fas fa-times"></i> Unpin
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div *ngIf="!isLoading && !posts.length" class="empty-state text-center py-4">
+      <i class="fas fa-inbox empty-icon mb-2"></i>
+      <div>No posts found.</div>
+    </div>
+  </div>
+</div>

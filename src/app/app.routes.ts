@@ -44,6 +44,8 @@ import { ForumCategoryComponent } from './features/forum/forum-category.componen
 import { ForumCreateEditPostComponent } from './features/forum/forum-create-edit-post.component';
 import { MyForumPostsComponent } from './features/forum/my-forum-posts.component';
 import { ForumPostDetailComponent } from './features/forum/forum-post-detail.component';
+import { AdminForumReportsComponent } from './Components/Admin/admin-forum-reports.component';
+import { AdminForumPinComponent } from './Components/Admin/admin-forum-pin.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -105,6 +107,8 @@ export const routes: Routes = [
           { path: 'faqs', component: AdminFaqListComponent },
           { path: 'faqs/create', component: FaqFormComponent },
           { path: 'faqs/edit/:id', component: FaqFormComponent },
+          { path: 'forum/reports', component: AdminForumReportsComponent },
+          { path: 'forum/pin', component: AdminForumPinComponent },
         ],
       },
 

@@ -1,0 +1,182 @@
+.page {
+  background: #f7f9fb;
+  min-height: 100vh;
+  padding-bottom: 40px;
+}
+.admin-header {
+  background: #fff;
+  border-bottom: 1px solid #eaeaea;
+  padding: 2rem 0 1rem 0;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+.admin-header h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #22223b;
+}
+.admin-header p {
+  color: #4a4e69;
+  font-size: 1.1rem;
+}
+.stats-section {
+  margin-bottom: 2rem;
+}
+.stats-grid {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+.stats-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 1.5rem 2rem;
+  flex: 1 1 180px;
+  text-align: center;
+}
+.stats-icon {
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+  color: #3a86ff;
+}
+.stats-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #22223b;
+}
+.stats-label {
+  color: #4a4e69;
+  font-size: 1rem;
+}
+.table-container {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+.table.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.table.data-table th, .table.data-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #eaeaea;
+}
+.table.data-table th {
+  background: #f1f3f8;
+  color: #22223b;
+  font-weight: 600;
+}
+.table.data-table tr:last-child td {
+  border-bottom: none;
+}
+.badge {
+  padding: 0.35em 0.7em;
+  border-radius: 0.5em;
+  font-size: 0.95em;
+  font-weight: 500;
+}
+.badge-warning { background: #fff3cd; color: #856404; }
+.badge-success { background: #d4edda; color: #155724; }
+.badge-secondary { background: #e2e3e5; color: #383d41; }
+.badge-light { background: #f8f9fa; color: #6c757d; }
+.btn-outline-primary, .btn-outline-secondary, .btn-success {
+  margin-right: 0.5rem;
+}
+.loading-indicator {
+  margin-top: 2rem;
+}
+/* Forum Post Card Styles */
+.admin-post-card {
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 2px 12px rgba(10, 46, 101, 0.08);
+  padding: 2rem 2rem 1.5rem 2rem;
+  margin-bottom: 2rem;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.admin-post-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.2rem;
+}
+.admin-post-title {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.admin-post-avatar {
+  font-size: 2.2rem;
+  color: #3a86ff;
+}
+.admin-post-author {
+  font-weight: 600;
+  color: #22223b;
+  font-size: 1.1rem;
+}
+.admin-post-date {
+  color: #6c757d;
+  font-size: 0.95rem;
+}
+.admin-post-title-text {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #0a2e65;
+  margin-bottom: 0.7rem;
+}
+.admin-post-content {
+  font-size: 1.1rem;
+  color: #343a40;
+  margin-bottom: 1.2rem;
+  white-space: pre-line;
+}
+.admin-post-footer {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.2rem;
+}
+.admin-post-comments {
+  border-top: 1px solid #eaeaea;
+  padding-top: 1.2rem;
+}
+.admin-post-comments-title {
+  font-weight: 600;
+  color: #3a86ff;
+  margin-bottom: 0.7rem;
+}
+.admin-post-comment {
+  background: #f8f9fa;
+  border-radius: 0.7rem;
+  padding: 1rem 1.2rem;
+  margin-bottom: 1rem;
+}
+.admin-post-comment-header {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.3rem;
+}
+.admin-post-comment-avatar {
+  font-size: 1.3rem;
+  color: #adb5bd;
+}
+.admin-post-comment-author {
+  font-weight: 500;
+  color: #22223b;
+}
+.admin-post-comment-date {
+  color: #6c757d;
+  font-size: 0.93rem;
+}
+.admin-post-comment-content {
+  color: #343a40;
+  font-size: 1.05rem;
+}
+.ml-2 {
+  margin-left: 0.5rem;
+}

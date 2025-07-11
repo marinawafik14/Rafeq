@@ -1,0 +1,124 @@
+<div class="page">
+  <!-- Header Section -->
+  <div class="admin-header">
+    <div class="container">
+      <h1>Forum Reports</h1>
+      <p>Moderate reported forum posts and keep the community safe</p>
+    </div>
+  </div>
+
+  <div class="main-content">
+    <!-- Optional: Stats Cards -->
+    <div class="stats-section">
+      <div class="stats-grid">
+        <div class="stats-card">
+          <div class="stats-icon"><i class="fas fa-flag"></i></div>
+          <div class="stats-number">{{ stats.total }}</div>
+          <div class="stats-label">Total Reports</div>
+        </div>
+        <div class="stats-card">
+          <div class="stats-icon"><i class="fas fa-exclamation-circle"></i></div>
+          <div class="stats-number">{{ stats.pending }}</div>
+          <div class="stats-label">Pending</div>
+        </div>
+        <div class="stats-card">
+          <div class="stats-icon"><i class="fas fa-check-circle"></i></div>
+          <div class="stats-number">{{ stats.resolved }}</div>
+          <div class="stats-label">Resolved</div>
+        </div>
+        <div class="stats-card">
+          <div class="stats-icon"><i class="fas fa-ban"></i></div>
+          <div class="stats-number">{{ stats.ignored }}</div>
+          <div class="stats-label">Ignored</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reports Table -->
+    <div class="table-container">
+      <table class="table data-table">
+        <thead>
+          <tr>
+            <th>Post Title</th>
+            <th>Reporter</th>
+            <th>Reason</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let report of reports">
+            <td>{{ report.postTitle }}</td>
+            <td>{{ report.reportedByUserName }}</td>
+            <td>{{ report.reason }}</td>
+            <td>
+              <span [ngClass]="{
+                'badge badge-warning': report.status === 'Pending',
+                'badge badge-success': report.status === 'Resolved',
+                'badge badge-secondary': report.status === 'Ignored',
+                'badge badge-light': report.status === 'Unknown'
+              }">
+                {{ report.status }}
+              </span>
+            </td>
+            <td>{{ report.createdAt | date:'short' }}</td>
+            <td>
+              <button class="btn btn-outline-primary btn-sm" (click)="viewPost(report.postId)">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="btn btn-success btn-sm"
+                      *ngIf="report.status?.toLowerCase() === 'pending'"
+                      (click)="takeAction(report, 'delete')">
+                <i class="fas fa-trash"></i> Delete
+              </button>
+              <button class="btn btn-outline-secondary btn-sm"
+                      *ngIf="report.status?.toLowerCase() === 'pending'"
+                      (click)="takeAction(report, 'ignore')">
+                <i class="fas fa-ban"></i> Ignore
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="!isLoading && reports.length === 0">
+            <td colspan="6" class="text-center text-muted py-4">
+              <i class="fas fa-inbox fa-2x mb-2"></i>
+              <div>No reports found.</div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-indicator text-center my-4">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="mt-2 text-muted">Loading reports...</p>
+    </div>
+    <!-- Error State -->
+    <div *ngIf="error" class="alert alert-danger my-3">
+      <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+      <button class="btn btn-outline-danger btn-sm ms-3" (click)="loadReports()">
+        <i class="fas fa-redo"></i> Retry
+      </button>
+    </div>
+  </div>
+
+  <!-- Post Details Modal -->
+  <div class="modal-backdrop" *ngIf="showPostModal" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.3);z-index:1050;"></div>
+  <div class="modal" tabindex="-1" *ngIf="showPostModal" style="display:block;z-index:1060;position:fixed;top:10vh;left:50%;transform:translateX(-50%);background:#fff;border-radius:8px;box-shadow:0 2px 16px rgba(0,0,0,0.2);width:90%;max-width:600px;">
+    <div class="modal-header" style="padding:1rem;border-bottom:1px solid #eee;">
+      <h5 class="modal-title">{{ selectedPost?.title }}</h5>
+      <button type="button" class="btn-close" aria-label="Close" (click)="closePostModal()" style="background:none;border:none;font-size:1.5rem;">&times;</button>
+    </div>
+    <div class="modal-body" style="padding:1rem;">
+      <div *ngIf="selectedPost">
+        <p><strong>Author:</strong> {{ selectedPost.userFullName }}</p>
+        <p><strong>Content:</strong></p>
+        <div style="background:#f8f9fa;padding:0.75rem;border-radius:4px;">{{ selectedPost.content }}</div>
+      </div>
+    </div>
+    <div class="modal-footer" style="padding:1rem;border-top:1px solid #eee;text-align:right;">
+      <button class="btn btn-secondary" (click)="closePostModal()">Close</button>
+    </div>
+  </div>
+</div>
