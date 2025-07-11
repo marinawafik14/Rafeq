@@ -72,6 +72,18 @@
       <!-- AI Response Content -->
       <div *ngIf="!isProcessing" class="message-text ai-response" [innerHTML]="formattedContent"></div>
       
+      <!-- TTS Audio Controls -->
+      <div *ngIf="ttsAudioUrl" class="tts-audio-controls mt-2">
+        <button class="btn btn-sm btn-outline-primary me-2" (click)="toggleAudio()" [title]="isPlaying ? 'Pause' : 'Play'">
+          <i class="fas" [class.fa-play]="!isPlaying" [class.fa-pause]="isPlaying"></i>
+        </button>
+        <span *ngIf="audioDuration">{{ audioProgress | number:'1.0-1' }}/{{ audioDuration | number:'1.0-1' }}s</span>
+        <div class="audio-progress-bar mt-1" *ngIf="audioDuration">
+          <div class="audio-progress-fill" [style.width.%]="audioProgressPercent"></div>
+        </div>
+        <div class="audio-error text-danger small mt-1" *ngIf="audioError">{{ audioError }}</div>
+      </div>
+      
       <!-- AI Analysis Results (for CV analysis) -->
       <div *ngIf="!isProcessing && (message.content.includes('Score:') || message.content.includes('Analysis:'))" 
            class="analysis-summary">
