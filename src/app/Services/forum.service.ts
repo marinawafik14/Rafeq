@@ -4,28 +4,29 @@ import { Observable } from 'rxjs';
 import { ForumCategory } from '../Models/Forum/forum-category.model';
 import { ForumPost } from '../Models/Forum/forum-post.model';
 import { ForumComment } from '../Models/Forum/forum-comment.model';
+import { ForumReport } from '../Models/Forum/forum-report.model';
 import { environment } from '../environments/environment.development';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ForumService {
-  private apiUrl = environment.apiUrl + '/forum';
+  private apiUrl = environment.apiUrl; 
 
   constructor(private http: HttpClient) {}
 
   getCategories(): Observable<ForumCategory[]> {
-    return this.http.get<ForumCategory[]>(`${this.apiUrl}/categories`);
+    return this.http.get<ForumCategory[]>(`${this.apiUrl}/forum/categories`);
   }
 
   getRecentPosts(limit: number = 5): Observable<ForumPost[]> {
     const params = new HttpParams().set('sortBy', 'recent');
-    return this.http.get<ForumPost[]>(`${this.apiUrl}/posts`, { params });
+    return this.http.get<ForumPost[]>(`${this.apiUrl}/forum/posts`, { params });
   }
 
   getPopularPosts(limit: number = 5): Observable<ForumPost[]> {
     const params = new HttpParams().set('sortBy', 'upvotes');
-    return this.http.get<ForumPost[]>(`${this.apiUrl}/posts`, { params });
+    return this.http.get<ForumPost[]>(`${this.apiUrl}/forum/posts`, { params });
   }
 
   getPostsByCategory(categoryId: number, sortBy: string = 'recent', isSolved?: boolean, search?: string): Observable<ForumPost[]> {
@@ -87,5 +88,38 @@ export class ForumService {
 
   getCommentsForPost(postId: number): Observable<ForumComment[]> {
     return this.http.get<ForumComment[]>(`${this.apiUrl}/posts/${postId}/comments`);
+  }
+
+  getForumReports(status?: string): Observable<ForumReport[]> {
+    let url = `${this.apiUrl}/admin/forum/reports`;
+    if (status) {
+      url += `?status=${encodeURIComponent(status)}`;
+    }
+    return this.http.get<ForumReport[]>(url);
+  }
+
+  getForumReportStats(): Observable<{ total: number, pending: number, resolved: number, ignored: number }> {
+    return this.http.get<{ total: number, pending: number, resolved: number, ignored: number }>(
+      `${this.apiUrl}/admin/forum/reports/stats`
+    );
+  }
+
+  getForumReportById(reportId: number): Observable<ForumReport> {
+    return this.http.get<ForumReport>(`${this.apiUrl}/admin/forum/reports/${reportId}`);
+  }
+
+  pinPost(postId: number): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/forum/posts/${postId}/pin`, {});
+  }
+
+  unpinPost(postId: number): Observable<any> {
+    return this.http.post(`${environment.apiUrl}/forum/posts/${postId}/unpin`, {});
+  }
+
+  takeForumReportAction(reportId: number, action: 'delete' | 'ignore', adminNote: string = ''): Observable<void> {
+    return this.http.put<void>(
+      `${environment.apiUrl}/admin/forum/reports/${reportId}/action`,
+      { action, adminNote }
+    );
   }
 }

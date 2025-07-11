@@ -99,7 +99,15 @@ export class ForumPostDetailComponent implements OnInit {
       next: () => {
         this.showReportForm = false;
         this.isLoading = false;
-        alert('Report submitted. Thank you!');
+        Swal.fire({
+          icon: 'success',
+          title: 'Report submitted!',
+          text: 'Thank you for helping us keep the forum safe.',
+          timer: 2000,
+          showConfirmButton: false,
+          toast: true,
+          position: 'top-end'
+        });
       },
       error: (err) => {
         this.error = err.message || 'Failed to report post';

@@ -43,8 +43,38 @@
     <h3 class="fw-bold mb-3" style="color:#0a2e65;">
       <i class="fas fa-clock me-2"></i> Recent Posts
     </h3>
-    <div *ngIf="paginatedRecentPosts.length; else noRecent" class="list-group">
-      <a *ngFor="let post of paginatedRecentPosts"
+
+    <!-- Pinned Recent Posts -->
+    <div *ngIf="pinnedRecentPosts.length" class="list-group mb-2">
+      <a *ngFor="let post of pinnedRecentPosts"
+         class="list-group-item list-group-item-action rounded-3 mb-3 shadow-sm border-0 pinned-post"
+         [routerLink]="['/forum/post', post.postId]">
+        <span class="badge bg-warning text-dark me-2"><i class="fas fa-thumbtack"></i> Pinned</span>
+        <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-gradient badge-primary me-2" style="font-size:0.8rem;">
+              <i class="fas fa-folder"></i> {{ post.categoryName }}
+            </span>
+            <h5 class="mb-0 fw-bold" style="color:#0a2e65;">{{ post.title }}</h5>
+            <span *ngIf="post.isSolved" class="badge bg-success ms-2"><i class="fas fa-check-circle"></i> Solved</span>
+          </div>
+          <small class="text-muted"><i class="far fa-clock me-1"></i>{{ post.createdAt | date:'short' }}</small>
+        </div>
+        <p class="mb-1 text-truncate text-muted">{{ post.content }}</p>
+        <div class="d-flex justify-content-between align-items-center mt-2">
+          <small class="text-secondary">
+            <i class="fas fa-user-circle me-1"></i> {{ post.userFullName }}
+          </small>
+          <span class="badge bg-gradient badge-success" style="font-size:0.85rem;">
+            <i class="fas fa-arrow-up"></i> {{ post.upvotes }}
+          </span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Unpinned Recent Posts (paginated) -->
+    <div *ngIf="paginatedUnpinnedRecentPosts.length; else noRecent" class="list-group">
+      <a *ngFor="let post of paginatedUnpinnedRecentPosts"
          class="list-group-item list-group-item-action rounded-3 mb-3 shadow-sm border-0"
          style="transition: box-shadow 0.2s;"
          [routerLink]="['/forum/post', post.postId]">
@@ -103,8 +133,38 @@
     <h3 class="fw-bold mb-3" style="color:#0a2e65;">
       <i class="fas fa-fire me-2"></i> Popular Posts
     </h3>
-    <div *ngIf="paginatedPopularPosts.length; else noPopular" class="list-group">
-      <a *ngFor="let post of paginatedPopularPosts"
+
+    <!-- Pinned Popular Posts -->
+    <div *ngIf="pinnedPopularPosts.length" class="list-group mb-2">
+      <a *ngFor="let post of pinnedPopularPosts"
+         class="list-group-item list-group-item-action rounded-3 mb-3 shadow-sm border-0 pinned-post"
+         [routerLink]="['/forum/post', post.postId]">
+        <span class="badge bg-warning text-dark me-2"><i class="fas fa-thumbtack"></i> Pinned</span>
+        <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+          <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-gradient badge-primary me-2" style="font-size:0.8rem;">
+              <i class="fas fa-folder"></i> {{ post.categoryName }}
+            </span>
+            <h5 class="mb-0 fw-bold" style="color:#0a2e65;">{{ post.title }}</h5>
+            <span *ngIf="post.isSolved" class="badge bg-success ms-2"><i class="fas fa-check-circle"></i> Solved</span>
+          </div>
+          <span class="badge bg-gradient badge-success" style="font-size:0.85rem;">
+            <i class="fas fa-arrow-up"></i> {{ post.upvotes }}
+          </span>
+        </div>
+        <p class="mb-1 text-truncate text-muted">{{ post.content }}</p>
+        <div class="d-flex justify-content-between align-items-center mt-2">
+          <small class="text-secondary">
+            <i class="fas fa-user-circle me-1"></i> {{ post.userFullName }}
+          </small>
+          <small class="text-muted"><i class="far fa-clock me-1"></i>{{ post.createdAt | date:'short' }}</small>
+        </div>
+      </a>
+    </div>
+
+    <!-- Unpinned Popular Posts (paginated) -->
+    <div *ngIf="paginatedUnpinnedPopularPosts.length; else noPopular" class="list-group">
+      <a *ngFor="let post of paginatedUnpinnedPopularPosts"
          class="list-group-item list-group-item-action rounded-3 mb-3 shadow-sm border-0"
          style="transition: box-shadow 0.2s;"
          [routerLink]="['/forum/post', post.postId]">

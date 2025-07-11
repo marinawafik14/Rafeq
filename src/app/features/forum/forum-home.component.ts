@@ -39,7 +39,8 @@ export class ForumHomeComponent implements OnInit {
   popularPage = 1;
   popularPageSize = 5;
   get popularTotalPages(): number {
-    return Math.ceil(this.popularPosts.length / this.popularPageSize);
+    const unpinnedCount = this.popularPosts.filter(post => !post.isPinned).length;
+    return Math.ceil(unpinnedCount / this.popularPageSize);
   }
   get paginatedPopularPosts(): ForumPost[] {
     const start = (this.popularPage - 1) * this.popularPageSize;
@@ -69,5 +70,27 @@ export class ForumHomeComponent implements OnInit {
       next: (posts) => (this.popularPosts = posts),
       error: (err) => (this.error = err.message || 'Failed to load posts')
     });
+  }
+
+  get pinnedRecentPosts(): ForumPost[] {
+    return this.recentPosts.filter(post => post.isPinned);
+  }
+  get unpinnedRecentPosts(): ForumPost[] {
+    return this.recentPosts.filter(post => !post.isPinned);
+  }
+  get paginatedUnpinnedRecentPosts(): ForumPost[] {
+    return this.paginatedRecentPosts.filter(post => !post.isPinned);
+  }
+  get pinnedPopularPosts(): ForumPost[] {
+    return this.popularPosts.filter(post => post.isPinned);
+  }
+  get unpinnedPopularPosts(): ForumPost[] {
+    return this.popularPosts.filter(post => !post.isPinned);
+  }
+  get paginatedUnpinnedPopularPosts(): ForumPost[] {
+    // Only unpinned posts, paginated
+    const unpinned = this.popularPosts.filter(post => !post.isPinned);
+    const start = (this.popularPage - 1) * this.popularPageSize;
+    return unpinned.slice(start, start + this.popularPageSize);
   }
 }
