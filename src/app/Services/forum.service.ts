@@ -35,7 +35,7 @@ export class ForumService {
       .set('sortBy', sortBy);
     if (isSolved !== undefined) params = params.set('isSolved', isSolved);
     if (search) params = params.set('search', search);
-    return this.http.get<ForumPost[]>(`${this.apiUrl}/posts`, { params });
+    return this.http.get<ForumPost[]>(`${this.apiUrl}/forum/posts`, { params });
   }
 
   getPostById(postId: number): Observable<ForumPost & { comments: ForumComment[] }> {
