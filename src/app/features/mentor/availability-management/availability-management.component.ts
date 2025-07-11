@@ -63,7 +63,7 @@ export class AvailabilityManagementComponent implements OnInit {
 
   ngOnInit(): void {
     this.currentUserId = this.authService.currentUserValue?.userId || 0;
-    this.timeSlots = this.availabilityService.generateTimeSlots(9, 18, 30);
+    this.timeSlots = this.availabilityService.generateTimeSlots(0, 24, 30);
     this.initializeCalendarDays();
     this.loadAvailability();
   }
