@@ -69,4 +69,12 @@ export class ForumCategoryComponent implements OnInit {
   goToCreatePost() {
     this.router.navigate(['/forum/create'], { queryParams: { categoryId: this.categoryId } });
   }
+
+  get pinnedPosts() {
+    return this.posts.filter(post => post.isPinned);
+  }
+
+  get otherPosts() {
+    return this.posts.filter(post => !post.isPinned);
+  }
 }

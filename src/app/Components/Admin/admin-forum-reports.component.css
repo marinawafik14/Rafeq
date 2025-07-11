@@ -1,0 +1,25 @@
+.stats-section {
+  margin-bottom: 2rem;
+}
+.stats-grid {
+  display: flex;
+  gap: 2rem;
+}
+.stats-card {
+  background: #fff;
+  border-radius: 1rem;
+  box-shadow: 0 2px 8px rgba(10,46,101,0.06);
+  padding: 1.5rem 2rem;
+  text-align: center;
+  flex: 1;
+}
+.stats-icon {
+  font-size: 2rem;
+  color: #0a2e65;
+  margin-bottom: 0.5rem;
+}
+.stats-number {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #0a2e65;
+}

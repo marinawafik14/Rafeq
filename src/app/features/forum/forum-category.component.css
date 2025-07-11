@@ -47,6 +47,11 @@
   display: block;
 }
 
+.pinned-post {
+  border-left: 4px solid #ffc107;
+  background: #fffbe6;
+}
+
 @media (max-width: 768px) {
   .forum-category {
     padding: 0.5rem;

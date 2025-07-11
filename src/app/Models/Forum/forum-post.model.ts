@@ -9,4 +9,5 @@ export interface ForumPost {
   categoryId: number;
   userId: number;
   userFullName: string;
+  isPinned: boolean; 
 }
