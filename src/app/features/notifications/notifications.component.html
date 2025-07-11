@@ -154,10 +154,9 @@
                       </ng-template>
                     </ng-container>
                   </span>
-                  <span *ngIf="notification.type === 'NewMessage'">
-                    You have a new message from <span class="text-primary">{{ getMentorNameForNotification(notification) }}</span>.
+                  <span *ngIf="false">
                   </span>
-                  <span  *ngIf="notification.type !== 'NewBooking' && notification.type !== 'SessionReminder' && notification.type !== 'BookingCancelled' && notification.type !== 'PaymentConfirmed' && notification.type !== 'NewMessage'">
+                  <span  *ngIf="notification.type !== 'NewBooking' && notification.type !== 'SessionReminder' && notification.type !== 'BookingCancelled' && notification.type !== 'PaymentConfirmed'">
                     <ng-container *ngIf="notification.message.includes('[Mentor Name]')">
                       <span [innerHTML]="notification.message.replace('[Mentor Name]', '<span class=\'text-primary\'>' + (getMentorNameForNotification(notification) || 'the mentor') + '</span>')"></span>
                     </ng-container>
