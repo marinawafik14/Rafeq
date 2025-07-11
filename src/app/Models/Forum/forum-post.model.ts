@@ -10,4 +10,5 @@ export interface ForumPost {
   userId: number;
   userFullName: string;
   isPinned: boolean; 
+   hasUpvoted?: boolean;
 }

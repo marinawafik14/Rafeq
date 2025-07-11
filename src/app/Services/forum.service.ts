@@ -29,6 +29,7 @@ export class ForumService {
     return this.http.get<ForumPost[]>(`${this.apiUrl}/forum/posts`, { params });
   }
 
+  // When loading posts for a category, always use sortBy='recent'
   getPostsByCategory(categoryId: number, sortBy: string = 'recent', isSolved?: boolean, search?: string): Observable<ForumPost[]> {
     let params = new HttpParams()
       .set('categoryId', categoryId)
@@ -39,55 +40,60 @@ export class ForumService {
   }
 
   getPostById(postId: number): Observable<ForumPost & { comments: ForumComment[] }> {
-    return this.http.get<ForumPost & { comments: ForumComment[] }>(`${this.apiUrl}/posts/${postId}`);
+    return this.http.get<ForumPost & { comments: ForumComment[] }>(`${this.apiUrl}/forum/posts/${postId}`);
   }
 
   createPost(post: Partial<ForumPost>): Observable<ForumPost> {
-    return this.http.post<ForumPost>(`${this.apiUrl}/posts`, post);
+    return this.http.post<ForumPost>(`${this.apiUrl}/forum/posts`, post);
   }
 
   updatePost(postId: number, post: Partial<ForumPost>): Observable<void> {
-    return this.http.put<void>(`${this.apiUrl}/posts/${postId}`, post);
+    return this.http.put<void>(`${this.apiUrl}/forum/posts/${postId}`, post);
   }
 
   deletePost(postId: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/posts/${postId}`);
+    return this.http.delete<void>(`${this.apiUrl}/forum/posts/${postId}`);
   }
 
   getPostsByUser(userId: number): Observable<ForumPost[]> {
-    return this.http.get<ForumPost[]>(`${this.apiUrl}/users/${userId}/posts`);
+    return this.http.get<ForumPost[]>(`${this.apiUrl}/forum/users/${userId}/posts`);
   }
 
   addComment(postId: number, comment: { content: string, isAnswer?: boolean }): Observable<any> {
-    return this.http.post(`${this.apiUrl}/posts/${postId}/comments`, comment);
+    return this.http.post(`${this.apiUrl}/forum/posts/${postId}/comments`, comment);
   }
 
   updateComment(commentId: number, content: string): Observable<any> {
-    return this.http.put(`${this.apiUrl}/comments/${commentId}`, { content });
+
+    return this.http.put(`${this.apiUrl}/forum/comments/${commentId}`, { content });
   }
 
   deleteComment(commentId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/comments/${commentId}`);
+  
+    return this.http.delete(`${this.apiUrl}/forum/comments/${commentId}`);
   }
 
   upvotePost(postId: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/posts/${postId}/upvote`, {});
+
+    return this.http.post(`${this.apiUrl}/forum/posts/${postId}/upvote`, {});
   }
 
   removeUpvote(postId: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/posts/${postId}/upvote`);
+   
+    return this.http.delete(`${this.apiUrl}/forum/posts/${postId}/upvote`);
   }
 
   markPostAsSolved(postId: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/posts/${postId}/solve`, {});
+   
+    return this.http.post(`${this.apiUrl}/forum/posts/${postId}/solve`, {});
   }
 
   reportPost(postId: number, reason: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/posts/${postId}/report`, { reason });
+    return this.http.post(`${this.apiUrl}/forum/posts/${postId}/report`, { reason });
   }
 
   getCommentsForPost(postId: number): Observable<ForumComment[]> {
-    return this.http.get<ForumComment[]>(`${this.apiUrl}/posts/${postId}/comments`);
+    return this.http.get<ForumComment[]>(`${this.apiUrl}/forum/posts/${postId}/comments`);
   }
 
   getForumReports(status?: string): Observable<ForumReport[]> {
