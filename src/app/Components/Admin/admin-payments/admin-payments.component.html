@@ -163,7 +163,7 @@
         <div class="pagination-summary">
           Showing {{ ((currentPage - 1) * itemsPerPage) + 1 }} to 
           {{ Math.min(currentPage * itemsPerPage, payments.length || 0) }} of 
-          {{ payments.length || 0 }} payments
+          {{ payments?.length || 0 }} payments
         </div>
       </div>
       
