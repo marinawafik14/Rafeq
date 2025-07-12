@@ -15,7 +15,7 @@
           <div class="stats-icon">
             <i class="fas fa-calendar-check"></i>
           </div>
-          <div class="stats-number">{{ (filteredBookings?.length || 0) }}</div>
+          <div class="stats-number">{{ (filteredBookings.length || 0) }}</div>
           <div class="stats-label">Total Bookings</div>
         </div>
         
@@ -107,7 +107,7 @@
     <!-- Bookings Table Container - Match mentor tables -->
     <div class="table-container">
       <div class="table-header">
-        <h5>All Bookings ({{ getpaginatedBookings()?.length || 0 }} of {{ filteredBookings?.length || 0 }})</h5>
+        <h5>All Bookings ({{ getpaginatedBookings().length || 0 }} of {{ filteredBookings.length || 0 }})</h5>
       </div>
       
       <div class="table-responsive">
@@ -224,8 +224,8 @@
       <div class="pagination-info mb-3">
         <div class="pagination-summary">
           Showing {{ ((currentPage - 1) * 10) + 1 }} to 
-          {{ Math.min(currentPage * 10, filteredBookings?.length || 0) }} of 
-          {{ filteredBookings?.length || 0 }} bookings
+          {{ Math.min(currentPage * 10, filteredBookings.length || 0) }} of 
+          {{ filteredBookings.length || 0 }} bookings
         </div>
       </div>
       

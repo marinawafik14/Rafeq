@@ -143,7 +143,7 @@
     <div class="table-container">
       <div class="table-header">
         <h5>
-          All Skills ({{ getpaginatedSkills()?.length || 0 }} of {{ filterSkills()?.length || 0 }})
+          All Skills ({{ getpaginatedSkills().length || 0 }} of {{ filterSkills().length || 0 }})
         </h5>
         <div class="table-actions">
           <button class="btn btn-sm btn-outline-primary" title="Export Skills">
@@ -254,8 +254,8 @@
       <div class="pagination-info mb-3">
         <div class="pagination-summary">
           Showing {{ ((currentPage - 1) * itemsPerPage) + 1 }} to 
-          {{ Math.min(currentPage * itemsPerPage, filterSkills()?.length || 0) }} of 
-          {{ filterSkills()?.length || 0 }} skills
+          {{ Math.min(currentPage * itemsPerPage, filterSkills().length || 0) }} of 
+          {{ filterSkills().length || 0 }} skills
         </div>
       </div>
       
