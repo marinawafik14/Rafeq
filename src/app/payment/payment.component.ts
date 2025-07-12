@@ -6,6 +6,7 @@ import { PaymentService } from '../Services/payment.service';
 import { PaymentDetailsDto } from '../Models/Payments/payment-details.model';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../Services/auth.service';
+import { environment } from '../environments/environment.development';
 
 @Component({
    selector: 'app-payment',
@@ -65,7 +66,7 @@ ngOnInit(): void {
 // Add this new method to load booking details
 private loadBookingDetails(): void {
   // First try to load from booking service to get session date/time
-  this.http.get<any>(`https://localhost:7001/api/MenteeBookings/${this.bookingId}`).subscribe({
+  this.http.get<any>(`${environment.apiUrl}/MenteeBookings/${this.bookingId}`).subscribe({
     next: (booking) => {
       this.paymentDetails = {
         paymentId: 0,

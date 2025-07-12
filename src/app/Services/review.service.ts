@@ -18,7 +18,7 @@ export interface MentorReview {
   providedIn: 'root'
 })
 export class ReviewService {
-  private reviewUrl = 'https://localhost:7001/api/admin/reviews';
+  private reviewUrl = `${environment.apiUrl}/admin/reviews`;
   private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) { }
@@ -34,11 +34,11 @@ export class ReviewService {
 
   // Get reviews for a specific mentor
   getMentorReviews(mentorId: number): Observable<MentorReview[]> {
-    return this.http.get<MentorReview[]>(`https://localhost:7001/api/reviews/mentor/${mentorId}`);
+    return this.http.get<MentorReview[]>(`${this.apiUrl}/reviews/mentor/${mentorId}`);
   }
 
   // Get reviews by a specific mentee
   getMenteeReviews(menteeId: number): Observable<MentorReview[]> {
-    return this.http.get<MentorReview[]>(`https://localhost:7001/api/reviews/mentee/${menteeId}`);
+    return this.http.get<MentorReview[]>(`${this.apiUrl}/reviews/mentee/${menteeId}`);
   }
 }

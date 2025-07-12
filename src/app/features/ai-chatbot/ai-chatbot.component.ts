@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import Swal from 'sweetalert2';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 import { AuthService } from '../../Services/auth.service';
 import { OpenaiService } from '../../Services/ai/openai.service';
@@ -616,7 +617,7 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   async generateTtsForMessage(messageId: string, text: string): Promise<void> {
     if (this.ttsAudioCache[messageId]) return; // Already cached
     try {
-      const ttsRes: any = await this.http.post('/api/tts/generate', {
+      const ttsRes: any = await this.http.post(`${environment.apiUrl}/tts/generate`, {
         text,
         voice: this.ttsVoice
       }).toPromise();

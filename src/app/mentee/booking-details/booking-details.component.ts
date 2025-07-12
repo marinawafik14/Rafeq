@@ -1,15 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
 import { menteeBookingservice } from '../../Services/menteeBooking.service';
-import { MenteeLayoutComponent } from '../mentee-layout.component';
+import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../Services/auth.service';
+import { MenteeLayoutComponent } from '../mentee-layout.component';
+import { environment } from '../../environments/environment.development';
 
 @Component({
   selector: 'app-booking-details',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, MenteeLayoutComponent],
   templateUrl: './booking-details.component.html',
   styleUrls: ['./booking-details.component.css']
 })
@@ -99,7 +100,7 @@ export class BookingDetailsComponent implements OnInit {
 
     this.loadingReview = true;
     
-    this.http.get<any>(`https://localhost:7001/api/mentee-reviews/booking/${bookingId}`).subscribe({
+    this.http.get<any>(`${environment.apiUrl}/mentee-reviews/booking/${bookingId}`).subscribe({
       next: (review) => {
         if (review) {
           this.bookingReview = {
@@ -114,7 +115,7 @@ export class BookingDetailsComponent implements OnInit {
         this.loadingReview = false;
       },
       error: (err) => {
-        this.http.get<any[]>(`https://localhost:7001/api/mentee-reviews/mentee/${menteeId}`).subscribe({
+        this.http.get<any[]>(`${environment.apiUrl}/mentee-reviews/mentee/${menteeId}`).subscribe({
           next: (reviews) => {
             const bookingReview = reviews.find(review => review.bookingId === bookingId);
             if (bookingReview) {

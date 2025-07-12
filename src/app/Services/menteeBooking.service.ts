@@ -2,10 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Bookings } from '../Models/Bookings';
+import { environment } from '../environments/environment.development';
 
 @Injectable({ providedIn: 'root' })
 export class menteeBookingservice {
-  private baseUrl = 'https://localhost:7001/api/MenteeBookings/mentee';
+  private baseUrl = `${environment.apiUrl}/MenteeBookings/mentee`;
 
   constructor(private http: HttpClient) {}
 
@@ -23,7 +24,7 @@ export class menteeBookingservice {
 
   // Get booking details by bookingId
   getBookingDetails(bookingId: number): Observable<any> {
-    return this.http.get<any>(`https://localhost:7001/api/MenteeBookings/${bookingId}`);
+    return this.http.get<any>(`${environment.apiUrl}/MenteeBookings/${bookingId}`);
   }
   createBookingForMentee(menteeId: number, bookingData: any): Observable<any> {
     const requestBody = {
@@ -35,13 +36,13 @@ export class menteeBookingservice {
     };
     
     return this.http.post<any>(
-      `https://localhost:7001/api/MenteeBookings/mentee/${menteeId}`,
+      `${environment.apiUrl}/MenteeBookings/mentee/${menteeId}`,
       requestBody
     );
 }
  // Cancel a booking (returns observable)
   cancelBooking(bookingId: number): Observable<any> {
-    return this.http.post<any>(`https://localhost:7001/api/MenteeBookings/${bookingId}/cancel`, {});
+    return this.http.post<any>(`${environment.apiUrl}/MenteeBookings/${bookingId}/cancel`, {});
   }
 
   // Cancel pending booking and clear session (returns a Promise for async/await usage)

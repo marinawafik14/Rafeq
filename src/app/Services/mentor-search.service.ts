@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../environments/environment';
 import { Users } from '../Models/Users';
 import { SemanticMentorResult } from '../Models/SemanticMentorResult';
 
@@ -22,7 +23,7 @@ export interface MentorSearchResult {
 
 @Injectable({ providedIn: 'root' })
 export class MentorSearchService {
-  private apiUrl = '/api/users/mentors';
+  private apiUrl = `${environment.apiUrl}/users/mentors`;
 
   constructor(private http: HttpClient) {}
 
@@ -30,7 +31,7 @@ export class MentorSearchService {
    * Get a mentor by their user ID
    */
   getMentorById(mentorId: number): Observable<Users> {
-    return this.http.get<Users>(`/api/users/${mentorId}`);
+    return this.http.get<Users>(`${environment.apiUrl}/users/${mentorId}`);
   }
 
   searchMentors(filters: MentorSearchFilters): Observable<MentorSearchResult> {
@@ -59,7 +60,7 @@ export class MentorSearchService {
     if (skills && skills.length > 0) body.skills = skills;
     if (maxResults) body.maxResults = maxResults;
     return this.http.post<{ success: boolean, mentors: SemanticMentorResult[], totalResults: number, searchTime: number }>(
-      '/api/Embedding/mentors/semantic-search',
+      `${environment.apiUrl}/Embedding/mentors/semantic-search`,
       body,
       { headers: { Authorization: `Bearer ${localStorage.getItem('jwt_token')}` } }
     );

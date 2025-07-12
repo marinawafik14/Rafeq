@@ -5,14 +5,15 @@ import { tap, catchError } from 'rxjs/operators'; // ✅ Add these imports
 import { Payments } from '../Models/Payments/Payments';
 import { PaymentDetailsDto } from '../Models/Payments/payment-details.model';
 import { CreatePaymentIntentDto } from '../Models/Payments/CreatePaymentIntentDto';
+import { environment } from '../environments/environment.development';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PaymentService {
-paymentsUrl = 'https://localhost:7001/api/admin/payments'
-totalRevenueUrl = 'https://localhost:7001/api/admin/revenues/total';
-apiUrl = 'https://localhost:7001/api/payments';
+paymentsUrl = `${environment.apiUrl}/admin/payments`
+totalRevenueUrl = `${environment.apiUrl}/admin/revenues/total`;
+apiUrl = `${environment.apiUrl}/payments`;
   constructor(private http : HttpClient) { }
   // Load payment details by ID
   getPaymentById(paymentId: number): Observable<PaymentDetailsDto> {
@@ -27,12 +28,12 @@ createPaymentIntent(bookingId: number): Observable<any> {
   const requestBody = { bookingId: bookingId };
   
   console.log('=== PAYMENT INTENT REQUEST ===');
-  console.log('URL:', 'https://localhost:7001/api/payments/create-intent');
+  console.log('URL:', `${this.apiUrl}/create-intent`);
   console.log('Request body:', requestBody);
   console.log('BookingId being sent:', bookingId);
   console.log('==============================');
   
-  return this.http.post<any>('https://localhost:7001/api/payments/create-intent', requestBody).pipe(
+  return this.http.post<any>(`${this.apiUrl}/create-intent`, requestBody).pipe(
     tap(response => {
       console.log('=== PAYMENT INTENT RESPONSE ===');
       console.log('Response:', response);
