@@ -10,7 +10,7 @@ import { environment } from '../../environments/environment.development';
 @Component({
   selector: 'app-booking-details',
   standalone: true,
-  imports: [CommonModule, MenteeLayoutComponent],
+  imports: [CommonModule],
   templateUrl: './booking-details.component.html',
   styleUrls: ['./booking-details.component.css']
 })

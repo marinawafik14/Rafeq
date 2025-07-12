@@ -9,7 +9,7 @@ import { environment } from '../../environments/environment.development';
 @Component({
   selector: 'app-mentor-profile-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, MenteeLayoutComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './mentor-profile-view.component.html',
   styleUrls: ['./mentor-profile-view.component.css']
 })

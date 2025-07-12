@@ -12,7 +12,7 @@ import { environment } from '../../environments/environment.development';
 @Component({
   selector: 'app-booking-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, MenteeLayoutComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './booking-form.component.html',
   styleUrls: ['./booking-form.component.css']
 })

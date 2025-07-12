@@ -23,7 +23,7 @@ interface CV {
 @Component({
   selector: 'app-cv-management',
   standalone: true,
-  imports: [CommonModule, MenteeLayoutComponent],
+  imports: [CommonModule],
   templateUrl: './cv-management.component.html',
   styleUrls: ['./cv-management.component.css']
 })

@@ -69,7 +69,7 @@
     <div class="table-container">
       <div class="table-header">
         <h5>
-          All Transactions ({{ getpaginatedPayments()?.length || 0 }} of {{ payments?.length || 0 }})
+          All Transactions ({{ getpaginatedPayments().length || 0 }} of {{ payments.length || 0 }})
         </h5>
         <div class="table-actions">
           <button class="btn btn-sm btn-outline-primary" title="Export Transactions">
@@ -162,8 +162,8 @@
       <div class="pagination-info mb-3">
         <div class="pagination-summary">
           Showing {{ ((currentPage - 1) * itemsPerPage) + 1 }} to 
-          {{ Math.min(currentPage * itemsPerPage, payments?.length || 0) }} of 
-          {{ payments?.length || 0 }} payments
+          {{ Math.min(currentPage * itemsPerPage, payments.length || 0) }} of 
+          {{ payments.length || 0 }} payments
         </div>
       </div>
       
