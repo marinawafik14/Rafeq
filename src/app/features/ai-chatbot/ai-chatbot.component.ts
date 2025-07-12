@@ -617,7 +617,7 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   async generateTtsForMessage(messageId: string, text: string): Promise<void> {
     if (this.ttsAudioCache[messageId]) return; // Already cached
     try {
-      const ttsRes: any = await this.http.post(`${environment.apiUrl}/tts/generate`, {
+      const ttsRes: any = await this.http.post(`${environment.apiUrl}/voice/tts/generate`, {
         text,
         voice: this.ttsVoice
       }).toPromise();
