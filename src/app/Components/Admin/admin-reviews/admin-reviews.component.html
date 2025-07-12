@@ -105,7 +105,7 @@
     <div class="reviews-container">
       <div class="reviews-header">
         <h5>
-          All Reviews ({{ getFilteredReviews()?.length || 0 }} of {{ reviewsList?.length || 0 }})
+          All Reviews ({{ getFilteredReviews().length || 0 }} of {{ reviewsList.length || 0 }})
         </h5>
         <div class="reviews-actions">
           <button class="btn btn-sm btn-outline-primary" title="Export Reviews">
@@ -203,8 +203,8 @@
       <div class="pagination-info mb-3">
         <div class="pagination-summary">
           Showing {{ ((currentPage - 1) * itemsPerPage) + 1 }} to 
-          {{ Math.min(currentPage * itemsPerPage, getFilteredReviews()?.length || 0) }} of 
-          {{ getFilteredReviews()?.length || 0 }} reviews
+          {{ Math.min(currentPage * itemsPerPage, getFilteredReviews().length || 0) }} of 
+          {{ getFilteredReviews().length || 0 }} reviews
         </div>
       </div>
       

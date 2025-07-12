@@ -1,11 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CvService } from '../../Services/cv.service';
-import { ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
+import { CvService } from '../../Services/cv.service';
 import { AuthService } from '../../Services/auth.service';
 import { ToastrService } from 'ngx-toastr';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { DomSanitizer } from '@angular/platform-browser';
+import { MenteeLayoutComponent } from '../mentee-layout.component';
+import { environment } from '../../environments/environment.development';
 
 interface CV {
   id: number;
@@ -41,7 +43,7 @@ export class CvManagementComponent implements OnInit, OnDestroy {
   showDeleteConfirm = false;
   cvToDelete: CV | null = null;
 
-  private apiBaseUrl = 'https://localhost:7001/api';
+  private apiBaseUrl = environment.apiUrl;
   private maxFileSize = 2 * 1024 * 1024; // 2MB in bytes
 
   constructor(

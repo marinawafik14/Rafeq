@@ -6,12 +6,13 @@ import { menteeBookingservice } from '../../Services/menteeBooking.service';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../Services/auth.service';
 import { MenteeLayoutComponent } from '../mentee-layout.component';
+import { environment } from '../../environments/environment.development';
 
 
 @Component({
   selector: 'app-booking-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, MenteeLayoutComponent],
+  imports: [CommonModule, FormsModule],
   templateUrl: './booking-form.component.html',
   styleUrls: ['./booking-form.component.css']
 })
@@ -74,7 +75,7 @@ export class BookingFormComponent implements OnDestroy {
     this.route.queryParams.subscribe(params => {
       if (params['mentorId']) {
         this.mentorId = +params['mentorId'];
-        this.http.get(`https://localhost:7001/api/mentors/${this.mentorId}`).subscribe({
+        this.http.get(`${environment.apiUrl}/mentors/${this.mentorId}`).subscribe({
           next: (mentor: any) => {
             this.mentor = mentor;
             this.showMentorship = mentor.isMentor === true || mentor.isMentor === 'true';
@@ -272,7 +273,7 @@ export class BookingFormComponent implements OnDestroy {
     }
 
     this.loadingSlots = true;
-    this.http.get<any[]>(`https://localhost:7001/api/mentors/mentors/${this.mentorId}/free-slots`).subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/mentors/mentors/${this.mentorId}/free-slots`).subscribe({
       next: (slots) => {
         let myPendingBookingId: number | null = null;
         const pendingBooking = sessionStorage.getItem('pendingBooking');
@@ -555,7 +556,7 @@ export class BookingFormComponent implements OnDestroy {
   }
 
   private cleanupUnpaidBooking(bookingId: number): void {
-    this.http.delete(`https://localhost:7001/api/MenteeBookings/${bookingId}`).subscribe({
+    this.http.delete(`${environment.apiUrl}/MenteeBookings/${bookingId}`).subscribe({
       next: (response: any) => {
         sessionStorage.removeItem('pendingBooking');
         sessionStorage.removeItem(`booking_${bookingId}_amount`);
@@ -733,7 +734,7 @@ export class BookingFormComponent implements OnDestroy {
     if (pendingBooking) {
       const booking = JSON.parse(pendingBooking);
       const cleanupData = JSON.stringify({ bookingId: booking.bookingId });
-      navigator.sendBeacon(`https://localhost:7001/api/MenteeBookings/${booking.bookingId}/cancel`, cleanupData);
+      navigator.sendBeacon(`${environment.apiUrl}/MenteeBookings/${booking.bookingId}/cancel`, cleanupData);
     }
   }
 

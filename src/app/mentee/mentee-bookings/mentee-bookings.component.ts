@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { menteeBookingservice } from '../../Services/menteeBooking.service';
 import { MenteeLayoutComponent } from '../mentee-layout.component';
 import { AuthService } from '../../Services/auth.service';
+import { environment } from '../../environments/environment.development';
 
 @Component({
   selector: 'app-mentee-bookings',
@@ -240,7 +241,7 @@ export class MenteeBookingsComponent implements OnInit {
   }
 
   getBookingById(bookingId: number) {
-    return this.http.get(`/api/Bookings/${bookingId}`);
+    return this.http.get(`${environment.apiUrl}/Bookings/${bookingId}`);
   }
 
   viewBookingDetails(booking: any) {

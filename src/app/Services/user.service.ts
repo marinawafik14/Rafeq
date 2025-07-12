@@ -2,13 +2,14 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { EditUser, Users } from '../Models/Users';
+import { environment } from '../environments/environment.development';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-private usersUrl = "https://localhost:7001/api/admin/users"; 
-private userIdUrl = "https://localhost:7001/api/admin";
+private usersUrl = `${environment.apiUrl}/admin/users`; 
+private userIdUrl = `${environment.apiUrl}/admin`;
   constructor(private http : HttpClient) { }
   // get all users
   getAllUsers():Observable<Users[]> {
