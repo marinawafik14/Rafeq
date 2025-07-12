@@ -106,7 +106,7 @@ get totalPages(): number {
     const average = total / this.payments.length;
     return average.toFixed(0);
   }
-
+/*
   getTodayRevenue(): string {
   const today = new Date();
   const todayPayments = this.payments.filter(payment => {
@@ -127,5 +127,5 @@ get totalPages(): number {
   
   const todayTotal = todayPayments.reduce((sum, payment) => sum + payment.amountPaid, 0);
   return todayTotal.toFixed(0);
-}
+}*/
 }
