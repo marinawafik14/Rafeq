@@ -3,7 +3,7 @@ export const environment = {
   apiUrl: 'https://rafeeq-1.runasp.net/api',
   // AI Configuration with updated API key
   openai: {
-    apiKey: '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',
+    apiKey: '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',
     chatApiUrl: 'https://api.openai.com/v1/chat/completions',
     embeddingApiUrl: 'https://api.openai.com/v1/embeddings',
     chatModel: 'gpt-4o-mini',
