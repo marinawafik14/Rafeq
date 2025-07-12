@@ -2,6 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../environments/environment.development';
 
 export interface MentorCard {
   id?: number;
@@ -48,15 +49,15 @@ export interface MenteeDashboard {
   providedIn: 'root'
 })
 export class MenteeService {
-  private apiUrl = 'https://localhost:7001/api/mentee';
+  private apiUrl = `${environment.apiUrl}/mentee`;
 
   constructor(private http: HttpClient) { }
 
   getDashboardData(menteeId: number): Observable<MenteeDashboard> {
-    return this.http.get<MenteeDashboard>(`https://localhost:7001/api/mentee/${menteeId}/dashboard`);
+    return this.http.get<MenteeDashboard>(`${this.apiUrl}/${menteeId}/dashboard`);
   }
 
   getAllMentors(): Observable<MentorCard[]> {
-    return this.http.get<MentorCard[]>('https://localhost:7001/api/mentors/all');
+    return this.http.get<MentorCard[]>(`${environment.apiUrl}/mentors/all`);
   }
 }

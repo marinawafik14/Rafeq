@@ -5,6 +5,7 @@ import { MenteeLayoutComponent } from '../mentee-layout.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../Services/auth.service';
+import { environment } from '../../environments/environment.development';
 @Component({
   selector: 'app-mentor-profile-view',
   standalone: true,
@@ -77,7 +78,7 @@ export class MentorProfileViewComponent implements OnInit {
 
     this.loading = true;
     
-    this.http.get(`https://localhost:7001/api/mentors/${this.mentorId}`).subscribe({
+    this.http.get(`${environment.apiUrl}/mentors/${this.mentorId}`).subscribe({
       next: (mentorData) => {
         this.mentor = mentorData;
         
@@ -97,7 +98,7 @@ export class MentorProfileViewComponent implements OnInit {
   private loadMentorReviews() {
     if (!this.mentorId) return;
 
-    this.http.get<any[]>(`https://localhost:7001/api/mentee-reviews/mentor/${this.mentorId}`).subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/mentee-reviews/mentor/${this.mentorId}`).subscribe({
       next: async (reviews) => {
         this.reviews = reviews;
         this.reviews.forEach((review) => {
@@ -118,7 +119,7 @@ export class MentorProfileViewComponent implements OnInit {
     if (!this.mentorId) return;
 
     this.loadingSlots = true;
-    this.http.get<any[]>(`https://localhost:7001/api/mentors/mentors/${this.mentorId}/free-slots`).subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/mentors/mentors/${this.mentorId}/free-slots`).subscribe({
       next: (slots) => {
         const availableSlots = slots.filter(slot => {
           if (slot.status === 'pending_payment') {
@@ -359,7 +360,7 @@ export class MentorProfileViewComponent implements OnInit {
   loadMenteeBookings() {
     if (!this.menteeId) return;
     
-    this.http.get<any[]>(`https://localhost:7001/api/MenteeBookings/mentee/${this.menteeId}/all`).subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/MenteeBookings/mentee/${this.menteeId}/all`).subscribe({
       next: (bookings) => {
         this.menteeBookings = bookings.filter(booking => {
           const mentorMatch = booking.mentorId === this.mentorId;
@@ -436,7 +437,7 @@ export class MentorProfileViewComponent implements OnInit {
       return;
     }
 
-    this.http.post('https://localhost:7001/api/mentee-reviews', this.newReview).subscribe({
+    this.http.post(`${environment.apiUrl}/mentee-reviews`, this.newReview).subscribe({
       next: (response) => {
         this.loadMentorReviews();
         this.closeCreateReviewModal();
@@ -471,7 +472,7 @@ export class MentorProfileViewComponent implements OnInit {
       return;
     }
 
-    this.http.put(`https://localhost:7001/api/mentee-reviews/${reviewId}`, this.editingReview).subscribe({
+    this.http.put(`${environment.apiUrl}/mentee-reviews/${reviewId}`, this.editingReview).subscribe({
       next: (response) => {
         this.loadMentorReviews();
         this.closeEditReviewModal();
@@ -512,7 +513,7 @@ export class MentorProfileViewComponent implements OnInit {
       return;
     }
 
-    this.http.delete(`https://localhost:7001/api/mentee-reviews/${this.pendingDeleteReviewId}`).subscribe({
+    this.http.delete(`${environment.apiUrl}/mentee-reviews/${this.pendingDeleteReviewId}`).subscribe({
       next: (response) => {
         this.loadMentorReviews();
         this.showToast('Review deleted successfully!', 'success');

@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Bookings } from '../Models/Bookings';
 import { SessionJoinRequest } from '../Models/Booking/session-join-request'; // Add this import
+import { environment } from '../environments/environment.development';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,7 @@ export class BookingService {
 
   constructor(private http : HttpClient) { }
 
-  BookingUrl = "https://localhost:7001/api/admin/bookings"
+  BookingUrl = `${environment.apiUrl}/admin/bookings`
 
   getAllBookings() :Observable<Bookings[]> {
    

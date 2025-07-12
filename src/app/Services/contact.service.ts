@@ -2,13 +2,14 @@ import { Contact, Replies } from './../Models/contact';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
+import { environment } from '../environments/environment.development';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ContactService {
-baseURL ="https://localhost:7001/api"
-getAllMessUrl = "https://localhost:7001/api/admin/contact"
+baseURL = `${environment.apiUrl}`
+getAllMessUrl = `${environment.apiUrl}/admin/contact`
   constructor(private http : HttpClient) { }
   // sent contact messagepost message
 sendContactMessage(data : Contact){
