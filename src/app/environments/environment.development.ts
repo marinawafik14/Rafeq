@@ -1,6 +1,6 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://rafeeq-1.runasp.net/api',
+  apiUrl: 'https://rafeeq-1.runasp.net/api',
   // AI Configuration with updated API key
   openai: {
     apiKey: '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',
