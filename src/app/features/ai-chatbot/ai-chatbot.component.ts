@@ -617,7 +617,7 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   async generateTtsForMessage(messageId: string, text: string): Promise<void> {
     if (this.ttsAudioCache[messageId]) return; // Already cached
     try {
-      const ttsRes: any = await this.http.post(`${environment.apiUrl}/voice/tts/generate`, {
+     const ttsRes: any = await this.http.post(`${environment.apiUrl}/voice/tts/generate`,{
         text,
         voice: this.ttsVoice
       }).toPromise();
@@ -664,17 +664,17 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
         ).toPromise() as any;
 
         if (response?.candidates?.[0]?.content?.parts?.[0]?.text) {
-          console.log(`✅ Gemini fallback successful with ${model}`);
+          console.log(` Gemini fallback successful with ${model}`);
           return response.candidates[0].content.parts[0].text;
         }
       } catch (error) {
-        console.error(`❌ Gemini fallback failed with ${model}:`, error);
+        console.error(` Gemini fallback failed with ${model}:`, error);
         continue; // Try next model
       }
     }
     
     // If all Gemini models fail, return a generic error message
-    console.error('❌ All AI services failed');
+    console.error(' All AI services failed');
     return 'I apologize, but I\'m currently experiencing technical difficulties. Please try again later.';
   }
 
