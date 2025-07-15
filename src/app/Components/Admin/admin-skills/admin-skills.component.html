@@ -146,7 +146,7 @@
           All Skills ({{ getpaginatedSkills().length || 0 }} of {{ filterSkills().length || 0 }})
         </h5>
         <div class="table-actions">
-          <button class="btn btn-sm btn-outline-primary" title="Export Skills">
+          <button class="btn btn-sm btn-outline-primary" title="Export Skills" (click)="exportSkills()">
             <i class="fas fa-download me-1"></i>Export
           </button>
         </div>

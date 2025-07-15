@@ -330,6 +330,46 @@ export class AdminSkillsComponent implements OnInit {
     return uniqueActiveSkills.size;
   }
 
+  // Export skills as CSV
+  exportSkills(): void {
+    const filteredSkills = this.filterSkills();
+    if (filteredSkills.length === 0) {
+      Swal.fire('No Data', 'There are no skills to export.', 'info');
+      return;
+    }
+    const csvData = filteredSkills.map(skill => ({
+      'Skill ID': skill.SkillId,
+      'Skill Name': skill.Name,
+      'Mentor Count': skill.MentorsCount,
+      'Mentor Name': skill.MentorName || '',
+      'Mentor ID': skill.MentorId || ''
+    }));
+    const csvContent = this.convertToCSV(csvData);
+    this.downloadCSV(csvContent, 'skills-export.csv');
+  }
+
+  private convertToCSV(data: any[]): string {
+    if (data.length === 0) return '';
+    const header = Object.keys(data[0]).join(',');
+    const rows = data.map(row =>
+      Object.values(row).map(value =>
+        typeof value === 'string' && value.includes(',') ? `"${value}"` : value
+      ).join(',')
+    );
+    return [header, ...rows].join('\n');
+  }
+
+  private downloadCSV(content: string, filename: string): void {
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 
   // debugSkillsData(): void {
   //   console.log('=== SKILLS DEBUG ===');
