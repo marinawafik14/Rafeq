@@ -5,12 +5,13 @@ import { CVReviewService } from '../../../Services/cv-review.service';
 import { CVDetails } from '../../../Models/CV/cv-details';
 import { CVComment } from '../../../Models/CV/cv-comment';
 import { AddCVCommentRequest } from '../../../Models/CV/add-cv-comment-request';
+import { FloatingDashboardButtonComponent } from '../../../shared/components/floating-dashboard-button/floating-dashboard-button.component';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-cv-review',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, FloatingDashboardButtonComponent],
   templateUrl: './cv-review.component.html',
   styleUrls: ['./cv-review.component.css']
 })

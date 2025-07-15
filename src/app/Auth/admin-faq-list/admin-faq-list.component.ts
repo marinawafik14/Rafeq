@@ -6,6 +6,7 @@ import { ToastrService } from 'ngx-toastr';
 import { FaqDto, PagedResult } from '../../Models/FQA/FaqDto';
 import { FaqService } from '../../Services/faq.service';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-admin-faq-list',
@@ -112,29 +113,48 @@ export class AdminFaqListComponent implements OnInit {
     const faq = this.faqs.find((f) => f.faqId === id);
     const faqTitle = faq ? faq.question : 'this FAQ';
 
-    const confirmed = confirm(
-      `Are you sure you want to delete "${faqTitle}"?\n\nThis action cannot be undone.`
-    );
-
-    if (confirmed) {
-      this.faqService.deleteFaq(id).subscribe({
-        next: () => {
-          this.toastr.success(
-            `FAQ "${faqTitle}" has been deleted successfully!`,
-            'FAQ Deleted'
-          );
-          this.loadFaqs();
-        },
-        error: (err: any) => {
-          console.error('Error deleting FAQ:', err);
-          this.error = 'Failed to delete FAQ. Please try again.';
-          this.toastr.error(
-            `Failed to delete "${faqTitle}". Please try again.`,
-            'Delete Failed'
-          );
-        },
-      });
-    }
+    Swal.fire({
+      title: 'Delete FAQ?',
+      text: `Are you sure you want to delete "${faqTitle}"? This action cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, Delete',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+      customClass: {
+        popup: 'rounded-4',
+        confirmButton: 'rounded-pill px-4',
+        cancelButton: 'rounded-pill px-4'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.faqService.deleteFaq(id).subscribe({
+          next: () => {
+            this.loadFaqs();
+            Swal.fire({
+              icon: 'success',
+              title: 'Deleted!',
+              text: `FAQ "${faqTitle}" has been deleted.`,
+              timer: 1500,
+              showConfirmButton: false,
+              toast: true,
+              position: 'top-end'
+            });
+          },
+          error: (err: any) => {
+            console.error('Error deleting FAQ:', err);
+            Swal.fire({
+              icon: 'error',
+              title: 'Failed to Delete',
+              text: err.message || 'Unknown error',
+              confirmButtonColor: '#0a2e65'
+            });
+          },
+        });
+      }
+    });
   }
 
   get totalPagesArray(): number[] {

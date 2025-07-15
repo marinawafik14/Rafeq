@@ -1,4 +1,6 @@
 <div class="bookings-management">
+  <!-- Today's Upcoming Filter Toggle -->
+  <!-- (Removed old button, now handled by tab) -->
   <!-- Header Section -->
   <div class="bookings-header py-5 text-white">
     <div class="container">
@@ -435,7 +437,8 @@
   </div>
 </div>
 
-
+<!-- Floating Dashboard Button -->
+<app-floating-dashboard-button></app-floating-dashboard-button>
 
 <!-- Booking Details Modal -->
 <div *ngIf="showDetailsModal && selectedBooking" class="modal d-block" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5)">

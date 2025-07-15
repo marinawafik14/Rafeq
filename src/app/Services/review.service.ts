@@ -3,16 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Reviews } from '../Models/Reviews';
 import { environment } from '../environments/environment.development';
-
-export interface MentorReview {
-  id: number;
-  rating: number;
-  comment: string;
-  reviewDate: string;
-  menteeId: number;
-  menteeName?: string;
-  mentorId: number;
-}
+import { MentorReview } from '../Models/Review/mentor-review.interface';
 
 @Injectable({
   providedIn: 'root'
@@ -40,5 +31,10 @@ export class ReviewService {
   // Get reviews by a specific mentee
   getMenteeReviews(menteeId: number): Observable<MentorReview[]> {
     return this.http.get<MentorReview[]>(`${this.apiUrl}/reviews/mentee/${menteeId}`);
+  }
+
+  // Get reviews for the currently authenticated mentor
+  getMyMentorReviews(): Observable<MentorReview[]> {
+    return this.http.get<MentorReview[]>(`${this.apiUrl}/reviews/mentor/me`);
   }
 }

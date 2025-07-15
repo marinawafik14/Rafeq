@@ -9,12 +9,13 @@ import { CreateAvailabilityRequest } from '../../../Models/Availability/create-a
 import { UpdateAvailabilityRequest } from '../../../Models/Availability/update-availability-request';
 import { WeeklySchedule } from '../../../Models/Availability/weekly-schedule';
 import { CalendarDay } from '../../../Models/Calendar/calendar-day';
+import { FloatingDashboardButtonComponent } from '../../../shared/components/floating-dashboard-button/floating-dashboard-button.component';
 //import { ToastrService } from 'ngx-toastr';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-availability-management',
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, FloatingDashboardButtonComponent],
   templateUrl: './availability-management.component.html',
   styleUrls: ['./availability-management.component.css']
 })

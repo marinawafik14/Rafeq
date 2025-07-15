@@ -9,11 +9,12 @@ import { BookingFilter } from '../../../Models/Booking/booking-filter';
 import { BookingStatusUpdate } from '../../../Models/Booking/booking-status-update';
 import { BookingStats } from '../../../Models/Booking/booking-stats';
 import { BookingAction } from '../../../Models/Booking/booking-action';
+import { FloatingDashboardButtonComponent } from '../../../shared/components/floating-dashboard-button/floating-dashboard-button.component';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-bookings',
-  imports: [CommonModule, ReactiveFormsModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, FloatingDashboardButtonComponent],
   templateUrl: './bookings.component.html',
   styleUrls: ['./bookings.component.css']
 })
@@ -29,6 +30,7 @@ export class BookingsComponent implements OnInit {
   tabs = [
     { id: 'all', label: 'All Bookings', count: 0 },
     { id: 'upcoming', label: 'Upcoming', count: 0 },
+    { id: 'today', label: "Today's Upcoming", count: 0 },
     { id: 'completed', label: 'Completed', count: 0 },
     { id: 'cancelled', label: 'Cancelled', count: 0 }
   ];
@@ -44,6 +46,8 @@ export class BookingsComponent implements OnInit {
   selectedBooking: MentorBookingDetails | null = null;
   showDetailsModal: boolean = false;
   showRescheduleModal: boolean = false;
+  showTodaysUpcomingOnly: boolean = false;
+  todaysUpcomingBookings: MentorBookingDetails[] = [];
   
   currentPage: number = 1;
   pageSize: number = 10;
@@ -81,6 +85,7 @@ export class BookingsComponent implements OnInit {
         this.setupFormSubscriptions(); // Add this line
       }
     });
+    this.updateTodaysUpcomingBookings();
   }
 
   setupFormSubscriptions(): void {
@@ -150,7 +155,8 @@ export class BookingsComponent implements OnInit {
 
   updateTabCounts(): void {
     const now = new Date();
-    
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
     this.tabs[0].count = this.allBookings.length; // All
     this.tabs[1].count = this.allBookings.filter(b => {
       // A booking is "upcoming" if:
@@ -160,8 +166,17 @@ export class BookingsComponent implements OnInit {
       return (b.status === 'Confirmed' || b.status === 'Pending' || b.status === 'InProgress') && 
              now < sessionEnd;
     }).length; // Upcoming
-    this.tabs[2].count = this.allBookings.filter(b => b.status === 'Completed').length; // Completed
-    this.tabs[3].count = this.allBookings.filter(b => b.status === 'Cancelled').length; // Cancelled
+    this.tabs[2].count = this.allBookings.filter(b => {
+      const sessionDate = new Date(b.startDateTime);
+      return (
+        sessionDate >= now &&
+        sessionDate >= startOfToday &&
+        sessionDate <= endOfToday &&
+        b.status !== 'Completed' && b.status !== 'Cancelled'
+      );
+    }).length; // Today's Upcoming
+    this.tabs[3].count = this.allBookings.filter(b => b.status === 'Completed').length; // Completed
+    this.tabs[4].count = this.allBookings.filter(b => b.status === 'Cancelled').length; // Cancelled
   }
 
   setActiveTab(tabId: string): void {
@@ -174,12 +189,9 @@ export class BookingsComponent implements OnInit {
     let filtered = [...this.allBookings];
     const formValues = this.searchForm.value;
     const now = new Date();
-    
-    console.log('=== FILTER DEBUG ===');
-    console.log('Form values:', formValues);
-    console.log('Active tab:', this.activeTab);
-    console.log('Initial bookings count:', filtered.length);
-    
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+
     // Apply tab filter first
     switch (this.activeTab) {
       case 'upcoming':
@@ -187,6 +199,17 @@ export class BookingsComponent implements OnInit {
           const sessionEnd = new Date(b.endDateTime);
           return (b.status === 'Confirmed' || b.status === 'Pending' || b.status === 'InProgress') && 
                  now < sessionEnd;
+        });
+        break;
+      case 'today':
+        filtered = filtered.filter(b => {
+          const sessionDate = new Date(b.startDateTime);
+          return (
+            sessionDate >= now &&
+            sessionDate >= startOfToday &&
+            sessionDate <= endOfToday &&
+            b.status !== 'Completed' && b.status !== 'Cancelled'
+          );
         });
         break;
       case 'pending':
@@ -201,7 +224,10 @@ export class BookingsComponent implements OnInit {
       // 'all' shows everything
     }
     
-    console.log('After tab filter:', filtered.length);
+    console.log('=== FILTER DEBUG ===');
+    console.log('Form values:', formValues);
+    console.log('Active tab:', this.activeTab);
+    console.log('Initial bookings count:', filtered.length);
     
     // Apply search query
     if (formValues.searchQuery?.trim()) {
@@ -286,9 +312,26 @@ export class BookingsComponent implements OnInit {
     this.filteredBookings = filtered;
     this.totalPages = Math.ceil(filtered.length / this.pageSize);
     this.currentPage = Math.min(this.currentPage, this.totalPages || 1);
-    
+
+    this.updateTodaysUpcomingBookings();
+
     console.log('Final filtered count:', filtered.length);
     console.log('=== END FILTER DEBUG ===');
+  }
+
+  updateTodaysUpcomingBookings(): void {
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+    const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+    this.todaysUpcomingBookings = this.allBookings.filter(b => {
+      const sessionDate = new Date(b.startDateTime);
+      return (
+        sessionDate >= now &&
+        sessionDate >= startOfToday &&
+        sessionDate <= endOfToday &&
+        b.status !== 'Completed' && b.status !== 'Cancelled'
+      );
+    });
   }
 
   getPaginatedBookings(): MentorBookingDetails[] {

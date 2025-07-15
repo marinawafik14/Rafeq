@@ -1,0 +1,56 @@
+.mentor-reviews-section {
+  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+}
+
+.mentor-review-card {
+  border-radius: 1rem;
+  transition: box-shadow 0.2s;
+}
+.mentor-review-card:hover {
+  box-shadow: 0 4px 24px rgba(10,46,101,0.08);
+}
+
+.average-rating-display {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #0a2e65;
+  background: #f8fafc;
+}
+
+.reviewer-avatar {
+  background: #0a2e65 !important;
+  color: #fff !important;
+  font-weight: bold;
+  font-size: 1.2rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.review-comment {
+  font-size: 1rem;
+  color: #222;
+  margin-top: 0.5rem;
+}
+
+.card-body {
+  padding: 1.25rem;
+}
+
+.card {
+  border-radius: 1rem;
+}
+
+.text-warning {
+  color: #ffc107 !important;
+}
+
+.fw-bold {
+  font-weight: 700 !important;
+}
+
+.fw-semibold {
+  font-weight: 600 !important;
+}

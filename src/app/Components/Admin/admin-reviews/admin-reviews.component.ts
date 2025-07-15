@@ -56,31 +56,7 @@ export class AdminReviewsComponent implements OnInit {
     });
   }
 
-  deleteReview(id: number) {
-    Swal.fire({
-      title: 'Are you sure?',
-      text: 'This review will be deleted permanently!',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33', 
-      cancelButtonColor: '#3085d6', 
-      confirmButtonText: 'Yes, delete!',
-      cancelButtonText: 'Cancel'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        this._reviewService.deleteReview(id).subscribe({
-          next: () => {
-            this.loadReviews(); 
-            Swal.fire('Deleted!', 'Review has been deleted.', 'success');
-          },
-          error: (err) => {
-            console.error('Failed to delete review:', err);
-            Swal.fire('Error', 'Failed to delete review.', 'error');
-          }
-        });
-      }
-    });
-  }
+  // Remove the deleteReview method and all references to it
 
   getStarArray(rating: number | null | undefined): number[] {
     const validRating = rating !== null && rating !== undefined && !isNaN(rating) ? Math.max(0, rating) : 0;

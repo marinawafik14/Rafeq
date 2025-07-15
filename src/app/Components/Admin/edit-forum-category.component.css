@@ -1,0 +1,59 @@
+/* Admin Edit Forum Category - Unified Design */
+.admin-header {
+  background: linear-gradient(90deg, #0a2e65 60%, #1e4a8a 100%);
+  color: #fff;
+  border-radius: 0 0 24px 24px;
+  box-shadow: 0 4px 24px rgba(10, 46, 101, 0.08);
+}
+
+.card {
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 4px 24px rgba(10, 46, 101, 0.08);
+  border: none;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #0a2e65;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #0a2e65, #1e4a8a);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #1e4a8a, #0a2e65);
+}
+
+.btn-secondary {
+  background: #e2e8f0;
+  color: #0a2e65;
+  border: none;
+  font-weight: 600;
+}
+
+.btn-secondary:hover {
+  background: #cbd5e1;
+  color: #0a2e65;
+}
+
+input.form-control, textarea.form-control {
+  border-radius: 12px;
+  border: 1.5px solid #b6c3d1;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+input.form-control:focus, textarea.form-control:focus {
+  border-color: #0a2e65;
+  box-shadow: 0 0 0 2px rgba(10, 46, 101, 0.08);
+}
+
+.invalid-feedback {
+  color: #e53e3e;
+  font-size: 0.95rem;
+}

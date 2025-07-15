@@ -128,4 +128,42 @@ get totalPages(): number {
   const todayTotal = todayPayments.reduce((sum, payment) => sum + payment.amountPaid, 0);
   return todayTotal.toFixed(0);
 }
+
+  exportPayments(): void {
+    if (!this.payments || this.payments.length === 0) {
+      window.alert('No payments to export.');
+      return;
+    }
+    const csvData = this.payments.map(payment => ({
+      'Mentor Name': payment.mentorName || '',
+      'Mentee Name': payment.menteeName || '',
+      'Amount Paid': payment.amountPaid,
+      'Payment Date': payment.paymentDate || ''
+    }));
+    const csvContent = this.convertToCSV(csvData);
+    this.downloadCSV(csvContent, 'payments-export.csv');
+  }
+
+  private convertToCSV(data: any[]): string {
+    if (data.length === 0) return '';
+    const header = Object.keys(data[0]).join(',');
+    const rows = data.map(row =>
+      Object.values(row).map(value =>
+        typeof value === 'string' && value.includes(',') ? `"${value}"` : value
+      ).join(',')
+    );
+    return [header, ...rows].join('\n');
+  }
+
+  private downloadCSV(content: string, filename: string): void {
+    const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 }

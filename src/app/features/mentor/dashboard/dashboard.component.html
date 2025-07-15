@@ -184,6 +184,57 @@
               </div>
             </a>
           </div>
+
+          <!-- Reviews -->
+          <div class="col-lg-3 col-md-6">
+            <a routerLink="/mentor/reviews" class="quick-action-card text-decoration-none h-100 d-block">
+              <div class="card-body text-center p-4">
+                <div class="quick-action-icon mb-3">
+                  <i class="fas fa-star"></i>
+                </div>
+                <h5 class="fw-bold mb-2">My Reviews</h5>
+                <p class="text-muted mb-0 small">View all your mentee reviews</p>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Next Up Today Section -->
+      <div *ngIf="!isLoading && nextUpToday.length > 0" class="mb-4">
+        <div class="card shadow-sm border-0 rounded-4 p-3" style="background: linear-gradient(90deg, #eaf1fa 60%, #d6e6fa 100%); border-left: 8px solid #0a2e65;">
+          <div class="d-flex align-items-center mb-2">
+            <i class="fas fa-bolt" style="color: #0a2e65; font-size: 1.5rem; margin-right: 0.5rem;"></i>
+            <h4 class="fw-bold mb-0" style="color: #0a2e65;">Next Up Today</h4>
+          </div>
+          <div class="row g-3">
+            <div class="col-md-6" *ngFor="let session of nextUpToday">
+              <div class="next-up-card p-3 rounded-3 bg-white h-100 d-flex flex-column justify-content-between border border-2 border-primary-subtle">
+                <div class="d-flex align-items-center mb-2">
+                  <div class="me-3">
+                    <i class="fas fa-clock text-primary"></i>
+                  </div>
+                  <div>
+                    <div class="fw-bold" style="color: #0a2e65;">{{ session.startDateTime | date:'shortTime' }} - {{ session.endDateTime | date:'shortTime' }}</div>
+                    <small class="text-muted">with <span class="fw-semibold">{{ session.menteeName }}</span></small>
+                  </div>
+                </div>
+                <div class="d-flex align-items-center gap-2 mt-2">
+                  <span class="badge bg-info">{{ session.sessionType }}</span>
+                  <span class="badge" [class.bg-success]="session.paymentStatus === 'Paid'" [class.bg-warning]="session.paymentStatus !== 'Paid'">{{ session.paymentStatus }}</span>
+                  <span class="badge" [ngClass]="getStatusBadgeClass(session.status)">{{ session.status }}</span>
+                </div>
+                <div class="mt-3">
+                  <button *ngIf="getSessionButtonState(session).type === 'join'" class="btn btn-primary btn-sm rounded-pill" (click)="joinSession(session.bookingId, session.googleMeetLink)">
+                    <i class="fas fa-video me-1"></i>Join Session
+                  </button>
+                  <span *ngIf="getSessionButtonState(session).type !== 'join'" class="text-muted small">
+                    {{ getSessionButtonState(session).label }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -385,4 +436,10 @@
       </div>
     </div>
   </div>
+
+<!-- Mentor Reviews Section -->
+<hr class="my-5">
+<div class="container">
+  <app-mentor-reviews [showSummary]="true" [maxReviews]="3"></app-mentor-reviews>
+</div>
 </div>
