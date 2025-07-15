@@ -14,6 +14,7 @@ import { ArticlesService } from '../../Services/articles.service';
 import { UserFAService } from '../../Services/user-fa.service';
 import { ArticleDto } from '../../Models/articles/ArticleDto';
 import { ArticleCreateUpdateDto } from '../../Models/articles/ArticleCreateUpdateDto';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-article-form',
@@ -70,10 +71,12 @@ export class ArticleFormComponent implements OnInit {
         this.authors = pagedResult.items;
       },
       error: (err: any) => {
-        this.toastr.error(
-          'Failed to load authors. Please check console.',
-          'Error'
-        );
+        Swal.fire({
+          icon: 'error',
+          title: 'Failed to load authors',
+          text: 'Please check console.',
+          confirmButtonColor: '#0a2e65'
+        });
         console.error('Error loading authors:', err);
       },
     });
@@ -94,10 +97,12 @@ export class ArticleFormComponent implements OnInit {
         this.loading = false;
       },
       error: (err: any) => {
-        this.toastr.error(
-          err.message || 'Failed to load article for editing.',
-          'Error'
-        );
+        Swal.fire({
+          icon: 'error',
+          title: 'Failed to load article for editing',
+          text: err.message || 'Please check console.',
+          confirmButtonColor: '#0a2e65'
+        });
         console.error('Error loading article:', err);
         this.loading = false;
         this.router.navigate(['/admin/articles']);
@@ -107,10 +112,12 @@ export class ArticleFormComponent implements OnInit {
 
   onSubmit(): void {
     if (this.articleForm.invalid) {
-      this.toastr.warning(
-        'Please fill in all required fields correctly.',
-        'Validation Error'
-      );
+      Swal.fire({
+        icon: 'warning',
+        title: 'Validation Error',
+        text: 'Please fill in all required fields correctly.',
+        confirmButtonColor: '#0a2e65'
+      });
       this.articleForm.markAllAsTouched();
       return;
     }
@@ -132,22 +139,28 @@ export class ArticleFormComponent implements OnInit {
       articleData.authorId = formValue.authorId;
     }
 
-    console.log('Submitting article data:', articleData);
-    console.log('Original form value:', formValue);
-
     if (this.isEditMode && this.articleId) {
       this.articlesService
         .updateArticle(this.articleId, articleData)
         .subscribe({
           next: () => {
-            this.toastr.success('Article updated successfully!', 'Success');
+            Swal.fire({
+              icon: 'success',
+              title: 'Article updated successfully!',
+              timer: 1500,
+              showConfirmButton: false,
+              toast: true,
+              position: 'top-end'
+            });
             this.router.navigate(['/admin/articles']);
           },
           error: (err: any) => {
-            this.toastr.error(
-              err.message || 'Failed to update article.',
-              'Error'
-            );
+            Swal.fire({
+              icon: 'error',
+              title: 'Failed to update article',
+              text: err.message || 'An error occurred.',
+              confirmButtonColor: '#0a2e65'
+            });
             console.error('Error updating article:', err);
             this.loading = false;
           },
@@ -155,14 +168,23 @@ export class ArticleFormComponent implements OnInit {
     } else {
       this.articlesService.createArticle(articleData).subscribe({
         next: () => {
-          this.toastr.success('Article created successfully!', 'Success');
+          Swal.fire({
+            icon: 'success',
+            title: 'Article created successfully!',
+            timer: 1500,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+          });
           this.router.navigate(['/admin/articles']);
         },
         error: (err: any) => {
-          this.toastr.error(
-            err.message || 'Failed to create article.',
-            'Error'
-          );
+          Swal.fire({
+            icon: 'error',
+            title: 'Failed to create article',
+            text: err.message || 'An error occurred.',
+            confirmButtonColor: '#0a2e65'
+          });
           console.error('Error creating article:', err);
           this.loading = false;
         },

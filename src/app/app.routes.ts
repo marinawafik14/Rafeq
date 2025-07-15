@@ -34,7 +34,7 @@ import { MenteeLayoutComponent } from './mentee/mentee-layout.component';
 import { ArticleDetailComponent } from './Auth/article-detail/article-detail.component';
 import { authGuardGuard } from './guards/auth-guard.guard';
 import { AdminDashboardComponent } from './Components/Admin/admin-dashboard/admin-dashboard.component';
-import { NotificationsComponent } from './features/notifications/notifications.component'; 
+import { NotificationsComponent } from './features/notifications/notifications.component';
 import { AdminArticleListComponent } from './Auth/admin-article-list/admin-article-list.component';
 import { ArticleFormComponent } from './Auth/article-form/article-form.component';
 import { AdminFaqListComponent } from './Auth/admin-faq-list/admin-faq-list.component';
@@ -47,6 +47,9 @@ import { ForumPostDetailComponent } from './features/forum/forum-post-detail.com
 import { AdminForumReportsComponent } from './Components/Admin/admin-forum-reports.component';
 import { AdminForumPinComponent } from './Components/Admin/admin-forum-pin.component';
 import { MentorReviewsComponent } from './features/mentor/mentor-reviews/mentor-reviews.component';
+import { AddForumCategoryComponent } from './Components/Admin/add-forum-category.component';
+import { AdminForumCategoryListComponent } from './Components/Admin/admin-forum-category-list.component';
+import { EditForumCategoryComponent } from './Components/Admin/edit-forum-category.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -110,6 +113,9 @@ export const routes: Routes = [
           { path: 'faqs/edit/:id', component: FaqFormComponent },
           { path: 'forum/reports', component: AdminForumReportsComponent },
           { path: 'forum/pin', component: AdminForumPinComponent },
+          { path: 'forum/categories', component: AdminForumCategoryListComponent },
+          { path: 'forum/categories/edit/:id', component: EditForumCategoryComponent },
+          { path: 'forum/categories/create', component: AddForumCategoryComponent },
         ],
       },
 

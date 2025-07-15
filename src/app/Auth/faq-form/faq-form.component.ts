@@ -8,6 +8,7 @@ import { ToastrService } from 'ngx-toastr';
 import { FaqService } from '../../Services/faq.service';
 import { FaqDto } from '../../Models/FQA/FaqDto';
 import { FaqCreateUpdateDto } from '../../Models/FQA/FaqCreateUpdateDto';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-faq-form',
@@ -68,7 +69,12 @@ export class FaqFormComponent implements OnInit {
         this.loading = false;
       },
       error: (err: any) => {
-        this.toastr.error(err.message || 'Failed to load FAQ for editing.', 'Error');
+        Swal.fire({
+          icon: 'error',
+          title: 'Failed to load FAQ for editing',
+          text: err.message || 'Please check console.',
+          confirmButtonColor: '#0a2e65'
+        });
         console.error('Error loading FAQ:', err);
         this.loading = false;
         this.router.navigate(['/admin/faqs']); // Redirect on error
@@ -78,7 +84,12 @@ export class FaqFormComponent implements OnInit {
 
   onSubmit(): void {
     if (this.faqForm.invalid) {
-      this.toastr.warning('Please fill in all required fields correctly.', 'Validation Error');
+      Swal.fire({
+        icon: 'warning',
+        title: 'Validation Error',
+        text: 'Please fill in all required fields correctly.',
+        confirmButtonColor: '#0a2e65'
+      });
       this.faqForm.markAllAsTouched();
       return;
     }
@@ -89,11 +100,23 @@ export class FaqFormComponent implements OnInit {
     if (this.isEditMode && this.faqId) {
       this.faqService.updateFaq(this.faqId, faqData).subscribe({
         next: () => {
-          this.toastr.success('FAQ updated successfully!', 'Success');
+          Swal.fire({
+            icon: 'success',
+            title: 'FAQ updated successfully!',
+            timer: 1500,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+          });
           this.router.navigate(['/admin/faqs']);
         },
         error: (err: any) => {
-          this.toastr.error(err.message || 'Failed to update FAQ.', 'Error');
+          Swal.fire({
+            icon: 'error',
+            title: 'Failed to update FAQ',
+            text: err.message || 'An error occurred.',
+            confirmButtonColor: '#0a2e65'
+          });
           console.error('Error updating FAQ:', err);
           this.loading = false;
         }
@@ -101,11 +124,23 @@ export class FaqFormComponent implements OnInit {
     } else {
       this.faqService.createFaq(faqData).subscribe({
         next: () => {
-          this.toastr.success('FAQ created successfully!', 'Success');
+          Swal.fire({
+            icon: 'success',
+            title: 'FAQ created successfully!',
+            timer: 1500,
+            showConfirmButton: false,
+            toast: true,
+            position: 'top-end'
+          });
           this.router.navigate(['/admin/faqs']);
         },
         error: (err: any) => {
-          this.toastr.error(err.message || 'Failed to create FAQ.', 'Error');
+          Swal.fire({
+            icon: 'error',
+            title: 'Failed to create FAQ',
+            text: err.message || 'An error occurred.',
+            confirmButtonColor: '#0a2e65'
+          });
           console.error('Error creating FAQ:', err);
           this.loading = false;
         }

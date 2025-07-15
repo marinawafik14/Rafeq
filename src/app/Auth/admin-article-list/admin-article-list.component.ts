@@ -7,6 +7,7 @@ import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { ArticleListDto, PagedResult } from '../../Models/articles/ArticleDto';
 import { ArticlesService } from '../../Services/articles.service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-admin-article-list',
@@ -138,32 +139,48 @@ export class AdminArticleListComponent implements OnInit, OnDestroy {
     const article = this.articles.find((a) => a.articleId === id);
     const articleTitle = article ? article.title : 'this article';
 
-    const confirmed = confirm(
-      `Delete Article Confirmation\n\n` +
-        `Are you sure you want to delete "${articleTitle}"?\n\n` +
-        `This action cannot be undone.`
-    );
-
-    if (confirmed) {
-      this.articlesService.deleteArticle(id).subscribe({
-        next: () => {
-          this.toastr.success(
-            `Article "${articleTitle}" has been deleted successfully.`,
-            'Article Deleted'
-          );
-          this.loadArticles();
-        },
-        error: (err: any) => {
-          console.error('Error deleting article:', err);
-          this.toastr.error(
-            `Failed to delete "${articleTitle}": ${
-              err.message || 'Unknown error'
-            }`,
-            'Deletion Failed'
-          );
-        },
-      });
-    }
+    Swal.fire({
+      title: 'Delete Article?',
+      text: `Are you sure you want to delete "${articleTitle}"? This action cannot be undone.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, Delete',
+      cancelButtonText: 'Cancel',
+      reverseButtons: true,
+      customClass: {
+        popup: 'rounded-4',
+        confirmButton: 'rounded-pill px-4',
+        cancelButton: 'rounded-pill px-4'
+      }
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.articlesService.deleteArticle(id).subscribe({
+          next: () => {
+            this.loadArticles();
+            Swal.fire({
+              icon: 'success',
+              title: 'Deleted!',
+              text: `Article "${articleTitle}" has been deleted.`,
+              timer: 1500,
+              showConfirmButton: false,
+              toast: true,
+              position: 'top-end'
+            });
+          },
+          error: (err: any) => {
+            console.error('Error deleting article:', err);
+            Swal.fire({
+              icon: 'error',
+              title: 'Failed to Delete',
+              text: err.message || 'Unknown error',
+              confirmButtonColor: '#0a2e65'
+            });
+          },
+        });
+      }
+    });
   }
 
   get totalPagesArray(): number[] {
