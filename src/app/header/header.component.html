@@ -27,6 +27,11 @@
             <a class="nav-link rounded-pill px-3" [routerLink]="['/mentee', 'search-mentors']">Find Mentors</a>
           </ul>
           </li>
+          <li class="nav-item mx-2" *ngIf="currentUser?.role === 'Mentor'">
+            <a class="nav-link rounded-pill px-3" routerLink="/mentor/reviews" routerLinkActive="active">
+              <i class="fas fa-star me-1"></i>Reviews
+            </a>
+          </li>
           <li class="nav-item mx-2">
             <a class="nav-link rounded-pill px-3" routerLink="/about" routerLinkActive="active">
               About Us

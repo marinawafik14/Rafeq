@@ -5,13 +5,14 @@ import { MentorBooking } from '../../../Models/Mentor/MentorBooking';
 import { MentorEarnings } from '../../../Models/Mentor/MentorEarnings';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { MentorReviewsComponent } from '../mentor-reviews/mentor-reviews.component';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
   standalone: true,
-  imports: [CommonModule, RouterLink]
+  imports: [CommonModule, RouterLink, MentorReviewsComponent]
 })
 export class DashboardComponent implements OnInit {
   mentorId: number = 0;
@@ -21,6 +22,7 @@ export class DashboardComponent implements OnInit {
   isAvailable: boolean = true;
   isLoading: boolean = true;
   error: string | null = null;
+  nextUpToday: MentorBooking[] = [];
 
   // Add pagination properties
   currentPage: number = 1;
@@ -77,6 +79,9 @@ export class DashboardComponent implements OnInit {
         // Update pagination
         this.updatePagination();
         
+        // Compute next up for today
+        this.updateNextUpToday();
+        
         this.isLoading = false;
       },
       error: (error) => {
@@ -95,6 +100,21 @@ export class DashboardComponent implements OnInit {
         console.error('Error loading upcoming sessions:', error);
       }
     });
+  }
+
+  updateNextUpToday(): void {
+    const now = new Date();
+    this.nextUpToday = this.todaySessions
+      .filter(session => {
+        const sessionStart = new Date(session.startDateTime);
+        return (
+          sessionStart > now &&
+          session.status !== 'Cancelled' &&
+          session.paymentStatus === 'Paid'
+        );
+      })
+      .sort((a, b) => new Date(a.startDateTime).getTime() - new Date(b.startDateTime).getTime())
+      .slice(0, 2);
   }
 
   toggleAvailability(): void {

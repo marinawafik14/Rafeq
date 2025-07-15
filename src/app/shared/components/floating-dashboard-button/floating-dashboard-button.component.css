@@ -1,0 +1,90 @@
+.floating-dashboard-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #0a2e65, #1e4a8a);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(10, 46, 101, 0.3);
+  transition: all 0.3s ease;
+  z-index: 1000;
+  color: white;
+  font-size: 1.5rem;
+}
+
+.floating-dashboard-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(10, 46, 101, 0.4);
+  background: linear-gradient(135deg, #1e4a8a, #0a2e65);
+}
+
+.floating-dashboard-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 15px rgba(10, 46, 101, 0.3);
+}
+
+.floating-dashboard-btn .tooltip {
+  position: absolute;
+  right: 70px;
+  background: #333;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  pointer-events: none;
+}
+
+.floating-dashboard-btn .tooltip::after {
+  content: '';
+  position: absolute;
+  right: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 5px solid transparent;
+  border-left-color: #333;
+}
+
+.floating-dashboard-btn:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .floating-dashboard-btn {
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    font-size: 1.2rem;
+  }
+  
+  .floating-dashboard-btn .tooltip {
+    display: none;
+  }
+}
+
+/* Animation for first appearance */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.floating-dashboard-btn {
+  animation: fadeInUp 0.5s ease-out;
+}

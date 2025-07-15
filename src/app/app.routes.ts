@@ -46,6 +46,7 @@ import { MyForumPostsComponent } from './features/forum/my-forum-posts.component
 import { ForumPostDetailComponent } from './features/forum/forum-post-detail.component';
 import { AdminForumReportsComponent } from './Components/Admin/admin-forum-reports.component';
 import { AdminForumPinComponent } from './Components/Admin/admin-forum-pin.component';
+import { MentorReviewsComponent } from './features/mentor/mentor-reviews/mentor-reviews.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
@@ -122,6 +123,7 @@ export const routes: Routes = [
           { path: 'availability', component: AvailabilityManagementComponent },
           { path: 'bookings', component: BookingsComponent },
           { path: 'cv-review', component: CVReviewComponent },
+          { path: 'reviews', component: MentorReviewsComponent },
         ],
       },
 

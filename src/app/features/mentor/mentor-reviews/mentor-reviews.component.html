@@ -1,0 +1,122 @@
+<div class="mentor-reviews-section" [ngClass]="{'container py-4': !showSummary, 'py-3': showSummary}">
+  <!-- Back Button (only in full page mode) -->
+  <div *ngIf="!showSummary" class="mb-4">
+    <button class="btn btn-outline-secondary btn-sm" (click)="goBack()">
+      <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+    </button>
+  </div>
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold" [ngClass]="{'mb-0': showSummary}" style="color: #0a2e65;">
+      <i class="fas fa-star me-2 text-warning"></i>
+      {{ showSummary ? 'Recent Reviews' : 'My Reviews' }}
+    </h2>
+    
+    <!-- View All Button (only in summary mode) -->
+    <div *ngIf="showSummary && reviews.length > maxReviews" class="text-end">
+      <a routerLink="/mentor/reviews" class="btn btn-outline-primary btn-sm rounded-pill">
+        View All Reviews <i class="fas fa-arrow-right ms-1"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border" style="width: 3rem; height: 3rem; color: #0a2e65;" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3 text-muted">Loading your reviews...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="alert alert-danger rounded-3 shadow-sm" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>{{ error }}
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && !error && reviews.length === 0" class="text-center py-5">
+    <i class="fas fa-star-half-alt fa-3x text-muted mb-3"></i>
+    <h5 class="text-muted">No reviews yet</h5>
+    <p class="text-muted">You haven't received any reviews from mentees yet.</p>
+  </div>
+
+  <!-- Reviews List -->
+  <div *ngIf="!isLoading && !error && reviews.length > 0">
+    <!-- Average Rating Summary -->
+    <div class="mb-4 d-flex align-items-center gap-3">
+      <div class="average-rating-display bg-light rounded-3 px-4 py-2 d-flex align-items-center gap-2">
+        <span class="fs-3 fw-bold text-warning">{{ getAverageRating() }}</span>
+        <span class="text-warning fs-5">
+          <ng-container *ngFor="let star of [1,2,3,4,5]">
+            <i class="fas" [ngClass]="getAverageRating() >= star ? 'fa-star' : (getAverageRating() >= star - 0.5 ? 'fa-star-half-alt' : 'fa-star-o')"></i>
+          </ng-container>
+        </span>
+        <span class="text-muted ms-2">({{ reviews.length }} review{{ reviews.length > 1 ? 's' : '' }})</span>
+      </div>
+    </div>
+
+    <!-- Review Cards -->
+    <div class="row g-4">
+      <div class="col-md-6 col-lg-4" *ngFor="let review of displayedReviews">
+        <div class="card shadow-sm border-0 h-100 mentor-review-card">
+          <div class="card-body">
+            <div class="d-flex align-items-center mb-2">
+              <div class="reviewer-avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; font-size: 1.2rem;">
+                <i class="fas fa-user"></i>
+              </div>
+              <div>
+                <div class="fw-bold" style="color: #0a2e65;">{{ review.reviewerName }}</div>
+                <small class="text-muted">{{ review.createdAt | date:'mediumDate' }}</small>
+              </div>
+            </div>
+            <div class="mb-2">
+              <span class="text-warning">
+                <ng-container *ngFor="let star of [1,2,3,4,5]">
+                  <i class="fas" [ngClass]="review.rating >= star ? 'fa-star' : 'fa-star-o'"></i>
+                </ng-container>
+              </span>
+              <span class="ms-2 fw-semibold">{{ review.rating }}/5</span>
+            </div>
+            <div class="review-comment text-dark" style="white-space: pre-line;">
+              {{ review.comment }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pagination (only in full page mode) -->
+    <nav *ngIf="!showSummary && totalPages > 1" class="pagination-nav mt-4">
+      <ul class="pagination justify-content-center">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <button class="page-link" (click)="changePage(currentPage - 1)" [disabled]="currentPage === 1">
+            <i class="fas fa-chevron-left"></i> Previous
+          </button>
+        </li>
+        
+        <li *ngFor="let page of getPageNumbers()" 
+            class="page-item" 
+            [class.active]="page === currentPage"
+            [class.disabled]="page === -1">
+          <button *ngIf="page !== -1" 
+                  class="page-link" 
+                  (click)="changePage(page)"
+                  [class.active]="page === currentPage">
+            {{ page }}
+          </button>
+          <span *ngIf="page === -1" class="page-link">...</span>
+        </li>
+        
+        <li class="page-item" [class.disabled]="currentPage === totalPages">
+          <button class="page-link" (click)="changePage(currentPage + 1)" [disabled]="currentPage === totalPages">
+            Next <i class="fas fa-chevron-right"></i>
+          </button>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+<!-- Floating Dashboard Button -->
+<app-floating-dashboard-button></app-floating-dashboard-button>
