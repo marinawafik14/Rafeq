@@ -45,7 +45,7 @@ export class AdminForumReportsComponent implements OnInit {
       next: (reports) => {
         this.reports = reports;
         this.isLoading = false;
-        console.log('Loaded reports:', reports); // Debug: log reports to check status values
+        console.log('Loaded reports:', reports); 
       },
       error: (err) => {
         this.error = err.message || 'Failed to load reports';
@@ -65,7 +65,7 @@ export class AdminForumReportsComponent implements OnInit {
     this.forumService.takeForumReportAction(report.reportId, action, '').subscribe({
       next: () => {
         this.loadReports();
-        this.loadStats(); // <-- Add this line to refresh stats and status
+        this.loadStats(); 
       },
       error: () => {
         alert('Failed to update report');

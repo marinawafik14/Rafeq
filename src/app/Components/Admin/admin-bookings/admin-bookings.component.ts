@@ -13,14 +13,12 @@ import { FormsModule } from '@angular/forms';
 export class AdminBookingsComponent implements OnInit {
   bookings : Bookings[] = [];
   
-  // Add Math property for template access
   Math = Math;
   
 searchQuery: string = '';
 StatusFilter: string = '';
 paymentStatusFilter : string = '';
 dateSort: string = 'newest';
-  //status: string = 'Pending'
   currentPage : number = 1;
     itemsPerPage: number = 10;
 constructor( private _bookingService: BookingService){}
@@ -38,7 +36,6 @@ getAllBookings() {
   });
 }
 
-//search sorting and filtering logic
  get filteredBookings(): Bookings[] {
   const query = this.searchQuery.trim().toLowerCase();
   return this.bookings
@@ -62,7 +59,6 @@ getAllBookings() {
       }
     });
 }
-// Pagination logic
 getpaginatedBookings(): Bookings[] {
         const startIndex = (this.currentPage - 1) * this.itemsPerPage; 
         const endIndex = startIndex + this.itemsPerPage;     
@@ -79,7 +75,6 @@ get totalPages(): number {
     }
   } 
 
-// Add the missing stats methods
 getPendingBookings(): number {
   return this.filteredBookings.filter(booking => 
     booking.status?.toLowerCase() === 'pending'
@@ -98,13 +93,11 @@ getCancelledBookings(): number {
   ).length;
 }
 
-// Add the missing action methods
 refreshBookings(): void {
   this.getAllBookings();
 }
 
 exportBookings(): void {
-  // Simple CSV export functionality
   const csvData = this.filteredBookings.map(booking => ({
     'Session Type': booking.sessionType,
     'Mentor': booking.mentorName,
@@ -150,7 +143,6 @@ private downloadCSV(content: string, filename: string): void {
   document.body.removeChild(link);
 }
 
-// Keep all existing status check methods
 isCompleted(status: string): boolean {
   return status?.toLowerCase() === 'completed';
 }

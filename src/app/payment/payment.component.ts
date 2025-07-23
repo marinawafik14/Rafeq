@@ -1,6 +1,6 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http'; // Add this import
+import { HttpClient } from '@angular/common/http'; 
 import { loadStripe } from '@stripe/stripe-js';
 import { PaymentService } from '../Services/payment.service';
 import { PaymentDetailsDto } from '../Models/Payments/payment-details.model';
@@ -35,7 +35,7 @@ export class PaymentComponent implements AfterViewInit, OnDestroy, OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private http: HttpClient, // Add this injection
+    private http: HttpClient, 
     private paymentService: PaymentService,
     private authService: AuthService
   ) {}
@@ -56,16 +56,12 @@ ngOnInit(): void {
     return;
   }
 
-  // Get the amount from navigation state or query params
   const amount = state?.amount || queryAmount || 60;
 
-  // Load actual booking details to get session info
   this.loadBookingDetails();
 }
 
-// Add this new method to load booking details
 private loadBookingDetails(): void {
-  // First try to load from booking service to get session date/time
   this.http.get<any>(`${environment.apiUrl}/MenteeBookings/${this.bookingId}`).subscribe({
     next: (booking) => {
       this.paymentDetails = {
@@ -78,7 +74,7 @@ private loadBookingDetails(): void {
         mentorName: booking.mentorName || 'Mentor',
         menteeName: 'You',
         sessionType: booking.sessionType || 'Mentorship',
-        sessionDateTime: booking.startDateTime, // Use session date, not payment date
+        sessionDateTime: booking.startDateTime, 
         commission: Math.round((booking.totalAmount || 60) * 0.2 * 100) / 100,
         mentorAmount: Math.round((booking.totalAmount || 60) * 0.8 * 100) / 100
       };
@@ -86,7 +82,6 @@ private loadBookingDetails(): void {
     },
     error: (err) => {
       console.error('Error loading booking details:', err);
-      // Fallback to query params
       const amount = +this.route.snapshot.queryParamMap.get('amount')! || 60;
       this.paymentDetails = {
         paymentId: 0,
@@ -154,20 +149,19 @@ private loadBookingDetails(): void {
   }
 
   try {
-    // Step 1: Create PaymentIntent using BookingId + UserId
+ 
     console.log('Creating payment intent for booking:', this.bookingId);
     const intentResponse = await this.paymentService.createPaymentIntent(this.bookingId).toPromise();
     
-    console.log('Payment intent response:', intentResponse); // ✅ Add this debug log
+    console.log('Payment intent response:', intentResponse); 
     
     if (!intentResponse?.success || !intentResponse?.data?.clientSecret) {
-      console.error('Invalid payment intent response:', intentResponse); // ✅ Add this debug log
+      console.error('Invalid payment intent response:', intentResponse); 
       throw new Error(intentResponse?.message || 'Could not create payment intent.');
     }
 
     const clientSecret = intentResponse.data.clientSecret;
 
-    // Step 2: Confirm Card Payment via Stripe
     const result = await this.stripe.confirmCardPayment(clientSecret, {
       payment_method: {
         card: this.card
@@ -180,7 +174,6 @@ private loadBookingDetails(): void {
       return;
     }
 
-    // Step 3: Confirm with backend
     const confirmResult = await this.paymentService.confirmPayment({
       paymentIntentId: result.paymentIntent.id,
       bookingId: this.bookingId
@@ -189,34 +182,32 @@ private loadBookingDetails(): void {
     if (confirmResult?.success) {
       this.successVisible = true;
       
-      // Clear the pending booking from session storage since payment was successful
       sessionStorage.removeItem('pendingBooking');
       sessionStorage.removeItem(`booking_${this.bookingId}_amount`);
       
       setTimeout(() => {
-        // ✅ Fix: Use the correct route path from your routes
         this.router.navigate(['/mentee/payment-complete'], {
           state: { 
             paymentId: confirmResult.data.paymentId,
-            bookingDetails: confirmResult.data  // ✅ Pass the full booking details
+            bookingDetails: confirmResult.data  
           }
         });
       }, 1500);
     }
     
   } catch (err: any) {
-    console.error('Payment error details:', err); // ✅ Better error logging
+    console.error('Payment error details:', err); 
     
-    // ✅ Extract the actual backend error message
+   
     let errorMessage = 'An unexpected error occurred.';
     
     if (err?.error?.message) {
-      errorMessage = err.error.message; // Backend API error message
+      errorMessage = err.error.message; 
     } else if (err?.message) {
-      errorMessage = err.message; // JavaScript error message
+      errorMessage = err.message;
     }
     
-    console.log('Final error message:', errorMessage); // ✅ Debug the error message
+    console.log('Final error message:', errorMessage); 
     this.errorMessage = errorMessage;
     this.errorVisible = true;
   }

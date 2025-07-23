@@ -44,7 +44,7 @@ export class CvManagementComponent implements OnInit, OnDestroy {
   cvToDelete: CV | null = null;
 
   private apiBaseUrl = environment.apiUrl;
-  private maxFileSize = 2 * 1024 * 1024; // 2MB in bytes
+  private maxFileSize = 2 * 1024 * 1024; 
 
   constructor(
     private cvService: CvService, 

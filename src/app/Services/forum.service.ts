@@ -29,7 +29,6 @@ export class ForumService {
     return this.http.get<ForumPost[]>(`${this.apiUrl}/forum/posts`, { params });
   }
 
-  // When loading posts for a category, always use sortBy='recent'
   getPostsByCategory(categoryId: number, sortBy: string = 'recent', isSolved?: boolean, search?: string): Observable<ForumPost[]> {
     let params = new HttpParams()
       .set('categoryId', categoryId)

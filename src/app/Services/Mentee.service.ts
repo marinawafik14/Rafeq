@@ -1,4 +1,4 @@
-// mentee.service.ts
+
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -14,8 +14,8 @@ export interface MentorCard {
   bio: string | null;
   hourlyRate: number;
   mentorSkills?: { id: number; name: string; mentorsCount: number }[];
-  skills: { Name: string; id: number }[]; // Skills formatted for display
-  skillsArray?: string[]; // Original skills array from backend
+  skills: { Name: string; id: number }[]; 
+  skillsArray?: string[]; 
   availabilities: any[];
   rating?: number | null;
   isMentor?: boolean;

@@ -18,7 +18,6 @@ export class ProfileService {
 
   constructor(private http: HttpClient) { }
 
-  // Get current user profile
   getUserProfile(): Observable<UserProfile> {
     return this.http.get<{success: boolean, data: UserProfile}>(`${this.apiUrl}/users/profile`)
       .pipe(
@@ -26,7 +25,7 @@ export class ProfileService {
       );
   }
 
-  // Update user profile
+ 
   updateProfile(profileData: ProfileUpdateRequest): Observable<UserProfile> {
     return this.http.put<{success: boolean, data: UserProfile}>(`${this.apiUrl}/users/profile`, profileData)
       .pipe(
@@ -36,12 +35,12 @@ export class ProfileService {
 
 
 
-  // Update hourly rate only
+ 
   updateHourlyRate(hourlyRate: number): Observable<any> {
     return this.http.put(`${this.apiUrl}/users/hourly-rate`, { hourlyRate });
   }
 
-  // Upload profile picture
+ 
   uploadProfilePicture(file: File): Observable<string> {
     const formData = new FormData();
     formData.append('file', file);
@@ -52,12 +51,12 @@ export class ProfileService {
       );
   }
 
-  // Get all available skills
+
   getAllSkills(): Observable<Skill[]> {
     return this.http.get<Skill[]>(`${this.apiUrl}/skills`);
   }
 
-  // Get user's skills
+
   getUserSkills(): Observable<UserSkill[]> {
     return this.http.get<{success: boolean, data: UserSkill[]}>(`${this.apiUrl}/skills/user`)
       .pipe(
@@ -65,7 +64,7 @@ export class ProfileService {
       );
   }
 
-  // Add skill to user
+ 
   addSkillToUser(skillId: number): Observable<UserSkill[]> {
     return this.http.post<{success: boolean, skills: UserSkill[]}>(`${this.apiUrl}/skills/user`, { skillId })
       .pipe(
@@ -73,7 +72,6 @@ export class ProfileService {
       );
   }
 
-  // Remove skill from user
   removeSkillFromUser(skillId: number): Observable<UserSkill[]> {
     return this.http.delete<{success: boolean, skills: UserSkill[]}>(`${this.apiUrl}/skills/user/${skillId}`)
       .pipe(

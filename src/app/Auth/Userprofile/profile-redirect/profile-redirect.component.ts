@@ -20,11 +20,9 @@ export class ProfileRedirectComponent implements OnInit {
         } else if (user.role === 'Mentee') {
           this.router.navigate(['/mentee-profile']);
         } else {
-          // Handle other roles or no specific profile page
           this.router.navigate(['/home']); // Default redirect
         }
       } else {
-        // User not logged in, redirect to login
         this.router.navigate(['/login']);
       }
     });

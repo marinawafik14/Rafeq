@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-// Ensure this service exists and works
 import { ToastrService } from 'ngx-toastr';
 import { ArticleListDto, PagedResult } from '../../Models/articles/ArticleDto';
 import { ArticlesService } from '../../Services/articles.service';
@@ -21,10 +20,9 @@ export class ArticlesListComponent implements OnInit {
   currentCategoryFilter: string | undefined;
   loading: boolean = true;
 
-  // Pagination properties
   currentPage: number = 1;
-  pageSize: number = 6; // Number of articles per page for public view
-  totalArticles: number = 0; // Total articles matching current filters (from backend)
+  pageSize: number = 6; 
+  totalArticles: number = 0; 
   totalPages: number = 0;
 
   constructor(
@@ -36,16 +34,14 @@ export class ArticlesListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Subscribe to query parameters to react to changes in category, page, or search
     this.route.queryParams.subscribe((params) => {
       this.currentCategoryFilter = params['category'] || undefined;
       this.currentPage = Number(params['page']) || 1;
-      this.searchQuery = params['search'] || ''; // Keep search query in sync with URL
+      this.searchQuery = params['search'] || ''; 
 
-      this.loadArticles(); // Reload articles based on new parameters
+      this.loadArticles(); 
     });
 
-    // Restore scroll position after component is fully loaded (if ScrollPositionService is used)
     setTimeout(() => {
       const savedPosition =
         this.scrollPositionService.getScrollPosition('/articles');
@@ -86,15 +82,15 @@ export class ArticlesListComponent implements OnInit {
   filterByCategory(category?: string): void {
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { category: category || null, page: 1 }, // Reset to page 1
-      queryParamsHandling: 'merge', // Merge with existing params like search
+      queryParams: { category: category || null, page: 1 }, 
+      queryParamsHandling: 'merge', 
     });
   }
 
   onSearch(): void {
     this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { search: this.searchQuery || null, page: 1 }, // Reset to page 1
+      queryParams: { search: this.searchQuery || null, page: 1 }, 
       queryParamsHandling: 'merge',
     });
   }
@@ -109,12 +105,10 @@ export class ArticlesListComponent implements OnInit {
     }
   }
 
-  // Helper to generate array for *ngFor in pagination
   get pagesArray(): number[] {
     return Array.from({ length: this.totalPages }, (_, i) => i + 1);
   }
 
-  // Method to save scroll position before navigating to article detail
   onArticleClick(): void {
     const currentScrollPosition =
       this.scrollPositionService.getCurrentScrollPosition();

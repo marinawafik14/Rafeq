@@ -10,7 +10,7 @@ import { UpdateAvailabilityRequest } from '../../../Models/Availability/update-a
 import { WeeklySchedule } from '../../../Models/Availability/weekly-schedule';
 import { CalendarDay } from '../../../Models/Calendar/calendar-day';
 import { FloatingDashboardButtonComponent } from '../../../shared/components/floating-dashboard-button/floating-dashboard-button.component';
-//import { ToastrService } from 'ngx-toastr';
+
 import Swal from 'sweetalert2';
 
 @Component({
@@ -46,7 +46,6 @@ export class AvailabilityManagementComponent implements OnInit {
     private fb: FormBuilder,
     public availabilityService: AvailabilityService, 
     private authService: AuthService,
-   // private toastr: ToastrService
   ) {
     this.addSlotForm = this.fb.group({
       dayOfWeek: [0, [Validators.required, Validators.min(0), Validators.max(6)]],

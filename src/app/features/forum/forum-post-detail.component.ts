@@ -23,7 +23,7 @@ export class ForumPostDetailComponent implements OnInit {
   error: string | null = null;
   postId!: number;
   editingComment: ForumComment | null = null;
-  isUpvoted = false; // Track if current user upvoted
+  isUpvoted = false; 
   showReportForm = false;
   reportReason = '';
 
@@ -50,7 +50,7 @@ export class ForumPostDetailComponent implements OnInit {
     this.forumService.getPostById(this.postId).subscribe({
       next: (post) => {
         this.post = post;
-        this.isUpvoted = !!post.hasUpvoted; // <-- Add this line
+        this.isUpvoted = !!post.hasUpvoted; 
         this.forumService.getCommentsForPost(this.postId).subscribe({
           next: (comments) => {
             this.comments = comments;

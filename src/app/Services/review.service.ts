@@ -18,22 +18,22 @@ export class ReviewService {
     return this.http.get<Reviews[]>(this.reviewUrl);
   }
 
-  // delete review
+
   deleteReview(id: number): Observable<void> {
     return this.http.delete<void>(`${this.reviewUrl}/${id}`);
   }
 
-  // Get reviews for a specific mentor
+
   getMentorReviews(mentorId: number): Observable<MentorReview[]> {
     return this.http.get<MentorReview[]>(`${this.apiUrl}/reviews/mentor/${mentorId}`);
   }
 
-  // Get reviews by a specific mentee
+
   getMenteeReviews(menteeId: number): Observable<MentorReview[]> {
     return this.http.get<MentorReview[]>(`${this.apiUrl}/reviews/mentee/${menteeId}`);
   }
 
-  // Get reviews for the currently authenticated mentor
+
   getMyMentorReviews(): Observable<MentorReview[]> {
     return this.http.get<MentorReview[]>(`${this.apiUrl}/reviews/mentor/me`);
   }

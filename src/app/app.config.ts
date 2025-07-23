@@ -8,7 +8,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideToastr } from 'ngx-toastr';
 import { ReactiveFormsModule } from '@angular/forms';
 
-// ⬇ Import JwtModule and JwtHelperService
+
 import { JwtModule, JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from './environments/environment';
 export const appConfig: ApplicationConfig = {
@@ -28,12 +28,12 @@ export const appConfig: ApplicationConfig = {
       autoDismiss: false,
       newestOnTop: true
     }),
-      // ✅ Provide JwtHelperService via importProvidersFrom
+     
     importProvidersFrom(
       JwtModule.forRoot({})
     ),
 
-    // ✅ Manually provide JwtHelperService if needed
+  
     {
       provide: JwtHelperService,
       useValue: new JwtHelperService()

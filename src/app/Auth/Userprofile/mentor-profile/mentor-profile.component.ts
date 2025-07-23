@@ -29,15 +29,12 @@ export class MentorProfileComponent implements OnInit {
   selectedSkillIds: number[] = [];
   selectedFile: File | null = null;
 
-  // Simple tab management
   activeTab = 'profile';
 
-  // Password visibility toggles
   showCurrentPassword = false;
   showNewPassword = false;
   showConfirmPassword = false;
 
-  // Toast notifications
   toasts: Array<{
     id: number;
     type: 'success' | 'error' | 'info';
@@ -51,12 +48,10 @@ export class MentorProfileComponent implements OnInit {
     private router: Router
   ) {}
 
-  // Toast management methods
   showToast(type: 'success' | 'error' | 'info', message: string): void {
     const id = ++this.toastIdCounter;
     this.toasts.push({ id, type, message });
 
-    // Auto-hide toast after 4 seconds
     setTimeout(() => {
       this.removeToast(id);
     }, 4000);
@@ -119,7 +114,6 @@ export class MentorProfileComponent implements OnInit {
         })
       )
       .subscribe((profile) => {
-        // Ensure it's a mentor profile
         if (profile.role !== 'Mentor') {
           this.showToast('error', 'Access Denied: Not a Mentor profile.');
           return;
@@ -127,7 +121,6 @@ export class MentorProfileComponent implements OnInit {
         this.userProfile = profile;
         this.patchProfileForm(profile);
 
-        // Set initially selected skills
         if (this.userProfile.mentorSkills && this.allSkills.length > 0) {
           this.selectedSkillIds = this.userProfile.mentorSkills.map(
             (s: { id: any }) => s.id
@@ -291,7 +284,6 @@ export class MentorProfileComponent implements OnInit {
       .subscribe((response) => {
         this.showToast('success', 'Password changed successfully!');
         this.passwordForm.reset();
-        // Reset password visibility states
         this.showCurrentPassword = false;
         this.showNewPassword = false;
         this.showConfirmPassword = false;
@@ -299,7 +291,6 @@ export class MentorProfileComponent implements OnInit {
   }
   switchTab(tabName: string): void {
     this.activeTab = tabName;
-    // Clear any existing toasts when switching tabs for better UX
     this.toasts = [];
   }
 

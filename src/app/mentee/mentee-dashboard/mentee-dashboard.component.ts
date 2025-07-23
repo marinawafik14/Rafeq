@@ -48,7 +48,7 @@ export class MenteeDashboardComponent implements OnInit {
     this.menteeId = user && user.userId ? user.userId : null;
     this.menteeName = user && user.fullName ? user.fullName : '';
     if (!this.menteeId) return;
-    this.updatePagination(); // Initialize pagination
+    this.updatePagination(); 
     this.loadDashboardData(this.menteeId);
   }
 

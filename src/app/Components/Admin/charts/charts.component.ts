@@ -21,7 +21,7 @@ import { CommonModule } from '@angular/common';
 export class ChartsComponent implements OnInit {
   revenueChartOptions: any;
   userGrowthChartOptions: any;
-  dashboardData: any = {}; // Initialize as object
+  dashboardData: any = {}; 
 
   constructor(
     private _dashboardService: DashboardService,
@@ -75,7 +75,6 @@ export class ChartsComponent implements OnInit {
   }
 
   navigateToSite(): void {
-    // Open in new tab
     window.open('/home', '_blank');
   }
 
@@ -83,10 +82,9 @@ export class ChartsComponent implements OnInit {
     const now = new Date();
     const months: string[] = [];
 
-    //  آخر 12 شهر من الآن
     for (let i = 11; i >= 0; i--) {
       const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      months.push(date.toLocaleString('default', { month: 'short' })); // "May", "Jun", ...
+      months.push(date.toLocaleString('default', { month: 'short' })); 
     }
 
     const userGrowth = Array.isArray(this.dashboardData.monthlyUserGrowth)

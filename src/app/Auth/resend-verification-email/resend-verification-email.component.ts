@@ -50,7 +50,6 @@ export class ResendVerificationEmailComponent implements OnInit {
 
     this.authService.resendVerificationEmail(resendDto.email).subscribe({
       next: (response: string) => {
-        // Success response
         this.toastr.success(
           response || 'Verification email sent successfully!',
           'Success'
@@ -60,7 +59,6 @@ export class ResendVerificationEmailComponent implements OnInit {
       error: (err) => {
         console.error('Resend verification API error:', err);
 
-        // Extract the actual error message
         let errorMessage =
           'Failed to resend verification email. Try again later.';
         if (err.message) {

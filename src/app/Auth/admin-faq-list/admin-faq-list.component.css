@@ -20,7 +20,6 @@
   z-index: 1;
 }
 
-/* Header Section */
 .panel-header {
   display: flex;
   justify-content: space-between;
@@ -85,7 +84,6 @@
 
 .search-input,
 .filter-input {
-  /* Minimized width */
   width: 100%;
   padding: 10px 15px 10px 35px;
   border: 2px solid #1b74e4;
@@ -135,7 +133,6 @@
   align-items: center;
 }
 
-/* Results Info */
 .results-info {
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
@@ -159,7 +156,6 @@
   font-size: 0.9rem;
 }
 
-/* Buttons */
 .btn {
   padding: 12px 24px;
   border-radius: 50px;
@@ -224,7 +220,6 @@
   box-shadow: 0 6px 20px rgba(27, 116, 228, 0.3);
 }
 
-/* Loading and Error States */
 .loading-indicator {
   text-align: center;
   padding: 60px;
@@ -259,12 +254,10 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Enhanced Data Table */
 .table-container {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 15px;
-  /* box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); */
   border: 1px solid rgba(255, 255, 255, 0.2);
   overflow: hidden;
   margin-bottom: 25px;
@@ -317,7 +310,6 @@
 
 }
 
-/* Cell Specific Styles */
 .id-cell {
   font-weight: 600;
   color: #1b74e4;
@@ -408,7 +400,6 @@
   color: #dd6b20;
 }
 
-/* Enhanced Status Indicators */
 .active-status {
   color: #38a169;
   font-weight: 700;
@@ -445,7 +436,6 @@
   font-weight: bold;
 }
 
-/* Enhanced Action Buttons */
 .action-buttons {
   display: flex;
   gap: 8px;
@@ -489,7 +479,6 @@
   box-shadow: 0 6px 20px rgba(245, 101, 101, 0.4);
 }
 
-/* Enhanced Pagination */
 .pagination-controls {
   display: flex;
   justify-content: space-between;
@@ -556,7 +545,6 @@
   color: #a0aec0;
 }
 
-/* Responsive Design */
 @media (max-width: 768px) {
   .admin-panel {
     padding: 20px;

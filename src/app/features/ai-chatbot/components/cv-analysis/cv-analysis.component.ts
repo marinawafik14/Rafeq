@@ -15,16 +15,13 @@ export class CvAnalysisComponent implements OnInit, OnChanges {
   @Input() conversationId = '';
   @Input() analysisData: CvAnalysis | null = null;
 
-  // Add Math property for template access
   Math = Math;
 
-  // Component state
   analyses: CvAnalysis[] = [];
   selectedAnalysis: CvAnalysis | null = null;
   showComparison = false;
   documentStats: any = null;
 
-  // Analysis categories for visualization
   analysisCategories = [
     { key: 'contact', label: 'Contact Information', icon: 'fas fa-address-card' },
     { key: 'summary', label: 'Professional Summary', icon: 'fas fa-user-tie' },
@@ -71,7 +68,6 @@ export class CvAnalysisComponent implements OnInit, OnChanges {
     this.documentStats = this.ragService.getUserDocumentStats();
   }
 
-  // Get overall score color
   getScoreColor(score: number): string {
     if (score >= 80) return '#10b981'; // Green
     if (score >= 60) return '#f59e0b'; // Yellow
@@ -79,7 +75,6 @@ export class CvAnalysisComponent implements OnInit, OnChanges {
     return '#ef4444'; // Red
   }
 
-  // Get score label
   getScoreLabel(score: number): string {
     if (score >= 90) return 'Excellent';
     if (score >= 80) return 'Very Good';
@@ -89,11 +84,9 @@ export class CvAnalysisComponent implements OnInit, OnChanges {
     return 'Poor';
   }
 
-  // Get section score (mock implementation - in real app this would come from analysis)
   getSectionScore(sectionKey: string): number {
     if (!this.selectedAnalysis) return 0;
     
-    // Mock scores based on section key
     const mockScores: {[key: string]: number} = {
       contact: 85,
       summary: 72,
@@ -107,7 +100,6 @@ export class CvAnalysisComponent implements OnInit, OnChanges {
     return mockScores[sectionKey] || 0;
   }
 
-  // Get section feedback (mock implementation)
   getSectionFeedback(sectionKey: string): string {
     const mockFeedback: {[key: string]: string} = {
       contact: 'Contact information is complete and professional.',
@@ -122,17 +114,14 @@ export class CvAnalysisComponent implements OnInit, OnChanges {
     return mockFeedback[sectionKey] || 'No specific feedback available.';
   }
 
-  // Toggle analysis comparison
   toggleComparison(): void {
     this.showComparison = !this.showComparison;
   }
 
-  // Select analysis for viewing
   selectAnalysis(analysis: CvAnalysis): void {
     this.selectedAnalysis = analysis;
   }
 
-  // Get improvement suggestions
   get improvementSuggestions(): string[] {
     if (!this.selectedAnalysis) return [];
     
@@ -146,7 +135,6 @@ export class CvAnalysisComponent implements OnInit, OnChanges {
     ];
   }
 
-  // Get strengths
   get strengths(): string[] {
     if (!this.selectedAnalysis) return [];
     
@@ -159,7 +147,6 @@ export class CvAnalysisComponent implements OnInit, OnChanges {
     ];
   }
 
-  // Get priority actions
   get priorityActions(): Array<{text: string, priority: 'high' | 'medium' | 'low'}> {
     return [
       { text: 'Add metrics to work achievements', priority: 'high' },
@@ -171,13 +158,11 @@ export class CvAnalysisComponent implements OnInit, OnChanges {
     ];
   }
 
-  // Get analysis progress percentage
   getAnalysisProgress(): number {
     if (!this.selectedAnalysis) return 0;
     return Math.round((this.selectedAnalysis.analysis.overallScore / 100) * 100);
   }
 
-  // Format analysis date
   formatDate(date: Date): string {
     return new Date(date).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -188,7 +173,6 @@ export class CvAnalysisComponent implements OnInit, OnChanges {
     });
   }
 
-  // Check if analysis is recent
   isRecentAnalysis(date: Date): boolean {
     const now = new Date();
     const analysisDate = new Date(date);
@@ -196,11 +180,9 @@ export class CvAnalysisComponent implements OnInit, OnChanges {
     return diffInHours < 24;
   }
 
-  // Get comparison data for multiple analyses
   getComparisonData(): any[] {
     if (!this.selectedAnalysis) return [];
     
-    // Mock comparison data
     return this.analyses.map(analysis => ({
       label: this.formatDate(analysis.createdAt),
       score: analysis.analysis.overallScore,
@@ -209,7 +191,6 @@ export class CvAnalysisComponent implements OnInit, OnChanges {
     }));
   }
 
-  // Download analysis report (mock implementation)
   downloadReport(): void {
     if (!this.selectedAnalysis) return;
     
@@ -236,7 +217,6 @@ export class CvAnalysisComponent implements OnInit, OnChanges {
     URL.revokeObjectURL(url);
   }
 
-  // Share analysis results (mock implementation)
   shareAnalysis(): void {
     if (!this.selectedAnalysis) return;
     

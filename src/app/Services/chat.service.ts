@@ -68,7 +68,6 @@ export class ChatService {
       );
   }
 
-  // Update getConversations to be more resilient
   getConversations(): Observable<ChatConversation[]> {
     return this.http
       .get<{ success: boolean; data: ChatConversation[] }>(
@@ -76,15 +75,11 @@ export class ChatService {
       )
       .pipe(
         map((response) => {
-         // console.log('✅ Existing conversations response:', response);
           return response.data || [];
         }),
         catchError((error) => {
-          // console.warn(
-          //   '⚠️ Could not load existing conversations, using empty array:',
-          //   error
-          // );
-          return of([]); // Return empty array instead of failing
+        
+          return of([]); 
         })
       );
   }
@@ -96,11 +91,9 @@ export class ChatService {
       )
       .pipe(
         map((response) => {
-         // console.log('Potential conversations response:', response);
           return response.data || [];
         }),
         catchError((error) => {
-          //console.error(' Error fetching potential conversations:', error);
           return of([]);
         })
       );
@@ -115,7 +108,6 @@ export class ChatService {
       .pipe(
         map(() => void 0),
         catchError((error) => {
-          //console.error('Error marking message as read:', error);
           return of(void 0);
         })
       );
@@ -131,7 +123,6 @@ export class ChatService {
       .pipe(
         map((response) => response.data),
         catchError((error) => {
-         // console.error('Error fetching participants:', error);
           throw error;
         })
       );
@@ -146,7 +137,6 @@ export class ChatService {
       .pipe(
         map(() => void 0),
         catchError((error) => {
-         // console.error('Error marking messages as read:', error);
           return of(void 0);
         })
       );
@@ -159,87 +149,69 @@ export class ChatService {
       })
       .pipe(
         catchError((error) => {
-          //console.error('Error downloading attachment:', error);
           throw error;
         })
       );
   }
 
-  // Update this method to be the primary conversation loader
   getAllConversations(): Observable<ChatConversation[]> {
-    //console.log('🔄 Starting getAllConversations...');
     
     return forkJoin({
       existing: this.getConversations(),
       potential: this.getPotentialConversations(),
     }).pipe(
       map(({ existing, potential }) => {
-        // console.log(' === CONVERSATION FILTERING DEBUG ===');
-        // console.log('Raw existing conversations:', existing.length);
-        // console.log('Raw potential conversations:', potential.length);
-
-        // Log ALL statuses with details
-       // console.log(' EXISTING CONVERSATIONS:');
+       
         existing.forEach((conv, index) => {
-          //console.log(`  [${index}] ID: ${conv.bookingId}, Status: "${conv.sessionStatus}", Type: ${typeof conv.sessionStatus}`);
+        
         });
 
-        //console.log(' POTENTIAL CONVERSATIONS:');
+      
         potential.forEach((conv, index) => {
-          //console.log(`  [${index}] ID: ${conv.bookingId}, Status: "${conv.sessionStatus}", Type: ${typeof conv.sessionStatus}`);
+       
         });
 
-        // Filter existing conversations to only include allowed statuses
-        //console.log(' FILTERING EXISTING CONVERSATIONS:');
+       
         const filteredExisting = existing.filter((conv, index) => {
-          // console.log(`\n--- Filtering existing conversation ${index} ---`);
-          // console.log(`  Booking ID: ${conv.bookingId}`);
-          // console.log(`  Status: "${conv.sessionStatus}"`);
+         
           const allowed = this.shouldAllowChat(conv.sessionStatus);
-          //console.log(`  Decision: ${allowed ? 'ALLOWED' : 'REJECTED'}`);
+       
           
           if (!allowed) {
-            //console.log(' FILTERING OUT existing conversation:', conv.bookingId, 'status:', conv.sessionStatus);
+          
           }
           return allowed;
         });
 
-        //console.log(' Filtered existing count:', filteredExisting.length);
-
-        // Use filtered existing instead of raw existing
+       
         const allConversations = [...filteredExisting];
         const existingBookingIds = new Set(filteredExisting.map((c) => c.bookingId));
 
-        //console.log('🔍 FILTERING POTENTIAL CONVERSATIONS:');
-        // Add potential conversations that aren't already in existing
+      
         potential.forEach((p, index) => {
-          // console.log(`\n--- Filtering potential conversation ${index} ---`);
-          // console.log(`  Booking ID: ${p.bookingId}`);
-          // console.log(`  Status: "${p.sessionStatus}"`);
-          // console.log(`  Already exists: ${existingBookingIds.has(p.bookingId)}`);
+          
           
           if (!existingBookingIds.has(p.bookingId)) {
-            // Only add if booking status allows chat (exclude pending and cancelled only)
+         
             if (this.shouldAllowChat(p.sessionStatus)) {
               allConversations.push(p);
-              //console.log('ADDED potential conversation:', p.bookingId);
+             
             } else {
-             // console.log(' FILTERING OUT potential conversation:', p.bookingId, 'status:', p.sessionStatus);
+           
             }
           } else {
-            //console.log('⏭️ SKIPPED (already exists)');
+         
           }
         });
 
-        // Remove duplicates and sort
+      
         const uniqueConversations = allConversations.filter(
           (conversation, index, self) =>
             index ===
             self.findIndex((c) => c.bookingId === conversation.bookingId)
         );
 
-        //console.log(' Final unique conversations:', uniqueConversations.length);
-
+       
         return uniqueConversations.sort(
           (a, b) =>
             new Date(b.lastMessageAt).getTime() -
@@ -247,29 +219,29 @@ export class ChatService {
         );
       }),
       catchError((error) => {
-        //console.error('Error in getAllConversations:', error);
+       
         return of([]);
       })
     );
   }
 
-  // Simple filtering - only exclude pending and cancelled
+ 
   private shouldAllowChat(sessionStatus?: string): boolean {
-    if (!sessionStatus) return true; // Allow if status unknown
+    if (!sessionStatus) return true; 
 
     const normalizedStatus = sessionStatus.toLowerCase().trim();
 
-    // Only block these specific statuses
+   
     const blockedStatuses = ['pending', 'cancelled', 'canceled'];
 
     const isBlocked = blockedStatuses.includes(normalizedStatus);
 
-    //console.log(` Status: "${sessionStatus}" -> ${isBlocked ? 'BLOCKED' : 'ALLOWED'}`);
+   
 
-    return !isBlocked; // Return true if NOT blocked
+    return !isBlocked; 
   }
 
-  // 1. Upload voice message
+  
   uploadVoiceMessage(
     bookingId: number,
     audioFile: File,
@@ -287,17 +259,17 @@ export class ChatService {
       )
       .pipe(
         map((response) => {
-          //console.log(' uploadVoiceMessage API response:', response);
+         
           return response.data;
         }),
         catchError((error) => {
-          //console.error('Error uploading voice message:', error);
+        
           throw error;
         })
       );
   }
 
-  // 2. Add reaction
+  
   addReaction(messageId: number, reactionType: string): Observable<any> {
     return this.http.post<any>(
       `${environment.apiUrl}/chat/messages/${messageId}/reaction`,
@@ -305,7 +277,7 @@ export class ChatService {
     );
   }
 
-  // 3. Remove reaction
+ 
   removeReaction(messageId: number, reactionType: string): Observable<any> {
     const params = new HttpParams().set('reactionType', reactionType);
     return this.http.delete<any>(
@@ -314,7 +286,7 @@ export class ChatService {
     );
   }
 
-  // 4. Get reactions for a message
+
   getMessageReactions(messageId: number): Observable<any[]> {
     return this.http
       .get<{ success: boolean; data: any[] }>(
@@ -323,13 +295,13 @@ export class ChatService {
       .pipe(
         map((response) => response.data || []),
         catchError((error) => {
-          //console.error('Error fetching reactions:', error);
+         
           return of([]);
         })
       );
   }
 
-  // 5. Edit message
+
   editMessage(messageId: number, messageText: string): Observable<ChatMessage> {
     return this.http.put<any>(
       `${environment.apiUrl}/chat/messages/${messageId}`,
@@ -337,14 +309,14 @@ export class ChatService {
     );
   }
 
-  // 6. Delete message
+ 
   deleteMessage(messageId: number): Observable<any> {
     return this.http.delete<any>(
       `${environment.apiUrl}/chat/messages/${messageId}`
     );
   }
 
-  // Add this method for voice message info (if not already present)
+  
   async getVoiceMessageInfo(fileName: string): Promise<any> {
     try {
       const response = await this.http
@@ -352,12 +324,12 @@ export class ChatService {
         .toPromise();
       return response;
     } catch (error) {
-      //console.error('Error fetching voice message info:', error);
+   
       return { exists: false, fileName, fileSize: 0 };
     }
   }
 
-  // Add this method for the stream URL (if not already present)
+  
   getVoiceStreamUrl(fileName: string): string {
     return `${this.apiUrl}/chat/voice/${fileName}`;
   }

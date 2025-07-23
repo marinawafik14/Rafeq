@@ -80,7 +80,6 @@ currentPage : number = 1;
     return this.payments.reduce((total, payment) => total + payment.amountPaid, 0);
   }
 
-// Pagination logic
 getpaginatedPayments(): Payments[] {
         const startIndex = (this.currentPage - 1) * this.itemsPerPage; 
         const endIndex = startIndex + this.itemsPerPage;     
@@ -97,7 +96,6 @@ get totalPages(): number {
     }
   } 
 
-  // Add Math property for template access
   Math = Math;
 
   getAveragePayment(): string {
@@ -110,16 +108,14 @@ get totalPages(): number {
   getTodayRevenue(): string {
   const today = new Date();
   const todayPayments = this.payments.filter(payment => {
-    // Handle undefined paymentDate
     if (!payment.paymentDate) {
-      return false; // Skip payments without dates
+      return false; 
     }
     
     const paymentDate = new Date(payment.paymentDate);
     
-    // Check if the date is valid
     if (isNaN(paymentDate.getTime())) {
-      return false; // Skip invalid dates
+      return false; 
     }
     
     return paymentDate.toDateString() === today.toDateString();

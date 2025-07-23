@@ -19,14 +19,14 @@ export class NotificationBadgeComponent implements OnInit, OnDestroy {
   constructor(private notificationService: NotificationService) {}
 
   ngOnInit() {
-    // Subscribe to unread count changes
+
     this.subscription.add(
       this.notificationService.unreadCount$.subscribe(count => {
         this.unreadCount = count;
       })
     );
 
-    // Load initial notifications
+ 
     this.notificationService.getNotifications();
   }
 
@@ -45,6 +45,6 @@ export class NotificationBadgeComponent implements OnInit, OnDestroy {
 
   navigateToNotifications() {
     this.showDropdown = false;
-    // Navigation will be handled by routerLink
+    
   }
 }

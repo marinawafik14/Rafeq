@@ -181,7 +181,7 @@ export class MentorProfileViewComponent implements OnInit {
     const dateGroups = new Map<string, any>();
     this.freeSlots.forEach(slot => {
       const slotStart = new Date(slot.start);
-      if (slotStart <= now) return; // skip past slots
+      if (slotStart <= now) return; 
       const slotDate = slotStart.toISOString().slice(0, 10);
       if (!dateGroups.has(slotDate)) {
         const date = new Date(slotDate);

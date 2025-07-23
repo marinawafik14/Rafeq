@@ -77,28 +77,22 @@ export class MenteeLayoutComponent implements OnInit, AfterViewInit {
     this.sidebarOpen = !this.sidebarOpen;
   }
 
-  // Add the missing logout method
   async logout(): Promise<void> {
     try {
-      // Clear any pending bookings before logout
       sessionStorage.removeItem('pendingBooking');
       
-      // Call the auth service logout
       this.authService.logout().subscribe({
         next: () => {
-          // Navigate to login page
           this.router.navigate(['/login']);
         },
         error: (error) => {
           console.error('Logout error:', error);
-          // Even if logout fails on server, clear local data and redirect
           this.authService.clearToken();
           this.router.navigate(['/login']);
         }
       });
     } catch (error) {
       console.error('Logout failed:', error);
-      // Fallback: clear local data and redirect
       this.authService.clearToken();
       this.router.navigate(['/login']);
     }

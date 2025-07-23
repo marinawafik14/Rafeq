@@ -29,7 +29,7 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
   @ViewChild('messageInput') messageInput!: ElementRef;
 
-  // Data properties
+  
   conversations: ChatConversation[] = [];
   messages: ChatMessage[] = [];
   selectedConversation: ChatConversation | null = null;
@@ -37,29 +37,25 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   currentUserId: number = 0;
   currentUser: TokenResponseDto | null = null;
     private destroy = new Subject<void>();
-  // UI state
+
   isLoading = true;
   isLoadingMessages = false;
   isSending = false;
   error: string | null = null;
   searchQuery = '';
   
-  // Message input
+  
   newMessage = '';
   selectedFile: File | null = null;
   
-  // Real-time
   private subscriptions: Subscription[] = [];
   typingUsers: {[userId: number]: boolean} = {};
   
-  // Auto-scroll
   private shouldScrollToBottom = true;
 
-  // Add these properties
   private lastLoadTime = 0;
-  private readonly LOAD_THROTTLE_MS = 2000; // 2 seconds
+  private readonly LOAD_THROTTLE_MS = 2000; 
 
-  // Voice message
   isRecording = false;
   isUploadingVoice = false;
   recordingDuration = 0;
@@ -67,11 +63,9 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   mediaRecorder: any = null;
   recordingTimer: any = null;
 
-  // Reactions
   showEmojiPicker: { [messageId: number]: boolean } = {};
   emojiList: string[] = ['👍', '❤️', '😂', '😮', '😢', '👏'];
 
-  // Edit message
   editingMessageId: number | null = null;
   editedMessageText: string = '';
 
@@ -83,13 +77,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     private route: ActivatedRoute,
     private router: Router,
     private authService: AuthService,
-    private profileService: ProfileService // Add this service
+    private profileService: ProfileService 
   ) {
-    // Use AuthService to get the current user ID properly
     const currentUser = this.authService.currentUserValue;
     if (currentUser) {
       this.currentUserId = currentUser.userId || 0;
-      // Set menteeId only if user is a mentee
       if (currentUser.role === 'Mentee') {
         this.menteeId = currentUser.userId;
       }
@@ -135,22 +127,17 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  // Update the initializeChat method
   async initializeChat(): Promise<void> {
     try {
-      // Load conversations first (this works)
       await this.loadConversations();
 
-      // Initialize SignalR connection with better error handling
       const token = this.authService.getToken();
       if (token) {
         try {
-          // Subscribe to connection status
           this.subscriptions.push(
             this.signalrService.initializeConnection().subscribe(status => {
               console.log('🔗 SignalR status changed:', status);
               
-              // If reconnected and we have an active conversation, re-join
               if (status === 'Connected' && this.selectedConversation) {
                 this.signalrService.joinChatRoom(this.selectedConversation.bookingId)
                   .catch(err => console.warn('Failed to rejoin chat room:', err));
@@ -165,7 +152,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         }
       }
 
-      // Handle route parameters
       const bookingId = this.route.snapshot.paramMap.get('bookingId');
       if (bookingId) {
         const conversation = this.conversations.find(c => c.bookingId === parseInt(bookingId));
@@ -187,22 +173,18 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   private setupSignalRListeners(): void {
     console.log('🔗 Setting up SignalR listeners...');
 
-    // Message received (for attachments and new messages)
     const messageReceivedSub = this.signalrService.messageReceived$.subscribe(message => {
       console.log('📨 SignalR: New message received:', message);
       
       if (message && this.selectedConversation && message.senderId !== this.currentUserId) {
-        // Only add messages from OTHER users via SignalR
         if (message.bookingId === this.selectedConversation.bookingId) {
           console.log('➕ Adding message from other user to current conversation');
           this.messages.push(message);
           this.shouldScrollToBottom = true;
           
-          // Mark as read since it's not from current user
           this.markMessageAsRead(message.messageId);
         }
         
-        // Update conversation list
         const messageConversation = this.conversations.find(c => c.bookingId === message.bookingId);
         if (messageConversation) {
           messageConversation.lastMessage = {
@@ -221,7 +203,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       }
     });
 
-    // Typing indicators
     const typingSub = this.signalrService.userTyping$.subscribe(data => {
       console.log('⌨️ SignalR: Typing indicator:', data);
       
@@ -236,7 +217,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       }
     });
 
-    // Message reactions
     const reactionSub = this.signalrService.messageReaction$.subscribe(reaction => {
       console.log('👍 SignalR: Message reaction received:', reaction);
       
@@ -250,7 +230,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       }
     });
 
-    // IMPROVED: Message deletion
     const messageDeletedSub = this.signalrService.messageDeleted$.subscribe(data => {
       console.log('🗑️ SignalR: Message deleted event received:', data);
       
@@ -258,21 +237,18 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         let messageIdToDelete = data.messageId;
         let bookingIdToCheck = data.bookingId;
         
-        // If bookingId is 0, use current conversation's bookingId
         if (bookingIdToCheck === 0 && this.selectedConversation) {
           bookingIdToCheck = this.selectedConversation.bookingId;
         }
         
         console.log(`🗑️ Attempting to delete message ${messageIdToDelete} from booking ${bookingIdToCheck}`);
         
-        // Only process if it's for current conversation OR if we have a valid bookingId
         if (!this.selectedConversation || bookingIdToCheck === this.selectedConversation.bookingId) {
           const messageIndex = this.messages.findIndex(m => m.messageId === messageIdToDelete);
           if (messageIndex > -1) {
             console.log('✅ Removing message from UI via SignalR');
             this.messages.splice(messageIndex, 1);
             
-            // Update conversation last message if needed
             this.updateConversationLastMessage();
           } else {
             console.log('⚠️ Message not found in current messages list');
@@ -281,18 +257,15 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       }
     });
 
-    // IMPROVED: Message editing
     const messageEditedSub = this.signalrService.messageEdited$.subscribe(editedMessage => {
       console.log('✏️ SignalR: Message edited event received:', editedMessage);
       
       if (editedMessage && this.messages && editedMessage.senderId !== this.currentUserId) {
-        // Only handle edits from OTHER users
         const messageIndex = this.messages.findIndex(m => m.messageId === editedMessage.messageId);
         if (messageIndex > -1) {
           console.log('✅ Updating message from other user via SignalR');
           this.messages[messageIndex] = { ...this.messages[messageIndex], ...editedMessage };
           
-          // Update conversation last message if needed
           this.updateConversationLastMessage();
         }
       }
@@ -307,7 +280,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     );
   }
 
-  // Add this helper method:
   private updateConversationLastMessage(): void {
     if (!this.selectedConversation || this.messages.length === 0) return;
 
@@ -337,7 +309,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     try {
       console.log('🔄 Loading conversations...');
       
-      // Use the service method that handles filtering
       this.conversations = await this.chatService.getAllConversations().toPromise() || [];
       
       console.log('✅ Conversations loaded:', this.conversations.length);
@@ -354,11 +325,9 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  // 1. Always join the SignalR room when selecting a conversation
   async selectConversation(conversation: ChatConversation): Promise<void> {
     console.log('🔗 Selecting conversation:', conversation.bookingId);
 
-    // Always join the SignalR room for this conversation
     const signalRState = this.signalrService.getConnectionState();
     if (signalRState === 'Connected') {
       try {
@@ -381,7 +350,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.messages = [];
 
     try {
-      // 1. Load actual messages from the API
       console.log('📥 Loading messages for booking:', conversation.bookingId);
       const messages = await this.chatService.getChatHistory(conversation.bookingId).toPromise() || [];
       
@@ -389,13 +357,11 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       console.log('📋 Message details:', messages);
 
       if (messages.length > 0) {
-        // Use real messages from database
         await Promise.all(messages.map(async (msg) => {
           msg.reactions = await this.chatService.getMessageReactions(msg.messageId).toPromise();
         }));
         this.messages = messages;
       } else {
-        // Only show welcome message if NO messages exist in database
         this.messages = [
           {
             messageId: 0,
@@ -413,23 +379,23 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         ];
       }
 
-      // 2. Load conversation participants
+     
       try {
         const participantsData = await this.chatService.getConversationParticipants(conversation.bookingId).toPromise();
-        this.participants = participantsData || null; // Handle undefined by converting to null
+        this.participants = participantsData || null; 
         console.log('👥 Participants loaded:', this.participants);
       } catch (participantError) {
         console.warn('⚠️ Could not load participants:', participantError);
-        this.participants = null; // Explicitly set to null on error
+        this.participants = null; 
       }
 
       this.shouldScrollToBottom = true;
       this.isLoadingMessages = false;
 
-      // Update URL
+     
       this.router.navigate(['/chat', conversation.bookingId], { replaceUrl: true });
 
-      // Debug info
+      
       console.log('🔍 Selected conversation data:', {
         bookingId: conversation.bookingId,
         sessionType: conversation.sessionType,
@@ -439,17 +405,16 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         totalMessages: this.messages.length
       });
 
-      // After loading messages
+     
       if (this.messages && this.messages.length > 0) {
         this.messages.forEach(msg => {
           if (!msg.isRead && msg.senderId !== this.currentUserId) {
             this.markMessageAsRead(msg.messageId);
-            msg.isRead = true; // Optimistically update UI
+            msg.isRead = true; 
           }
         });
       }
 
-      // After marking messages as read
       const conv = this.conversations.find(c => c.bookingId === conversation.bookingId);
       if (conv) {
         conv.unreadCount = 0;
@@ -495,15 +460,13 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         this.messages.push(sentMessage);
         this.shouldScrollToBottom = true;
 
-        // Clear input immediately
         this.newMessage = '';
         this.selectedFile = null;
 
-        // Refresh the conversation to get updated messages
         setTimeout(async () => {
           console.log('🔄 Refreshing conversation after send...');
           await this.selectConversation(this.selectedConversation!);
-          await this.loadConversations(); // Also refresh conversation list
+          await this.loadConversations(); 
         }, 1000);
       }
 
@@ -523,7 +486,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   onFileSelected(event: any): void {
     const file = event.target.files[0];
     if (file) {
-      // Validate file size (max 10MB)
       if (file.size > 10 * 1024 * 1024) {
         Swal.fire({
           icon: 'error',
@@ -550,13 +512,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       ).toPromise();
 
       if (attachment) {
-        // The attachment upload creates a message automatically
-        // Refresh messages to show the new file message
         await this.loadMessages();
       }
 
       this.selectedFile = null;
-      // Reset file input
       const fileInput = document.getElementById('fileInput') as HTMLInputElement;
       if (fileInput) fileInput.value = '';
 
@@ -573,8 +532,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  // --- VOICE RECORDING STATE & LOGIC ---
-  // Start recording on button press
   async startVoiceRecording() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       Swal.fire('Not supported', 'Your browser does not support audio recording.', 'error');
@@ -602,7 +559,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  // Stop and upload recording
   async stopVoiceRecording() {
     if (!this.mediaRecorder || !this.isRecording) return;
     this.isUploadingVoice = true;
@@ -621,7 +577,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.mediaRecorder.stop();
   }
 
-  // Cancel recording (on mouseleave/slide)
   cancelVoiceRecording() {
     if (this.mediaRecorder && this.isRecording) {
       this.mediaRecorder.stop();
@@ -686,7 +641,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   }
 
-  // --- REACTIONS ---
   toggleEmojiPicker(messageId: number) {
     this.showEmojiPicker[messageId] = !this.showEmojiPicker[messageId];
   }
@@ -698,24 +652,19 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     const myReaction = this.getMyReaction(msg);
 
     if (myReaction && myReaction.reactionType === emoji) {
-      // Remove reaction if clicking the same one
       try {
         await this.chatService.removeReaction(messageId, emoji).toPromise();
-        // Remove from UI
         msg.reactions = (msg.reactions ?? []).filter((r: any) => !(r.userId === this.currentUserId && r.reactionType === emoji));
       } catch (err) {
         Swal.fire('Error', 'Failed to remove reaction.', 'error');
       }
     } else {
-      // Remove old reaction if exists
       if (myReaction) {
         await this.chatService.removeReaction(messageId, myReaction.reactionType).toPromise();
         msg.reactions = (msg.reactions ?? []).filter((r: any) => !(r.userId === this.currentUserId));
       }
-      // Add new reaction
       try {
         await this.chatService.addReaction(messageId, emoji).toPromise();
-        // Reload reactions for this message
         msg.reactions = await this.chatService.getMessageReactions(messageId).toPromise();
       } catch (err) {
         Swal.fire('Error', 'Failed to add reaction.', 'error');
@@ -733,7 +682,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  // --- EDIT MESSAGE ---
   startEditMessage(message: ChatMessage) {
     this.editingMessageId = message.messageId;
     this.editedMessageText = message.messageText;
@@ -754,7 +702,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.editedMessageText = '';
   }
 
-  // --- DELETE MESSAGE ---
   async deleteMessage(message: ChatMessage) {
     const result = await Swal.fire({
       title: 'Delete message?',
@@ -774,17 +721,14 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
         
         console.log('✅ Message deleted successfully');
         
-        // Update UI immediately
         const messageIndex = this.messages.findIndex(m => m.messageId === message.messageId);
         if (messageIndex > -1) {
           this.messages.splice(messageIndex, 1);
           console.log('✅ Message removed from UI');
         }
         
-        // Update conversation last message if needed
         this.updateConversationLastMessage();
         
-        // Show success notification
         Swal.fire({
           icon: 'success',
           title: 'Deleted!',
@@ -821,7 +765,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.messages = messages;
       this.shouldScrollToBottom = true;
 
-      // Debug: Log all transcripts for voice messages
       console.log('🔊 Voice message transcripts:');
       this.messages.forEach(msg => {
         if (msg.isVoiceMessage) {
@@ -845,7 +788,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     if (this.selectedConversation) {
       this.signalrService.sendTypingIndicator(this.selectedConversation.bookingId, true);
       
-      // Send stop typing after 1 second of no typing
       setTimeout(() => {
         if (this.selectedConversation) {
           this.signalrService.sendTypingIndicator(this.selectedConversation.bookingId, false);
@@ -865,12 +807,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  // Helper methods
   isMyMessage(message: ChatMessage): boolean {
     return message.senderId === this.currentUserId;
   }
 
-  // Update the openGoogleMeet method to handle undefined
   openGoogleMeet(link: string | undefined): void {
     if (link) {
       window.open(link, '_blank');
@@ -879,15 +819,12 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  // Update the formatMessageTime method to be more robust
   formatMessageTime(date: Date | string | null | undefined): string {
-    // Handle null, undefined, or empty values
     if (!date) return '';
     
     try {
       const messageDate = new Date(date);
       
-      // Check if date is valid
       if (isNaN(messageDate.getTime())) {
         console.warn('Invalid date provided:', date);
         return '';
@@ -908,14 +845,10 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  // Fix the getUserName method to show the OTHER person, not yourself
   getUserName(conversation: ChatConversation): string {
-    // Show the OTHER participant's name, not your own
     if (this.currentUserId === conversation.mentorId) {
-      // You are the mentor, show the mentee's name
       return conversation.menteeName;
     } else {
-      // You are the mentee, show the mentor's name  
       return conversation.mentorName;
     }
   }
@@ -925,30 +858,22 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     
     let profilePicUrl = '';
     
-    // Show the OTHER participant's profile picture
     if (this.currentUserId === conversation.mentorId) {
-      // You are the mentor, show the mentee's picture
       profilePicUrl = conversation.menteeProfilePicture || '';
     } else {
-      // You are the mentee, show the mentor's picture
       profilePicUrl = conversation.mentorProfilePicture || '';
     }
     
-    // Process the URL properly
     if (profilePicUrl && profilePicUrl.trim() !== '') {
-      // If it's already a full URL, return it
       if (profilePicUrl.startsWith('http')) {
         return profilePicUrl;
       }
       
-      // If it's a path that doesn't start with slash, add it
       if (!profilePicUrl.startsWith('/')) {
         profilePicUrl = '/' + profilePicUrl;
       }
       
-      // If it's a relative path, make it absolute using environment.apiUrl
       if (!profilePicUrl.includes(this.apiUrl) && profilePicUrl.startsWith('/')) {
-        // Don't add apiUrl if it's just a local path to /images folder
         if (!profilePicUrl.startsWith('/images')) {
           return this.apiUrl + profilePicUrl;
         }
@@ -963,17 +888,13 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   getOtherParticipant(): any {
     if (!this.participants) return null;
     
-    // Return the OTHER participant, not yourself
     if (this.currentUserId === this.participants.mentor.userId) {
-      // You are the mentor, return mentee info
       return this.participants.mentee;
     } else {
-      // You are the mentee, return mentor info
       return this.participants.mentor;
     }
   }
 
-  // Add these helper methods
   getDefaultAvatarPath(): string {
     return '/images/default-avatar.png';
   }
@@ -1032,7 +953,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
   openAttachmentInNewTab(messageId: number, fileName: string): void {
     this.chatService.downloadAttachment(messageId).subscribe({
       next: (blob: Blob) => {
-        // Try to detect PDF and set correct MIME type
         let fileType = '';
         if (fileName.toLowerCase().endsWith('.pdf')) {
           fileType = 'application/pdf';
@@ -1076,7 +996,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
-  // Enhanced debug method to see what's happening
   debugUserInfo(conversation: ChatConversation): void {
     console.log('🔍 DETAILED DEBUG INFO:');
     console.log('='.repeat(50));
@@ -1096,7 +1015,6 @@ export class ChatComponent implements OnInit, OnDestroy, AfterViewChecked {
     console.log('  Should show OTHER person, not myself');
     console.log('='.repeat(50));
     
-    // Show an alert with the key info
     alert(`Debug Info:
 Current User ID: ${this.currentUserId}
 Mentor ID: ${conversation.mentorId} (${conversation.mentorName})
@@ -1106,13 +1024,11 @@ You are the: ${this.currentUserId === conversation.mentorId ? 'MENTOR' : 'MENTEE
 You should see: ${this.getUserName(conversation)}`);
   }
 
-  // Add manual refresh method
   async refreshConversations(): Promise<void> {
     console.log('🔄 Manual refresh triggered...');
-    this.lastLoadTime = 0; // Reset throttle
+    this.lastLoadTime = 0;
     await this.loadConversations();
     
-    // Reload current conversation messages if one is selected
     if (this.selectedConversation) {
       const currentBookingId = this.selectedConversation.bookingId;
       const conversation = this.conversations.find(c => c.bookingId === currentBookingId);
@@ -1124,7 +1040,6 @@ You should see: ${this.getUserName(conversation)}`);
     console.log('✅ Refresh completed');
   }
 
-  // 2. Add a debug method to check SignalR connection state
   checkSignalRConnection(): void {
     alert('SignalR state: ' + this.signalrService.getConnectionState());
   }
@@ -1133,7 +1048,6 @@ You should see: ${this.getUserName(conversation)}`);
     return message.reactions?.find((r: any) => r.userId === this.currentUserId);
   }
 
-  // Helper method to get file icon class
   getFileIconClass(fileName: string): string {
     const extension = fileName.split('.').pop()?.toLowerCase();
     
@@ -1161,7 +1075,6 @@ You should see: ${this.getUserName(conversation)}`);
     }
   }
 
-  // Helper method to get file icon
   getFileIcon(fileName: string): string {
     const extension = fileName.split('.').pop()?.toLowerCase();
     
@@ -1195,7 +1108,6 @@ You should see: ${this.getUserName(conversation)}`);
     }
   }
 
-  // Helper method to format file size
   formatFileSize(bytes: number): string {
     if (bytes === 0) return '0 Bytes';
     
@@ -1211,11 +1123,9 @@ You should see: ${this.getUserName(conversation)}`);
     console.log('Image failed to load:', imgElement.src);
     imgElement.src = this.getDefaultAvatarPath();
     
-    // Add onerror=null to prevent infinite error loop if default image also fails
     imgElement.onerror = null;
   }
 
-  // Debugging: Log messages on every change
   ngDoCheck() {
     console.log('🟦 Message debug:', JSON.stringify(this.messages, null, 2));
   }

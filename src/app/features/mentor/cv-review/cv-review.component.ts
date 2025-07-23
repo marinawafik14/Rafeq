@@ -150,17 +150,14 @@ export class CVReviewComponent implements OnInit {
     
     this.cvReviewService.getCVFile(fileName).subscribe({
       next: (blob) => {
-        // Create download link
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
         link.download = cv.fileName;
         
-        // Trigger download
         document.body.appendChild(link);
         link.click();
         
-        // Cleanup
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
         
@@ -191,12 +188,10 @@ export class CVReviewComponent implements OnInit {
     
     this.cvReviewService.getCVFile(fileName).subscribe({
       next: (blob) => {
-        // Create object URL and open in new tab
         const url = window.URL.createObjectURL(blob);
         const newTab = window.open(url, '_blank');
         
         if (!newTab) {
-          // Fallback to download if popup blocked
           this.downloadCV(cv);
           Swal.fire({
             icon: 'info',
@@ -205,7 +200,6 @@ export class CVReviewComponent implements OnInit {
             confirmButtonColor: '#0a2e65'
           });
         } else {
-          // Cleanup URL after some delay
           setTimeout(() => {
             window.URL.revokeObjectURL(url);
           }, 1000);
@@ -224,8 +218,7 @@ export class CVReviewComponent implements OnInit {
   }
 
   getCVFileUrl(cv: CVDetails): string {
-    // For iframe display, we'll use a different approach since authentication is tricky with iframes
-    return '#'; // We'll handle this differently
+    return '#'; 
   }
 
   formatDate(date: Date): string {

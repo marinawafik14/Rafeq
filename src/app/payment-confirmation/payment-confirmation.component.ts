@@ -18,14 +18,11 @@ export class PaymentConfirmationComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Clear any remaining pending booking data since we've reached the confirmation page
     sessionStorage.removeItem('pendingBooking');
     
-    // Get booking details from navigation state (passed from payment component)
     const state = history.state;
     
     if (state && state.bookingDetails) {
-      // Use data passed from payment component
       this.bookingDetails = {
         mentorName: state.bookingDetails.mentorName || 'Your Mentor',
         amountPaid: state.bookingDetails.amountPaid || 0,
@@ -34,17 +31,16 @@ export class PaymentConfirmationComponent implements OnInit {
         sessionType: state.bookingDetails.sessionType || 'Mentorship Session'
       };
     } else {
-      // Fallback: Try to get booking ID and amount from route params or query params
       const id = +this.route.snapshot.paramMap.get('id')!;
       const queryParams = this.route.snapshot.queryParams;
       const bookingId = queryParams['bookingId'] || id;
       
-      let amount = 60; // Default amount
+      let amount = 60; 
       if (bookingId) {
         const storedAmount = sessionStorage.getItem(`booking_${bookingId}_amount`);
         if (storedAmount) {
           amount = parseFloat(storedAmount);
-          // Clean up this stored amount data since payment is complete
+        
           sessionStorage.removeItem(`booking_${bookingId}_amount`);
         }
       }
@@ -61,14 +57,14 @@ export class PaymentConfirmationComponent implements OnInit {
 
   copyMeetLink(): void {
     navigator.clipboard.writeText(this.meetLink).then(() => {
-      // You could add a toast notification here
+    
       console.log('Meet link copied to clipboard');
     });
   }
 
   addToGoogleCalendar(): void {
     const startDate = new Date(this.bookingDetails.sessionDateTime);
-    const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // 1 hour session
+    const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); 
     
     const formatDate = (date: Date) => {
       return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
@@ -81,7 +77,7 @@ export class PaymentConfirmationComponent implements OnInit {
 
   addToOutlook(): void {
     const startDate = new Date(this.bookingDetails.sessionDateTime);
-    const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); // 1 hour session
+    const endDate = new Date(startDate.getTime() + 60 * 60 * 1000); 
     
     const outlookUrl = `https://outlook.live.com/calendar/0/deeplink/compose?subject=${encodeURIComponent(this.bookingDetails.sessionType + ' with ' + this.bookingDetails.mentorName)}&startdt=${startDate.toISOString()}&enddt=${endDate.toISOString()}&body=${encodeURIComponent('Google Meet Link: ' + this.meetLink)}&location=${encodeURIComponent(this.meetLink)}`;
     

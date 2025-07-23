@@ -20,7 +20,7 @@ export class AiInputAreaComponent implements OnInit {
   @ViewChild('messageInput') messageInput!: ElementRef<HTMLTextAreaElement>;
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
 
-  // Component state
+ 
   messageText = '';
   selectedFiles: File[] = [];
   isUploading = false;
@@ -28,7 +28,7 @@ export class AiInputAreaComponent implements OnInit {
   dragActive = false;
   uploadError: string | null = null;
 
-  // Suggestions based on mode
+  
   suggestions: string[] = [];
 
   constructor(private fileProcessingService: FileProcessingService) {}
@@ -41,7 +41,7 @@ export class AiInputAreaComponent implements OnInit {
     this.updateSuggestions();
   }
 
-  // Update suggestions based on mode
+  
   private updateSuggestions(): void {
     switch (this.mode) {
       case 'cv-analysis':
@@ -73,7 +73,7 @@ export class AiInputAreaComponent implements OnInit {
     }
   }
 
-  // Handle message sending
+
   onSendMessage(): void {
     if (this.canSendMessage()) {
       const message = this.messageText.trim();
@@ -83,41 +83,35 @@ export class AiInputAreaComponent implements OnInit {
     }
   }
 
-  // Handle Enter key press
+
   onKeyPress(event: KeyboardEvent): void {
     if (event.key === 'Enter') {
       if (event.shiftKey) {
-        // Allow line break with Shift+Enter
         return;
       } else {
-        // Send message with Enter
         event.preventDefault();
         this.onSendMessage();
       }
     }
   }
 
-  // Handle suggestion click
   onSuggestionClick(suggestion: string): void {
     this.messageText = suggestion;
     this.focusInput();
     this.autoResizeTextarea();
   }
 
-  // Check if message can be sent
   canSendMessage(): boolean {
     return !this.disabled && 
            (this.messageText.trim().length > 0 || this.selectedFiles.length > 0);
   }
 
-  // Focus the input
   focusInput(): void {
     if (this.messageInput) {
       this.messageInput.nativeElement.focus();
     }
   }
 
-  // Auto-resize textarea
   autoResizeTextarea(): void {
     if (this.messageInput) {
       const textarea = this.messageInput.nativeElement;
@@ -126,7 +120,6 @@ export class AiInputAreaComponent implements OnInit {
     }
   }
 
-  // File handling
   onFileInputChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files) {
@@ -145,16 +138,14 @@ export class AiInputAreaComponent implements OnInit {
   private async handleFiles(files: File[]): Promise<void> {
     this.isUploading = true;
     this.uploadProgress = 0;
-    this.uploadError = null; // Clear previous errors
+    this.uploadError = null; 
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       
       try {
-        // Update progress
         this.uploadProgress = Math.round(((i + 0.5) / files.length) * 100);
 
-        // Process file with timeout
         const processedFile = await Promise.race([
           this.fileProcessingService.processFile(file).toPromise(),
           new Promise((_, reject) => 
@@ -167,7 +158,6 @@ export class AiInputAreaComponent implements OnInit {
           this.selectedFiles.push(file);
         }
 
-        // Update progress
         this.uploadProgress = Math.round(((i + 1) / files.length) * 100);
         
       } catch (error: unknown) {
@@ -176,7 +166,6 @@ export class AiInputAreaComponent implements OnInit {
         const errorMessage = this.getErrorMessage(error);
         this.uploadError = `Failed to process ${file.name}: ${errorMessage}`;
         
-        // Still create fallback attachment
         if (file.type === 'application/pdf') {
           const fallbackAttachment: FileAttachment = {
             id: Date.now().toString(36) + Math.random().toString(36).substr(2),
@@ -191,7 +180,6 @@ export class AiInputAreaComponent implements OnInit {
       }
     }
 
-    // Reset state
     setTimeout(() => {
       this.isUploading = false;
       this.uploadProgress = 0;
@@ -202,7 +190,6 @@ export class AiInputAreaComponent implements OnInit {
     }, 1000);
   }
 
-  // Add this helper method to the component
   private getErrorMessage(error: unknown): string {
     if (error instanceof Error) {
       return error.message;
@@ -216,7 +203,6 @@ export class AiInputAreaComponent implements OnInit {
     return 'Unknown error occurred';
   }
 
-  // Drag and drop handling
   onDragOver(event: DragEvent): void {
     event.preventDefault();
     event.stopPropagation();
@@ -240,7 +226,6 @@ export class AiInputAreaComponent implements OnInit {
     }
   }
 
-  // Get placeholder text based on mode
   get placeholderText(): string {
     switch (this.mode) {
       case 'cv-analysis':
@@ -252,7 +237,6 @@ export class AiInputAreaComponent implements OnInit {
     }
   }
 
-  // Get file upload text based on mode
   get fileUploadText(): string {
     switch (this.mode) {
       case 'cv-analysis':
@@ -264,7 +248,6 @@ export class AiInputAreaComponent implements OnInit {
     }
   }
 
-  // Get accepted file types
   get acceptedFileTypes(): string {
     switch (this.mode) {
       case 'cv-analysis':
@@ -274,29 +257,24 @@ export class AiInputAreaComponent implements OnInit {
     }
   }
 
-  // Clear message
   clearMessage(): void {
     this.messageText = '';
     this.autoResizeTextarea();
     this.focusInput();
   }
 
-  // Get character count
   get characterCount(): number {
     return this.messageText.length;
   }
 
-  // Check if approaching limit
   get isApproachingLimit(): boolean {
-    return this.characterCount > 4000; // Assuming 5000 char limit
+    return this.characterCount > 4000; 
   }
 
-  // Get remaining characters
   get remainingCharacters(): number {
     return Math.max(0, 5000 - this.characterCount);
   }
 
-  // Quick actions based on mode
   get quickActions(): Array<{icon: string, text: string, action: string}> {
     switch (this.mode) {
       case 'cv-analysis':
@@ -320,7 +298,6 @@ export class AiInputAreaComponent implements OnInit {
     }
   }
 
-  // Handle quick action click
   onQuickActionClick(action: string): void {
     const actionMessages: {[key: string]: string} = {
       upload: 'Please analyze my uploaded CV and provide detailed feedback.',

@@ -76,7 +76,7 @@ export class MyForumPostsComponent implements OnInit {
               toast: true,
               position: 'top-end'
             });
-            this.loadPosts(); // Refresh the list after deletion
+            this.loadPosts(); 
           },
           error: (err) => {
             Swal.fire({
