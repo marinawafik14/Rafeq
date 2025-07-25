@@ -9,11 +9,7 @@ export class CvService {
 
   constructor(private http: HttpClient) {}
 
-  // getMenteeCVs(menteeId: number): Observable<any[]> {
-  //   return this.http.get<any[]>(`${this.baseUrl}/mentee/${menteeId}`);
-  // }
-
-  // get CVs for the current user (mentee)
+ 
   getCurrentUserCVs(): Observable<any[]> {
     return this.http.get<any[]>(`${this.baseUrl}`);
   }

@@ -22,7 +22,7 @@ export class menteeBookingservice {
     return this.http.get<any[]>(`${this.baseUrl}/${menteeId}/completed`);
   }
 
-  // Get booking details by bookingId
+ 
   getBookingDetails(bookingId: number): Observable<any> {
     return this.http.get<any>(`${environment.apiUrl}/MenteeBookings/${bookingId}`);
   }
@@ -32,7 +32,7 @@ export class menteeBookingservice {
       sessionType: bookingData.sessionType,
       startDateTime: bookingData.startDateTime,
       endDateTime: bookingData.endDateTime,
-      totalAmount: bookingData.totalAmount // ✅ Add this back
+      totalAmount: bookingData.totalAmount
     };
     
     return this.http.post<any>(
@@ -40,12 +40,12 @@ export class menteeBookingservice {
       requestBody
     );
 }
- // Cancel a booking (returns observable)
+ 
   cancelBooking(bookingId: number): Observable<any> {
     return this.http.post<any>(`${environment.apiUrl}/MenteeBookings/${bookingId}/cancel`, {});
   }
 
-  // Cancel pending booking and clear session (returns a Promise for async/await usage)
+ 
   async cancelPendingBookingAndFreeSlot(): Promise<void> {
     const pendingBooking = sessionStorage.getItem('pendingBooking');
     if (pendingBooking) {
@@ -55,7 +55,7 @@ export class menteeBookingservice {
           await this.cancelBooking(booking.bookingId).toPromise();
         }
       } catch (e) {
-        // Ignore parse errors
+        
       }
     }
     sessionStorage.removeItem('pendingBooking');

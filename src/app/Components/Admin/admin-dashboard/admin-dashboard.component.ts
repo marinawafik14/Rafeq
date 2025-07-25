@@ -33,6 +33,5 @@ export class AdminDashboardComponent  implements AfterViewInit{
 
   window.location.href = '/login';
  
-  // this.router.navigate(['/login']);
 }
 }

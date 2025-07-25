@@ -25,9 +25,8 @@ export class AdminArticleListComponent implements OnInit, OnDestroy {
   category: string = '';
   loading: boolean = false;
   error: string | null = null;
-  Math = Math; // Expose Math to template
+  Math = Math; 
 
-  // Subjects for automatic filtering
   private searchSubject = new Subject<string>();
   private categorySubject = new Subject<string>();
   private destroy$ = new Subject<void>();
@@ -48,7 +47,6 @@ export class AdminArticleListComponent implements OnInit, OnDestroy {
   }
 
   setupAutoFiltering(): void {
-    // Auto-filter on search input with debounce
     this.searchSubject
       .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe(() => {
@@ -56,7 +54,6 @@ export class AdminArticleListComponent implements OnInit, OnDestroy {
         this.loadArticles();
       });
 
-    // Auto-filter on category input with debounce
     this.categorySubject
       .pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe(() => {

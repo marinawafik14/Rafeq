@@ -84,7 +84,6 @@ export class ResetPasswordComponent implements OnInit {
   }
 
   resetFormData(): void {
-    // Reset form but keep the token
     const currentToken = this.token?.value;
     this.resetPasswordForm.reset({
       token: currentToken,
@@ -125,7 +124,6 @@ export class ResetPasswordComponent implements OnInit {
           'Success'
         );
 
-        // Reset form data after successful password reset
         this.resetFormData();
 
         this.router.navigate(['/login']);

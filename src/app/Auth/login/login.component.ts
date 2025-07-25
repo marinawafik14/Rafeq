@@ -161,7 +161,6 @@ export class LoginComponent implements OnInit {
 
         this.resetFormData();
 
-        // Redirect all users to home page after login
         this.router.navigate(['/home']);
       },
       error: (err: any) => {

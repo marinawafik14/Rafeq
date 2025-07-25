@@ -11,11 +11,11 @@ export class ContactService {
 baseURL = `${environment.apiUrl}`
 getAllMessUrl = `${environment.apiUrl}/admin/contact`
   constructor(private http : HttpClient) { }
-  // sent contact messagepost message
+  
 sendContactMessage(data : Contact){
   return this.http.post<Contact>(`${this.baseURL}/Contact` , data)
 }
-// get all messages
+
 
 getAllMessages(): Observable<Contact[]> {
   return this.http.get<{ success: boolean, data: Contact[] }>(this.getAllMessUrl).pipe(
@@ -24,7 +24,7 @@ getAllMessages(): Observable<Contact[]> {
 }
 
 
-//delete message
+
 deleteMessage(id:number):Observable<void>{
 return this.http.delete<void>(`${this.getAllMessUrl}/${id}`)
 }

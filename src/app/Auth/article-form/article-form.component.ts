@@ -1,4 +1,3 @@
-// src/app/Components/Admin/admin-articles/article-form/article-form.component.ts
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import {
@@ -37,12 +36,12 @@ export class ArticleFormComponent implements OnInit {
     private router: Router,
     private articlesService: ArticlesService,
     private toastr: ToastrService,
-    private userFAService: UserFAService // Injected the renamed service
+    private userFAService: UserFAService 
   ) {}
 
   ngOnInit(): void {
     this.initializeForm();
-    this.loadAuthors(); // Load authors when component initializes
+    this.loadAuthors(); 
 
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
@@ -92,7 +91,7 @@ export class ArticleFormComponent implements OnInit {
           content: article.content,
           category: article.category,
           isPublished: article.isPublished,
-          authorId: article.authorId || null, // Handle undefined/null values properly
+          authorId: article.authorId || null, 
         });
         this.loading = false;
       },
@@ -125,7 +124,6 @@ export class ArticleFormComponent implements OnInit {
     this.loading = true;
     const formValue = this.articleForm.value;
 
-    // Prepare article data, handle null authorId
     const articleData: ArticleCreateUpdateDto = {
       title: formValue.title,
       summary: formValue.summary,
@@ -134,7 +132,6 @@ export class ArticleFormComponent implements OnInit {
       isPublished: formValue.isPublished,
     };
 
-    // Only include authorId if it has a valid value
     if (formValue.authorId) {
       articleData.authorId = formValue.authorId;
     }

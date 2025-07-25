@@ -31,7 +31,6 @@ export class VerifyEmailComponent implements OnInit {
         this.isVerifying = true;
         this.verificationMessage = 'Verifying your email...';
 
-        // Add a small delay before calling the API
         setTimeout(() => {
           this.authService.verifyEmail(token).subscribe({
             next: (response: any) => {
@@ -58,7 +57,7 @@ export class VerifyEmailComponent implements OnInit {
               }, 2000);
             },
           });
-        }, 1000); // 1 second delay
+        }, 1000); 
       } else {
         this.toastr.error(
           'Verification link is missing a token.',

@@ -94,7 +94,7 @@ export class BookingFormComponent implements OnDestroy {
 
   get calculatedPrice() {
     if (!this.mentor?.hourlyRate) {
-      return this.sessionType === 'interview' ? 100 : 60; // Fallback prices
+      return this.sessionType === 'interview' ? 100 : 60; 
     }
 
     const sessionDuration = this.getSessionDuration();

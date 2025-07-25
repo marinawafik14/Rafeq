@@ -16,7 +16,6 @@ export class AiMessageComponent implements OnInit {
 
  
   showMetadata = false;
-  // TTS audio playback state
   audio: HTMLAudioElement | null = null;
   isPlaying = false;
   audioProgress = 0;
@@ -77,40 +76,30 @@ export class AiMessageComponent implements OnInit {
     return (this.audioProgress / this.audioDuration) * 100;
   }
 
-  // Format message content for display
   get formattedContent(): string {
     if (!this.message?.content) return '';
     
-    // Convert markdown-style formatting to HTML
     let content = this.message.content;
     
-    // Bold text
     content = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     
-    // Italic text
     content = content.replace(/\*(.*?)\*/g, '<em>$1</em>');
     
-    // Code blocks
     content = content.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
     
-    // Inline code
     content = content.replace(/`(.*?)`/g, '<code>$1</code>');
     
-    // Line breaks
     content = content.replace(/\n/g, '<br>');
     
-    // Numbered lists
     content = content.replace(/^\d+\.\s(.+)$/gm, '<ol><li>$1</li></ol>');
     content = content.replace(/<\/ol>\s*<ol>/g, '');
     
-    // Bullet points
     content = content.replace(/^[-*]\s(.+)$/gm, '<ul><li>$1</li></ul>');
     content = content.replace(/<\/ul>\s*<ul>/g, '');
     
     return content;
   }
 
-  // Get message timestamp in readable format
   get messageTime(): string {
     if (!this.message?.timestamp) return '';
     
@@ -130,37 +119,31 @@ export class AiMessageComponent implements OnInit {
     }
   }
 
-  // Check if message is from user
   get isUserMessage(): boolean {
     return this.message?.role === 'user';
   }
 
-  // Check if message is from AI
   get isAiMessage(): boolean {
     return this.message?.role === 'assistant';
   }
 
-  // Check if message is system message
   get isSystemMessage(): boolean {
     return this.message?.role === 'system';
   }
 
-  // Get avatar for message
   get messageAvatar(): string {
     if (this.isUserMessage) {
-      return '/images/default-avatar.png'; // User avatar
+      return '/images/default-avatar.png'; 
     } else if (this.isAiMessage) {
       return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiM2NjdlZWEiLz4KPHN2ZyB4PSI4IiB5PSI4IiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+CjxwYXRoIGQ9Ik0xMiAyQzEzLjEgMiAxNCAyLjkgMTQgNFY4SDEwVjRDMTAgMi45IDEwLjkgMiAxMiAyWk0yMSAxMUgxOVY5SDIxVjExWk01IDExSDNWOUg1VjExWk02IDIwSDE4QzE4LjYgMjAgMTkgMTkuNiAxOSAxOVYxM0M5LjQgMTMgNSAxNy40IDUgMjBINlpNMTMgOVYxMUgxMVY5SDEzWiIgZmlsbD0id2hpdGUiLz4KPHN2Zz4KPC9zdmc+'; // AI robot avatar
     }
     return '';
   }
 
-  // Check if message has attachments
   get hasAttachments(): boolean {
     return !!(this.message?.attachments && this.message.attachments.length > 0);
   }
 
-  // Get file icon based on file type
   getFileIcon(fileType: string): string {
     if (fileType.includes('pdf')) return 'fas fa-file-pdf';
     if (fileType.includes('image')) return 'fas fa-file-image';
@@ -168,7 +151,6 @@ export class AiMessageComponent implements OnInit {
     return 'fas fa-file';
   }
 
-  // Get file type color
   getFileColor(fileType: string): string {
     if (fileType.includes('pdf')) return '#dc3545';
     if (fileType.includes('image')) return '#198754';
@@ -176,7 +158,6 @@ export class AiMessageComponent implements OnInit {
     return '#6c757d';
   }
 
-  // Format file size
   formatFileSize(bytes: number): string {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -185,10 +166,8 @@ export class AiMessageComponent implements OnInit {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   }
 
-  // Handle attachment click
   onAttachmentClick(attachment: FileAttachment): void {
     if (attachment.fileType.startsWith('image/') && attachment.base64Data) {
-      // Open image in new window
       const imageWindow = window.open();
       if (imageWindow) {
         imageWindow.document.write(`
@@ -203,16 +182,13 @@ export class AiMessageComponent implements OnInit {
         `);
       }
     } else if (attachment.content) {
-      // For text files, show content in modal or new window
       console.log('File content:', attachment.content);
     }
   }
 
-  // Copy message content to clipboard
   copyToClipboard(): void {
     if (navigator.clipboard && this.message?.content) {
       navigator.clipboard.writeText(this.message.content).then(() => {
-        // Could emit event to show toast notification
         console.log('Message copied to clipboard');
       }).catch(err => {
         console.error('Failed to copy message:', err);
@@ -220,7 +196,6 @@ export class AiMessageComponent implements OnInit {
     }
   }
 
-  // Get processing indicator text
   get processingText(): string {
     if (!this.isProcessing) return '';
     
@@ -231,12 +206,10 @@ export class AiMessageComponent implements OnInit {
       'Almost ready...'
     ];
     
-    // Cycle through messages based on time
     const index = Math.floor(Date.now() / 2000) % messages.length;
     return messages[index];
   }
 
-  // Get metadata info for display
   get metadataInfo(): string[] {
     const info: string[] = [];
     

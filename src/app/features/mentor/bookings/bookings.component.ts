@@ -35,7 +35,6 @@ export class BookingsComponent implements OnInit {
     { id: 'cancelled', label: 'Cancelled', count: 0 }
   ];
   
-  // Declare without initialization
   searchForm!: FormGroup;
   rescheduleForm!: FormGroup;
 
@@ -58,7 +57,6 @@ export class BookingsComponent implements OnInit {
     private mentorBookingService: MentorBookingService,
     private authService: AuthService
   ) {
-    // Initialize forms here
     this.searchForm = this.fb.group({
       searchQuery: [''],
       statusFilter: [''],        
@@ -82,16 +80,15 @@ export class BookingsComponent implements OnInit {
       if (user) {
         this.currentUserId = user.userId;
         this.loadBookings();
-        this.setupFormSubscriptions(); // Add this line
+        this.setupFormSubscriptions(); 
       }
     });
     this.updateTodaysUpcomingBookings();
   }
 
   setupFormSubscriptions(): void {
-    // Set up real-time filtering
     this.searchForm.valueChanges.subscribe(() => {
-      this.currentPage = 1; // Reset to first page when filters change
+      this.currentPage = 1; 
       this.applyFilters();
     });
   }
@@ -102,7 +99,6 @@ export class BookingsComponent implements OnInit {
     
     this.mentorBookingService.getMentorBookings(this.currentUserId).subscribe({
       next: (bookings) => {
-        // Check and auto-update booking statuses before processing
         this.allBookings = this.processBookingStatuses(bookings.map(booking => ({
           ...booking,
           startDateTime: new Date(booking.startDateTime),
@@ -124,7 +120,6 @@ export class BookingsComponent implements OnInit {
     });
   }
 
-  // Process booking statuses and auto-update completed sessions
   processBookingStatuses(bookings: MentorBookingDetails[]): MentorBookingDetails[] {
     const now = new Date();
     const updatedBookings: MentorBookingDetails[] = [];
@@ -132,15 +127,12 @@ export class BookingsComponent implements OnInit {
     bookings.forEach(booking => {
       const sessionEnd = new Date(booking.endDateTime);
       
-      // Auto-complete sessions that have ended but are still marked as InProgress or Confirmed
       if ((booking.status === 'InProgress' || booking.status === 'Confirmed') && now > sessionEnd) {
         console.log(`Auto-completing booking ${booking.bookingId} that ended at ${sessionEnd}`);
         
-        // Update the local booking status
         const updatedBooking = { ...booking, status: 'Completed' as const };
         updatedBookings.push(updatedBooking);
         
-        // Optionally, update the backend status (fire and forget)
         this.mentorBookingService.updateBookingStatus(booking.bookingId, { status: 'Completed' }).subscribe({
           next: () => console.log(`Successfully auto-completed booking ${booking.bookingId}`),
           error: (error) => console.error(`Failed to auto-complete booking ${booking.bookingId}:`, error)
@@ -159,13 +151,11 @@ export class BookingsComponent implements OnInit {
     const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
     this.tabs[0].count = this.allBookings.length; // All
     this.tabs[1].count = this.allBookings.filter(b => {
-      // A booking is "upcoming" if:
-      // 1. It hasn't been cancelled or completed
-      // 2. The session hasn't ended yet (based on endDateTime)
+     
       const sessionEnd = new Date(b.endDateTime);
       return (b.status === 'Confirmed' || b.status === 'Pending' || b.status === 'InProgress') && 
              now < sessionEnd;
-    }).length; // Upcoming
+    }).length; 
     this.tabs[2].count = this.allBookings.filter(b => {
       const sessionDate = new Date(b.startDateTime);
       return (
@@ -174,7 +164,7 @@ export class BookingsComponent implements OnInit {
         sessionDate <= endOfToday &&
         b.status !== 'Completed' && b.status !== 'Cancelled'
       );
-    }).length; // Today's Upcoming
+    }).length; 
     this.tabs[3].count = this.allBookings.filter(b => b.status === 'Completed').length; // Completed
     this.tabs[4].count = this.allBookings.filter(b => b.status === 'Cancelled').length; // Cancelled
   }
@@ -192,7 +182,6 @@ export class BookingsComponent implements OnInit {
     const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
     const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
 
-    // Apply tab filter first
     switch (this.activeTab) {
       case 'upcoming':
         filtered = filtered.filter(b => {
@@ -221,7 +210,6 @@ export class BookingsComponent implements OnInit {
       case 'cancelled':
         filtered = filtered.filter(b => b.status === 'Cancelled');
         break;
-      // 'all' shows everything
     }
     
     console.log('=== FILTER DEBUG ===');
@@ -241,31 +229,27 @@ export class BookingsComponent implements OnInit {
       console.log('After search filter:', filtered.length);
     }
     
-    // Apply status filter (only if not on a specific tab)
     if (formValues.statusFilter && this.activeTab === 'all') {
       console.log('Applying status filter:', formValues.statusFilter);
       filtered = filtered.filter(b => b.status === formValues.statusFilter);
       console.log('After status filter:', filtered.length);
     }
     
-    // Apply session type filter
     if (formValues.sessionTypeFilter?.trim()) {
       console.log('Applying session type filter:', formValues.sessionTypeFilter);
       filtered = filtered.filter(b => b.sessionType === formValues.sessionTypeFilter);
       console.log('After session type filter:', filtered.length);
     }
     
-    // Apply payment status filter
     if (formValues.paymentStatusFilter?.trim()) {
       console.log('Applying payment status filter:', formValues.paymentStatusFilter);
       filtered = filtered.filter(b => b.paymentStatus === formValues.paymentStatusFilter);
       console.log('After payment status filter:', filtered.length);
     }
     
-    // Apply date range filter
     if (formValues.dateFromFilter) {
       const fromDate = new Date(formValues.dateFromFilter);
-      fromDate.setHours(0, 0, 0, 0); // Start of day
+      fromDate.setHours(0, 0, 0, 0); 
       console.log('Applying date from filter:', fromDate);
       filtered = filtered.filter(b => new Date(b.startDateTime) >= fromDate);
       console.log('After date from filter:', filtered.length);
@@ -273,13 +257,12 @@ export class BookingsComponent implements OnInit {
     
     if (formValues.dateToFilter) {
       const toDate = new Date(formValues.dateToFilter);
-      toDate.setHours(23, 59, 59, 999); // End of day
+      toDate.setHours(23, 59, 59, 999); 
       console.log('Applying date to filter:', toDate);
       filtered = filtered.filter(b => new Date(b.startDateTime) <= toDate);
       console.log('After date to filter:', filtered.length);
     }
     
-    // Apply sorting
     console.log('Applying sort - By:', formValues.sortBy, 'Order:', formValues.sortOrder);
     filtered.sort((a, b) => {
       let aValue: any, bValue: any;
@@ -297,7 +280,7 @@ export class BookingsComponent implements OnInit {
           aValue = a.totalAmount;
           bValue = b.totalAmount;
           break;
-        default: // date
+        default: 
           aValue = new Date(a.startDateTime);
           bValue = new Date(b.startDateTime);
       }
@@ -509,15 +492,12 @@ export class BookingsComponent implements OnInit {
       next: (joinInfo) => {
         Swal.close();
         
-        // Update booking status to InProgress if confirmed
         if (booking.status === 'Confirmed') {
           this.updateBookingStatus(booking, { status: 'InProgress' }, false);
         }
         
-        // Open Google Meet in new tab
         window.open(joinInfo.meetLink, '_blank');
         
-        // Show success message
         Swal.fire({
           icon: 'success',
           title: 'Session Joined!',
@@ -545,7 +525,6 @@ export class BookingsComponent implements OnInit {
     
     this.mentorBookingService.updateBookingStatus(booking.bookingId, statusUpdate).subscribe({
       next: (updatedBooking) => {
-        // Update the booking in our arrays
         const index = this.allBookings.findIndex(b => b.bookingId === booking.bookingId);
         if (index !== -1) {
           this.allBookings[index] = {
@@ -590,7 +569,6 @@ export class BookingsComponent implements OnInit {
   openRescheduleModal(booking: MentorBookingDetails): void {
     this.selectedBooking = booking;
     
-    // Pre-fill form with current booking details
     const startDate = new Date(booking.startDateTime);
     const endTime = new Date(booking.endDateTime);
     
@@ -610,7 +588,6 @@ export class BookingsComponent implements OnInit {
       const startDateTime = new Date(`${formData.startDate}T${formData.startTime}:00`);
       const endDateTime = new Date(`${formData.startDate}T${formData.endTime}:00`);
       
-      // Validate end time is after start time
       if (endDateTime <= startDateTime) {
         Swal.fire({
           icon: 'warning',
@@ -621,7 +598,6 @@ export class BookingsComponent implements OnInit {
         return;
       }
       
-      // Show loading
       Swal.fire({
         title: 'Rescheduling...',
         text: 'Please wait while we reschedule your booking.',
@@ -639,7 +615,6 @@ export class BookingsComponent implements OnInit {
         endDateTime
       ).subscribe({
         next: (updatedBooking) => {
-          // Update the booking in our arrays
           const index = this.allBookings.findIndex(b => b.bookingId === this.selectedBooking!.bookingId);
           if (index !== -1) {
             this.allBookings[index] = {
@@ -741,7 +716,6 @@ export class BookingsComponent implements OnInit {
     });
   }
 
-  // Add this temporary debug method
   debugBookingData(): void {
     console.log('=== BOOKING DATA DEBUG ===');
     console.log('Total bookings:', this.allBookings.length);
@@ -756,7 +730,6 @@ export class BookingsComponent implements OnInit {
     console.log('=== END BOOKING DATA DEBUG ===');
   }
 
-  // Add this method for copying Google Meet links
   copyToClipboard(text: string): void {
     if (navigator.clipboard && window.isSecureContext) {
       navigator.clipboard.writeText(text).then(() => {
@@ -778,7 +751,6 @@ export class BookingsComponent implements OnInit {
     }
   }
 
-  // Fallback copy method for older browsers
   private fallbackCopyToClipboard(text: string): void {
     const textArea = document.createElement('textarea');
     textArea.value = text;
@@ -813,19 +785,15 @@ export class BookingsComponent implements OnInit {
     }
   }
 
-  // Add this method to your BookingsComponent class
   canShowJoinButton(booking: MentorBookingDetails): boolean {
-    // Must have meeting link set
     if (!booking.googleMeetLink) {
       return false;
     }
     
-    // Must be confirmed or in progress
     if (booking.status !== 'Confirmed' && booking.status !== 'InProgress') {
       return false;
     }
     
-    // Must be paid
     if (booking.paymentStatus !== 'Paid') {
       return false;
     }
@@ -833,7 +801,6 @@ export class BookingsComponent implements OnInit {
     return true;
   }
 
-  // Add this method to handle join functionality
   joinSessionFromBookings(booking: MentorBookingDetails): void {
     if (!booking.googleMeetLink) {
       Swal.fire({
@@ -849,12 +816,10 @@ export class BookingsComponent implements OnInit {
     
     this.mentorBookingService.joinBooking(booking.bookingId).subscribe({
       next: (joinInfo) => {
-        // Update status locally if needed
         if (booking.status === 'Confirmed') {
           booking.status = 'InProgress';
         }
         
-        // Open the meeting link
         window.open(joinInfo.meetLink, '_blank');
         
         Swal.fire({
@@ -899,7 +864,7 @@ export class BookingsComponent implements OnInit {
     this.isUpdatingMeetingLink = true;
 
     this.mentorBookingService.updateMeetingLink(booking.bookingId, booking.meetingLinkInput).subscribe({
-      next: (response: any) => { // Add explicit type
+      next: (response: any) => { 
         if (response.success) {
           booking.googleMeetLink = booking.meetingLinkInput;
           booking.meetingLinkInput = '';
@@ -920,7 +885,7 @@ export class BookingsComponent implements OnInit {
           });
         }
       },
-      error: (error: any) => { // Add explicit type
+      error: (error: any) => { 
         console.error('Error updating meeting link:', error);
         Swal.fire({
           icon: 'error',
@@ -937,7 +902,6 @@ export class BookingsComponent implements OnInit {
 
   editMeetingLink(booking: MentorBookingDetails): void {
     booking.meetingLinkInput = booking.googleMeetLink || '';
-    // Fix the type issue by setting to undefined instead of null
     booking.googleMeetLink = undefined;
   }
 

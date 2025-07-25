@@ -13,7 +13,7 @@ import { NotificationType, NotificationTypeLabels } from '../../Models/Notificat
 @Component({
   selector: 'app-notifications',
   standalone: true,
-  imports: [CommonModule, FormsModule], // Removed RouterLink since it's not used in template
+  imports: [CommonModule, FormsModule], 
   templateUrl: './notifications.component.html',
   styleUrls: ['./notifications.component.css']
 })
@@ -25,14 +25,14 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   hasError = false;
   errorMessage = '';
 
-  // Filter options
-  selectedFilter = 'all'; // 'all', 'unread', 'read', or specific type
+ 
+  selectedFilter = 'all'; 
   searchQuery = '';
 
   private subscriptions: Subscription = new Subscription();
 
 
-  // Booking and mentor name cache
+ 
   private bookingMentorNameMap: { [bookingId: number]: string } = {};
   private mentorNameMap: { [mentorId: number]: string } = {};
 
@@ -44,7 +44,7 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    // Subscribe to notifications stream
+ 
     this.subscriptions.add(
       this.notificationService.notifications$.subscribe(async notifications => {
         this.notifications = notifications;
@@ -54,24 +54,24 @@ export class NotificationsComponent implements OnInit, OnDestroy {
       })
     );
 
-    // Subscribe to unread count stream
+   
     this.subscriptions.add(
       this.notificationService.unreadCount$.subscribe(count => {
         this.unreadCount = count;
       })
     );
 
-    // Load initial notifications
+   
     await this.loadNotifications();
   }
 
-  // Enrich notifications with mentor names for booking-related notifications
+  
 async enrichNotificationsWithMentorNames() {
   const bookingIds: number[] = this.notifications
     .filter(n => n.relatedEntityId && 
            ['SessionReminder', 'NewBooking', 'BookingCancelled', 'PaymentConfirmed', 'NewMessage'].includes(n.type))
     .map(n => n.relatedEntityId!);
-    // Remove duplicates
+   
     const uniqueBookingIds = Array.from(new Set(bookingIds));
 
     for (const bookingId of uniqueBookingIds) {
@@ -81,15 +81,15 @@ async enrichNotificationsWithMentorNames() {
           if (Array.isArray(bookings)) {
             const booking = bookings.find((b: any) => b.bookingId === bookingId);
             if (booking) {
-              // If mentorName is missing, fetch mentor by MentorId
+            
               if (booking.mentorName) {
                 this.bookingMentorNameMap[bookingId] = booking.mentorName;
               } else if (booking.MentorId) {
-                // Try to get mentor name from cache first
+              
                 if (this.mentorNameMap[booking.MentorId]) {
                   this.bookingMentorNameMap[bookingId] = this.mentorNameMap[booking.MentorId];
                 } else {
-                  // Fetch mentor user by id
+                 
                   try {
                     const mentorUser = await this.userService.getUserById(booking.MentorId).toPromise();
                     if (mentorUser && mentorUser.fullName) {
@@ -108,25 +108,19 @@ async enrichNotificationsWithMentorNames() {
             }
           }
         } catch (e) {
-          // fallback: just show id
+        
           this.bookingMentorNameMap[bookingId] = `Mentor`;
         }
       }
     }
   }
 
-  // Helper to get mentor name for a booking notification
-//  getMentorNameForNotification(notification: NotificationDto): string {
-//   if (notification.relatedEntityId) {
-//     return this.bookingMentorNameMap[notification.relatedEntityId] || '';
-//   }
-//   return '';
-// }
+ 
 getMentorNameForNotification(notification: NotificationDto): string {
   if (!notification.relatedEntityId) return '';
   let rawName = this.bookingMentorNameMap[notification.relatedEntityId];
   if (!rawName) {
-    // Try to fetch booking data if not cached
+   
     this.bookingService.getAllBookings().subscribe(bookings => {
       const booking = bookings.find((b: any) => b.bookingId === notification.relatedEntityId);
       if (booking && booking.mentorName) {
@@ -135,7 +129,7 @@ getMentorNameForNotification(notification: NotificationDto): string {
     });
     return '';
   }
-  // Remove "Mentor" suffix if it exists and trim whitespace
+ 
   return rawName.replace(/\s*Mentor$/, '').trim();
 }
 
@@ -209,7 +203,7 @@ getMentorNameForNotification(notification: NotificationDto): string {
   applyFilters() {
     let filtered = [...this.notifications];
 
-    // Apply type/status filter
+   
     switch (this.selectedFilter) {
       case 'unread':
         filtered = filtered.filter(n => !n.isRead);
@@ -225,10 +219,10 @@ getMentorNameForNotification(notification: NotificationDto): string {
       case 'SystemNotification':
         filtered = filtered.filter(n => n.type === this.selectedFilter);
         break;
-      // 'all' shows everything
+    
     }
 
-    // Apply search filter
+    
     if (this.searchQuery.trim()) {
       const query = this.searchQuery.toLowerCase();
       filtered = filtered.filter(n => 
@@ -241,7 +235,7 @@ getMentorNameForNotification(notification: NotificationDto): string {
   }
 
   getNotificationIcon(type: string): string {
-    const icons: Record<string, string> = { // 🔧 Fix: Added type annotation
+    const icons: Record<string, string> = { 
       'SessionReminder': 'calendar-check',
       'NewBooking': 'calendar-plus',
       'NewReview': 'star',
@@ -253,7 +247,7 @@ getMentorNameForNotification(notification: NotificationDto): string {
   }
 
   getNotificationColor(type: string): string {
-    const colors: Record<string, string> = { // 🔧 Fix: Added type annotation
+    const colors: Record<string, string> = { 
       'SessionReminder': 'primary',
       'NewBooking': 'success',
       'NewReview': 'warning',
@@ -285,7 +279,7 @@ getMentorNameForNotification(notification: NotificationDto): string {
   }
 
   onNotificationClick(notification: NotificationDto) {
-    // Navigate to related entity based on notification type and relatedEntityId
+   
     if (notification.relatedEntityId && notification.type) {
       this.navigateToRelatedEntity(notification.type, notification.relatedEntityId);
     }
@@ -296,16 +290,16 @@ getMentorNameForNotification(notification: NotificationDto): string {
       case 'SessionReminder':
       case 'NewBooking':
       case 'BookingCancelled':
-        // Navigate to bookings page or specific booking
-        this.router.navigate(['/mentor/bookings']); // Adjust route as needed
+      
+        this.router.navigate(['/mentor/bookings']); 
         break;
       case 'NewReview':
-        // Navigate to reviews or dashboard
-        this.router.navigate(['/mentor/dashboard']); // Adjust route as needed
+        
+        this.router.navigate(['/mentor/dashboard']); 
         break;
       case 'PaymentConfirmed':
-        // Navigate to earnings or dashboard
-        this.router.navigate(['/mentor/dashboard']); // Adjust route as needed
+       
+        this.router.navigate(['/mentor/dashboard']); 
         break;
       default:
         console.log('Navigation not implemented for type:', type);

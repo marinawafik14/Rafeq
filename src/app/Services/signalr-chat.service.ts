@@ -12,7 +12,7 @@ export class SignalrChatService {
   private hubConnection: signalR.HubConnection | undefined;
   private connectionState = new BehaviorSubject<string>('Disconnected');
 
-  // Observables for real-time events
+
   private messageReceived = new BehaviorSubject<ChatMessage | null>(null);
   private messageRead = new BehaviorSubject<{messageId: number, userId: number} | null>(null);
   private userTyping = new BehaviorSubject<{bookingId: number, userId: number, isTyping: boolean} | null>(null);
@@ -23,28 +23,28 @@ export class SignalrChatService {
 
   constructor(private authService: AuthService) { }
 
-  // Initialize connection with robust retry logic
+
   public initializeConnection(): Observable<string> {
     this.createConnection();
     this.startConnection();
     return this.connectionState.asObservable();
   }
 
-  // Create hub connection
+
   private createConnection(): void {
     this.hubConnection = new signalR.HubConnectionBuilder()
       .withUrl(`${environment.apiUrl.replace('/api', '')}/chatHub`, {
         accessTokenFactory: () => this.authService.getToken() || '',
         transport: signalR.HttpTransportType.WebSockets | signalR.HttpTransportType.LongPolling
       })
-      .withAutomaticReconnect([0, 2000, 5000, 10000, 30000]) // Retry intervals
+      .withAutomaticReconnect([0, 2000, 5000, 10000, 30000]) 
       .configureLogging(signalR.LogLevel.Information)
       .build();
 
     this.connectionState.next('initialized');
   }
 
-  // Start connection with retry logic
+
   private startConnection(): void {
     if (!this.hubConnection) return;
 
@@ -59,11 +59,11 @@ export class SignalrChatService {
       .catch(err => {
         console.error('❌ Error starting SignalR connection:', err);
         this.connectionState.next('Error');
-        // Retry after 5 seconds
+  
         setTimeout(() => this.startConnection(), 5000);
       });
 
-    // Setup automatic reconnection handlers
+   
     this.hubConnection.onclose(error => {
       console.log('SignalR connection closed. Error:', error);
       this.connectionState.next('Disconnected');
@@ -80,23 +80,23 @@ export class SignalrChatService {
     });
   }
 
-  // Setup event listeners
+ 
   private setupEventListeners(): void {
     if (!this.hubConnection) return;
 
-    // Handle new messages
+
     this.hubConnection.on('ReceiveMessage', (message: ChatMessage) => {
       console.log('📨 New message received via SignalR:', message);
       this.messageReceived.next(message);
     });
 
-    // Handle message read receipts
+    
     this.hubConnection.on('MessageRead', (data: {messageId: number, userId: number}) => {
       console.log('👁 Message read via SignalR:', data);
       this.messageRead.next(data);
     });
 
-    // Handle typing indicators
+   
     this.hubConnection.on('UserTyping', (data: {bookingId: number, userId: number, isTyping: boolean}) => {
       console.log('⌨ User typing via SignalR:', data);
       this.userTyping.next(data);
@@ -107,21 +107,21 @@ export class SignalrChatService {
       this.messageReaction.next(reaction);
     });
 
-    // FIXED: Handle message deletion with flexible data format
+   
     this.hubConnection.on('MessageDeleted', (data: any) => {
       console.log('🗑 Message deleted via SignalR (raw):', data);
       
-      // Handle both formats: {messageId, bookingId} or just messageId
+      
       let deletionData: {messageId: number, bookingId: number};
       
       if (typeof data === 'object' && data.messageId && data.bookingId) {
-        // Proper format
+    
         deletionData = data;
       } else if (typeof data === 'number') {
-        // Just messageId - we need to find the bookingId from current conversation
+       
         deletionData = {
           messageId: data,
-          bookingId: 0 // Will be handled in component
+          bookingId: 0 
         };
       } else {
         console.error('Invalid MessageDeleted data format:', data);
@@ -132,11 +132,11 @@ export class SignalrChatService {
       this.messageDeleted.next(deletionData);
     });
 
-    // FIXED: Handle message editing with validation
+  
     this.hubConnection.on('MessageEdited', (data: any) => {
       console.log('✏ Message edited via SignalR (raw):', data);
       
-      // Validate the edited message data
+     
       if (data && data.messageId && data.messageText !== undefined) {
         this.messageEdited.next(data as ChatMessage);
       } else {
@@ -144,7 +144,7 @@ export class SignalrChatService {
       }
     });
 
-    // Handle user online/offline status
+   
     this.hubConnection.on('UserOnline', (data: {userId: number, isOnline: boolean}) => {
       console.log('🟢 User online via SignalR:', data);
       this.userOnline.next(data);
@@ -155,13 +155,13 @@ export class SignalrChatService {
       this.userOnline.next(data);
     });
 
-    // Handle additional events
+   
     this.hubConnection.on('AllMessagesRead', (userId: number) => {
       console.log('📖 All messages read by user:', userId);
     });
   }
 
-  // Join booking chat room
+ 
   public joinBookingChat(bookingId: number): Promise<void> {
     if (this.hubConnection?.state === signalR.HubConnectionState.Connected) {
       return this.hubConnection.invoke('JoinBookingChat', bookingId);
@@ -169,7 +169,7 @@ export class SignalrChatService {
     return Promise.reject('SignalR connection not established');
   }
 
-  // Leave booking chat room
+ 
   public leaveBookingChat(bookingId: number): Promise<void> {
     if (this.hubConnection?.state === signalR.HubConnectionState.Connected) {
       return this.hubConnection.invoke('LeaveBookingChat', bookingId);
@@ -177,7 +177,7 @@ export class SignalrChatService {
     return Promise.reject('SignalR connection not established');
   }
 
-  // Send typing indicator
+ 
   public sendTypingIndicator(bookingId: number, isTyping: boolean): Promise<void> {
     if (this.hubConnection?.state === signalR.HubConnectionState.Connected) {
       return this.hubConnection.invoke('SendTypingIndicator', bookingId, isTyping);
@@ -185,7 +185,7 @@ export class SignalrChatService {
     return Promise.reject('SignalR connection not established');
   }
 
-  // Join chat room (wrapper method)
+  
   public async joinChatRoom(bookingId: number): Promise<void> {
     const connectionState = this.getConnectionState();
     console.log('🔗 SignalR connection state:', connectionState);
@@ -204,7 +204,7 @@ export class SignalrChatService {
     }
   }
 
-  // Observables for components to subscribe to
+
   get connectionState$(): Observable<string> {
     return this.connectionState.asObservable();
   }
@@ -237,13 +237,13 @@ export class SignalrChatService {
     return this.messageEdited.asObservable();
   }
 
-  // Get connection status
+
   public getConnectionState(): string {
     if (!this.hubConnection) return 'Disconnected';
     return this.hubConnection.state;
   }
 
-  // Stop SignalR connection
+
   public stopConnection(): Promise<void> {
     if (this.hubConnection) {
       return this.hubConnection.stop().then(() => {

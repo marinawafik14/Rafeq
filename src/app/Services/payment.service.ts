@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { tap, catchError } from 'rxjs/operators'; // ✅ Add these imports
+import { tap, catchError } from 'rxjs/operators'; 
 import { Payments } from '../Models/Payments/Payments';
 import { PaymentDetailsDto } from '../Models/Payments/payment-details.model';
 import { CreatePaymentIntentDto } from '../Models/Payments/CreatePaymentIntentDto';
@@ -15,12 +15,12 @@ paymentsUrl = `${environment.apiUrl}/admin/payments`
 totalRevenueUrl = `${environment.apiUrl}/admin/revenues/total`;
 apiUrl = `${environment.apiUrl}/payments`;
   constructor(private http : HttpClient) { }
-  // Load payment details by ID
+
   getPaymentById(paymentId: number): Observable<PaymentDetailsDto> {
     return this.http.get<PaymentDetailsDto>(`${this.apiUrl}/${paymentId}`);
   }
 
-// payment.service.ts
+
 getPaymentDetailsByBookingId(bookingId: number): Observable<PaymentDetailsDto> {
   return this.http.get<PaymentDetailsDto>(`${this.apiUrl}/by-booking/${bookingId}`);
 }
@@ -44,13 +44,13 @@ createPaymentIntent(bookingId: number): Observable<any> {
       console.error('Error status:', error.status);
       console.error('Error body:', error.error);
       console.error('============================');
-      throw error; // Re-throw the error so component can handle it
+      throw error; 
     })
   );
 }
 
 
-  // Confirm PaymentIntent after Stripe success
+
   confirmPayment(dto: PaymentConfirmationDto): Observable<{ success: boolean; message: string; data: { paymentId: number } }> {
   return this.http.post<{ success: boolean; message: string; data: { paymentId: number } }>(
     `${this.apiUrl}/confirm`,
@@ -64,7 +64,7 @@ createPaymentIntent(bookingId: number): Observable<any> {
     return this.http.get<Payments[]>(this.paymentsUrl);
   }
 }
-  // DTOs used in calls
+
 export interface PaymentConfirmationDto {
   paymentIntentId: string;
   bookingId: number;

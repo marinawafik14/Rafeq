@@ -37,18 +37,18 @@ export class RagService {
     private authService: AuthService
   ) {}
 
-  // Add document to RAG knowledge base
+ 
   async addDocument(content: string, source: string, type: 'cv' | 'conversation' | 'knowledge'): Promise<void> {
     const userId = this.authService.getCurrentUserId();
     if (!userId) throw new Error('User not authenticated');
 
     try {
-      // Split content into chunks
+     
       const chunks = this.splitIntoChunks(content);
       const documents: DocumentChunk[] = [];
 
       for (const chunk of chunks) {
-        // Generate embedding for each chunk
+       
         const embedding = await this.openaiService.generateEmbedding(chunk).toPromise();
         
         const document: DocumentChunk = {
@@ -66,7 +66,7 @@ export class RagService {
         documents.push(document);
       }
 
-      // Store documents
+     
       this.storeDocuments(documents);
     } catch (error) {
       console.error('Error adding document to RAG:', error);
@@ -74,24 +74,24 @@ export class RagService {
     }
   }
 
-  // Query RAG system
+
   queryRAG(question: string, context?: string): Observable<RAGResult> {
     return from(this.performRAGQuery(question, context));
   }
 
   private async performRAGQuery(question: string, context?: string): Promise<RAGResult> {
     try {
-      // Generate embedding for the question
+    
       const questionEmbedding = await this.openaiService.generateEmbedding(question).toPromise();
       if (!questionEmbedding) throw new Error('Failed to generate question embedding');
 
-      // Find relevant documents
+    
       const relevantDocs = this.findSimilarDocuments(questionEmbedding);
       
-      // Build context from relevant documents
+      
       const ragContext = this.buildContext(relevantDocs);
       
-      // Generate answer with RAG context
+      
       const systemPrompt = `You are an AI assistant with access to relevant context information. 
       Use the provided context to answer questions accurately. If the context doesn't contain 
       relevant information, clearly state that you don't have enough information to answer.
@@ -118,12 +118,12 @@ export class RagService {
     }
   }
 
-  // Enhanced CV analysis with RAG
+  
   async analyzeCVWithRAG(cvContent: string, userProfile?: any): Promise<string> {
-    // Add CV to knowledge base
+  
     await this.addDocument(cvContent, 'uploaded_cv', 'cv');
 
-    // Build context from user's previous conversations and analyses
+    
     const conversations = this.storageService.getConversations();
     let conversationContext = '';
     
@@ -156,20 +156,20 @@ export class RagService {
     ]).toPromise() || 'Analysis could not be completed.';
   }
 
-  // Career advice with context
+
   async getContextualCareerAdvice(question: string): Promise<string> {
-    // Get user's CV content and conversation history for context
+   
     const conversations = this.storageService.getConversations();
     const cvAnalyses = this.storageService.getCvAnalyses();
     
     let userContext = 'Previous conversations and CV insights:\n';
     
-    // Add recent conversation context
+  
     conversations.slice(-2).forEach(conv => {
       userContext += `- ${conv.title}: ${conv.messages.slice(-2).map(m => m.content).join(' ')}\n`;
     });
 
-    // Add CV analysis insights
+   
     cvAnalyses.slice(-1).forEach(analysis => {
       userContext += `- Recent CV feedback: ${JSON.stringify(analysis.analysis)}\n`;
     });
@@ -183,7 +183,7 @@ export class RagService {
     }
   }
 
-  // Clear user's RAG documents
+ 
   clearUserDocuments(): void {
     const userId = this.authService.getCurrentUserId();
     if (!userId) return;
@@ -193,7 +193,7 @@ export class RagService {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(filteredDocs));
   }
 
-  // Get user's document statistics
+  
   getUserDocumentStats(): { total: number; byType: { [key: string]: number } } {
     const userId = this.authService.getCurrentUserId();
     if (!userId) return { total: 0, byType: {} };

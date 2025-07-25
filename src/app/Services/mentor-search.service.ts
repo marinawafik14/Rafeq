@@ -27,9 +27,7 @@ export class MentorSearchService {
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * Get a mentor by their user ID
-   */
+
   getMentorById(mentorId: number): Observable<Users> {
     return this.http.get<Users>(`${environment.apiUrl}/users/${mentorId}`);
   }

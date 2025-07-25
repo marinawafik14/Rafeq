@@ -24,7 +24,6 @@ export class DashboardComponent implements OnInit {
   error: string | null = null;
   nextUpToday: MentorBooking[] = [];
 
-  // Add pagination properties
   currentPage: number = 1;
   itemsPerPage: number = 5;
   totalPages: number = 0;
@@ -36,7 +35,6 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // Get current user ID from auth service
     this.mentorId = this.authService.currentUserValue?.userId || 0;
     
     this.loadDashboardData();
@@ -46,13 +44,11 @@ export class DashboardComponent implements OnInit {
     this.isLoading = true;
     let pendingSessionsCount = 0;
 
-    // Load earnings data first
     this.mentorService.getMentorEarnings().subscribe({
       next: (earnings) => {
         this.earnings = earnings;
         console.log('Earnings data received:', earnings);
         
-        // Add calculated pending sessions to earnings
         this.earnings.pendingSessions = pendingSessionsCount;
       },
       error: (error) => {
@@ -60,26 +56,21 @@ export class DashboardComponent implements OnInit {
       }
     });
 
-    // Load today's sessions
     this.mentorService.getTodaySessions(this.mentorId).subscribe({
       next: (sessions) => {
         this.todaySessions = sessions;
         console.log('Today sessions data:', sessions);
         
-        // Calculate pending sessions count
         pendingSessionsCount = sessions.filter(session => 
           session.status === 'Pending' || session.status === 'Confirmed'
         ).length;
         
-        // Update earnings with calculated pending sessions
         if (this.earnings) {
           this.earnings.pendingSessions = pendingSessionsCount;
         }
         
-        // Update pagination
         this.updatePagination();
         
-        // Compute next up for today
         this.updateNextUpToday();
         
         this.isLoading = false;
@@ -121,10 +112,8 @@ export class DashboardComponent implements OnInit {
     this.isAvailable = !this.isAvailable;
     this.mentorService.updateMentorStatus(this.isAvailable).subscribe({
       next: () => {
-        // Status updated successfully
       },
       error: (error) => {
-        // Revert the toggle if the API call fails
         this.isAvailable = !this.isAvailable;
         console.error('Error updating availability status:', error);
       }
@@ -134,10 +123,7 @@ export class DashboardComponent implements OnInit {
   joinSession(bookingId: number, googleMeetLink?: string): void {
     console.log('Join session clicked for booking:', bookingId, 'with link:', googleMeetLink);
     
-    // Always try to join, even if googleMeetLink is null
-    // The API will generate the link when we call the join endpoint
     
-    // Update status to InProgress when joining
     const todayIndex = this.todaySessions.findIndex(s => s.bookingId === bookingId);
     if (todayIndex !== -1) {
       this.todaySessions[todayIndex].status = 'InProgress';
@@ -148,20 +134,19 @@ export class DashboardComponent implements OnInit {
       this.upcomingSessions[upcomingIndex].status = 'InProgress';
     }
     
-    // If we have a Google Meet link, open it
+  
     if (googleMeetLink) {
       window.open(googleMeetLink, '_blank');
     } else {
-      // Call the API to get/generate the Google Meet link
+     
       console.log('No Google Meet link available, would call API to generate one');
-      // You could call your booking service here to join the session
-      // this.mentorBookingService.joinBooking(bookingId).subscribe(...)
+      
     }
   }
 
-  // Replace the canJoinSession method with proper business logic
+
   canJoinSession(session: MentorBooking): boolean {
-    // Must have meeting link
+    
     if (!session.googleMeetLink) {
       return false;
     }
@@ -170,37 +155,33 @@ export class DashboardComponent implements OnInit {
     const sessionStart = new Date(session.startDateTime);
     const sessionEnd = new Date(session.endDateTime);
     
-    // Calculate time differences in minutes
+   
     const minutesUntilStart = (sessionStart.getTime() - now.getTime()) / (1000 * 60);
     const minutesSinceEnd = (now.getTime() - sessionEnd.getTime()) / (1000 * 60);
     
-    // Business Rules:
-    
-    // 1. Must be paid session
+   
     if (session.paymentStatus !== 'Paid') {
       return false;
     }
     
-    // 2. Status must be Confirmed or InProgress
+   
     if (session.status !== 'Confirmed' && session.status !== 'InProgress') {
       return false;
     }
     
-    // 3. Time-based rules - can join 15 minutes before to 30 minutes after end
+   
     const canJoinByTime = 
-      (minutesUntilStart <= 15 && minutesUntilStart > -30) || // 15 min before to 30 min after start
-      (session.status === 'InProgress' && minutesSinceEnd <= 30); // In progress sessions up to 30 min after end
+      (minutesUntilStart <= 15 && minutesUntilStart > -30) || 
+      (session.status === 'InProgress' && minutesSinceEnd <= 30); 
     
     return canJoinByTime;
   }
 
-  // Add method to show different button states
   getSessionButtonState(session: MentorBooking): {type: string, label: string, class: string, enabled: boolean} {
     const now = new Date();
     const sessionStart = new Date(session.startDateTime);
     const minutesUntilStart = (sessionStart.getTime() - now.getTime()) / (1000 * 60);
     
-    // No meeting link set
     if (!session.googleMeetLink) {
       return {
         type: 'no-link',
@@ -210,7 +191,6 @@ export class DashboardComponent implements OnInit {
       };
     }
     
-    // Payment not completed
     if (session.paymentStatus !== 'Paid') {
       return {
         type: 'payment',
@@ -220,7 +200,6 @@ export class DashboardComponent implements OnInit {
       };
     }
     
-    // Session completed
     if (session.status === 'Completed') {
       return {
         type: 'completed',
@@ -230,7 +209,6 @@ export class DashboardComponent implements OnInit {
       };
     }
     
-    // Can join now
     if (this.canJoinSession(session)) {
       return {
         type: 'join',
@@ -240,7 +218,6 @@ export class DashboardComponent implements OnInit {
       };
     }
     
-    // Too early to join
     if (minutesUntilStart > 15) {
       return {
         type: 'early',
@@ -250,7 +227,6 @@ export class DashboardComponent implements OnInit {
       };
     }
     
-    // Default state
     return {
       type: 'default',
       label: 'Not Available',
@@ -269,11 +245,10 @@ export class DashboardComponent implements OnInit {
   }
 
   markComplete(session: MentorBooking): void {
-    // You can call your booking service to mark as complete
-    // Or navigate to the full bookings page
+   
     console.log('Marking session as complete:', session.bookingId);
     
-    // Update the session status locally for immediate feedback
+    
     const index = this.todaySessions.findIndex(s => s.bookingId === session.bookingId);
     if (index !== -1) {
       this.todaySessions[index].status = 'Completed';
@@ -300,7 +275,6 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  // Add this method to your component for testing
   testData(): void {
     console.log('=== EARNINGS DEBUG ===');
     console.log('Current earnings object:', this.earnings);
@@ -308,7 +282,6 @@ export class DashboardComponent implements OnInit {
     console.log('Pending sessions value:', this.earnings?.pendingSessions); // Updated property name
     console.log('Type of pending sessions:', typeof this.earnings?.pendingSessions);
     
-    // Check all available properties
     if (this.earnings) {
       console.log('All earnings properties:');
       console.log('  totalEarnings:', this.earnings.totalEarnings);
@@ -322,21 +295,17 @@ export class DashboardComponent implements OnInit {
     console.log('=== END DEBUG ===');
   }
 
-  // Add these methods to your DashboardComponent
 
   updatePagination(): void {
     this.totalPages = Math.ceil(this.todaySessions.length / this.itemsPerPage);
     
-    // Ensure current page is valid
     if (this.currentPage > this.totalPages) {
       this.currentPage = 1;
     }
     
-    // Calculate start and end indices
     const startIndex = (this.currentPage - 1) * this.itemsPerPage;
     const endIndex = startIndex + this.itemsPerPage;
     
-    // Get paginated sessions
     this.paginatedTodaySessions = this.todaySessions.slice(startIndex, endIndex);
     
     console.log(`Pagination: Page ${this.currentPage}/${this.totalPages}, Items: ${this.paginatedTodaySessions.length}`);
@@ -368,33 +337,30 @@ export class DashboardComponent implements OnInit {
     const maxVisiblePages = 5;
     
     if (this.totalPages <= maxVisiblePages) {
-      // Show all pages
       for (let i = 1; i <= this.totalPages; i++) {
         pages.push(i);
       }
     } else {
-      // Show first page, current page range, and last page
       const currentPage = this.currentPage;
       const startPage = Math.max(1, currentPage - 2);
       const endPage = Math.min(this.totalPages, currentPage + 2);
       
-      // Always show first page
       if (startPage > 1) {
         pages.push(1);
         if (startPage > 2) {
-          pages.push(-1); // -1 represents "..."
+          pages.push(-1); 
         }
       }
       
-      // Show current range
+     
       for (let i = startPage; i <= endPage; i++) {
         pages.push(i);
       }
       
-      // Always show last page
+    
       if (endPage < this.totalPages) {
         if (endPage < this.totalPages - 1) {
-          pages.push(-1); // -1 represents "..."
+          pages.push(-1); 
         }
         pages.push(this.totalPages);
       }

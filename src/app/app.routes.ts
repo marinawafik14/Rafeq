@@ -82,7 +82,7 @@ export const routes: Routes = [
     data: { roles: ['Admin', 'Mentor', 'Mentee'] }
   },
 
-  // general guard depends on user role
+ 
   {
     path: '',
     canActivateChild: [authGuardGuard],

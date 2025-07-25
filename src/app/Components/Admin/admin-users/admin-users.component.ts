@@ -19,7 +19,7 @@ export class AdminUsersComponent implements OnInit {
    showAddUserForm = false;
  searchQuery: string = '';
 roleFilter: string = '';
-statusFilter: boolean = false; // true for active, false for inactive
+statusFilter: boolean = false; 
 dateSort: string = 'newest';
 currentPage : number = 1;
   itemsPerPage: number = 10;
@@ -30,7 +30,7 @@ this.loadUsers();
 
  
  }  
-// Load all users from the service
+
  loadUsers(): void {
     this._userService.getAllUsers().subscribe({
       next: data => this.users = data,
@@ -39,7 +39,7 @@ this.loadUsers();
     });
   }
 
-// update user status
+
 updateUserStatus(userId: number, isActive: boolean): void {
     this._userService.updateStatus(userId, isActive).subscribe({
       next: (updatedUser) => {
@@ -53,7 +53,7 @@ updateUserStatus(userId: number, isActive: boolean): void {
     });
   }
 
-// delete a user
+
 deleteUser(userId: number): void {
   Swal.fire({
     title: 'Are you sure?',
@@ -81,7 +81,7 @@ deleteUser(userId: number): void {
 }
 
 
-// edit user
+
 editUser(user: Users): void {
   
   const userDto: EditUser = {
@@ -109,7 +109,7 @@ editUser(user: Users): void {
 
 
 
-  // Add a new user
+
 
 saveNewUser(user: Users): void 
 {
@@ -125,7 +125,7 @@ error: (err) => console.error('Failed to add user:', err)
 
 
 
-// Search, filter, and sort functionality
+
  
   get filteredUsers(): Users[] {
     return this.users
@@ -167,7 +167,6 @@ get totalPages(): number {
     }
   } 
 
-  // Add these methods to admin-users.component.ts
 getMentorCount(): number {
   return this.filteredUsers?.filter(user => user.role === 'Mentor').length || 0;
 }

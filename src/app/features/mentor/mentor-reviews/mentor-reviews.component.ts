@@ -14,15 +14,15 @@ import { FloatingDashboardButtonComponent } from '../../../shared/components/flo
   imports: [CommonModule, RouterLink, FloatingDashboardButtonComponent]
 })
 export class MentorReviewsComponent implements OnInit {
-  @Input() showSummary: boolean = false; // For dashboard display
-  @Input() maxReviews: number = 5; // Max reviews to show in summary
+  @Input() showSummary: boolean = false; 
+  @Input() maxReviews: number = 5; 
   
   reviews: MentorReview[] = [];
   displayedReviews: MentorReview[] = [];
   isLoading = true;
   error: string | null = null;
   
-  // Pagination for full page
+
   currentPage: number = 1;
   itemsPerPage: number = 12;
   totalPages: number = 0;
@@ -46,14 +46,14 @@ export class MentorReviewsComponent implements OnInit {
     this.error = null;
     this.reviewService.getMyMentorReviews().subscribe({
       next: (reviews) => {
-        // Sort by createdAt descending (latest first)
+       
         this.reviews = reviews.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         
         if (this.showSummary) {
-          // Show only first N reviews for dashboard
+        
           this.displayedReviews = this.reviews.slice(0, this.maxReviews);
         } else {
-          // Show all reviews with pagination
+         
           this.updatePagination();
         }
         
@@ -106,7 +106,7 @@ export class MentorReviewsComponent implements OnInit {
       
       if (startPage > 1) {
         pages.push(1);
-        if (startPage > 2) pages.push(-1); // -1 represents "..."
+        if (startPage > 2) pages.push(-1); 
       }
       
       for (let i = startPage; i <= endPage; i++) {

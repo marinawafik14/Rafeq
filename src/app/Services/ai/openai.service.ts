@@ -10,7 +10,6 @@ import { OpenaiResponse, EmbeddingResponse } from '../../Models/ai/openai-respon
   providedIn: 'root'
 })
 export class OpenaiService {
-  // Create headers specifically for OpenAI API (no auth token)
   private openaiHeaders = new HttpHeaders({
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${environment.openai.apiKey}`
@@ -18,7 +17,7 @@ export class OpenaiService {
 
   constructor(private http: HttpClient) {}
 
-  // Send chat message to GPT-4 Mini
+ 
   sendChatMessage(messages: any[], systemPrompt?: string): Observable<string> {
     const requestBody: OpenaiRequest = {
       model: environment.openai.chatModel,
@@ -30,7 +29,7 @@ export class OpenaiService {
       temperature: 0.7
     };
 
-    // Create proper HttpContext
+   
     const context = new HttpContext().set('skipAuth' as any, true);
 
     return this.http.post<OpenaiResponse>(
@@ -46,7 +45,7 @@ export class OpenaiService {
     );
   }
 
-  // Analyze CV content
+  
   analyzeCVContent(cvText: string): Observable<string> {
     const systemPrompt = `You are an expert career advisor and CV reviewer. Analyze the provided CV and provide detailed feedback including:
     1. Overall score (1-100)
@@ -64,7 +63,7 @@ export class OpenaiService {
     ], systemPrompt);
   }
 
-  // Analyze image (for CV images or other attachments)
+  
   analyzeImage(imageBase64: string, prompt: string = "Analyze this image"): Observable<string> {
     const requestBody = {
       model: 'gpt-4-vision-preview',
@@ -96,7 +95,7 @@ export class OpenaiService {
     );
   }
 
-  // Generate embeddings for RAG functionality
+  
   generateEmbedding(text: string): Observable<number[]> {
     const requestBody: EmbeddingRequest = {
       model: environment.openai.embeddingModel,
@@ -118,7 +117,7 @@ export class OpenaiService {
     );
   }
 
-  // Career advice chat
+  
   getCareerAdvice(userQuestion: string, userContext?: any): Observable<string> {
     const systemPrompt = `You are a professional career advisor specializing in the Egyptian and Middle Eastern job market. 
     Provide helpful, actionable career advice. Be encouraging and specific in your recommendations.
@@ -132,7 +131,7 @@ export class OpenaiService {
     ], systemPrompt);
   }
 
-  // Interview preparation
+  
   generateInterviewQuestions(jobTitle: string, industry: string): Observable<string> {
     const systemPrompt = `You are an expert interview coach. Generate realistic interview questions for the Egyptian job market.
     Provide both technical and behavioral questions with tips for strong answers.`;

@@ -18,7 +18,7 @@ export class MentorBookingService {
 
   constructor(private http: HttpClient) { }
 
-  // Get booking details by ID
+ 
   getBookingById(bookingId: number): Observable<MentorBookingDetails> {
     return this.http.get<{success: boolean, data: MentorBookingDetails}>(`${this.apiUrl}/bookings/${bookingId}`)
       .pipe(
@@ -26,7 +26,6 @@ export class MentorBookingService {
       );
   }
 
-  // Get all mentor bookings
   getMentorBookings(mentorId: number, filter?: BookingFilter): Observable<MentorBookingDetails[]> {
     let params = new HttpParams();
     
@@ -49,7 +48,7 @@ export class MentorBookingService {
       );
   }
 
-  // Get upcoming bookings
+
   getUpcomingBookings(): Observable<MentorBookingDetails[]> {
     return this.http.get<{success: boolean, data: MentorBookingDetails[]}>(`${this.apiUrl}/bookings/upcoming`)
       .pipe(
@@ -57,7 +56,7 @@ export class MentorBookingService {
       );
   }
 
-  // Get completed bookings
+  
   getCompletedBookings(): Observable<MentorBookingDetails[]> {
     return this.http.get<{success: boolean, data: MentorBookingDetails[]}>(`${this.apiUrl}/bookings/completed`)
       .pipe(
@@ -65,12 +64,12 @@ export class MentorBookingService {
       );
   }
 
-  // Join a booking session
+
   joinBooking(bookingId: number): Observable<SessionJoinRequest> {
     return this.http.post<SessionJoinRequest>(`${this.apiUrl}/bookings/${bookingId}/join`, {});
   }
 
-  // Update booking status
+
   updateBookingStatus(bookingId: number, statusUpdate: BookingStatusUpdate): Observable<MentorBookingDetails> {
     return this.http.put<{success: boolean, data: MentorBookingDetails}>(`${this.apiUrl}/bookings/${bookingId}/status`, statusUpdate)
       .pipe(
@@ -78,7 +77,7 @@ export class MentorBookingService {
       );
   }
 
-  // Reschedule booking
+
   rescheduleBooking(bookingId: number, startDateTime: Date, endDateTime: Date): Observable<MentorBookingDetails> {
     const rescheduleData = {
       startDateTime: startDateTime.toISOString(),
@@ -91,14 +90,14 @@ export class MentorBookingService {
       );
   }
 
-  // Update meeting link
+
   updateMeetingLink(bookingId: number, meetingLink: string): Observable<any> {
     return this.http.put(`${this.apiUrl}/bookings/${bookingId}/meeting-link`, {
       meetingLink: meetingLink
     });
   }
 
-  // Helper methods for frontend logic
+ 
   getAvailableActions(booking: MentorBookingDetails): BookingAction[] {
     const actions: BookingAction[] = [];
     const now = new Date();
@@ -125,7 +124,7 @@ export class MentorBookingService {
         break;
 
       case 'confirmed':
-        // Can join if session is within 15 minutes of start time
+        
         if (minutesUntilStart <= 15 && minutesUntilStart >= -60) {
           actions.push({
             type: 'join',
@@ -136,7 +135,7 @@ export class MentorBookingService {
           });
         }
         
-        // Can cancel if more than 24 hours before session
+      
         if (minutesUntilStart > 1440) {
           actions.push({
             type: 'cancel',
@@ -147,7 +146,7 @@ export class MentorBookingService {
           });
         }
 
-        // Can reschedule if more than 24 hours before session
+       
         if (minutesUntilStart > 1440) {
           actions.push({
             type: 'reschedule',
@@ -158,7 +157,7 @@ export class MentorBookingService {
           });
         }
 
-        // Can mark as complete if session time has passed
+    
         if (now > sessionEnd) {
           actions.push({
             type: 'complete',
@@ -189,11 +188,11 @@ export class MentorBookingService {
 
       case 'completed':
       case 'cancelled':
-        // No actions available for completed or cancelled bookings
+     
         break;
     }
 
-    // Always allow viewing details
+  
     actions.push({
       type: 'view',
       label: 'View Details',
@@ -205,7 +204,7 @@ export class MentorBookingService {
     return actions;
   }
 
-  // Get booking statistics
+
   getBookingStats(bookings: MentorBookingDetails[]): BookingStats {
     const now = new Date();
     const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -232,7 +231,7 @@ export class MentorBookingService {
     };
   }
 
-  // Format date for display
+
   formatDateTime(dateTime: Date | string): string {
     const date = typeof dateTime === 'string' ? new Date(dateTime) : dateTime;
     return date.toLocaleDateString('en-US', {
@@ -245,7 +244,7 @@ export class MentorBookingService {
     });
   }
 
-  // Get status badge class
+
   getStatusBadgeClass(status: string): string {
     switch (status.toLowerCase()) {
       case 'pending': return 'badge bg-warning text-dark';
@@ -257,7 +256,7 @@ export class MentorBookingService {
     }
   }
 
-  // Get payment status badge class
+
   getPaymentStatusBadgeClass(paymentStatus: string): string {
     switch (paymentStatus.toLowerCase()) {
       case 'paid': return 'badge bg-success text-white';
@@ -266,7 +265,7 @@ export class MentorBookingService {
     }
   }
 
-  // Check if booking can be joined
+  
   canJoinBooking(booking: MentorBookingDetails): boolean {
     const now = new Date();
     const sessionStart = new Date(booking.startDateTime);
@@ -279,7 +278,7 @@ export class MentorBookingService {
            now < sessionEnd;
   }
 
-  // Get time until session
+
   getTimeUntilSession(booking: MentorBookingDetails): string {
     const now = new Date();
     const sessionStart = new Date(booking.startDateTime);
@@ -296,16 +295,16 @@ export class MentorBookingService {
     return `${minutes}m`;
   }
 
-  // Check if a booking should be automatically marked as completed
+
   shouldAutoComplete(booking: MentorBookingDetails): boolean {
     const now = new Date();
     const sessionEnd = new Date(booking.endDateTime);
     
-    // Auto-complete sessions that have ended but are still marked as InProgress or Confirmed
+  
     return (booking.status === 'InProgress' || booking.status === 'Confirmed') && now > sessionEnd;
   }
 
-  // Process and auto-update booking statuses
+  
   processBookingStatuses(bookings: MentorBookingDetails[]): Observable<MentorBookingDetails[]> {
     const now = new Date();
     const updatedBookings: MentorBookingDetails[] = [];
@@ -315,11 +314,11 @@ export class MentorBookingService {
       if (this.shouldAutoComplete(booking)) {
         console.log(`Auto-completing booking ${booking.bookingId} that ended at ${booking.endDateTime}`);
         
-        // Update the local booking status immediately
+       
         const localUpdatedBooking = { ...booking, status: 'Completed' as const };
         updatedBookings.push(localUpdatedBooking);
         
-        // Queue backend update
+      
         const updateObservable = this.updateBookingStatus(booking.bookingId, { status: 'Completed' });
         updatePromises.push(updateObservable);
       } else {
@@ -327,9 +326,9 @@ export class MentorBookingService {
       }
     });
     
-    // If there are updates to make, process them
+    
     if (updatePromises.length > 0) {
-      // Fire all updates in parallel, but don't wait for them to complete
+     
       updatePromises.forEach(update => {
         update.subscribe({
           next: (updatedBooking) => console.log(`Successfully auto-completed booking ${updatedBooking.bookingId}`),

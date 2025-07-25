@@ -21,7 +21,6 @@ export class AiStorageService {
     this.loadConversations();
   }
 
-  // Get all conversations for current user
   getConversations(): AiConversation[] {
     const userId = this.authService.getCurrentUserId();
     if (!userId) return [];
@@ -29,7 +28,6 @@ export class AiStorageService {
     return this.conversationsSubject.value.filter(conv => conv.userId === userId);
   }
 
-  // Get conversation by ID
   getConversation(conversationId: string): AiConversation | null {
     const userId = this.authService.getCurrentUserId();
     if (!userId) return null;
@@ -39,7 +37,6 @@ export class AiStorageService {
     ) || null;
   }
 
-  // Create new conversation
   createConversation(title: string, mode: 'general' | 'cv-analysis' | 'career-advice' = 'general'): AiConversation {
     const userId = this.authService.getCurrentUserId();
     if (!userId) throw new Error('User not authenticated');
@@ -62,7 +59,6 @@ export class AiStorageService {
     return conversation;
   }
 
-  // Add message to conversation
   addMessage(conversationId: string, message: Omit<AiMessage, 'id' | 'timestamp'>): AiMessage {
     const conversations = this.conversationsSubject.value;
     const conversation = conversations.find(conv => conv.id === conversationId);
@@ -86,7 +82,6 @@ export class AiStorageService {
     return newMessage;
   }
 
-  // Update conversation title
   updateConversationTitle(conversationId: string, title: string): void {
     const conversations = this.conversationsSubject.value;
     const conversation = conversations.find(conv => conv.id === conversationId);
@@ -99,7 +94,6 @@ export class AiStorageService {
     }
   }
 
-  // Delete conversation
   deleteConversation(conversationId: string): void {
     const userId = this.authService.getCurrentUserId();
     if (!userId) return;
@@ -112,7 +106,6 @@ export class AiStorageService {
     this.saveConversations();
   }
 
-  // Clear all conversations for current user
   clearUserConversations(): void {
     const userId = this.authService.getCurrentUserId();
     if (!userId) return;
@@ -125,14 +118,12 @@ export class AiStorageService {
     this.saveConversations();
   }
 
-  // Save CV analysis
   saveCvAnalysis(analysis: CvAnalysis): void {
     const analyses = this.getCvAnalyses();
     analyses.push(analysis);
     localStorage.setItem(this.STORAGE_KEYS.analyses, JSON.stringify(analyses));
   }
 
-  // Get CV analyses for current user
   getCvAnalyses(): CvAnalysis[] {
     const userId = this.authService.getCurrentUserId();
     if (!userId) return [];
@@ -151,7 +142,6 @@ export class AiStorageService {
     }
   }
 
-  // Get conversation statistics
   getConversationStats(): { total: number; byMode: { [key: string]: number } } {
     const conversations = this.getConversations();
     const byMode: { [key: string]: number } = {};

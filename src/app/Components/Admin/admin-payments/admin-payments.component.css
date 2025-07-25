@@ -34,7 +34,7 @@ th, td {
   text-align: left;
   border-bottom: 1px solid #ddd;
 }
-/* Header Section - Match mentor dashboard header */
+
 .admin-header {
   background: linear-gradient(135deg, #0a2e65 0%, #1b74e4 100%);
   position: relative;
@@ -77,14 +77,12 @@ th, td {
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
-/* Main Content Container */
 .main-content {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 2rem 2rem;
 }
 
-/* Stats Cards Section - Match mentor dashboard */
 .stats-section {
   margin-bottom: 3rem;
 }
@@ -202,7 +200,6 @@ th, td {
   padding: 2rem;
 }
 
-/* Table Container - Match mentor tables */
 .table-container {
   background: white;
   border-radius: 1rem;

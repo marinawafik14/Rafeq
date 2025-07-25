@@ -17,7 +17,7 @@ export class AvailabilityService {
 
   constructor(private http: HttpClient) { }
 
-  // Get user availability
+
   getUserAvailability(userId: number): Observable<AvailabilitySlot[]> {
     return this.http.get<{success: boolean, data: AvailabilitySlot[]}>(`${this.apiUrl}/availability/${userId}`)
       .pipe(
@@ -25,7 +25,6 @@ export class AvailabilityService {
       );
   }
 
-  // Add availability slot
   addAvailabilitySlot(request: CreateAvailabilityRequest): Observable<AvailabilitySlot> {
     return this.http.post<{success: boolean, data: AvailabilitySlot}>(`${this.apiUrl}/availability`, request)
       .pipe(
@@ -33,7 +32,6 @@ export class AvailabilityService {
       );
   }
 
-  // Update availability slot
   updateAvailabilitySlot(id: number, request: UpdateAvailabilityRequest): Observable<AvailabilitySlot> {
     return this.http.put<{success: boolean, data: AvailabilitySlot}>(`${this.apiUrl}/availability/${id}`, request)
       .pipe(
@@ -41,17 +39,14 @@ export class AvailabilityService {
       );
   }
 
-  // Delete availability slot
   deleteAvailabilitySlot(id: number): Observable<any> {
     return this.http.delete<{success: boolean, message: string}>(`${this.apiUrl}/availability/${id}`);
   }
 
-  // Helper methods for frontend logic
   validateTimeSlot(startTime: string, endTime: string, existingSlots: AvailabilitySlot[], dayOfWeek: number, excludeId?: number): ConflictValidation {
     const start = this.timeStringToMinutes(startTime);
     const end = this.timeStringToMinutes(endTime);
 
-    // Check if end time is after start time
     if (end <= start) {
       return {
         hasConflict: true,
@@ -60,14 +55,12 @@ export class AvailabilityService {
       };
     }
 
-    // Check for overlaps with existing slots
     const conflictingSlots = existingSlots
       .filter(slot => slot.dayOfWeek === dayOfWeek && slot.availabilityId !== excludeId)
       .filter(slot => {
         const slotStart = this.timeStringToMinutes(slot.startTime);
         const slotEnd = this.timeStringToMinutes(slot.endTime);
         
-        // Check if there's any overlap
         return (start < slotEnd && end > slotStart);
       });
 
@@ -78,20 +71,17 @@ export class AvailabilityService {
     };
   }
 
-  // Convert time string to minutes for easier comparison
   public timeStringToMinutes(timeString: string): number {
     const [hours, minutes] = timeString.split(':').map(Number);
     return hours * 60 + minutes;
   }
 
-  // Convert minutes back to time string
   minutesToTimeString(minutes: number): string {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:00`;
   }
 
-  // Generate time slots for calendar display
   generateTimeSlots(startHour: number = 9, endHour: number = 18, interval: number = 30): string[] {
     const slots: string[] = [];
     for (let hour = startHour; hour < endHour; hour++) {
@@ -103,16 +93,13 @@ export class AvailabilityService {
     return slots;
   }
 
-  // Organize availability by week
   organizeByWeek(availability: AvailabilitySlot[]): WeeklySchedule {
     const schedule: WeeklySchedule = {};
     
-    // Initialize all days
     for (let i = 0; i < 7; i++) {
       schedule[i] = [];
     }
 
-    // Group slots by day
     availability.forEach(slot => {
       if (!schedule[slot.dayOfWeek]) {
         schedule[slot.dayOfWeek] = [];
@@ -120,7 +107,6 @@ export class AvailabilityService {
       schedule[slot.dayOfWeek].push(slot);
     });
 
-    // Sort slots by start time for each day
     Object.keys(schedule).forEach(day => {
       schedule[Number(day)].sort((a, b) => 
         this.timeStringToMinutes(a.startTime) - this.timeStringToMinutes(b.startTime)
@@ -130,12 +116,10 @@ export class AvailabilityService {
     return schedule;
   }
 
-  // Get day names
   getDayNames(): string[] {
     return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   }
 
-  // Format time for display
   formatTimeForDisplay(timeString: string): string {
     const [hours, minutes] = timeString.split(':');
     const hour24 = parseInt(hours);

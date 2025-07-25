@@ -1,4 +1,4 @@
-/* Enhanced Admin Article List - Modern & Simple Design */
+
 .admin-panel {
   padding: 25px;
   min-height: calc(100vh - 80px);
@@ -21,7 +21,7 @@
   z-index: 1;
 }
 
-/* Header Section */
+
 .panel-header {
   display: flex;
   justify-content: space-between;
@@ -31,7 +31,7 @@
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 15px;
-  /* box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); */
+ 
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -57,7 +57,7 @@
   box-shadow: 0 4px 15px rgba(27, 116, 228, 0.3);
 }
 
-/* Controls Section */
+
 .controls {
   display: grid;
   grid-template-columns: 2fr 1fr auto;
@@ -67,7 +67,7 @@
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 15px;
-  /* box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); */
+
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -131,7 +131,7 @@
   align-items: center;
 }
 
-/* Buttons */
+
 .btn {
   padding: 12px 24px;
   border-radius: 50px;
@@ -194,7 +194,7 @@
   box-shadow: 0 6px 20px rgba(27, 116, 228, 0.3);
 }
 
-/* Filter Status Bar */
+
 .filter-status {
   display: flex;
   justify-content: space-between;
@@ -240,7 +240,7 @@
   background: rgba(229, 62, 62, 0.1);
 }
 
-/* Loading State */
+
 .loading-container {
   text-align: center;
   padding: 60px;
@@ -261,7 +261,7 @@
   margin: 0;
 }
 
-/* Error State */
+
 .error-container {
   text-align: center;
   padding: 40px;
@@ -287,7 +287,7 @@
   font-size: 1rem;
 }
 
-/* Table Container */
+
 .table-container {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
@@ -298,7 +298,7 @@
   margin-bottom: 25px;
 }
 
-/* Enhanced Table */
+
 .data-table {
   width: 100%;
   border-collapse: collapse;
@@ -322,16 +322,7 @@
   vertical-align: middle;
 }
 
-/* .data-table tbody tr {
-  transition: all 0.3s ease;
-} */
 
-/* .data-table tbody tr:hover {
-  background: rgba(27, 116, 228, 0.05);
-  transform: translateX(-1px);
-} */
-
-/* Cell Specific Styles */
 .id-cell {
   font-weight: 600;
   color: #1b74e4;
@@ -351,12 +342,6 @@
   line-height: 1.3;
 }
 
-/* .title-content p {
-  margin: 0;
-  color: #718096;
-  font-size: 0.9rem;
-  line-height: 1.4;
-} */
 
 .category-badge {
   background: linear-gradient(135deg, #1359c2, #1359c2);
@@ -415,7 +400,7 @@
   font-size: 0.8rem;
 }
 
-/* Action Buttons */
+
 .action-buttons {
   display: flex;
   gap: 8px;
@@ -452,7 +437,7 @@
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 
-/* No Results State */
+
 .no-results-container {
   text-align: center;
   padding: 60px;
@@ -480,7 +465,7 @@
   font-size: 1rem;
 }
 
-/* Enhanced Pagination */
+
 .pagination-controls {
   display: flex;
   justify-content: space-between;
@@ -547,7 +532,7 @@
   color: #a0aec0;
 }
 
-/* Responsive Design */
+
 @media (max-width: 768px) {
   .admin-panel {
     padding: 15px;

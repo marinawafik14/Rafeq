@@ -10,7 +10,6 @@ import { Reviews } from '../../../Models/Reviews';
 export class ReviewSummaryComponent {
   @Input() reviews: Reviews[] = [];
 
-  // Calculated values
   averageRating: number = 0;
   fiveStarPercent: number = 0;
 

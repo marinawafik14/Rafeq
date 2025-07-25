@@ -14,7 +14,7 @@ export class MentorService {
 
   constructor(private http: HttpClient) { }
 
-  // Get mentor's bookings
+
   getMentorBookings(mentorId: number): Observable<MentorBooking[]> {
     return this.http.get<{success: boolean, data: MentorBooking[]}>(`${this.apiUrl}/bookings/mentor/${mentorId}`)
       .pipe(
@@ -22,7 +22,7 @@ export class MentorService {
       );
   }
 
-  // Get upcoming sessions for the mentor
+ 
   getUpcomingBookings(mentorId: number): Observable<MentorBooking[]> {
     return this.http.get<{success: boolean, data: MentorBooking[]}>(`${this.apiUrl}/bookings/mentor/${mentorId}?status=upcoming`)
       .pipe(
@@ -30,7 +30,7 @@ export class MentorService {
       );
   }
 
-  // Get mentor's earnings summary
+ 
   getMentorEarnings(): Observable<MentorEarnings> {
     return this.http.get<{success: boolean, data: MentorEarnings}>(`${this.apiUrl}/payments/mentor-earnings`)
       .pipe(
@@ -38,12 +38,12 @@ export class MentorService {
       );
   }
 
-  // Update mentor availability status
+  
   updateMentorStatus(isAvailable: boolean): Observable<any> {
     return this.http.put(`${this.apiUrl}/users/toggle-mentor-status`, { isAvailable });
   }
 
-  // Get today's sessions
+  
   getTodaySessions(mentorId: number): Observable<MentorBooking[]> {
     const today = new Date().toISOString().split('T')[0];
     return this.http.get<{success: boolean, data: MentorBooking[]}>(`${this.apiUrl}/bookings/mentor/${mentorId}?date=${today}`)
@@ -52,7 +52,7 @@ export class MentorService {
       );
   }
 
-  // Get mentor's earnings summary (mocked data)
+
   getMentorEarningsSummary(): Observable<any> {
     return new Observable(observer => {
       observer.next({

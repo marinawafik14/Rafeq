@@ -25,7 +25,6 @@ export class AdminSkillsComponent implements OnInit {
   currentPage: number = 1;
   itemsPerPage: number = 20;
   sortOption: string = 'name';
-  // Add Math property for template access
   Math = Math;
 
   constructor(private skillService: SkillService) { }
@@ -33,11 +32,9 @@ export class AdminSkillsComponent implements OnInit {
     this.getAllSkills();
   }
 
-  //add skill
   addSkill() {
     if (!this.newSkillName.trim()) return;
 
-    // Check if skill already exists (case-insensitive, not deleted)
     const exists = this.skills.some(
       skill => skill.Name.trim().toLowerCase() === this.newSkillName.trim().toLowerCase() && !skill.IsDeleted
     );
@@ -61,9 +58,9 @@ export class AdminSkillsComponent implements OnInit {
     }).subscribe({
       next: (data) => {
         this.skills.push(data);
-        this.showAddSkillForm = false; // Hide the form after saving
-        this.newSkillName = ''; // Clear the input field
-        this.getAllSkills(); // Refresh the skills list
+        this.showAddSkillForm = false; 
+        this.newSkillName = '';
+        this.getAllSkills(); 
       },
       error: (err) => {
         console.error('Error adding skill:', err);
@@ -92,23 +89,21 @@ export class AdminSkillsComponent implements OnInit {
         if (index !== -1) {
           this.skills[index].Name = this.editSkillName;
         }
-        this.editSkillId = null; // Reset edit state
-        this.editSkillName = ''; // Clear the input field
+        this.editSkillId = null; 
+        this.editSkillName = ''; 
         this.getAllSkills();
       }
     },
     )
   }
 
-  //cancelEditSkill()
   cancelEditSkill() {
-    this.editSkillId = null; // Reset edit state
-    this.editSkillName = ''; // Clear the input field
+    this.editSkillId = null; 
+    this.editSkillName = ''; 
   }
 
 
 
-  //soft delete skills
   softDeleteSkill(skill: Skills) {
     Swal.fire({
       title: 'Are you sure?',
@@ -130,7 +125,7 @@ export class AdminSkillsComponent implements OnInit {
           MentorId: 0
         }).subscribe({
           next: () => {
-            this.getAllSkills(); // Refresh the list
+            this.getAllSkills(); 
             Swal.fire('Deleted!', 'Skill has been deleted.', 'success');
           },
           error: (err) => {
@@ -156,7 +151,7 @@ export class AdminSkillsComponent implements OnInit {
     })
   }
 
-  // get skill by id
+  
   getSkillById(skillId: number) {
     this.skillService.getSkillById(skillId).subscribe({
       next: (data) => {
@@ -171,7 +166,7 @@ export class AdminSkillsComponent implements OnInit {
     });
   }
 
-  //get all skills
+
   getAllSkills() {
     this.skillService.getAllSkills().subscribe({
       next: (data) => {
@@ -183,7 +178,7 @@ export class AdminSkillsComponent implements OnInit {
           MentorName: s.mentorName,
           IsDeleted: s.isDeleted
         }));
-        // this.getAllMentorSkills();
+        
         console.log("skills is ", this.skills);
       },
       error: (err) => {
@@ -192,7 +187,7 @@ export class AdminSkillsComponent implements OnInit {
     });
   }
 
-  // Search skills
+ 
  filterSkills(): Skills[] {
   const query = this.searchQuery.toLowerCase();
   let filtered = this.skills.filter(skill =>
@@ -201,7 +196,7 @@ export class AdminSkillsComponent implements OnInit {
     (skill.Name && skill.Name.toLowerCase().includes(query))
   );
 
-  // Sorting 
+ 
   switch (this.sortOption) {
     case 'name':
       filtered = filtered.sort((a, b) => a.Name.localeCompare(b.Name));
@@ -217,11 +212,11 @@ export class AdminSkillsComponent implements OnInit {
   return filtered;
 }
 
-  // Get all mentor skills
+ 
   getAllMentorSkills() {
     this.skillService.getAllMentors().subscribe({
       next: (mentors: any[]) => {
-        // Flatten mentor-skill pairs
+        
         this.skills = mentors.flatMap(mentor =>
           (mentor.skills || []).map((skill: any) => ({
             SkillId: skill.skillId,
@@ -265,16 +260,13 @@ export class AdminSkillsComponent implements OnInit {
 
     const estimatedUniqueMentors = Math.ceil(totalMentorSkillRelationships / 3);
 
-    //console.log('Total mentor-skill relationships:', totalMentorSkillRelationships);
-    //console.log('Estimated unique mentors:', estimatedUniqueMentors);
-
+    
     return estimatedUniqueMentors;
   }
 
   getMostPopularSkill(): string {
     if (this.skills.length === 0) return 'N/A';
 
-    // Find skill with highest MentorsCount
     const skillsWithMentors = this.skills.filter(skill =>
       !skill.IsDeleted && skill.MentorsCount && skill.MentorsCount > 0
     );
@@ -294,7 +286,6 @@ export class AdminSkillsComponent implements OnInit {
 
     if (totalMentors === 0) return '0.0';
 
-    // Count total skills that have mentors
     const skillsWithMentors = this.skills.filter(skill =>
       !skill.IsDeleted && skill.MentorsCount && skill.MentorsCount > 0
     ).length;
@@ -308,7 +299,6 @@ export class AdminSkillsComponent implements OnInit {
     return average.toFixed(1);
   }
 
-  // Alternative more accurate method if you want to call a different API
   getActualMentorStats(): void {
     this.skillService.getAllMentors().subscribe({
       next: (mentors: any[]) => {
@@ -320,7 +310,6 @@ export class AdminSkillsComponent implements OnInit {
     });
   }
 
-  // Add methods for stats cards that were missing
   getTotalActiveSkills(): number {
     const uniqueActiveSkills = new Set(
       this.skills
@@ -330,7 +319,6 @@ export class AdminSkillsComponent implements OnInit {
     return uniqueActiveSkills.size;
   }
 
-  // Export skills as CSV
   exportSkills(): void {
     const filteredSkills = this.filterSkills();
     if (filteredSkills.length === 0) {
@@ -371,27 +359,7 @@ export class AdminSkillsComponent implements OnInit {
     document.body.removeChild(link);
   }
 
-  // debugSkillsData(): void {
-  //   console.log('=== SKILLS DEBUG ===');
-  //   console.log('Total skills from API:', this.skills.length);
-  //   console.log('Sample skills data:', this.skills.slice(0, 3));
-
-  //   // Check mentor associations
-  //   const skillsWithMentors = this.skills.filter(skill => skill.MentorId && skill.MentorId > 0);
-  //   console.log('Skills with mentors:', skillsWithMentors.length);
-  //   console.log('Skills with mentors sample:', skillsWithMentors.slice(0, 3));
-
-  //   // Check mentor counts
-  //   const skillsWithMentorCounts = this.skills.filter(skill => skill.MentorsCount && skill.MentorsCount > 0);
-  //   console.log('Skills with mentor counts > 0:', skillsWithMentorCounts.length);
-  //   console.log('Skills with mentor counts sample:', skillsWithMentorCounts.slice(0, 3));
-
-  //   // Check for deleted skills
-  //   const deletedSkills = this.skills.filter(skill => skill.IsDeleted);
-  //   console.log('Deleted skills:', deletedSkills.length);
-
-  //   console.log('===================');
-  // }
+  
 
   
 }

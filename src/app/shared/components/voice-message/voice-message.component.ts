@@ -28,7 +28,7 @@ export class VoiceMessageComponent implements OnInit, OnDestroy {
   
   @ViewChild('audioPlayer', { static: false }) audioPlayer!: ElementRef<HTMLAudioElement>;
 
-  // Component state
+ 
   voiceInfo: VoiceInfo | null = null;
   isLoading = true;
   isLoadingAudio = false;
@@ -38,13 +38,13 @@ export class VoiceMessageComponent implements OnInit, OnDestroy {
   progress = 0;
   hasError = false;
   
-  // Audio handling
+ 
   private audioBlob: Blob | null = null;
   private audioUrl: string | null = null;
   
-  // Visual waveform (fake animation)
+  
   waveformBars = Array(30).fill(0).map(() => Math.random() * 100);
-  playbackSpeed = 1; // 1x, 1.5x, 2x
+  playbackSpeed = 1; 
 
   constructor(
     private chatService: ChatService,
@@ -59,7 +59,7 @@ export class VoiceMessageComponent implements OnInit, OnDestroy {
     if (this.audioPlayer?.nativeElement) {
       this.audioPlayer.nativeElement.pause();
     }
-    // Clean up blob URL
+    
     if (this.audioUrl) {
       URL.revokeObjectURL(this.audioUrl);
     }
@@ -69,7 +69,7 @@ export class VoiceMessageComponent implements OnInit, OnDestroy {
     try {
       this.isLoading = true;
       
-      // Call the voice-info endpoint using your ChatService
+      
       this.voiceInfo = await this.chatService.getVoiceMessageInfo(this.fileName);
       
       if (!this.voiceInfo?.exists) {
@@ -94,7 +94,7 @@ export class VoiceMessageComponent implements OnInit, OnDestroy {
         audio.pause();
         this.isPlaying = false;
       } else {
-        // Download the audio file with authentication if not already done
+      
         if (!this.audioUrl) {
           this.isLoadingAudio = true;
           await this.loadAuthenticatedAudio();
@@ -118,13 +118,13 @@ export class VoiceMessageComponent implements OnInit, OnDestroy {
 
   private async loadAuthenticatedAudio(): Promise<void> {
     try {
-      // Get the token from AuthService
+      
       const token = this.authService.getToken();
       if (!token) {
         throw new Error('No authentication token available');
       }
 
-      // Use fetch with authentication to get the audio file
+    
       const streamUrl = this.chatService.getVoiceStreamUrl(this.fileName);
       const response = await fetch(streamUrl, {
         headers: {
@@ -148,7 +148,7 @@ export class VoiceMessageComponent implements OnInit, OnDestroy {
     if (this.audioPlayer?.nativeElement) {
       const duration = this.audioPlayer.nativeElement.duration;
       
-      // Only set duration if it's a valid finite number
+    
       if (duration && isFinite(duration) && !isNaN(duration)) {
         this.duration = duration;
       } else {
@@ -163,7 +163,7 @@ export class VoiceMessageComponent implements OnInit, OnDestroy {
       const currentTime = this.audioPlayer.nativeElement.currentTime;
       const duration = this.audioPlayer.nativeElement.duration;
       
-      // Only update if we have valid values
+     
       if (currentTime && isFinite(currentTime) && !isNaN(currentTime)) {
         this.currentTime = currentTime;
       }
@@ -191,7 +191,7 @@ export class VoiceMessageComponent implements OnInit, OnDestroy {
   }
 
   onCanPlay() {
-    // This event fires when the audio is ready to play
+  
     if (this.audioPlayer?.nativeElement) {
       const duration = this.audioPlayer.nativeElement.duration;
       if (duration && isFinite(duration) && !isNaN(duration)) {
@@ -227,12 +227,12 @@ export class VoiceMessageComponent implements OnInit, OnDestroy {
   }
 
   formatTime(seconds: number): string {
-    // Handle invalid or undefined values
+   
     if (!seconds || isNaN(seconds) || !isFinite(seconds) || seconds <= 0) {
       return '0:00';
     }
     
-    // Ensure we have a valid positive number
+   
     const validSeconds = Math.max(0, Math.floor(seconds));
     
     const mins = Math.floor(validSeconds / 60);

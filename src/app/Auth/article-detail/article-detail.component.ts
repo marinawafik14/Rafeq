@@ -71,9 +71,7 @@ export class ArticleDetailComponent implements OnInit {
   formatArticleContent(content: string): SafeHtml {
     if (!content) return this.sanitizer.bypassSecurityTrustHtml('');
 
-    // Replace markdown-style headers with styled headers
     let formatted = content
-      // Format section titles (e.g., **1. Personalize It:**)
       .replace(
         /\*\*(\d+)\.\s+([^:]+):\*\*/g,
         '<h3 class="content-section-title"><span class="section-number">$1</span> $2</h3>'

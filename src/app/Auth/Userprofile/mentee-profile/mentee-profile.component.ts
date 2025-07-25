@@ -36,7 +36,6 @@ export class MenteeProfileComponent implements OnInit {
   showNewPassword = false;
   showConfirmPassword = false;
 
-  // Toast notifications
   toasts: Array<{
     id: number;
     type: 'success' | 'error' | 'info';
@@ -47,7 +46,7 @@ export class MenteeProfileComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private userProfileService: UserProfileService,
-    private router: Router // Add this to constructor
+    private router: Router 
   ) {}
   ngOnInit(): void {
     this.initForms();
@@ -56,7 +55,6 @@ export class MenteeProfileComponent implements OnInit {
     
   }
 
-  // --- Core Data Loading ---
   loadSkills(): void {
     this.userProfileService
       .getSkills()
@@ -71,9 +69,7 @@ export class MenteeProfileComponent implements OnInit {
       )
       .subscribe((skills) => {
         this.allSkills = skills;
-        // When skills are loaded, if userProfile already exists, populate selectedSkillIds
         if (this.userProfile && this.userProfile.menteeSkills) {
-          // Changed from mentorSkills to menteeSkills
           this.selectedSkillIds = this.userProfile.menteeSkills.map(
             (s: { id: any }) => s.id
           );
@@ -90,7 +86,6 @@ export class MenteeProfileComponent implements OnInit {
         })
       )
       .subscribe((profile) => {
-        // Ensure it's a mentee profile
         if (profile.role !== 'Mentee') {
           this.showToast('error', 'Access Denied: Not a Mentee profile.');
           return;
@@ -98,7 +93,6 @@ export class MenteeProfileComponent implements OnInit {
         this.userProfile = profile;
         this.patchProfileForm(profile);
 
-        // Set initially selected skills - ensure skills are loaded first
         if (this.userProfile && this.userProfile.menteeSkills) {
           this.selectedSkillIds = this.userProfile.menteeSkills.map(
             (s: { id: any }) => s.id
@@ -109,7 +103,6 @@ export class MenteeProfileComponent implements OnInit {
       });
   }
 
-  // --- Form Initialization and Validation ---
   initForms(): void {
     this.profileForm = this.fb.group({
       fullName: ['', Validators.maxLength(100)],
@@ -150,7 +143,6 @@ export class MenteeProfileComponent implements OnInit {
     });
   }
 
-  // --- Skill Management ---
   onSkillChange(event: any, skillId: number): void {
     if (event.target.checked) {
       if (!this.selectedSkillIds.includes(skillId)) {
@@ -162,7 +154,6 @@ export class MenteeProfileComponent implements OnInit {
       );
     }
   }
-  // --- Profile Picture Upload ---
   onFileSelected(event: any): void {
     const file: File = event.target.files[0];
     if (file) {
@@ -175,7 +166,6 @@ export class MenteeProfileComponent implements OnInit {
         return;
       }
       if (file.size > 5 * 1024 * 1024) {
-        // 5MB limit
         this.showToast('error', 'File size exceeds 5MB limit.');
         this.selectedFile = null;
         return;
@@ -217,7 +207,7 @@ export class MenteeProfileComponent implements OnInit {
           'Profile picture uploaded and updated successfully!'
         );
       });
-  } // --- Profile Data Update ---
+  } 
   updateProfile(): void {
     if (this.profileForm.invalid) {
       this.showToast('error', 'Please correct the errors in the profile form.');
@@ -253,7 +243,7 @@ export class MenteeProfileComponent implements OnInit {
 
         this.showToast('success', 'Profile updated successfully!');
       });
-  } // --- Change Password ---
+  } 
   changePassword(): void {
     if (this.passwordForm.invalid) {
       this.showToast(
@@ -284,17 +274,14 @@ export class MenteeProfileComponent implements OnInit {
       .subscribe((response) => {
         this.showToast('success', 'Password changed successfully!');
         this.passwordForm.reset();
-        // Reset password visibility states
         this.showCurrentPassword = false;
         this.showNewPassword = false;
         this.showConfirmPassword = false;
       });
   }
 
-  // --- UI/Utility Methods ---
   switchTab(tabName: string): void {
     this.activeTab = tabName;
-    // Clear any existing toasts when switching tabs for better UX
     this.toasts = [];
   }
 
@@ -353,12 +340,10 @@ export class MenteeProfileComponent implements OnInit {
     return null;
   }
 
-  // Toast management methods
   showToast(type: 'success' | 'error' | 'info', message: string): void {
     const id = ++this.toastIdCounter;
     this.toasts.push({ id, type, message });
 
-    // Auto-hide toast after 4 seconds
     setTimeout(() => {
       this.removeToast(id);
     }, 4000);
@@ -368,7 +353,6 @@ export class MenteeProfileComponent implements OnInit {
     this.toasts = this.toasts.filter((toast) => toast.id !== id);
   }
 
-  // Add this method at the end of the class, before the closing brace
   goToMenteeDashboard(): void {
     this.router.navigate(['/mentee/dashboard']);
   }

@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './admin-reviews.component.html',
   styleUrls: ['./admin-reviews.component.css'], 
   standalone: true, 
-  imports: [CommonModule, FormsModule] // Add FormsModule for ngModel
+  imports: [CommonModule, FormsModule]
 })
 export class AdminReviewsComponent implements OnInit {
   
@@ -18,10 +18,8 @@ export class AdminReviewsComponent implements OnInit {
   loading: boolean = true; 
   error: string | null = null; 
 
-  // Add Math property for template access
   Math = Math;
 
-  // Add pagination properties
   currentPage: number = 1;
   itemsPerPage: number = 10;
   searchQuery: string = '';
@@ -33,7 +31,6 @@ export class AdminReviewsComponent implements OnInit {
     this.loadReviews();
   }
 
-  // Keep only ONE loadReviews method - the main implementation
   loadReviews() {
     this.loading = true;
     this.error = null; 
@@ -42,7 +39,6 @@ export class AdminReviewsComponent implements OnInit {
       next: (data) => {
         this.reviewsList = data.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
         this.loading = false;
-        //console.log("Reviews loaded:", data);
         
         if (this.reviewsList.length === 0) {
           console.log('No reviews found.');
@@ -56,7 +52,6 @@ export class AdminReviewsComponent implements OnInit {
     });
   }
 
-  // Remove the deleteReview method and all references to it
 
   getStarArray(rating: number | null | undefined): number[] {
     const validRating = rating !== null && rating !== undefined && !isNaN(rating) ? Math.max(0, rating) : 0;
@@ -150,10 +145,7 @@ export class AdminReviewsComponent implements OnInit {
   }
 
   exportReviews(): void {
-    // Add export functionality
-   // console.log('Exporting reviews...');
     
-    // Simple CSV export
     const csvData = this.reviewsList.map(review => ({
       'Reviewer': review.reviewerName || 'Unknown',
       'Reviewed User': review.reviewedUserName || 'Unknown',
@@ -166,7 +158,6 @@ export class AdminReviewsComponent implements OnInit {
     this.downloadCSV(csvContent, 'reviews-export.csv');
   }
 
-  // Helper methods for CSV export
   private convertToCSV(data: any[]): string {
     if (data.length === 0) return '';
     
@@ -194,7 +185,6 @@ export class AdminReviewsComponent implements OnInit {
     document.body.removeChild(link);
   }
 
-  // Refresh method for the refresh button
   refreshReviews(): void {
     this.loadReviews();
   }

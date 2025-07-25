@@ -1,5 +1,3 @@
-// src/app/components/auth/register/register.component.ts
-
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
@@ -122,7 +120,6 @@ export class RegisterComponent implements OnInit {
               'Registration Warning'
             );
 
-            // Reset form data even on warning case since registration was successful
 
                        this.resetFormData();
 

@@ -38,7 +38,6 @@ import { CvAnalysisComponent } from './components/cv-analysis/cv-analysis.compon
 export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   @ViewChild('messagesContainer') messagesContainer!: ElementRef;
 
-  // Component state
   currentUser: any = null;
   currentUserId: number | null = null;
   conversations: AiConversation[] = [];
@@ -47,26 +46,22 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   isProcessing = false;
   error: string | null = null;
 
-  // UI state
   showConversationList = true;
   activeMode: 'general' | 'cv-analysis' | 'career-advice' = 'general';
   showCvAnalysis = false;
   public showSuggestions = true; 
 
-  // Track if user is at the bottom of the messages container
   isUserAtBottom: boolean = true;
 
-  // Voice output state
   voiceOutputEnabled: boolean = false;
-  ttsVoice: string = 'alloy'; // default voice
+  ttsVoice: string = 'alloy'; 
   private ttsAudioCache: { [messageId: string]: string } = {};
 
   // Gemini API fallback configuration
   private geminiApiKey = 'AIzaSyCXCEVKyungnaXWR0edBNCjALQ0eQqHpcs';
   private geminiApiUrl = 'https://generativelanguage.googleapis.com/v1beta/models';
-  private geminiModels = ['gemini-2.5-flash', 'gemini-2.0-flash']; // Try 2.5 first, then 2.0
+  private geminiModels = ['gemini-2.5-flash', 'gemini-2.0-flash']; 
 
-  // Subscriptions
   private subscriptions: Subscription[] = [];
 
   constructor(
@@ -76,12 +71,11 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     private fileProcessingService: FileProcessingService,
     private ragService: RagService,
     private router: Router,
-    private http: HttpClient // <-- Add HttpClient for TTS API
+    private http: HttpClient 
   ) {}
 
   ngOnInit(): void {
     this.initializeComponent();
-    // Load voice output preference from localStorage
     const stored = localStorage.getItem('ai_voice_output');
     this.voiceOutputEnabled = stored === 'true';
   }
@@ -91,23 +85,19 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   ngAfterViewChecked(): void {
-    // Only scroll to bottom if user is at the bottom
     if (this.isUserAtBottom) {
       this.scrollToBottom();
     }
   }
 
-  // Add a scroll event handler for the messages container
   onMessagesScroll(): void {
     if (!this.messagesContainer) return;
     const element = this.messagesContainer.nativeElement;
-    // Allow a small threshold for 'at bottom' (e.g., 20px)
     const threshold = 20;
     this.isUserAtBottom = (element.scrollHeight - element.scrollTop - element.clientHeight) < threshold;
   }
 
   private initializeComponent(): void {
-    // Simple authentication check using existing AuthService methods
     this.currentUser = this.authService.currentUserValue;
     
     console.log('🔑 AI Chatbot Auth Check:', {
@@ -116,20 +106,16 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
       isLoggedIn: this.authService.isLoggedIn()
     });
 
-    // Simple check - if no current user or not logged in, redirect
     if (!this.currentUser || !this.authService.isLoggedIn()) {
       console.warn('❌ User not authenticated, redirecting to login');
       this.router.navigate(['/login']);
       return;
     }
 
-    // Get user ID for storage
     this.currentUserId = this.authService.getCurrentUserId();
 
-    // Load conversations
     this.loadConversations();
 
-    // Subscribe to auth changes - if user logs out, redirect
     const authSub = this.authService.currentUser.subscribe(user => {
       if (!user) {
         console.warn('❌ User logged out, redirecting to login');
@@ -138,13 +124,11 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
     this.subscriptions.push(authSub);
 
-    // Subscribe to conversation updates
     const convSub = this.storageService.conversations$.subscribe(conversations => {
       this.conversations = conversations;
     });
     this.subscriptions.push(convSub);
 
-    // Create initial conversation if none exist
     if (this.conversations.length === 0) {
       this.createNewConversation();
     } else {
@@ -156,7 +140,6 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.conversations = this.storageService.getConversations();
   }
 
-  // Simplified authentication check
   private checkAuthentication(): boolean {
     if (!this.authService.isLoggedIn()) {
       console.warn('❌ Authentication check failed, redirecting to login');
@@ -166,7 +149,6 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     return true;
   }
 
-  // Conversation Management
   createNewConversation(mode: 'general' | 'cv-analysis' | 'career-advice' = 'general'): void {
     if (!this.checkAuthentication()) return;
 
@@ -177,7 +159,6 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.activeMode = mode;
       this.showCvAnalysis = mode === 'cv-analysis';
       
-      // Add welcome message
       this.addWelcomeMessage(mode);
     } catch (error) {
       console.error('Error creating conversation:', error);
@@ -201,7 +182,7 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
       text: 'This conversation and all its messages will be permanently deleted.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonColor: '#0a2e65', // Your site's blue color
+      confirmButtonColor: '#0a2e65', 
       cancelButtonColor: '#6c757d',
       confirmButtonText: '<i class="fas fa-trash me-2"></i>Yes, Delete',
       cancelButtonText: '<i class="fas fa-times me-2"></i>Cancel',
@@ -213,7 +194,7 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
       }
     }).then((result) => {
       if (result.isConfirmed) {
-        // Show loading
+      
         Swal.fire({
           title: 'Deleting...',
           text: 'Please wait while we delete your conversation.',
@@ -226,10 +207,10 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
         });
 
         try {
-          // Delete the conversation
+        
           this.storageService.deleteConversation(conversationId);
           
-          // Update selected conversation
+          
           if (this.selectedConversation?.id === conversationId) {
             this.selectedConversation = this.conversations[0] || null;
             if (!this.selectedConversation) {
@@ -237,7 +218,7 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
             }
           }
 
-          // Show success message
+        
           Swal.fire({
             icon: 'success',
             title: 'Deleted!',
@@ -278,11 +259,11 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  // Message handling
+  
   async onMessageSent(content: string): Promise<void> {
     if (!this.selectedConversation || this.isProcessing) return;
     
-    // Check authentication before processing message
+   
     if (!this.checkAuthentication()) return;
 
     this.isProcessing = true;
@@ -291,7 +272,7 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     try {
       console.log('💬 Processing message:', content);
 
-      // Add user message
+     
       const userMessage = this.storageService.addMessage(this.selectedConversation.id, {
         content,
         role: 'user'
@@ -300,7 +281,6 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
         setTimeout(() => this.scrollToBottom(), 0);
       }
 
-      // Generate AI response based on conversation mode
       let aiResponse: string;
       switch (this.activeMode) {
         case 'cv-analysis':
@@ -313,7 +293,7 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
           aiResponse = await this.handleGeneralMessage(content);
       }
 
-      // Add AI response
+    
       const aiMsg = this.storageService.addMessage(this.selectedConversation.id, {
         content: aiResponse,
         role: 'assistant',
@@ -325,7 +305,7 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
       if (this.isUserAtBottom) {
         setTimeout(() => this.scrollToBottom(), 0);
       }
-      // TTS: If enabled, call TTS API and cache audio URL
+      
       if (this.voiceOutputEnabled && aiMsg && aiMsg.id && aiResponse) {
         await this.generateTtsForMessage(aiMsg.id, aiResponse);
       }
@@ -336,7 +316,7 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
       console.error('❌ Error processing message:', error);
       this.error = 'Failed to process your message. Please try again.';
       
-      // Add error message
+   
       this.storageService.addMessage(this.selectedConversation.id, {
         content: 'I apologize, but I encountered an error processing your request. Please try again.',
         role: 'assistant'
@@ -346,17 +326,17 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  // File handling
+  
   async onFileUploaded(file: FileAttachment): Promise<void> {
     if (!this.selectedConversation) return;
     
-    // Check authentication before processing file
+    
     if (!this.checkAuthentication()) return;
 
     try {
       console.log('📁 Processing file:', file.fileName);
 
-      // Add file message
+      
       const fileMessage = this.storageService.addMessage(this.selectedConversation.id, {
         content: `Uploaded file: ${file.fileName}`,
         role: 'user',
@@ -366,7 +346,7 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
         setTimeout(() => this.scrollToBottom(), 0);
       }
 
-      // Process file based on type
+     
       if (file.fileType === 'application/pdf' && file.content) {
         await this.processCvFile(file);
       } else if (file.fileType.startsWith('image/') && file.base64Data) {
@@ -381,7 +361,7 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  // Mode switching
+
   switchMode(mode: 'general' | 'cv-analysis' | 'career-advice'): void {
     if (!this.checkAuthentication()) return;
 
@@ -390,7 +370,7 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.createNewConversation(mode);
   }
 
-  // UI
+  
   toggleConversationList(): void {
     this.showConversationList = !this.showConversationList;
   }
@@ -411,7 +391,6 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
   sendSuggestion(suggestion: string): void {
     if (!this.selectedConversation || this.isProcessing) return;
     
-    // Process the suggestion as a regular message
     this.onMessageSent(suggestion);
   }
 
@@ -421,13 +400,10 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.isProcessing = true;
 
     try {
-      // Add CV content to RAG system
       await this.ragService.addDocument(file.content, file.fileName, 'cv');
 
-      // Generate CV analysis
       const analysis = await this.ragService.analyzeCVWithRAG(file.content);
 
-      // Add analysis message
       this.storageService.addMessage(this.selectedConversation.id, {
         content: analysis,
         role: 'assistant',
@@ -437,7 +413,6 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
         }
       });
 
-      // Save CV analysis
       const cvAnalysis: CvAnalysis = {
         id: this.generateId(),
         conversationId: this.selectedConversation.id,
@@ -497,7 +472,6 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  // Message type handlers
   private async handleGeneralMessage(content: string): Promise<string> {
     try {
       const response = await this.openaiService.sendChatMessage([
@@ -506,7 +480,6 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
       return response || 'Unable to process your request.';
     } catch (error) {
       console.error('Error in general message handling:', error);
-      // Try Gemini fallback
       return await this.tryGeminiFallback(content, 'general');
     }
   }
@@ -516,7 +489,6 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
       return await this.ragService.getContextualCareerAdvice(content);
     } catch (error) {
       console.error('Error in career advice handling:', error);
-      // Try Gemini fallback
       return await this.tryGeminiFallback(content, 'career-advice');
     }
   }
@@ -527,7 +499,6 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
       return response || 'Unable to analyze the CV content.';
     } catch (error) {
       console.error('Error in CV analysis handling:', error);
-      // Try Gemini fallback
       return await this.tryGeminiFallback(content, 'cv-analysis');
     }
   }
@@ -574,7 +545,6 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
   }
 
-  // Track by functions for *ngFor optimization
   trackByConversationId(index: number, conversation: AiConversation): string {
     return conversation.id;
   }
@@ -583,7 +553,6 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     return message.id;
   }
 
-  // Get last message preview for conversation list
   getLastMessagePreview(conversation: AiConversation): string {
     if (conversation.messages.length === 0) return 'No messages yet...';
     
@@ -592,7 +561,6 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     return preview.length < lastMessage.content.length ? preview + '...' : preview;
   }
 
-  // Get CV analysis data for the panel
   getCvAnalysisData(): any {
     if (!this.selectedConversation) return null;
     
@@ -600,7 +568,6 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     return analyses.find(analysis => analysis.conversationId === this.selectedConversation!.id);
   }
 
-  // Getters for template
   get currentMessages(): AiMessage[] {
     return this.selectedConversation?.messages || [];
   }
@@ -613,7 +580,6 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     return this.ragService.getUserDocumentStats();
   }
 
-  // Generate TTS audio for a message and cache the URL
   async generateTtsForMessage(messageId: string, text: string): Promise<void> {
     if (this.ttsAudioCache[messageId]) return; // Already cached
     try {
@@ -623,11 +589,10 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
       }).toPromise();
       if (ttsRes && ttsRes.audioUrl) {
         this.ttsAudioCache[messageId] = ttsRes.audioUrl;
-        // Optionally, store in message metadata for access in ai-message.component
         const msg = this.selectedConversation?.messages.find(m => m.id === messageId);
         if (msg) {
           msg.metadata = msg.metadata || {};
-          (msg.metadata as any).ttsAudioUrl = ttsRes.audioUrl; // Cast to any to avoid linter error
+          (msg.metadata as any).ttsAudioUrl = ttsRes.audioUrl; 
         }
       }
     } catch (err) {
@@ -635,7 +600,6 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
-  // Gemini API fallback method
   private async tryGeminiFallback(content: string, mode: string): Promise<string> {
     const systemPrompt = this.getSystemPromptForMode(mode);
     
@@ -669,16 +633,14 @@ export class AiChatbotComponent implements OnInit, OnDestroy, AfterViewChecked {
         }
       } catch (error) {
         console.error(` Gemini fallback failed with ${model}:`, error);
-        continue; // Try next model
+        continue; 
       }
     }
     
-    // If all Gemini models fail, return a generic error message
     console.error(' All AI services failed');
     return 'I apologize, but I\'m currently experiencing technical difficulties. Please try again later.';
   }
 
-  // Get appropriate system prompt based on mode
   private getSystemPromptForMode(mode: string): string {
     switch (mode) {
       case 'cv-analysis':
